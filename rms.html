@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- AlSaeed Light Theme v4.0 -->
+<title>نظام السعيد للمحاكاة التطبيقية | إدارة مخاطر المشاريع</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#F7F9FC;--bg1:#EFF3F9;
+  --card:#FFFFFF;--card2:#FFFDF9;
+  --solid:#FFF4E2;--solid2:#FFF9F0;
+  --g:#F97316;--g2:#EA580C;--g3:#FB923C;--y:#F59E0B;--gsoft:rgba(249,115,22,.09);--ysoft:#FEF3C7;
+  --teal:#0D9488;--indigo:#4F46E5;--rose:#E11D48;--amber:#D97706;--emerald:#059669;--sky:#0284C7;--violet:#7C3AED;
+  --w:#1E2A3B;--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;
+  --bdr:rgba(234,88,12,.35);--bdr2:#E4EAF3;
+  --sh:0 18px 44px -16px rgba(23,63,143,.12),0 4px 12px -6px rgba(23,63,143,.06);
+  --r:14px;--r2:20px;--r3:28px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(820px 460px at 88% -6%,rgba(30,90,200,.07),transparent 60%),
+  radial-gradient(760px 440px at -6% 22%,rgba(249,115,22,.06),transparent 55%),
+  radial-gradient(680px 460px at 55% 112%,rgba(24,104,219,.07),transparent 55%),
+  linear-gradient(165deg,#F7F9FC 0%,#EFF3F9 50%,#F7F9FC 100%)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 22px}
+button{font-family:'Cairo',sans-serif;cursor:pointer}
+::selection{background:rgba(249,115,22,.22)}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+.hide{display:none!important}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 28px;border-radius:15px;font-family:'Cairo',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;text-decoration:none;border:none;transition:.28s cubic-bezier(.2,.7,.3,1.3)}
+.btn-g{background:linear-gradient(120deg,var(--y),var(--g) 55%,var(--g2));color:#fff;box-shadow:0 10px 26px -8px rgba(234,88,12,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-g:hover{transform:translateY(-2px);filter:brightness(1.06);color:#fff}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid #F8D9B8}
+.btn-o:hover{background:var(--gsoft);border-color:var(--g3);transform:translateY(-2px)}
+.btn-r{background:#FFF1F2;color:var(--rose);border:1px solid #FECDD3}
+.btn-t{background:#F0FDFA;color:var(--teal);border:1px solid #99F6E4}
+.btn-sm{padding:6px 13px;font-size:.72rem;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+header{position:sticky;top:0;z-index:200;background:rgba(255,251,244,.85);backdrop-filter:blur(16px) saturate(1.3);border-bottom:1px solid var(--bdr2);box-shadow:0 4px 20px -12px rgba(23,63,143,.12)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;max-width:1180px;margin:0 auto;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.b-ico{width:52px;height:52px;background:#fff;border:1.5px solid #F8DFC0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px -8px rgba(234,88,12,.35);overflow:hidden}
+.b-ico img{width:100%;height:100%;object-fit:contain;padding:4px}
+.b-name{font-family:'Amiri',serif;font-size:1.35rem;line-height:1.15;background:linear-gradient(100deg,var(--g2),var(--g) 55%,var(--y));-webkit-background-clip:text;background-clip:text;color:transparent}
+.b-sub{font-size:.63rem;color:var(--dim)}
+
+.hd a{color:var(--dim);text-decoration:none;font-size:.8rem;font-weight:800;padding:8px 14px;border-radius:20px;transition:.25s}
+.hd a:hover{color:#1E4ED8;background:#EDF3FE}
+.layout{display:grid;grid-template-columns:225px 1fr;gap:20px;padding:24px 0 80px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.side{background:#fff;border:1px solid var(--bdr2);border-radius:20px;padding:14px;position:sticky;top:82px;box-shadow:var(--sh)}
+@media(max-width:900px){.side{position:static;display:flex;overflow-x:auto;gap:6px}}
+.stab{display:flex;align-items:center;gap:11px;width:100%;padding:12px 14px;border-radius:13px;border:1px solid transparent;background:transparent;color:var(--dim);font-size:.82rem;font-weight:700;text-align:right;transition:.25s;margin-bottom:4px;white-space:nowrap}
+.stab:hover{color:#1E4ED8;background:#EDF3FE}
+.stab.on{background:linear-gradient(120deg,#FFF4E2,#FFEAD1);color:var(--g2);border-color:#F8D9B8}
+.stab .ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.view{display:none;animation:fadeUp .35s}
+.view.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:#fff;border:1px solid var(--bdr2);border-radius:20px;padding:24px;margin-bottom:18px;box-shadow:var(--sh)}
+.card h3{color:#173F8F;font-size:1rem;margin-bottom:16px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.card h3 .spacer{flex:1}
+.hint{font-size:.74rem;color:#33415C;line-height:1.9;background:#EEF2FF;border:1px solid #C7D2FE;border-inline-start:3px solid var(--indigo);border-radius:11px;padding:11px 14px;margin-bottom:16px}
+.hint b{color:#312E81}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--bdr2);border-radius:16px;padding:17px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 6px 18px -12px rgba(23,63,143,.09)}
+.kpi:hover{transform:translateY(-3px);border-color:#F8D9B8}
+.kpi::after{content:'';position:absolute;inset:auto 0 0 0;height:3px;background:var(--kc,linear-gradient(90deg,#FBBF24,#EA580C))}
+.kpi b{display:block;font-size:1.7rem;font-family:'Amiri',serif;color:#13294F}
+.kpi span{font-size:.7rem;color:var(--dim)}
+.kpi .ic{position:absolute;top:12px;inset-inline-end:14px;font-size:1.3rem;opacity:.6}
+.frm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label{font-size:.7rem;color:var(--dim);font-weight:700}
+input,select,textarea{background:#fff;border:1.5px solid var(--bdr2);color:var(--ink);border-radius:11px;padding:10px 13px;font-family:'Cairo';font-size:.83rem;transition:.2s;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g3)}
+textarea{resize:vertical;min-height:64px}
+.fld.wide{grid-column:1/-1}
+.tblwrap{overflow-x:auto;border-radius:14px;border:1px solid var(--bdr2)}
+table{width:100%;border-collapse:collapse;font-size:.76rem;min-width:820px}
+th{background:#EEF3FB;color:#173F8F;padding:11px 10px;text-align:right;font-size:.7rem;white-space:nowrap;border-bottom:1.5px solid #F8D9B8}
+td{padding:10px;border-bottom:1px solid var(--bdr2);color:var(--dim);vertical-align:middle;line-height:1.7}
+tr:hover td{background:#F5F8FC}
+td b{color:#13294F}
+td input,td select{min-width:90px;padding:7px 9px;font-size:.74rem}
+.pill{display:inline-block;font-size:.62rem;font-weight:800;padding:4px 11px;border-radius:11px;white-space:nowrap}
+.p-thr{background:#FFF1F2;color:var(--rose);border:1px solid #FECDD3}
+.p-opp{background:#ECFDF5;color:var(--emerald);border:1px solid #A7F3D0}
+.p-open{background:#F0F9FF;color:var(--sky);border:1px solid #BAE6FD}
+.p-resp{background:#FFFBEB;color:var(--amber);border:1px solid #FDE68A}
+.p-mon{background:#F5F3FF;color:var(--violet);border:1px solid #DDD6FE}
+.p-cls{background:#EFF3F9;color:var(--dim);border:1px solid #DCE3EE}
+.p-occ{background:#FFE4E6;color:#BE123C;border:1px solid #FDA4AF}
+.score{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:26px;border-radius:9px;font-weight:900;font-size:.72rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.ta{background:transparent;border:none;color:var(--sky);font-size:.9rem;padding:4px}
+.ta:hover{color:var(--g2)}
+.mxwrap{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:stretch}
+.mxy{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:.7rem;color:var(--dim);font-weight:700}
+.matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.mcell{aspect-ratio:1.6;border-radius:11px;padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.62rem;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);position:relative;transition:.2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.mcell:hover{transform:scale(1.05);z-index:2}
+.mcell .cnt{font-size:1rem;font-family:'Amiri',serif}
+.mxx{text-align:center;font-size:.7rem;color:var(--dim);font-weight:700;margin-top:6px}
+.riskchip{font-size:.58rem;background:rgba(0,0,0,.3);color:#fff;border-radius:7px;padding:1px 7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar{display:flex;align-items:center;gap:11px;margin-bottom:10px;font-size:.75rem}
+.hbar .lbl{width:150px;color:var(--dim);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar .trk{flex:1;height:20px;border-radius:10px;background:#E8EDF5;overflow:hidden;box-shadow:inset 0 2px 5px rgba(23,63,143,.10)}
+.hbar .fil{height:100%;border-radius:10px;display:flex;align-items:center;justify-content:flex-end;padding-inline-end:8px;font-size:.62rem;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);transition:width 1s cubic-bezier(.2,.7,.3,1)}
+#rp-prev{background:#FBFCFE;color:#2B2118;border:1px solid var(--bdr2);border-radius:16px;padding:30px;font-size:.82rem;line-height:2;max-height:62vh;overflow-y:auto}
+#rp-prev h1{font-family:'Amiri',serif;color:#C2410C;font-size:1.4rem;border-bottom:3px solid #F97316;padding-bottom:10px;margin-bottom:14px}
+#rp-prev h2{color:#7C2D12;font-size:1rem;margin:18px 0 8px;border-inline-start:4px solid #F97316;padding-inline-start:10px}
+#rp-prev table{min-width:auto;font-size:.72rem}
+#rp-prev th{background:#7C2D12;color:#FED7AA;border:none}
+#rp-prev td{color:#444;border-bottom:1px solid #E4EAF3}
+#rp-prev .meta{color:#8a7a66;font-size:.72rem}
+footer{border-top:1px solid var(--bdr2);background:#EFF3F9;padding:30px 0;text-align:center}
+footer .sig{font-family:'Amiri',serif;background:linear-gradient(120deg,var(--g2),var(--y));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.05rem;margin-bottom:5px}
+footer p{color:var(--dim2);font-size:.72rem}
+.empty{text-align:center;color:var(--dim);padding:34px;font-size:.85rem}
+.dash2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.dash2{grid-template-columns:1fr}}
+.theme-sel{background:#fff;border:1.5px solid var(--bdr2);border-radius:20px;padding:7px 12px;font-family:'Cairo';font-size:.72rem;font-weight:800;color:var(--g2);cursor:pointer}
+</style>
+<script>
+/* 🎨 مبدّل الألوان */
+const THEMES={
+ saeed:{n:'🟠 السعيد',g:'#F97316',g2:'#EA580C',g3:'#FB923C',y:'#F59E0B',gsoft:'rgba(249,115,22,.09)',bdr:'rgba(234,88,12,.35)'},
+ royal:{n:'🔵 أزرق ملكي',g:'#2563EB',g2:'#1D4ED8',g3:'#60A5FA',y:'#38BDF8',gsoft:'rgba(37,99,235,.08)',bdr:'rgba(29,78,216,.35)'},
+ emerald:{n:'🟢 زمردي',g:'#059669',g2:'#047857',g3:'#34D399',y:'#10B981',gsoft:'rgba(5,150,105,.08)',bdr:'rgba(4,120,87,.35)'},
+ violet:{n:'🟣 بنفسجي',g:'#7C3AED',g2:'#6D28D9',g3:'#A78BFA',y:'#8B5CF6',gsoft:'rgba(124,58,237,.08)',bdr:'rgba(109,40,217,.35)'}
+};
+function setTheme(k){const t=THEMES[k]||THEMES.saeed;const r=document.documentElement.style;
+ r.setProperty('--g',t.g);r.setProperty('--g2',t.g2);r.setProperty('--g3',t.g3);r.setProperty('--y',t.y);
+ r.setProperty('--gsoft',t.gsoft);r.setProperty('--bdr',t.bdr);
+ localStorage.setItem('asTheme',k);const s=document.getElementById('themeSel');if(s)s.value=k}
+document.addEventListener('DOMContentLoaded',()=>setTheme(localStorage.getItem('asTheme')||'saeed'));
+</script>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="brand">
+      <div class="b-ico"><img src="https://alsaeed-etc.com/main/images/logo/logo3.png" alt="Al Saeed" onerror="this.parentElement.textContent='🖥️'"></div>
+      <div><div class="b-name">نظام السعيد للمحاكاة التطبيقية</div><div class="b-sub">تطبيق عملي متكامل لعمليات إدارة مخاطر المشاريع — PMI-RMP®‎</div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a href="index.html">🏠 الرئيسية</a><a href="rmp-rmp-exam.html">⏱️ محاكي الاختبار</a>
+      <button class="btn btn-t btn-sm" onclick="loadDemo()">✨ بيانات تجريبية</button>
+      <button class="btn btn-r btn-sm" onclick="resetAll()">🗑️ تفريغ</button>
+      <select id="themeSel" class="theme-sel" onchange="setTheme(this.value)" title="لون المنصة"><option value="saeed">🟠 السعيد</option><option value="royal">🔵 أزرق ملكي</option><option value="emerald">🟢 زمردي</option><option value="violet">🟣 بنفسجي</option></select>
+    </div>
+  </div>
+</header>
+
+<div class="wrap"><div class="layout">
+  <div class="side" id="side">
+    <button class="stab on" data-v="dash"><span class="ic" style="background:rgba(249,115,22,.18)">📊</span> لوحة التحكم</button>
+    <button class="stab" data-v="plan"><span class="ic" style="background:rgba(129,140,248,.15)">🧭</span> خطة إدارة المخاطر</button>
+    <button class="stab" data-v="reg"><span class="ic" style="background:rgba(56,189,248,.15)">🔍</span> تحديد المخاطر (السجل)</button>
+    <button class="stab" data-v="ana"><span class="ic" style="background:rgba(167,139,250,.15)">📈</span> التحليل النوعي والكمي</button>
+    <button class="stab" data-v="rsp"><span class="ic" style="background:rgba(251,191,36,.15)">🎯</span> الاستجابة للمخاطر</button>
+    <button class="stab" data-v="mon"><span class="ic" style="background:rgba(45,212,191,.15)">📡</span> المتابعة والإغلاق</button>
+    <button class="stab" data-v="rep"><span class="ic" style="background:rgba(251,113,133,.15)">📄</span> التقارير والإرسال</button>
+  </div>
+
+  <div>
+    <!-- DASHBOARD -->
+    <div class="view on" id="v-dash">
+      <div class="kpis" id="kpis"></div>
+      <div class="card"><h3>🌡️ مصفوفة الاحتمالية × الأثر (Heat Map)</h3><div id="dashMx"></div></div>
+      <div class="dash2">
+        <div class="card"><h3>🏆 أعلى المخاطر أولوية</h3><div id="topRisks"></div></div>
+        <div class="card"><h3>📦 التوزيع حسب فئات RBS</h3><div id="distBars"></div></div>
+      </div>
+    </div>
+
+    <!-- PLAN -->
+    <div class="view" id="v-plan">
+      <div class="hint">💡 <b>المجال الأول — استراتيجية المخاطر والتخطيط:</b> هنا تضع أساس كل شيء: بيانات المشروع، شهية المخاطر وحدود التحمّل القابلة للقياس، وفئات هيكل تجزئة المخاطر (RBS). القاعدة: لا تُدار المخاطر بدون خطة!</div>
+      <div class="card"><h3>📋 بيانات المشروع</h3>
+        <div class="frm">
+          <div class="fld"><label>اسم المشروع</label><input id="p-name" placeholder="مثال: توسعة مستشفى الملك فهد"></div>
+          <div class="fld"><label>مدير المشروع</label><input id="p-pm"></div>
+          <div class="fld"><label>مدير المخاطر</label><input id="p-rm"></div>
+          <div class="fld"><label>الراعي / الجهة</label><input id="p-sp"></div>
+          <div class="fld"><label>الموازنة (ريال)</label><input id="p-bdg" type="number" min="0"></div>
+          <div class="fld"><label>مدة المشروع (أسابيع)</label><input id="p-dur" type="number" min="1"></div>
+        </div>
+      </div>
+      <div class="card"><h3>⚖️ شهية المخاطر وحدود التحمّل (Appetite → Thresholds)</h3>
+        <div class="frm">
+          <div class="fld"><label>شهية المخاطر العامة</label>
+            <select id="p-app"><option value="محافظة">محافظة (Risk Averse)</option><option value="متوازنة" selected>متوازنة (Risk Neutral)</option><option value="جريئة">جريئة (Risk Seeking)</option></select></div>
+          <div class="fld"><label>حد تحمّل التكلفة (± %)</label><input id="p-thc" type="number" value="5" min="0"></div>
+          <div class="fld"><label>حد تحمّل الجدول (± أسابيع)</label><input id="p-ths" type="number" value="2" min="0"></div>
+          <div class="fld"><label>حد الجودة</label><select id="p-thq"><option>صفر تنازل (Zero Tolerance)</option><option>انحرافات طفيفة مقبولة</option><option>حسب تقييم الحالة</option></select></div>
+          <div class="fld wide"><label>فئات المخاطر — RBS (افصل بينها بفاصلة)</label><input id="p-cats" value="تقني, خارجي/تنظيمي, تنظيمي داخلي, إدارة مشروع, مالي, تعاقدي, بيئي/سلامة"></div>
+        </div>
+        <div style="margin-top:16px"><button class="btn btn-g" onclick="savePlan()">💾 حفظ الخطة</button> <span id="planMsg" style="font-size:.75rem;color:var(--emerald)"></span></div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="view" id="v-reg">
+      <div class="hint">💡 <b>المجال الثاني — تحديد المخاطر:</b> سجّل كل خطر بالصياغة المنضبطة: <b>بسبب (سبب)، قد يحدث (حدث غير مؤكد)، مما يؤدي إلى (أثر)</b> — ولا تنسَ الفرص بجانب التهديدات، ورشّح مالكاً لكل خطر منذ التحديد.</div>
+      <div class="card"><h3>➕ إضافة / تعديل خطر <span class="spacer"></span><span id="regEditing" style="font-size:.7rem;color:var(--amber)"></span></h3>
+        <div class="frm">
+          <div class="fld wide"><label>عنوان الخطر (الحدث غير المؤكد)</label><input id="r-title" placeholder="مثال: تأخر وصول المعدات الطبية المستوردة"></div>
+          <div class="fld"><label>النوع</label><select id="r-type"><option value="threat">تهديد ⛔</option><option value="opp">فرصة 💎</option></select></div>
+          <div class="fld"><label>الفئة (RBS)</label><select id="r-cat"></select></div>
+          <div class="fld"><label>مالك الخطر</label><input id="r-owner"></div>
+          <div class="fld"><label>الإلحاح</label><select id="r-urg"><option>منخفض</option><option selected>متوسط</option><option>عالٍ</option></select></div>
+          <div class="fld wide"><label>السبب الجذري</label><input id="r-cause" placeholder="بسبب…"></div>
+          <div class="fld wide"><label>الأثر على أهداف المشروع</label><input id="r-impact" placeholder="مما يؤدي إلى…"></div>
+          <div class="fld wide"><label>المحفز / الإنذار المبكر (Trigger)</label><input id="r-trig" placeholder="ما العلامة التي تدل أن الخطر على وشك الوقوع؟"></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-g" onclick="saveRisk()">💾 حفظ في سجل المخاطر</button>
+          <button class="btn btn-o hide" id="regCancel" onclick="cancelEdit()">إلغاء التعديل</button>
+        </div>
+      </div>
+      <div class="card"><h3>📒 سجل المخاطر (Risk Register) <span class="spacer"></span><span class="pill p-open" id="regCount"></span></h3>
+        <div class="tblwrap"><table><thead><tr><th>#</th><th>الخطر</th><th>النوع</th><th>الفئة</th><th>المالك</th><th>الإلحاح</th><th>P×I</th><th>الحالة</th><th></th></tr></thead><tbody id="regBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS -->
+    <div class="view" id="v-ana">
+      <div class="hint">💡 <b>المجال الثالث — التحليل:</b> <b>النوعي</b>: قيّم الاحتمالية والأثر (1–5) لترتيب الأولويات عبر المصفوفة. <b>الكمي</b>: أدخل الاحتمالية % والأثر المالي لحساب القيمة النقدية المتوقعة (EMV) واشتقاق احتياطي الطوارئ.</div>
+      <div class="card"><h3>🎚️ التقييم النوعي والكمي لكل خطر</h3>
+        <div class="tblwrap"><table><thead><tr><th>#</th><th>الخطر</th><th>الاحتمالية (1–5)</th><th>الأثر (1–5)</th><th>الدرجة</th><th>🏆 ترتيب الأولوية</th><th>الاحتمالية %</th><th>الأثر المالي (ر.س)</th><th>EMV</th></tr></thead><tbody id="anaBody"></tbody></table></div>
+        <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span class="pill p-thr" id="emvThr"></span><span class="pill p-opp" id="emvOpp"></span>
+          <span class="pill p-resp" id="emvNet"></span>
+        </div>
+      </div>
+      <div class="card"><h3>🌡️ المصفوفة التفاعلية — مواقع المخاطر</h3><div id="anaMx"></div></div>
+    </div>
+
+    <!-- RESPONSE -->
+    <div class="view" id="v-rsp">
+      <div class="hint">💡 <b>المجال الرابع — الاستجابة:</b> اختر الاستراتيجية المناسبة لنوع الخطر، وحدد إجراءً <b>محدد الزمن وله مالك</b>، وقدّر الخطر المتبقي بعد التنفيذ. التهديدات: تصعيد/تجنّب/نقل/تخفيف/قبول — الفرص: تصعيد/استغلال/مشاركة/تعزيز/قبول.</div>
+      <div id="rspList"></div>
+    </div>
+
+    <!-- MONITOR -->
+    <div class="view" id="v-mon">
+      <div class="hint">💡 <b>المجال الخامس — المتابعة والإغلاق:</b> حدّث حالة كل خطر، راقب المتبقي والثانوي، وأغلق المنتهي <b>دون حذفه</b> مع توثيق درس مستفاد — فالسجل ذاكرة المنظمة.</div>
+      <div class="card"><h3>📡 لوحة متابعة المخاطر</h3>
+        <div class="tblwrap"><table style="min-width:1200px"><thead><tr><th>#</th><th>الخطر</th><th>الدرجة</th><th>مالك الإجراء</th><th>الحالة</th><th>⚖️ فعالية الاستجابة</th><th>🛠️ إجراء تصحيحي / وقائي</th><th>ثانوي ظهر؟</th><th>متبقٍ قائم؟</th><th>ملاحظات</th><th>درس مستفاد</th></tr></thead><tbody id="monBody"></tbody></table></div>
+      </div>
+      <div class="card"><h3>📉 حرق المخاطر (Risk Burndown) ومؤشرات الحالة</h3><div id="burnBars"></div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="view" id="v-rep">
+      <div class="hint">💡 أصدر تقريراً شاملاً متكاملاً يغطي كل عمليات إدارة المخاطر (الخطة → التحديد → التحليل → الاستجابة → المتابعة والدروس)، وأرسله عبر الواتساب أو الإيميل أو نزّله ملفاً مستقلاً.</div>
+      <div class="card"><h3>📄 التقرير الشامل لإدارة المخاطر</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+          <button class="btn btn-g" onclick="buildReport()">🔄 توليد / تحديث التقرير</button>
+          <button class="btn btn-g" onclick="rptPDF(event)">📄 تقرير PDF</button>
+          <button class="btn btn-g" onclick="rptWord()">📝 تقرير Word</button>
+          <button class="btn btn-g" onclick="rptPPT(event)">📊 عرض PowerPoint</button>
+          <button class="btn btn-t" onclick="sendWA()">💬 واتساب</button>
+          <button class="btn btn-o" onclick="sendMail()">📧 إيميل</button>
+          <button class="btn btn-o" onclick="dlReport()">HTML</button>
+          <button class="btn btn-o" onclick="dlCSV()">CSV</button>
+        </div>
+        <div id="rp-prev"><p style="text-align:center;color:#888">اضغط «توليد التقرير» لعرض المعاينة…</p></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<footer><div class="sig">إعداد وتصميم وبرمجة د. محمد عطية</div><p style="font-size:.6rem;color:#C9B896">الإصدار 6.1 — أشكال توضيحية تفاعلية لكل أداة</p><p>نظام السعيد للمحاكاة التطبيقية — بيئة تدريب عملية آمنة، بياناتك محفوظة محلياً في متصفحك</p></footer>
+
+<script>
+/* ============ STATE ============ */
+const LS='alsaeedRMS2';
+let DB = JSON.parse(localStorage.getItem(LS)||'null') || {
+  plan:{name:'',pm:'',rm:'',sp:'',bdg:'',dur:'',app:'متوازنة',thc:5,ths:2,thq:'صفر تنازل (Zero Tolerance)',cats:'تقني, خارجي/تنظيمي, تنظيمي داخلي, إدارة مشروع, مالي, تعاقدي, بيئي/سلامة'},
+  risks:[], seq:0
+};
+DB.risks.forEach(r=>{if(r.eff===undefined)r.eff='';if(r.corr===undefined)r.corr='';if(r.secOcc===undefined)r.secOcc='';if(r.resOcc===undefined)r.resOcc=''});
+const save=()=>localStorage.setItem(LS,JSON.stringify(DB));
+const URG={'عالٍ':3,'متوسط':2,'منخفض':1};
+function priorityRank(){const arr=[...DB.risks].filter(r=>r.status!=='closed').sort((a,b)=>(b.p*b.i)-(a.p*a.i)||(URG[b.urg]||0)-(URG[a.urg]||0));const m={};arr.forEach((r,i)=>m[r.id]=i+1);return m}
+const cats=()=>DB.plan.cats.split(',').map(c=>c.trim()).filter(Boolean);
+const STR_T=['تصعيد Escalate','تجنّب Avoid','نقل Transfer','تخفيف Mitigate','قبول Accept'];
+const STR_O=['تصعيد Escalate','استغلال Exploit','مشاركة Share','تعزيز Enhance','قبول Accept'];
+const STATUS=[['open','مفتوح','p-open'],['responding','قيد الاستجابة','p-resp'],['monitoring','قيد المراقبة','p-mon'],['occurred','تحقق (Issue)','p-occ'],['closed','مغلق','p-cls']];
+const fmt=n=>Number(n||0).toLocaleString('en-US');
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ============ NAV ============ */
+document.querySelectorAll('.stab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.stab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');document.getElementById('v-'+b.dataset.v).classList.add('on');
+  refresh();
+});
+
+/* ============ SCORE ============ */
+const scoreColor=s=> s>=17?'linear-gradient(120deg,#FB7185,#E11D48)': s>=10?'linear-gradient(120deg,#FBBF24,#D97706)': s>=5?'linear-gradient(120deg,#FDE68A,#FBBF24)':'linear-gradient(120deg,#34D399,#059669)';
+const scoreTxt=s=> s>=17?'حرج':s>=10?'عالٍ':s>=5?'متوسط':'منخفض';
+
+/* ============ PLAN ============ */
+function loadPlanUI(){
+  const p=DB.plan;
+  ['name','pm','rm','sp','bdg','dur','app','thc','ths','thq','cats'].forEach(k=>{const el=document.getElementById('p-'+k);if(el)el.value=p[k]??''});
+}
+function savePlan(){
+  const p=DB.plan;
+  ['name','pm','rm','sp','bdg','dur','app','thc','ths','thq','cats'].forEach(k=>{const el=document.getElementById('p-'+k);if(el)p[k]=el.value});
+  save();document.getElementById('planMsg').textContent='✓ تم حفظ خطة إدارة المخاطر';
+  setTimeout(()=>document.getElementById('planMsg').textContent='',2500);
+  refresh();
+}
+
+/* ============ REGISTER ============ */
+let editId=null;
+function fillCatSel(){const cur=document.getElementById('r-cat').value;document.getElementById('r-cat').innerHTML=cats().map(c=>`<option ${c===cur?'selected':''}>${c}</option>`).join('')}
+function saveRisk(){
+  const t=document.getElementById('r-title').value.trim();
+  if(!t){alert('اكتب عنوان الخطر أولاً');return}
+  const obj={
+    title:t,type:document.getElementById('r-type').value,cat:document.getElementById('r-cat').value,
+    owner:document.getElementById('r-owner').value,urg:document.getElementById('r-urg').value,
+    cause:document.getElementById('r-cause').value,impact:document.getElementById('r-impact').value,trig:document.getElementById('r-trig').value
+  };
+  if(editId!=null){Object.assign(DB.risks.find(r=>r.id===editId),obj);cancelEdit()}
+  else DB.risks.push({id:++DB.seq,p:3,i:3,prob:'',cost:'',strat:'',action:'',aowner:'',due:'',resP:'',resI:'',sec:'',status:'open',note:'',lesson:'',...obj});
+  save();clearRegForm();refresh();
+}
+function clearRegForm(){['r-title','r-owner','r-cause','r-impact','r-trig'].forEach(id=>document.getElementById(id).value='')}
+function editRisk(id){
+  const r=DB.risks.find(x=>x.id===id);editId=id;
+  document.getElementById('r-title').value=r.title;document.getElementById('r-type').value=r.type;
+  fillCatSel();document.getElementById('r-cat').value=r.cat;
+  document.getElementById('r-owner').value=r.owner;document.getElementById('r-urg').value=r.urg;
+  document.getElementById('r-cause').value=r.cause;document.getElementById('r-impact').value=r.impact;document.getElementById('r-trig').value=r.trig;
+  document.getElementById('regEditing').textContent='✏️ تعديل الخطر R-'+String(id).padStart(3,'0');
+  document.getElementById('regCancel').classList.remove('hide');
+  scrollTo({top:0,behavior:'smooth'});
+}
+function cancelEdit(){editId=null;clearRegForm();document.getElementById('regEditing').textContent='';document.getElementById('regCancel').classList.add('hide')}
+function delRisk(id){if(confirm('حذف هذا الخطر نهائياً؟ (في الممارسة الصحيحة نُغلق الخطر ولا نحذفه)')){DB.risks=DB.risks.filter(r=>r.id!==id);save();refresh()}}
+function renderReg(){
+  const b=document.getElementById('regBody');
+  document.getElementById('regCount').textContent=DB.risks.length+' خطراً مسجلاً';
+  if(!DB.risks.length){b.innerHTML='<tr><td colspan="9" class="empty">السجل فارغ — أضف أول خطر أو حمّل البيانات التجريبية ✨</td></tr>';return}
+  b.innerHTML=DB.risks.map(r=>{
+    const s=r.p*r.i,st=STATUS.find(x=>x[0]===r.status);
+    return `<tr><td><b>R-${String(r.id).padStart(3,'0')}</b></td>
+    <td><b>${esc(r.title)}</b>${r.cause?`<br><small style="color:var(--dim2)">بسبب: ${esc(r.cause)}</small>`:''}</td>
+    <td><span class="pill ${r.type==='threat'?'p-thr':'p-opp'}">${r.type==='threat'?'تهديد':'فرصة'}</span></td>
+    <td>${esc(r.cat)}</td><td>${esc(r.owner)||'—'}</td><td>${r.urg}</td>
+    <td><span class="score" style="background:${scoreColor(s)}">${s}</span></td>
+    <td><span class="pill ${st[2]}">${st[1]}</span></td>
+    <td style="white-space:nowrap"><button class="ta" title="تعديل" onclick="editRisk(${r.id})">✏️</button><button class="ta" title="حذف" onclick="delRisk(${r.id})">🗑️</button></td></tr>`;
+  }).join('');
+}
+
+/* ============ ANALYSIS ============ */
+function renderAna(){
+  const b=document.getElementById('anaBody');
+  const PR=priorityRank();
+  if(!DB.risks.length){b.innerHTML='<tr><td colspan="9" class="empty">لا توجد مخاطر — سجّلها أولاً في «تحديد المخاطر»</td></tr>'}
+  else b.innerHTML=DB.risks.map(r=>{
+    const s=r.p*r.i;
+    const emv=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0)*(r.type==='threat'?-1:1);
+    const rk=PR[r.id];
+    return `<tr><td><b>R-${String(r.id).padStart(3,'0')}</b></td><td>${esc(r.title)}</td>
+    <td><select onchange="setF(${r.id},'p',+this.value)">${[1,2,3,4,5].map(v=>`<option ${v==r.p?'selected':''}>${v}</option>`).join('')}</select></td>
+    <td><select onchange="setF(${r.id},'i',+this.value)">${[1,2,3,4,5].map(v=>`<option ${v==r.i?'selected':''}>${v}</option>`).join('')}</select></td>
+    <td><span class="score" style="background:${scoreColor(s)}">${s}</span> <small>${scoreTxt(s)}</small></td>
+    <td>${rk?`<span class="pill" style="background:${rk<=3?'#FFF1F2':'#EEF3FB'};color:${rk<=3?'#E11D48':'#173F8F'};border:1px solid ${rk<=3?'#FECDD3':'#C7DAF9'}">أولوية #${rk}${rk<=3?' 🔥':''}</span>`:'<span class="pill p-cls">مغلق</span>'}</td>
+    <td><input type="number" min="0" max="100" style="width:80px" value="${r.prob}" placeholder="%" onchange="setF(${r.id},'prob',this.value)"></td>
+    <td><input type="number" min="0" style="width:120px" value="${r.cost}" onchange="setF(${r.id},'cost',this.value)"></td>
+    <td style="direction:ltr;text-align:left"><b style="color:${emv<0?'var(--rose)':'var(--emerald)'}">${emv?fmt(Math.round(emv)):'—'}</b></td></tr>`;
+  }).join('');
+  let thr=0,opp=0;
+  DB.risks.forEach(r=>{const e=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0);if(r.type==='threat')thr+=e;else opp+=e});
+  document.getElementById('emvThr').textContent='Σ EMV التهديدات: −'+fmt(Math.round(thr))+' ر.س (≈ احتياطي الطوارئ المقترح)';
+  document.getElementById('emvOpp').textContent='Σ EMV الفرص: +'+fmt(Math.round(opp))+' ر.س';
+  document.getElementById('emvNet').textContent='صافي التعرض: '+fmt(Math.round(opp-thr))+' ر.س';
+  document.getElementById('anaMx').innerHTML=matrixHTML(true);
+}
+function setF(id,k,v){const r=DB.risks.find(x=>x.id===id);r[k]=v;save();refresh()}
+function matrixHTML(chips){
+  let cells='';
+  for(let i=5;i>=1;i--){for(let p=1;p<=5;p++){
+    const s=p*i,rs=DB.risks.filter(r=>r.p==p&&r.i==i&&r.status!=='closed');
+    cells+=`<div class="mcell" style="background:${scoreColor(s)}" title="P${p} × I${i} = ${s}">
+      <span class="cnt">${rs.length||''}</span>${s}
+      ${chips?rs.slice(0,2).map(r=>`<span class="riskchip" title="${esc(r.title)}">R-${String(r.id).padStart(3,'0')}</span>`).join(''):''}</div>`;
+  }}
+  return `<div class="mxwrap"><div class="mxy">الأثر Impact ↑</div><div><div class="matrix">${cells}</div><div class="mxx">الاحتمالية Probability ←</div></div></div>`;
+}
+
+/* ============ RESPONSE ============ */
+function renderRsp(){
+  const box=document.getElementById('rspList');
+  const act=DB.risks.filter(r=>r.status!=='closed');
+  if(!act.length){box.innerHTML='<div class="card"><div class="empty">لا توجد مخاطر نشطة للاستجابة — سجّل المخاطر أولاً</div></div>';return}
+  box.innerHTML=act.map(r=>{
+    const strats=r.type==='threat'?STR_T:STR_O;
+    return `<div class="card"><h3><span class="pill ${r.type==='threat'?'p-thr':'p-opp'}">${r.type==='threat'?'تهديد':'فرصة'}</span> R-${String(r.id).padStart(3,'0')} — ${esc(r.title)} <small style="color:var(--dim);font-weight:400">| مالك الخطر: ${esc(r.owner)||'—'}</small> <span class="spacer"></span><span class="score" style="background:${scoreColor(r.p*r.i)}">${r.p*r.i}</span></h3>
+    <div class="frm">
+      <div class="fld"><label>الاستراتيجية</label><select onchange="setF(${r.id},'strat',this.value)"><option value="">— اختر —</option>${strats.map(s=>`<option ${r.strat===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="fld"><label>مالك الإجراء (Action Owner)</label><input value="${esc(r.aowner)}" onchange="setF(${r.id},'aowner',this.value)"></div>
+      <div class="fld"><label>الموعد (Time-bound)</label><input type="date" value="${r.due}" onchange="setF(${r.id},'due',this.value)"></div>
+      <div class="fld wide"><label>خطة الإجراء التفصيلية</label><textarea onchange="setF(${r.id},'action',this.value)">${esc(r.action)}</textarea></div>
+      <div class="fld"><label>المتبقي: الاحتمالية بعد الاستجابة</label><select onchange="setF(${r.id},'resP',this.value)"><option value="">—</option>${[1,2,3,4,5].map(v=>`<option ${r.resP==v?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="fld"><label>المتبقي: الأثر بعد الاستجابة</label><select onchange="setF(${r.id},'resI',this.value)"><option value="">—</option>${[1,2,3,4,5].map(v=>`<option ${r.resI==v?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="fld wide"><label>مخاطر ثانوية متوقعة من الاستجابة</label><input value="${esc(r.sec)}" onchange="setF(${r.id},'sec',this.value)"></div>
+    </div>
+    ${r.resP&&r.resI?`<p style="margin-top:12px;font-size:.75rem;color:var(--dim)">الدرجة المتبقية: <span class="score" style="background:${scoreColor(r.resP*r.resI)}">${r.resP*r.resI}</span> ${r.resP*r.resI<=6?'<span style="color:var(--emerald)">ضمن حدود التحمّل ✓</span>':'<span style="color:var(--amber)">ما زالت مرتفعة — فكّر في استجابة إضافية أو تصعيد ⚠️</span>'}</p>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ============ MONITOR ============ */
+function renderMon(){
+  const b=document.getElementById('monBody');
+  const EFFS=['لم تُقيَّم بعد','فعالة تماماً ✓','فعالة جزئياً ◐','غير فعالة ✗'];
+  if(!DB.risks.length){b.innerHTML='<tr><td colspan="11" class="empty">لا توجد مخاطر بعد</td></tr>'}
+  else b.innerHTML=DB.risks.map(r=>`<tr><td><b>R-${String(r.id).padStart(3,'0')}</b></td>
+  <td>${esc(r.title)}<br><small style="color:var(--dim2);font-size:.62rem">${esc(r.strat)||''}</small></td>
+  <td><span class="score" style="background:${scoreColor(r.p*r.i)}">${r.p*r.i}</span>${r.resP&&r.resI?`<br><small style="font-size:.6rem;color:var(--dim)">متبقٍ: ${r.resP*r.resI}</small>`:''}</td>
+  <td>${esc(r.aowner)||'—'}</td>
+  <td><select onchange="setF(${r.id},'status',this.value)">${STATUS.map(s=>`<option value="${s[0]}" ${r.status===s[0]?'selected':''}>${s[1]}</option>`).join('')}</select></td>
+  <td><select onchange="setF(${r.id},'eff',this.value)">${EFFS.map(e=>`<option ${r.eff===e?'selected':''}>${e}</option>`).join('')}</select></td>
+  <td><input value="${esc(r.corr)}" placeholder="الإجراء التصحيحي أو الوقائي…" onchange="setF(${r.id},'corr',this.value)"></td>
+  <td><select onchange="setF(${r.id},'secOcc',this.value)"><option value="">—</option><option ${r.secOcc==='نعم'?'selected':''}>نعم</option><option ${r.secOcc==='لا'?'selected':''}>لا</option></select>${r.sec?`<br><small style="font-size:.6rem;color:var(--amber)" title="${esc(r.sec)}">📌 ${esc(r.sec).slice(0,20)}…</small>`:''}</td>
+  <td><select onchange="setF(${r.id},'resOcc',this.value)"><option value="">—</option><option ${r.resOcc==='نعم'?'selected':''}>نعم</option><option ${r.resOcc==='لا'?'selected':''}>لا</option></select></td>
+  <td><input value="${esc(r.note)}" placeholder="آخر مستجدات…" onchange="setF(${r.id},'note',this.value)"></td>
+  <td><input value="${esc(r.lesson)}" placeholder="درس مستفاد…" onchange="setF(${r.id},'lesson',this.value)"></td></tr>`).join('');
+  const tot=DB.risks.length||1;
+  const closed=DB.risks.filter(r=>r.status==='closed').length;
+  const open=DB.risks.filter(r=>r.status==='open').length;
+  const resp=DB.risks.filter(r=>['responding','monitoring'].includes(r.status)).length;
+  const exp=DB.risks.filter(r=>r.status!=='closed').reduce((n,r)=>n+r.p*r.i,0);
+  const exp0=DB.risks.reduce((n,r)=>n+r.p*r.i,0)||1;
+  document.getElementById('burnBars').innerHTML=`
+    ${bar('التعرض المتبقي / الكلي',Math.round(exp/exp0*100),'linear-gradient(90deg,#FB7185,#F59E0B)',exp+' / '+exp0)}
+    ${bar('مخاطر مُغلقة',Math.round(closed/tot*100),'linear-gradient(90deg,#34D399,#059669)',closed+' من '+tot)}
+    ${bar('قيد الاستجابة/المراقبة',Math.round(resp/tot*100),'linear-gradient(90deg,#FBBF24,#D97706)',resp+' من '+tot)}
+    ${bar('مفتوحة بلا استجابة',Math.round(open/tot*100),'linear-gradient(90deg,#38BDF8,#6366F1)',open+' من '+tot)}`;
+}
+const bar=(l,pct,grad,txt)=>`<div class="hbar"><span class="lbl" title="${l}">${l}</span><div class="trk"><div class="fil" style="width:${Math.max(pct,4)}%;background:${grad}">${txt}</div></div></div>`;
+
+/* ============ DASHBOARD ============ */
+function renderDash(){
+  const R=DB.risks,act=R.filter(r=>r.status!=='closed');
+  const high=act.filter(r=>r.p*r.i>=10).length;
+  let thr=0;R.forEach(r=>{if(r.type==='threat')thr+=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0)});
+  const k=[
+    ['📒',R.length,'إجمالي المخاطر','linear-gradient(90deg,#FDBA74,#8B5CF6)'],
+    ['⛔',R.filter(r=>r.type==='threat').length,'تهديدات','linear-gradient(90deg,#FB7185,#E11D48)'],
+    ['💎',R.filter(r=>r.type==='opp').length,'فرص','linear-gradient(90deg,#34D399,#059669)'],
+    ['🔥',high,'عالية/حرجة نشطة','linear-gradient(90deg,#FBBF24,#D97706)'],
+    ['✅',R.filter(r=>r.status==='closed').length,'مُغلقة','linear-gradient(90deg,#38BDF8,#6366F1)'],
+    ['💰',fmt(Math.round(thr)),'احتياطي مقترح (ر.س)','linear-gradient(90deg,#A78BFA,#7C3AED)'],
+  ];
+  document.getElementById('kpis').innerHTML=k.map(x=>`<div class="kpi" style="--kc:${x[3]}"><span class="ic">${x[0]}</span><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
+  document.getElementById('dashMx').innerHTML=matrixHTML(false);
+  const top=[...act].sort((a,b)=>b.p*b.i-a.p*a.i).slice(0,6);
+  document.getElementById('topRisks').innerHTML=top.length?top.map(r=>`<div class="hbar"><span class="lbl" title="${esc(r.title)}">R-${String(r.id).padStart(3,'0')} ${esc(r.title)}</span><div class="trk"><div class="fil" style="width:${r.p*r.i*4}%;background:${scoreColor(r.p*r.i)}">${r.p*r.i}</div></div></div>`).join(''):'<div class="empty">لا مخاطر نشطة</div>';
+  const byCat={};act.forEach(r=>byCat[r.cat]=(byCat[r.cat]||0)+1);
+  const mx=Math.max(1,...Object.values(byCat));
+  document.getElementById('distBars').innerHTML=Object.keys(byCat).length?Object.entries(byCat).map(([c,n])=>bar(c,Math.round(n/mx*100),'linear-gradient(90deg,#818CF8,#38BDF8)',n)).join(''):'<div class="empty">—</div>';
+}
+
+/* ============ REPORT ============ */
+function reportHTML(){
+  const p=DB.plan,R=DB.risks,d=new Date().toLocaleString('ar-EG');
+  let thr=0,opp=0;R.forEach(r=>{const e=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0);r.type==='threat'?thr+=e:opp+=e});
+  const rows=R.map(r=>{const st=STATUS.find(x=>x[0]===r.status);return `<tr><td>R-${String(r.id).padStart(3,'0')}</td><td>${esc(r.title)}</td><td>${r.type==='threat'?'تهديد':'فرصة'}</td><td>${esc(r.cat)}</td><td>${esc(r.owner)}</td><td>${r.p}×${r.i}=${r.p*r.i} (${scoreTxt(r.p*r.i)})</td><td>${esc(r.strat)||'—'}</td><td>${r.resP&&r.resI?r.resP*r.resI:'—'}</td><td>${st[1]}</td></tr>`}).join('');
+  const lessons=R.filter(r=>r.lesson).map(r=>`<li><b>R-${String(r.id).padStart(3,'0')}:</b> ${esc(r.lesson)}</li>`).join('');
+  return `<h1>التقرير الشامل لإدارة مخاطر المشروع</h1>
+  <p class="meta">المشروع: <b>${esc(p.name)||'—'}</b> • مدير المشروع: ${esc(p.pm)||'—'} • مدير المخاطر: ${esc(p.rm)||'—'} • الراعي: ${esc(p.sp)||'—'} • تاريخ الإصدار: ${d}</p>
+  <h2>1) استراتيجية المخاطر والتخطيط</h2>
+  <p>شهية المخاطر: <b>${p.app}</b> • حدود التحمّل: تكلفة ±${p.thc}% • جدول ±${p.ths} أسابيع • الجودة: ${p.thq} • الموازنة: ${fmt(p.bdg)} ر.س • المدة: ${p.dur||'—'} أسبوعاً<br>فئات RBS: ${esc(p.cats)}</p>
+  <h2>2) ملخص التعرض للمخاطر</h2>
+  <p>إجمالي المخاطر: <b>${R.length}</b> (تهديدات: ${R.filter(r=>r.type==='threat').length} • فرص: ${R.filter(r=>r.type==='opp').length}) • عالية/حرجة نشطة: <b>${R.filter(r=>r.status!=='closed'&&r.p*r.i>=10).length}</b> • مُغلقة: ${R.filter(r=>r.status==='closed').length}<br>
+  Σ EMV التهديدات: <b>−${fmt(Math.round(thr))} ر.س</b> (احتياطي الطوارئ المقترح) • Σ EMV الفرص: +${fmt(Math.round(opp))} ر.س • صافي التعرض: ${fmt(Math.round(opp-thr))} ر.س</p>
+  <h2>3) سجل المخاطر — التحديد والتحليل والأولويات</h2>
+  <table cellspacing="0" style="width:100%"><thead><tr><th>#</th><th>الخطر</th><th>النوع</th><th>الفئة</th><th>المالك</th><th>P×I</th><th>الاستراتيجية</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>${rows||'<tr><td colspan="9">لا توجد مخاطر مسجلة</td></tr>'}</tbody></table>
+  <h2>4) الاستجابة والمتابعة — الفعالية والإجراءات</h2>
+  <table cellspacing="0" style="width:100%"><thead><tr><th>#</th><th>الاستراتيجية</th><th>مالك الإجراء</th><th>الموعد</th><th>الفعالية</th><th>إجراء تصحيحي/وقائي</th><th>ثانوي؟</th><th>متبقٍ؟</th></tr></thead><tbody>${R.map(r=>`<tr><td>R-${String(r.id).padStart(3,'0')}</td><td>${esc(r.strat)||'—'}</td><td>${esc(r.aowner)||'—'}</td><td>${r.due||'—'}</td><td>${esc(r.eff)||'—'}</td><td>${esc(r.corr)||'—'}</td><td>${r.secOcc||'—'}${r.sec?' ('+esc(r.sec)+')':''}</td><td>${r.resOcc||'—'}${r.resP&&r.resI?' (درجة '+r.resP*r.resI+')':''}</td></tr>`).join('')}</tbody></table>
+  ${lessons?`<h2>5) الدروس المستفادة</h2><ul style="padding-right:20px">${lessons}</ul>`:''}
+  <p class="meta" style="margin-top:18px;text-align:center">إعداد وتصميم وبرمجة د. محمد عطية — نظام السعيد للمحاكاة التطبيقية لإدارة المخاطر</p>`;
+}
+function buildReport(){document.getElementById('rp-prev').innerHTML=reportHTML()}
+function summaryText(){
+  const p=DB.plan,R=DB.risks;
+  let thr=0;R.forEach(r=>{if(r.type==='threat')thr+=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0)});
+  const top=[...R.filter(r=>r.status!=='closed')].sort((a,b)=>b.p*b.i-a.p*a.i).slice(0,5);
+  return `📊 تقرير مخاطر المشروع: ${p.name||'—'}
+🗓️ ${new Date().toLocaleDateString('ar-EG')}
+━━━━━━━━━━━━
+• إجمالي المخاطر: ${R.length} (⛔ ${R.filter(r=>r.type==='threat').length} تهديد | 💎 ${R.filter(r=>r.type==='opp').length} فرصة)
+• عالية/حرجة نشطة: ${R.filter(r=>r.status!=='closed'&&r.p*r.i>=10).length}
+• مُغلقة: ${R.filter(r=>r.status==='closed').length}
+• احتياطي الطوارئ المقترح (EMV): ${fmt(Math.round(thr))} ر.س
+━━━━━━━━━━━━
+🏆 أهم المخاطر:
+${top.map(r=>`${r.p*r.i>=17?'🔴':r.p*r.i>=10?'🟠':'🟡'} R-${String(r.id).padStart(3,'0')} ${r.title} (${r.p*r.i})`).join('\n')||'—'}
+━━━━━━━━━━━━
+إعداد: ${p.rm||p.pm||'د. محمد عطية'} — نظام السعيد لإدارة المخاطر`;
+}
+function sendWA(){open('https://wa.me/?text='+encodeURIComponent(summaryText()))}
+function sendMail(){
+  const p=DB.plan;
+  location.href='mailto:?subject='+encodeURIComponent('تقرير إدارة مخاطر المشروع — '+(p.name||''))+'&body='+encodeURIComponent(summaryText());
+}
+function dlReport(){
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><!-- AlSaeed Light Theme v4.0 -->
+<title>Risk Report</title><style>body{font-family:Tahoma,'Sakkal Majalla';background:#FBF9F4;color:#1D2433;padding:34px;line-height:2;font-size:14px}h1{color:#C2410C;border-bottom:3px solid #F97316;padding-bottom:10px;font-size:1.5rem;font-family:'Sakkal Majalla',Tahoma}h2{color:#7C2D12;border-right:4px solid #F97316;padding-right:10px;font-size:1.05rem}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#7C2D12;color:#FED7AA;padding:8px}td{border-bottom:1px solid #ccc;padding:7px}.meta{color:#666;font-size:12px}</style></head><body>${reportHTML()}<script src="assets/lms.js"></script>
+<script>LMS.guard('rmp')</script>
+</body></html>`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='AlSaeed_Risk_Report.html';a.click();
+}
+function dlCSV(){
+  const head=['ID','Title','Type','Category','Owner','P','I','Score','Prob%','CostImpact','Strategy','Action','ActionOwner','Due','ResidualP','ResidualI','Secondary','Status','Note','Lesson'];
+  const rows=DB.risks.map(r=>[r.id,r.title,r.type,r.cat,r.owner,r.p,r.i,r.p*r.i,r.prob,r.cost,r.strat,r.action,r.aowner,r.due,r.resP,r.resI,r.sec,r.status,r.note,r.lesson].map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(','));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+head.join(',')+'\n'+rows.join('\n')],{type:'text/csv'}));
+  a.download='AlSaeed_Risk_Register.csv';a.click();
+}
+
+
+/* ============ PDF / WORD / PPT REPORT GENERATORS ============ */
+function loadLib(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+async function rptPDF(ev){
+  const btn=ev&&ev.target;const t=btn&&btn.textContent;if(btn){btn.disabled=true;btn.textContent='⏳ إنشاء PDF…'}
+  try{
+    buildReport();
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const el=document.getElementById('rp-prev');
+    const prevMax=el.style.maxHeight;el.style.maxHeight='none';
+    const cv=await html2canvas(el,{scale:2,backgroundColor:'#FFFFFF'});
+    el.style.maxHeight=prevMax;
+    const pdf=new jspdf.jsPDF({orientation:'portrait',unit:'pt',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+    const imgW=pw-48,ratio=imgW/cv.width,pageHpx=Math.floor((ph-48)/ratio);
+    let y=0,page=0;
+    while(y<cv.height){
+      const sl=document.createElement('canvas');sl.width=cv.width;sl.height=Math.min(pageHpx,cv.height-y);
+      sl.getContext('2d').drawImage(cv,0,y,cv.width,sl.height,0,0,cv.width,sl.height);
+      if(page)pdf.addPage();
+      pdf.addImage(sl.toDataURL('image/jpeg',.93),'JPEG',24,24,imgW,sl.height*ratio);
+      y+=pageHpx;page++;
+    }
+    pdf.save('AlSaeed_Risk_Report.pdf');
+  }catch(e){alert('تعذّر إنشاء PDF — تأكد من الإنترنت (المكتبة تُحمَّل عند أول استخدام)')}
+  if(btn){btn.disabled=false;btn.textContent=t}
+}
+function rptWord(){
+  buildReport();
+  const body=document.getElementById('rp-prev').innerHTML;
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><style>@page{size:A4;margin:2cm}body{font-family:'Sakkal Majalla',Tahoma;direction:rtl;font-size:13pt;line-height:1.8;color:#222}h1{color:#C2410C;border-bottom:3pt solid #F97316;font-size:18pt}h2{color:#173F8F;font-size:13.5pt;border-right:3pt solid #F97316;padding-right:8pt}table{width:100%;border-collapse:collapse;font-size:10pt}th{background:#173F8F;color:#FFF;padding:5pt;border:1pt solid #999}td{border:1pt solid #BBB;padding:5pt}.meta{color:#777;font-size:9pt}</style></head><body>${body}</body></html>`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+html],{type:'application/msword'}));
+  a.download='AlSaeed_Risk_Report.doc';a.click();
+}
+async function rptPPT(ev){
+  const btn=ev&&ev.target;const t=btn&&btn.textContent;if(btn){btn.disabled=true;btn.textContent='⏳ إنشاء العرض…'}
+  try{
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js');
+    const p=DB.plan,R=DB.risks,PRk=priorityRank();
+    let thr=0,opp=0;R.forEach(r=>{const e=(parseFloat(r.prob)||0)/100*(parseFloat(r.cost)||0);r.type==='threat'?thr+=e:opp+=e});
+    const NAVY='173F8F',ORG='F97316',AMB='F59E0B',GRY='5B6B84';
+    const px=new PptxGenJS();px.rtlMode=true;px.layout='LAYOUT_WIDE';
+    const AR={fontFace:'Tahoma',align:'right',rtlMode:true};
+    const foot=sl=>sl.addText('إعداد وتصميم وبرمجة د. محمد عطية — منصة السعيد | alsaeed-etc.com',{x:.3,y:6.95,w:12.7,h:.4,fontSize:9,color:GRY,align:'center',fontFace:'Tahoma'});
+    // 1) Title
+    let sl=px.addSlide();sl.background={color:'FFFFFF'};
+    sl.addShape('rect',{x:0,y:0,w:13.33,h:1.5,fill:{color:NAVY}});
+    sl.addShape('rect',{x:0,y:1.5,w:13.33,h:.14,fill:{color:ORG}});
+    sl.addText('التقرير الشامل لإدارة مخاطر المشروع',{x:.5,y:.28,w:12.3,h:.95,fontSize:30,bold:true,color:'FFFFFF',...AR,align:'center'});
+    sl.addText(p.name||'—',{x:.5,y:2.4,w:12.3,h:.9,fontSize:26,bold:true,color:NAVY,...AR,align:'center'});
+    sl.addText([{text:'مدير المشروع: '+(p.pm||'—')+'    •    ',options:{}},{text:'مدير المخاطر: '+(p.rm||'—')+'    •    ',options:{}},{text:'الراعي: '+(p.sp||'—'),options:{}}],{x:.5,y:3.4,w:12.3,h:.5,fontSize:14,color:GRY,...AR,align:'center'});
+    sl.addText(new Date().toLocaleDateString('ar-EG'),{x:.5,y:4.0,w:12.3,h:.4,fontSize:13,color:ORG,align:'center',fontFace:'Tahoma'});
+    sl.addShape('roundRect',{x:4.4,y:4.8,w:4.5,h:.75,fill:{color:'FFF4E2'},line:{color:ORG,width:1},rectRadius:.1});
+    sl.addText('شهية المخاطر: '+p.app+'  |  حدود: تكلفة ±'+p.thc+'% • جدول ±'+p.ths+' أسابيع',{x:4.4,y:4.8,w:4.5,h:.75,fontSize:11,color:'7C2D12',...AR,align:'center'});
+    foot(sl);
+    // 2) KPIs
+    sl=px.addSlide();sl.addText('ملخص التعرض للمخاطر',{x:.4,y:.25,w:12.5,h:.6,fontSize:24,bold:true,color:NAVY,...AR});
+    sl.addShape('rect',{x:.4,y:.95,w:3.2,h:.06,fill:{color:ORG}});
+    const kp=[['إجمالي المخاطر',R.length,NAVY],['تهديدات',R.filter(r=>r.type==='threat').length,'E11D48'],['فرص',R.filter(r=>r.type==='opp').length,'059669'],['عالية/حرجة نشطة',R.filter(r=>r.status!=='closed'&&r.p*r.i>=10).length,AMB],['مُغلقة',R.filter(r=>r.status==='closed').length,'0284C7'],['احتياطي مقترح (ر.س)',Math.round(thr).toLocaleString(),'7C3AED']];
+    kp.forEach((k,i)=>{const x=.55+(i%3)*4.25,y=1.5+Math.floor(i/3)*2.15;
+      sl.addShape('roundRect',{x,y,w:3.95,h:1.8,fill:{color:'FBFCFE'},line:{color:'DDE6F2',width:1},rectRadius:.08,shadow:{type:'outer',blur:6,offset:2,angle:90,opacity:.2}});
+      sl.addShape('rect',{x,y:y+1.72,w:3.95,h:.08,fill:{color:k[2]}});
+      sl.addText(String(k[1]),{x,y:y+.25,w:3.95,h:.8,fontSize:34,bold:true,color:k[2],align:'center',fontFace:'Tahoma'});
+      sl.addText(k[0],{x,y:y+1.1,w:3.95,h:.5,fontSize:13,color:GRY,...AR,align:'center'});});
+    foot(sl);
+    // 3) Top risks table
+    sl=px.addSlide();sl.addText('سجل المخاطر — الأولويات العليا',{x:.4,y:.25,w:12.5,h:.6,fontSize:24,bold:true,color:NAVY,...AR});
+    sl.addShape('rect',{x:.4,y:.95,w:3.2,h:.06,fill:{color:ORG}});
+    const hdr=['الحالة','الأولوية','الدرجة P×I','المالك','النوع','الخطر','#'].map(h=>({text:h,options:{bold:true,color:'FFFFFF',fill:{color:NAVY},...AR,align:'center'}}));
+    const tops=[...R].sort((a,b)=>b.p*b.i-a.p*a.i).slice(0,9);
+    const rows=[hdr].concat(tops.map(r=>{const st=STATUS.find(x=>x[0]===r.status);return[
+      {text:st[1],options:{...AR,align:'center'}},{text:PRk[r.id]?('#'+PRk[r.id]):'—',options:{...AR,align:'center',color:PRk[r.id]&&PRk[r.id]<=3?'E11D48':GRY,bold:!!(PRk[r.id]&&PRk[r.id]<=3)}},
+      {text:r.p+'×'+r.i+'='+(r.p*r.i),options:{align:'center',fontFace:'Tahoma',color:r.p*r.i>=10?'E11D48':'059669',bold:true}},
+      {text:r.owner||'—',options:{...AR,align:'center'}},{text:r.type==='threat'?'تهديد':'فرصة',options:{...AR,align:'center',color:r.type==='threat'?'E11D48':'059669'}},
+      {text:r.title,options:{...AR}},{text:'R-'+String(r.id).padStart(3,'0'),options:{align:'center',fontFace:'Tahoma'}}]}));
+    sl.addTable(rows,{x:.4,y:1.25,w:12.5,fontSize:10.5,fontFace:'Tahoma',border:{type:'solid',color:'DDE6F2',pt:1},rowH:.48,autoPage:false});
+    foot(sl);
+    // 4) Response & monitoring
+    sl=px.addSlide();sl.addText('الاستجابة والمتابعة — الفعالية والإجراءات',{x:.4,y:.25,w:12.5,h:.6,fontSize:24,bold:true,color:NAVY,...AR});
+    sl.addShape('rect',{x:.4,y:.95,w:3.2,h:.06,fill:{color:ORG}});
+    const hdr2=['متبقٍ؟','ثانوي؟','إجراء تصحيحي/وقائي','الفعالية','الموعد','مالك الإجراء','الاستراتيجية','#'].map(h=>({text:h,options:{bold:true,color:'FFFFFF',fill:{color:NAVY},...AR,align:'center'}}));
+    const rows2=[hdr2].concat(tops.slice(0,8).map(r=>[
+      {text:r.resOcc||'—',options:{...AR,align:'center'}},{text:r.secOcc||'—',options:{...AR,align:'center'}},
+      {text:r.corr||'—',options:{...AR}},{text:r.eff||'—',options:{...AR,align:'center'}},
+      {text:r.due||'—',options:{align:'center',fontFace:'Tahoma'}},{text:r.aowner||'—',options:{...AR,align:'center'}},
+      {text:(r.strat||'—').split(' ')[0],options:{...AR,align:'center'}},{text:'R-'+String(r.id).padStart(3,'0'),options:{align:'center',fontFace:'Tahoma'}}]));
+    sl.addTable(rows2,{x:.4,y:1.25,w:12.5,fontSize:10,fontFace:'Tahoma',border:{type:'solid',color:'DDE6F2',pt:1},rowH:.5});
+    foot(sl);
+    // 5) Lessons + closing
+    sl=px.addSlide();sl.addText('الدروس المستفادة والتوصيات',{x:.4,y:.25,w:12.5,h:.6,fontSize:24,bold:true,color:NAVY,...AR});
+    sl.addShape('rect',{x:.4,y:.95,w:3.2,h:.06,fill:{color:ORG}});
+    const ls=R.filter(r=>r.lesson).map(r=>({text:'R-'+String(r.id).padStart(3,'0')+': '+r.lesson,options:{bullet:{code:'25CF',color:ORG},...AR,breakLine:true}}));
+    sl.addText(ls.length?ls:[{text:'لا توجد دروس موثقة بعد — وثّق الدروس أولاً بأول مع كل خطر يُغلق.',options:{...AR,color:GRY}}],{x:.6,y:1.4,w:12.1,h:4.4,fontSize:15,lineSpacing:30,fontFace:'Tahoma'});
+    sl.addShape('roundRect',{x:2.9,y:5.6,w:7.5,h:.85,fill:{color:NAVY},rectRadius:.12});
+    sl.addText('Σ EMV التهديدات: '+Math.round(thr).toLocaleString()+' ر.س (احتياطي مقترح)  |  Σ EMV الفرص: +'+Math.round(opp).toLocaleString()+' ر.س',{x:2.9,y:5.6,w:7.5,h:.85,fontSize:13,color:'FFFFFF',...AR,align:'center'});
+    foot(sl);
+    await px.writeFile({fileName:'AlSaeed_Risk_Report.pptx'});
+  }catch(e){console.error(e);alert('تعذّر إنشاء العرض — تأكد من الإنترنت (مكتبة PptxGenJS تُحمَّل عند أول استخدام)')}
+  if(btn){btn.disabled=false;btn.textContent=t}
+}
+
+/* ============ DEMO & RESET ============ */
+function loadDemo(){
+  if(DB.risks.length&&!confirm('سيتم استبدال البيانات الحالية بالبيانات التجريبية — متابعة؟'))return;
+  DB.plan={name:'مشروع توسعة مستشفى الملك فهد — الرياض',pm:'م. خالد العتيبي',rm:'د. محمد عطية',sp:'وزارة الصحة',bdg:48000000,dur:78,app:'متوازنة',thc:5,ths:3,thq:'صفر تنازل (Zero Tolerance)',cats:'تقني, خارجي/تنظيمي, تنظيمي داخلي, إدارة مشروع, مالي, تعاقدي, بيئي/سلامة'};
+  DB.seq=0;DB.risks=[];
+  const demo=[
+    ['تأخر تراخيص الدفاع المدني','threat','خارجي/تنظيمي','مدير التراخيص','عالٍ','اشتراطات محدثة لم تُدرس مبكراً','تأخر بدء التشطيبات 6 أسابيع','رد أولي بملاحظات من الجهة',4,4,60,900000,'تخفيف Mitigate','تعيين مستشار اعتماد + اجتماع تمهيدي مع الجهة','م. سارة القحطاني','2026-08-15',2,3,'زيادة تكلفة استشارية طفيفة','responding','الاجتماع التمهيدي تم — بانتظار الرد','الاجتماع المبكر مع الجهات يقلص دورة الاعتماد','فعالة جزئياً ◐','تكثيف المتابعة الأسبوعية مع الجهة (تصحيحي)','لا','نعم'],
+    ['تأخر وصول أجهزة الأشعة المستوردة','threat','تعاقدي','مدير المشتريات','عالٍ','اضطرابات سلاسل الإمداد العالمية','توقف تجهيز الجناح التشخيصي على المسار الحرج','تأخر تأكيد الشحن عن الأسبوع 40',4,5,45,1500000,'نقل Transfer','بند غرامات تأخير + شرط شحن جزئي مبكر في العقد','أ. فهد الدوسري','2026-07-30',3,3,'ارتفاع سعر التوريد 3%','monitoring','تم توقيع الملحق التعاقدي','','فعالة تماماً ✓','مراجعة دورية لمواعيد الشحن (وقائي)','نعم','نعم'],
+    ['نقص الفنيين المعتمدين للتركيبات الطبية','threat','تنظيمي داخلي','مدير الموارد','متوسط','ندرة التخصص في السوق المحلي','انخفاض إنتاجية التركيبات 25%','اعتذار مرشحَين عن التعاقد',3,4,50,600000,'تخفيف Mitigate','عقد إطاري مع شركة تشغيل + برنامج تدريب داخلي','م. نورة الشمري','2026-09-01',2,2,'','responding','',''],
+    ['توطين توريد الأثاث الطبي محلياً','opp','مالي','مدير المشتريات','متوسط','برامج دعم المحتوى المحلي','خفض التكلفة 8% وتقليص زمن التوريد','صدور قائمة موردين معتمدين جديدة',3,4,55,1200000,'تعزيز Enhance','تأهيل موردين محليين والتفاوض على اتفاقية إطارية','أ. فهد الدوسري','2026-08-10',4,4,'','open','',''],
+    ['غمر موقع الأعمال بمياه الأمطار الموسمية','threat','بيئي/سلامة','مهندس السلامة','منخفض','منسوب الموقع أقل من محيطه','أضرار مواد وتوقف 10 أيام','إنذار أرصاد برتقالي/أحمر',2,4,25,700000,'قبول Accept','خطة طوارئ: مضخات جاهزة + رفع منسوب المستودعات','م. علي الحربي','2026-11-01',2,2,'','open','',''],
+    ['إعادة استخدام تصاميم جناح مماثل معتمدة سابقاً','opp','إدارة مشروع','مدير التصميم','عالٍ','تشابه المواصفات مع مشروع سابق للوزارة','توفير 5 أسابيع من دورة التصميم والاعتماد','موافقة مبدئية من إدارة التخطيط',4,3,70,800000,'استغلال Exploit','مخاطبة رسمية لاعتماد إعادة الاستخدام وتكليف نفس الاستشاري','م. خالد العتيبي','2026-07-20',5,3,'','responding','بانتظار الخطاب الرسمي','إعادة استخدام الأصول المعتمدة توفر أسابيع كاملة'],
+    ['تعارض أعمال الحفر مع خدمات قائمة غير موثقة','threat','تقني','مدير الموقع','عالٍ','مخططات الخدمات القديمة غير محدثة','قطع خدمة عن المبنى القائم وغرامات','ظهور خدمات غير مسجلة أثناء المسح',3,5,35,950000,'تجنّب Avoid','مسح جيوفيزيائي شامل قبل الحفر وتغيير مسار الخدمات','م. علي الحربي','2026-07-25',1,3,'تكلفة مسح إضافية','closed','اكتمل المسح وعُدّل المسار','المسح الجيوفيزيائي المسبق أرخص بكثير من الإصلاح']
+  ];
+  demo.forEach(d=>DB.risks.push({id:++DB.seq,title:d[0],type:d[1],cat:d[2],owner:d[3],urg:d[4],cause:d[5],impact:d[6],trig:d[7],p:d[8],i:d[9],prob:d[10],cost:d[11],strat:d[12],action:d[13],aowner:d[14],due:d[15],resP:d[16],resI:d[17],sec:d[18],status:d[19],note:d[20],lesson:d[21],eff:d[22]||'',corr:d[23]||'',secOcc:d[24]||'',resOcc:d[25]||''}));
+  save();loadPlanUI();refresh();
+}
+function resetAll(){if(confirm('تفريغ كل البيانات والبدء من جديد؟')){localStorage.removeItem(LS);location.reload()}}
+
+/* ============ INIT ============ */
+function refresh(){fillCatSel();renderReg();renderAna();renderRsp();renderMon();renderDash()}
+loadPlanUI();refresh();
+</script>
+</body>
+</html>

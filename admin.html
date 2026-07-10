@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة | منصة السعيد المتكاملة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--g:#F97316;--g2:#EA580C;--y:#F59E0B;--gsoft:rgba(249,115,22,.09);
+--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(234,88,12,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--emerald:#059669;--rose:#E11D48}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1180px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--y),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap}
+nav a,nav button{padding:8px 14px;border-radius:10px;font-weight:800;font-size:.85rem;color:var(--dim);border:none;background:none;font-family:inherit;cursor:pointer}
+nav a:hover,nav button:hover{background:var(--gsoft);color:var(--g2)}
+.wrap{max-width:1180px;margin:auto;padding:24px 20px}
+h1{font-family:'Amiri',serif;font-size:1.6rem;margin-bottom:16px}
+.tabs{display:flex;gap:6px;background:var(--bg1);border-radius:14px;padding:5px;margin-bottom:22px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:120px;border:none;background:transparent;padding:10px;border-radius:11px;font-family:inherit;font-weight:800;font-size:.86rem;color:var(--dim);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--g2);box-shadow:0 4px 10px -4px rgba(23,63,143,.15)}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--bdr2);border-radius:18px;box-shadow:var(--sh);padding:20px;margin-bottom:16px}
+.card h3{font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{background:var(--bg1);padding:9px 10px;text-align:right;font-size:.76rem;white-space:nowrap}
+td{padding:9px 10px;border-top:1px solid var(--bdr2);vertical-align:middle}
+input,select,textarea{border:1.5px solid var(--bdr2);border-radius:10px;padding:8px 11px;font-family:inherit;font-size:.85rem;background:#FBFCFE;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g)}
+input.sm{width:90px}
+.btn{border:none;border-radius:11px;padding:9px 16px;font-family:inherit;font-weight:800;font-size:.83rem;cursor:pointer}
+.btn-p{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff}
+.btn-g{background:#ECFDF5;color:#047857}
+.btn-r{background:#FEF2F2;color:#B91C1C}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+.tag{display:inline-block;border-radius:99px;padding:3px 11px;font-size:.7rem;font-weight:900}
+.tag.on{background:#ECFDF5;color:#047857}.tag.off{background:#FEF2F2;color:#B91C1C}.tag.pend{background:#FFFBEB;color:#B45309}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--bdr2);border-radius:16px;padding:16px;box-shadow:var(--sh);text-align:center}
+.kpi b{display:block;font-size:1.6rem;color:var(--g2)}
+.kpi span{color:var(--dim);font-size:.78rem;font-weight:700}
+label{display:block;font-weight:800;font-size:.8rem;margin:10px 0 4px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note{background:var(--gsoft);border-radius:12px;padding:12px 14px;font-size:.8rem;color:var(--dim);line-height:1.9;margin-top:10px}
+.msg{margin-top:10px;border-radius:11px;padding:10px 13px;font-size:.83rem;font-weight:700;display:none}
+.msg.ok{display:block;background:#ECFDF5;color:#047857}
+.subrow{background:#FBFCFE}
+.subrow td{padding-top:4px}
+.mini{font-size:.74rem;color:var(--dim2)}
+@media(max-width:720px){.row{grid-template-columns:1fr}table{font-size:.76rem}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">🛠️</span> إدارة منصة السعيد</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="dashboard.html">📋 عرض كمتدرب</a>
+    <button onclick="LMS.logout()">🚪 خروج</button>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <h1>لوحة التحكم</h1>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tabs">
+    <button class="on" data-t="pay" onclick="setTab('pay')">💳 المدفوعات</button>
+    <button data-t="courses" onclick="setTab('courses')">📚 الدورات</button>
+    <button data-t="pk" onclick="setTab('pk')">🎁 الباقات</button>
+    <button data-t="users" onclick="setTab('users')">👥 المستخدمون</button>
+    <button data-t="set" onclick="setTab('set')">⚙️ الإعدادات</button>
+  </div>
+
+  <!-- المدفوعات -->
+  <div class="tab on" id="tab-pay">
+    <div class="card"><h3>💳 طلبات الدفع</h3><div id="payTable"></div>
+      <div class="note">✅ عند الاعتماد يُنشأ الاشتراك تلقائياً بصلاحية مدة الدورة/الباقة ويفتح المحتوى فوراً للمتدرب.</div>
+    </div>
+  </div>
+
+  <!-- الدورات -->
+  <div class="tab" id="tab-courses">
+    <div id="coursesWrap"></div>
+  </div>
+
+  <!-- الباقات -->
+  <div class="tab" id="tab-pk">
+    <div class="card"><h3>🎁 الباقات</h3><div id="pkTable"></div>
+      <button class="btn btn-o" style="margin-top:12px" onclick="addPk()">➕ إضافة باقة</button>
+    </div>
+  </div>
+
+  <!-- المستخدمون -->
+  <div class="tab" id="tab-users">
+    <div class="card"><h3>👥 المستخدمون المسجلون</h3><div id="usersTable"></div></div>
+    <div class="card"><h3>🎟️ منح وصول يدوي</h3>
+      <div class="row">
+        <div><label>المستخدم</label><select id="gUser"></select></div>
+        <div><label>الدورات (اضغط Ctrl لتحديد أكثر من دورة)</label><select id="gCourses" multiple size="4"></select></div>
+      </div>
+      <label>مدة الصلاحية (أيام)</label><input id="gDays" type="number" value="180" class="sm">
+      <div><button class="btn btn-p" style="margin-top:12px" onclick="grant()">✅ منح الوصول</button></div>
+      <div class="msg" id="gMsg"></div>
+    </div>
+  </div>
+
+  <!-- الإعدادات -->
+  <div class="tab" id="tab-set">
+    <div class="card"><h3>💰 الدفع</h3>
+      <label>رابط طلب الدفع عبر Payoneer (Request a Payment)</label>
+      <input id="sPayoneer" placeholder="https://payoneer.me/... أو رابط طلب دفع من لوحة Payoneer">
+      <div class="note">💡 <b>الحقيقة كاملة:</b> Payoneer ليست بوابة Checkout آلية مثل Stripe — يوديمي تدفع <b>لك</b> عبر Payoneer وتُحصِّل من الطلاب ببوابتها الخاصة. الآلية العملية هنا: أنشئ <b>Request a Payment</b> من لوحة Payoneer (يقبل بطاقات ائتمان وتحويلات) والصق الرابط أعلاه — المتدرب يدفع ويُدخل رقم العملية، وأنت تعتمدها من تبويب المدفوعات فيتفعّل اشتراكه تلقائياً.</div>
+      <label>تعليمات الدفع عبر Payoneer (تظهر للمتدرب)</label>
+      <textarea id="sPayNote" rows="2"></textarea>
+      <label>بيانات التحويل البنكي (تظهر للمتدرب)</label>
+      <textarea id="sBank" rows="2"></textarea>
+      <label>واتساب التواصل</label>
+      <input id="sWa">
+      <label>العملة</label>
+      <select id="sCur"><option>SAR</option><option>USD</option><option>EGP</option><option>AED</option></select>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px"><input type="checkbox" id="sFree" style="width:auto"> 🆓 وضع مجاني مفتوح (كل المحتوى بلا اشتراك — للعروض والتجربة)</label>
+      <button class="btn btn-p" style="margin-top:14px" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+      <div class="msg" id="sMsg"></div>
+    </div>
+    <div class="card"><h3>🔐 حساب الأدمن</h3>
+      <div class="row">
+        <div><label>بريد الأدمن</label><input id="sAdminEmail"></div>
+        <div><label>كلمة مرور جديدة (اتركها فارغة للإبقاء)</label><input id="sAdminPass" type="password" placeholder="••••••••"></div>
+      </div>
+      <button class="btn btn-p" style="margin-top:14px" onclick="saveAdmin()">💾 حفظ بيانات الأدمن</button>
+      <div class="msg" id="aMsg"></div>
+    </div>
+    <div class="card"><h3>🗄️ النسخ الاحتياطي</h3>
+      <button class="btn btn-o" onclick="exportData()">⬇️ تصدير كل بيانات المنصة (JSON)</button>
+      <button class="btn btn-o" onclick="document.getElementById('impFile').click()">⬆️ استيراد نسخة</button>
+      <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(this)">
+      <div class="note">التخزين الحالي محلي على المتصفح (localStorage) — صدّر نسخة دورية. النسخة المركزية متعددة الأجهزة تُفعَّل لاحقاً بربط الواجهة الخلفية (Vercel + Neon) بنفس هذه الشاشات.</div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/lms.js"></script>
+<script>
+if(!LMS.isAdmin()){location.href='auth.html';}
+const cur=()=>LMS.settings().currency||'SAR';
+
+function setTab(t){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+
+/* KPIs */
+function renderKpis(){
+  const ps=LMS.payments(), es=LMS.enrollments();
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><b>${LMS.users().length}</b><span>مستخدم مسجَّل</span></div>
+    <div class="kpi"><b>${es.filter(e=>e.status==='active').length}</b><span>اشتراك نشط</span></div>
+    <div class="kpi"><b>${ps.filter(p=>p.status==='pending').length}</b><span>دفعة قيد المراجعة</span></div>
+    <div class="kpi"><b>${ps.filter(p=>p.status==='approved').length}</b><span>دفعة معتمدة</span></div>`;
+}
+
+/* المدفوعات */
+function itemName(p){
+  if(p.kind==='package'){const k=LMS.packages().find(x=>x.id===p.itemId);return '🎁 '+(k?k.name:p.itemId);}
+  const c=LMS.courses().find(x=>x.id===p.itemId);return (c?c.icon+' '+c.en:p.itemId);
+}
+function renderPay(){
+  const ps=LMS.payments();
+  document.getElementById('payTable').innerHTML= !ps.length?'<div class="mini">لا توجد طلبات</div>':
+  `<div style="overflow-x:auto"><table><tr><th>المتدرب</th><th>الطلب</th><th>المرجع</th><th>الطريقة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr>`+
+  ps.map(p=>`<tr><td>${esc(p.name)}<div class="mini">${esc(p.email)}</div></td><td>${itemName(p)}</td><td>${esc(p.ref)}</td>
+   <td>${p.method==='payoneer'?'Payoneer':p.method==='bank'?'بنكي':'واتساب'}</td>
+   <td>${new Date(p.date).toLocaleDateString('ar-EG')}</td>
+   <td>${p.status==='approved'?'<span class="tag on">معتمد</span>':p.status==='rejected'?'<span class="tag off">مرفوض</span>':'<span class="tag pend">قيد المراجعة</span>'}</td>
+   <td>${p.status==='pending'?`<button class="btn btn-g" onclick="appr('${p.id}')">✅ اعتماد</button> <button class="btn btn-r" onclick="rej('${p.id}')">✖️ رفض</button>`:'—'}</td></tr>`).join('')+'</table></div>';
+}
+function appr(id){LMS.approvePayment(id);renderPay();renderKpis();}
+function rej(id){LMS.rejectPayment(id);renderPay();renderKpis();}
+
+/* الدورات */
+function renderCourses(){
+  const cs=LMS.courses();
+  document.getElementById('coursesWrap').innerHTML=cs.map((c,i)=>`
+  <div class="card"><h3>${c.icon} ${esc(c.title)} <span class="mini">(${c.en})</span>
+    <span style="margin-inline-start:auto"><span class="tag ${c.status==='open'?'on':'off'}">${c.status==='open'?'مفتوحة':'قريباً'}</span></span></h3>
+    <div class="row">
+      <div><label>السعر (${cur()})</label><input type="number" value="${c.price}" onchange="upC(${i},'price',+this.value)"></div>
+      <div><label>مدة الصلاحية (أيام)</label><input type="number" value="${c.days}" onchange="upC(${i},'days',+this.value)"></div>
+    </div>
+    <label>الوصف</label><textarea rows="2" onchange="upC(${i},'desc',this.value)">${esc(c.desc)}</textarea>
+    <label>الحالة</label>
+    <select onchange="upC(${i},'status',this.value)"><option value="open" ${c.status==='open'?'selected':''}>مفتوحة للاشتراك</option><option value="soon" ${c.status!=='open'?'selected':''}>قريباً</option></select>
+    <label>🎬 فيديوهات الدورة (اسم + رابط YouTube/Vimeo/Drive)</label>
+    <div id="vids-${i}">${(c.videos||[]).map((v,vi)=>`<div class="row" style="margin-bottom:6px"><input value="${esc(v.name)}" onchange="upVid(${i},${vi},'name',this.value)"><div style="display:flex;gap:6px"><input value="${esc(v.url)}" onchange="upVid(${i},${vi},'url',this.value)"><button class="btn btn-r" onclick="delVid(${i},${vi})">✖</button></div></div>`).join('')}</div>
+    <button class="btn btn-o" onclick="addVid(${i})">➕ فيديو</button>
+    <label>📎 مواد وملفات (اسم + رابط)</label>
+    <div id="mats-${i}">${(c.materials||[]).map((v,vi)=>`<div class="row" style="margin-bottom:6px"><input value="${esc(v.name)}" onchange="upMat(${i},${vi},'name',this.value)"><div style="display:flex;gap:6px"><input value="${esc(v.url)}" onchange="upMat(${i},${vi},'url',this.value)"><button class="btn btn-r" onclick="delMat(${i},${vi})">✖</button></div></div>`).join('')}</div>
+    <button class="btn btn-o" onclick="addMat(${i})">➕ مادة</button>
+  </div>`).join('');
+}
+function upC(i,k,v){const cs=LMS.courses();cs[i][k]=v;LMS.saveCourses(cs);}
+function addVid(i){const cs=LMS.courses();(cs[i].videos=cs[i].videos||[]).push({name:'محاضرة جديدة',url:''});LMS.saveCourses(cs);renderCourses();}
+function upVid(i,vi,k,v){const cs=LMS.courses();cs[i].videos[vi][k]=v;LMS.saveCourses(cs);}
+function delVid(i,vi){const cs=LMS.courses();cs[i].videos.splice(vi,1);LMS.saveCourses(cs);renderCourses();}
+function addMat(i){const cs=LMS.courses();(cs[i].materials=cs[i].materials||[]).push({name:'ملف جديد',url:''});LMS.saveCourses(cs);renderCourses();}
+function upMat(i,vi,k,v){const cs=LMS.courses();cs[i].materials[vi][k]=v;LMS.saveCourses(cs);}
+function delMat(i,vi){const cs=LMS.courses();cs[i].materials.splice(vi,1);LMS.saveCourses(cs);renderCourses();}
+
+/* الباقات */
+function renderPk(){
+  const pks=LMS.packages(), cs=LMS.courses();
+  document.getElementById('pkTable').innerHTML=`<div style="overflow-x:auto"><table><tr><th>الاسم</th><th>الدورات</th><th>السعر</th><th>الأيام</th><th>الوصف</th><th></th></tr>`+
+  pks.map((p,i)=>`<tr>
+    <td><input value="${esc(p.name)}" onchange="upPk(${i},'name',this.value)"></td>
+    <td>${cs.filter(c=>c.status==='open').map(c=>`<label style="font-weight:600;font-size:.76rem;display:inline-flex;align-items:center;gap:3px;margin-inline-end:8px"><input type="checkbox" style="width:auto" ${p.courses.includes(c.id)?'checked':''} onchange="togPkC(${i},'${c.id}',this.checked)">${c.en}</label>`).join('')}</td>
+    <td><input class="sm" type="number" value="${p.price}" onchange="upPk(${i},'price',+this.value)"></td>
+    <td><input class="sm" type="number" value="${p.days}" onchange="upPk(${i},'days',+this.value)"></td>
+    <td><input value="${esc(p.desc)}" onchange="upPk(${i},'desc',this.value)"></td>
+    <td><button class="btn btn-r" onclick="delPk(${i})">✖</button></td></tr>`).join('')+'</table></div>';
+}
+function upPk(i,k,v){const p=LMS.packages();p[i][k]=v;LMS.savePackages(p);}
+function togPkC(i,cid,on){const p=LMS.packages();const arr=p[i].courses;on?(!arr.includes(cid)&&arr.push(cid)):(p[i].courses=arr.filter(x=>x!==cid));LMS.savePackages(p);}
+function addPk(){const p=LMS.packages();p.push({id:'pk'+Date.now().toString(36),name:'باقة جديدة',courses:[],price:0,days:180,desc:''});LMS.savePackages(p);renderPk();}
+function delPk(i){if(!confirm('حذف الباقة؟'))return;const p=LMS.packages();p.splice(i,1);LMS.savePackages(p);renderPk();}
+
+/* المستخدمون */
+function renderUsers(){
+  const us=LMS.users(), es=LMS.enrollments();
+  document.getElementById('usersTable').innerHTML= !us.length?'<div class="mini">لا يوجد مستخدمون بعد</div>':
+  `<div style="overflow-x:auto"><table><tr><th>الاسم</th><th>البريد</th><th>الجوال</th><th>اشتراكاته</th><th>الحالة</th><th></th></tr>`+
+  us.map(u=>{
+    const my=es.filter(e=>e.uid===u.id&&e.status==='active');
+    const list=my.map(e=>e.courses.map(cid=>{const c=LMS.courses().find(x=>x.id===cid);return c?c.en:cid}).join('+')+` <span class="mini">(حتى ${new Date(e.expires).toLocaleDateString('ar-EG')})</span>`).join('<br>')||'<span class="mini">لا شيء</span>';
+    return `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.phone)}</td><td>${list}</td>
+    <td><span class="tag ${u.active?'on':'off'}">${u.active?'نشط':'موقوف'}</span></td>
+    <td><button class="btn ${u.active?'btn-r':'btn-g'}" onclick="togU('${u.id}')">${u.active?'إيقاف':'تفعيل'}</button></td></tr>`;
+  }).join('')+'</table></div>';
+  // منح وصول
+  document.getElementById('gUser').innerHTML=us.map(u=>`<option value="${u.id}">${esc(u.name)} — ${esc(u.email)}</option>`).join('')||'<option value="">لا مستخدمين</option>';
+  document.getElementById('gCourses').innerHTML=LMS.courses().filter(c=>c.status==='open').map(c=>`<option value="${c.id}">${c.icon} ${c.en}</option>`).join('');
+}
+function togU(id){const us=LMS.users();const u=us.find(x=>x.id===id);u.active=!u.active;LMS.saveUsers(us);renderUsers();}
+function grant(){
+  const uid=document.getElementById('gUser').value;
+  const cids=[...document.getElementById('gCourses').selectedOptions].map(o=>o.value);
+  const days=+document.getElementById('gDays').value||180;
+  const m=document.getElementById('gMsg');
+  if(!uid||!cids.length){m.textContent='اختر مستخدماً ودورة واحدة على الأقل';m.className='msg ok';m.style.background='#FEF2F2';m.style.color='#B91C1C';return;}
+  LMS.grantAccess(uid,cids,days);
+  m.textContent='✅ تم منح الوصول';m.className='msg ok';m.style.background='';m.style.color='';
+  renderUsers();renderKpis();
+}
+
+/* الإعدادات */
+function loadSettings(){
+  const s=LMS.settings();
+  sPayoneer.value=s.payoneerLink||'';sPayNote.value=s.payoneerNote||'';sBank.value=s.bankInfo||'';
+  sWa.value=s.whatsapp||'';sCur.value=s.currency||'SAR';sFree.checked=!!s.freeMode;sAdminEmail.value=s.adminEmail;
+}
+function saveSettings(){
+  const s=LMS.settings();
+  s.payoneerLink=sPayoneer.value.trim();s.payoneerNote=sPayNote.value.trim();s.bankInfo=sBank.value.trim();
+  s.whatsapp=sWa.value.trim();s.currency=sCur.value;s.freeMode=sFree.checked;
+  LMS.saveSettings(s);
+  sMsg.textContent='✅ حُفظت الإعدادات';sMsg.className='msg ok';
+}
+function saveAdmin(){
+  const s=LMS.settings();
+  s.adminEmail=sAdminEmail.value.trim();
+  if(sAdminPass.value.length>=6) s.adminPass=LMS.enc(sAdminPass.value);
+  else if(sAdminPass.value.length>0){aMsg.textContent='كلمة المرور 6 أحرف على الأقل';aMsg.className='msg ok';aMsg.style.background='#FEF2F2';aMsg.style.color='#B91C1C';return;}
+  LMS.saveSettings(s);
+  aMsg.textContent='✅ حُفظ حساب الأدمن';aMsg.className='msg ok';aMsg.style.background='';aMsg.style.color='';
+}
+
+/* نسخ احتياطي */
+function exportData(){
+  const dump={};
+  ['settings','courses','packages','users','payments','enrollments'].forEach(k=>dump[k]=JSON.parse(localStorage.getItem('aslms_'+k)||'null'));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(dump,null,1)],{type:'application/json'}));
+  a.download='AlSaeed-LMS-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importData(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    Object.keys(d).forEach(k=>d[k]!=null&&localStorage.setItem('aslms_'+k,JSON.stringify(d[k])));
+    alert('✅ تم الاستيراد');location.reload();
+  }catch(e){alert('ملف غير صالح');}};
+  r.readAsText(f);
+}
+
+renderKpis();renderPay();renderCourses();renderPk();renderUsers();loadSettings();
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRC Sim — محاكاة الحوكمة والمخاطر والالتزام | منصة السعيد</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--g:#7C3AED;--g2:#6D28D9;--g3:#A78BFA;--y:#F59E0B;
+--gsoft:rgba(124,58,237,.08);--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(124,58,237,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--emerald:#059669;--rose:#E11D48;--amber:#D97706;--sky:#0284C7}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1240px;margin:auto;display:flex;align-items:center;gap:12px;padding:11px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:.92rem}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--g3),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav a,nav button{padding:8px 13px;border-radius:10px;font-weight:800;font-size:.82rem;color:var(--dim);border:none;background:none;font-family:inherit;cursor:pointer}
+nav a:hover,nav button:hover{background:var(--gsoft);color:var(--g2)}
+.wrap{max-width:1240px;margin:auto;padding:20px}
+.tabs{display:flex;gap:6px;background:var(--bg1);border-radius:14px;padding:5px;margin-bottom:18px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:125px;border:none;background:transparent;padding:10px 6px;border-radius:11px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--dim);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--g2);box-shadow:0 4px 10px -4px rgba(23,63,143,.15)}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--bdr2);border-radius:18px;box-shadow:var(--sh);padding:18px;margin-bottom:16px}
+.card h3{font-size:.98rem;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3 .mini{font-weight:700;color:var(--dim2);font-size:.74rem}
+table{width:100%;border-collapse:collapse;font-size:.81rem}
+th{background:var(--bg1);padding:8px 9px;text-align:right;font-size:.73rem;white-space:nowrap}
+td{padding:7px 9px;border-top:1px solid var(--bdr2);vertical-align:middle}
+input,select,textarea{border:1.5px solid var(--bdr2);border-radius:9px;padding:7px 10px;font-family:inherit;font-size:.81rem;background:#FBFCFE;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--g)}
+.btn{border:none;border-radius:11px;padding:9px 16px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer}
+.btn-p{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+.btn-r{background:#FEF2F2;color:#B91C1C}
+.tag{display:inline-block;border-radius:99px;padding:2px 10px;font-size:.68rem;font-weight:900;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--bdr2);border-radius:15px;padding:14px;box-shadow:var(--sh);text-align:center}
+.kpi b{display:block;font-size:1.5rem;color:var(--g2)}
+.kpi span{color:var(--dim);font-size:.74rem;font-weight:700}
+.bar{height:10px;background:var(--bg1);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g3),var(--g2))}
+.note{background:var(--gsoft);border-radius:12px;padding:11px 14px;font-size:.79rem;color:var(--dim);line-height:1.9;margin-top:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}table{font-size:.73rem}}
+.empty{color:var(--dim2);font-size:.8rem;padding:12px;text-align:center}
+.heat{width:44px;text-align:center;font-weight:900;border-radius:8px;padding:4px 0;color:#fff;display:inline-block}
+label{font-weight:800;font-size:.78rem;display:block;margin:8px 0 4px}
+.mt-cell{border-radius:10px;padding:10px;text-align:center;font-weight:800;font-size:.78rem;cursor:pointer;border:2px solid transparent}
+.mt-cell.on{border-color:var(--g2);box-shadow:0 4px 10px -4px rgba(124,58,237,.4)}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">⚖️</span> GRC Sim — المحاكاة التطبيقية | GRCP™</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="grcp-study.html">📚 المحتوى</a>
+    <a href="grcp-exam.html">🧪 المحاكي</a>
+    <button onclick="exportReport()">🖨️ تصدير تقرير</button>
+    <button onclick="resetAll()" style="color:#B91C1C">🗑️ مسح</button>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="tabs">
+    <button class="on" data-t="ctx" onclick="setTab('ctx')">1️⃣ السياق LEARN</button>
+    <button data-t="obj" onclick="setTab('obj')">2️⃣ الأهداف ALIGN</button>
+    <button data-t="ooo" onclick="setTab('ooo')">3️⃣ سجل الثلاثية O's</button>
+    <button data-t="ctl" onclick="setTab('ctl')">4️⃣ الضوابط PERFORM</button>
+    <button data-t="rev" onclick="setTab('rev')">5️⃣ المراجعة REVIEW</button>
+  </div>
+
+  <!-- 1: LEARN -->
+  <div class="tab on" id="tab-ctx">
+    <div class="card"><h3>🌍 سياق المؤسسة <span class="mini">LEARN — L1/L2/L3</span></h3>
+      <div class="grid2">
+        <div><label>اسم المؤسسة</label><input id="cName" placeholder="مثال: شركة النور الطبية" onchange="saveCtx()"></div>
+        <div><label>القطاع</label><input id="cSector" placeholder="مثال: رعاية صحية" onchange="saveCtx()"></div>
+      </div>
+      <label>أبرز قوى السياق الخارجي (تنظيمية/سوقية/تقنية)</label>
+      <textarea id="cExt" rows="2" placeholder="مثال: لائحة حماية البيانات الصحية الجديدة، دخول منافس رقمي، اعتماد إلزامي من هيئة التخصصات" onchange="saveCtx()"></textarea>
+      <label>أبرز عناصر السياق الداخلي (هيكل/أنظمة/موارد)</label>
+      <textarea id="cInt" rows="2" placeholder="مثال: 3 فروع، نظام ملفات ورقي جزئياً، فريق التزام من موظفَين" onchange="saveCtx()"></textarea>
+      <div class="grid2">
+        <div><label>تقييم الثقافة (كما تُدار الأمور فعلاً)</label>
+        <select id="cCulture" onchange="saveCtx()"><option>قوية داعمة</option><option>متوسطة متفاوتة</option><option>ضعيفة — فجوة بين القول والفعل</option></select></div>
+        <div><label>بيان شهية المخاطر (مختصر)</label><input id="cAppetite" placeholder="مثال: لا تسامح مع مخالفات سلامة المرضى؛ تقبّل معتدل لمخاطر التوسع" onchange="saveCtx()"></div>
+      </div>
+      <div class="note">💡 قاعدة LEARN: مخرجات هذا التبويب هي مدخلات كل ما بعده — أهدافك والتزاماتك تُشتق من هذا السياق، وأي تغيّر جوهري فيه يستدعي إعادة مواءمة.</div>
+    </div>
+  </div>
+
+  <!-- 2: Objectives -->
+  <div class="tab" id="tab-obj">
+    <div class="card"><h3>🎯 الأهداف بمُلّاكها <span class="mini">ALIGN — A1/A2</span></h3>
+      <div style="overflow-x:auto"><table id="objTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addObj()">➕ إضافة هدف</button>
+      <div class="note">💡 كل هدف: SMART بمقياس واضح + <b>مالك واحد مساءل</b>. الفرص والعقبات والالتزامات في التبويب التالي تُربط بالأهداف — لا معنى لمخاطرة بلا هدف تهدده.</div>
+    </div>
+  </div>
+
+  <!-- 3: OOO Register -->
+  <div class="tab" id="tab-ooo">
+    <div class="card"><h3>🔺 سجل الفرص والعقبات والالتزامات <span class="mini">ALIGN — A3/A4: تحليل الاحتمالية × الأثر والتعرض المتبقي</span></h3>
+      <div style="overflow-x:auto"><table id="oooTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addOOO()">➕ إضافة بند</button>
+      <div class="note">💡 الدرجة الكامنة = احتمالية × أثر (قبل الضوابط، 1-25). بعد ربط ضوابط من التبويب التالي تُقدَّر الدرجة المتبقية — والمقارنة دائماً: <b>المتبقي مقابل شهية المخاطر</b>. الالتزامات تُسجَّل بأثرها عند الإخلال.</div>
+    </div>
+  </div>
+
+  <!-- 4: Controls -->
+  <div class="tab" id="tab-ctl">
+    <div class="card"><h3>🛡️ الإجراءات والضوابط <span class="mini">ALIGN A5 التصميم + PERFORM P1/P2 التشغيل — بتصنيف IACM</span></h3>
+      <div style="overflow-x:auto"><table id="ctlTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addCtl()">➕ إضافة ضابط</button>
+      <div class="note">💡 التصنيف الزمني IACM: <b>استباقي</b> قبل الحدث (فصل مهام، صلاحيات) • <b>كاشف</b> أثناءه/بعده (تسويات، مراقبة) • <b>استجابي</b> بعده (تحقيق، معالجة). اربط كل ضابط ببند من سجل الثلاثية واجعل الخط الأول مشغّله.</div>
+    </div>
+  </div>
+
+  <!-- 5: Review -->
+  <div class="tab" id="tab-rev">
+    <div class="card"><h3>📡 مؤشرات KRI بعتبات تصعيد <span class="mini">REVIEW — R1 المراقبة</span></h3>
+      <div style="overflow-x:auto"><table id="kriTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addKri()">➕ إضافة مؤشر</button>
+    </div>
+    <div class="card"><h3>🧭 نتائج وإجراءات تصحيحية <span class="mini">REVIEW — R2/R3 التوكيد والتحسين</span></h3>
+      <div style="overflow-x:auto"><table id="fndTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addFnd()">➕ إضافة نتيجة</button>
+      <div class="note">💡 كل نتيجة تُغلق بـ: سبب جذري + إجراء + مالك + تاريخ مستهدف. النتيجة بلا مالك أو تاريخ تظهر متأخرة تلقائياً — وهذه بالضبط حلقة R3 التي تُغذّي ALIGN من جديد.</div>
+    </div>
+    <div class="card"><h3>📈 نضج قدرة GRC <span class="mini">تقييم ذاتي سريع من 1 إلى 5</span></h3>
+      <div id="matWrap"></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/lms.js"></script>
+<script>
+LMS.guard('grcp');
+const K='grcsim_data';
+let D=JSON.parse(localStorage.getItem(K)||'null')||{ctx:{},obj:[],ooo:[],ctl:[],kri:[],fnd:[],mat:{}};
+const save=()=>{localStorage.setItem(K,JSON.stringify(D));renderKpis();};
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+function setTab(t){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+}
+
+/* KPIs */
+function renderKpis(){
+  const high=D.ooo.filter(o=>o.kind!=='فرصة'&&(o.p*o.i)>=15).length;
+  const resOk=D.ooo.filter(o=>o.kind!=='فرصة'&&o.rp*o.ri<=8).length;
+  const openF=D.fnd.filter(f=>f.st!=='مغلقة').length;
+  const mvals=Object.values(D.mat); const mavg=mvals.length? (mvals.reduce((a,b)=>a+ +b,0)/mvals.length).toFixed(1):'—';
+  document.getElementById('kpis').innerHTML=`
+   <div class="kpi"><b>${D.obj.length}</b><span>أهداف بمُلّاك</span></div>
+   <div class="kpi"><b>${D.ooo.length}</b><span>بنود الثلاثية O's</span></div>
+   <div class="kpi"><b style="color:${high?'#E11D48':'#059669'}">${high}</b><span>تعرض كامن مرتفع (≥15)</span></div>
+   <div class="kpi"><b>${D.ctl.length}</b><span>ضوابط مصممة</span></div>
+   <div class="kpi"><b style="color:${openF?'#D97706':'#059669'}">${openF}</b><span>نتائج مفتوحة</span></div>
+   <div class="kpi"><b>${mavg}</b><span>متوسط النضج /5</span></div>`;
+}
+
+/* السياق */
+function loadCtx(){['cName','cSector','cExt','cInt','cCulture','cAppetite'].forEach(id=>{if(D.ctx[id]!==undefined)document.getElementById(id).value=D.ctx[id]});}
+function saveCtx(){['cName','cSector','cExt','cInt','cCulture','cAppetite'].forEach(id=>{D.ctx[id]=document.getElementById(id).value});save();}
+
+/* الأهداف */
+function renderObj(){
+  const t=document.getElementById('objTable');
+  if(!D.obj.length){t.innerHTML='<tr><td class="empty">أضف أول هدف — مثال: "خفض حوادث سلامة المرضى 30% خلال 2026"</td></tr>';return;}
+  t.innerHTML='<tr><th>#</th><th style="min-width:220px">الهدف (SMART)</th><th>المالك</th><th>المقياس/المستهدف</th><th></th></tr>'+
+  D.obj.map((o,i)=>`<tr><td>O${i+1}</td>
+   <td><input value="${esc(o.t)}" onchange="D.obj[${i}].t=this.value;save()"></td>
+   <td><input value="${esc(o.own)}" placeholder="مدير التشغيل" onchange="D.obj[${i}].own=this.value;save()"></td>
+   <td><input value="${esc(o.kpi)}" placeholder="مؤشر ومستهدف" onchange="D.obj[${i}].kpi=this.value;save()"></td>
+   <td><button class="btn btn-r" onclick="D.obj.splice(${i},1);save();renderObj();renderOOO()">✖</button></td></tr>`).join('');
+}
+function addObj(){D.obj.push({t:'',own:'',kpi:''});save();renderObj();}
+
+/* الثلاثية */
+const heat=v=> v>=15?'#E11D48': v>=9?'#D97706': v>=5?'#F59E0B':'#059669';
+function renderOOO(){
+  const t=document.getElementById('oooTable');
+  if(!D.ooo.length){t.innerHTML='<tr><td class="empty">أضف فرصة أو عقبة أو التزاماً واربطه بهدف</td></tr>';return;}
+  const objs=D.obj.map((o,i)=>'O'+(i+1)+' '+(o.t||'').slice(0,28));
+  t.innerHTML='<tr><th>#</th><th>النوع</th><th style="min-width:200px">الوصف</th><th>الهدف المرتبط</th><th>احتمالية<br>1-5</th><th>أثر<br>1-5</th><th>كامن</th><th>احتمالية<br>متبقية</th><th>أثر<br>متبقٍ</th><th>متبقٍ</th><th>المعالجة</th><th></th></tr>'+
+  D.ooo.map((o,i)=>{const inh=o.p*o.i, res=o.rp*o.ri;return `<tr>
+   <td>${o.kind==='فرصة'?'🟢':o.kind==='عقبة'?'🔴':'⚖️'}${i+1}</td>
+   <td><select onchange="D.ooo[${i}].kind=this.value;save();renderOOO()">${['عقبة','فرصة','التزام'].map(x=>`<option ${o.kind===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><input value="${esc(o.d)}" onchange="D.ooo[${i}].d=this.value;save()"></td>
+   <td><select onchange="D.ooo[${i}].obj=this.value;save()"><option value="">—</option>${objs.map(x=>`<option ${o.obj===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><input type="number" min="1" max="5" value="${o.p}" style="width:52px" onchange="D.ooo[${i}].p=+this.value;save();renderOOO()"></td>
+   <td><input type="number" min="1" max="5" value="${o.i}" style="width:52px" onchange="D.ooo[${i}].i=+this.value;save();renderOOO()"></td>
+   <td><span class="heat" style="background:${heat(inh)}">${inh}</span></td>
+   <td><input type="number" min="1" max="5" value="${o.rp}" style="width:52px" onchange="D.ooo[${i}].rp=+this.value;save();renderOOO()"></td>
+   <td><input type="number" min="1" max="5" value="${o.ri}" style="width:52px" onchange="D.ooo[${i}].ri=+this.value;save();renderOOO()"></td>
+   <td><span class="heat" style="background:${heat(res)}">${res}</span></td>
+   <td><select onchange="D.ooo[${i}].tr=this.value;save()">${['خفض بضوابط','نقل/مشاركة','تجنّب','قبول موثق','استثمار الفرصة'].map(x=>`<option ${o.tr===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><button class="btn btn-r" onclick="D.ooo.splice(${i},1);save();renderOOO()">✖</button></td></tr>`}).join('');
+}
+function addOOO(){D.ooo.push({kind:'عقبة',d:'',obj:'',p:3,i:3,rp:2,ri:2,tr:'خفض بضوابط'});save();renderOOO();}
+
+/* الضوابط */
+function renderCtl(){
+  const t=document.getElementById('ctlTable');
+  if(!D.ctl.length){t.innerHTML='<tr><td class="empty">أضف أول ضابط واربطه ببند من سجل الثلاثية</td></tr>';return;}
+  const oos=D.ooo.map((o,i)=>(o.kind)+' '+(i+1)+': '+(o.d||'').slice(0,26));
+  t.innerHTML='<tr><th>#</th><th style="min-width:200px">الضابط/الإجراء</th><th>تصنيف IACM</th><th>النوع</th><th>البند المرتبط</th><th>المشغّل (الخط الأول)</th><th>الحالة</th><th></th></tr>'+
+  D.ctl.map((c,i)=>`<tr><td>C${i+1}</td>
+   <td><input value="${esc(c.d)}" placeholder="فصل مهام الصرف عن التسوية" onchange="D.ctl[${i}].d=this.value;save()"></td>
+   <td><select onchange="D.ctl[${i}].iacm=this.value;save()">${['استباقي','كاشف','استجابي'].map(x=>`<option ${c.iacm===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select onchange="D.ctl[${i}].ty=this.value;save()">${['إداري/إجرائي','تقني/آلي','مادي'].map(x=>`<option ${c.ty===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select onchange="D.ctl[${i}].link=this.value;save()"><option value="">—</option>${oos.map(x=>`<option ${c.link===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><input value="${esc(c.own)}" placeholder="مشرف الصيدلية" onchange="D.ctl[${i}].own=this.value;save()"></td>
+   <td><select onchange="D.ctl[${i}].st=this.value;save()">${['مصمم','قيد التطبيق','مُشغَّل','معلّق'].map(x=>`<option ${c.st===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><button class="btn btn-r" onclick="D.ctl.splice(${i},1);save();renderCtl()">✖</button></td></tr>`).join('');
+}
+function addCtl(){D.ctl.push({d:'',iacm:'استباقي',ty:'إداري/إجرائي',link:'',own:'',st:'مصمم'});save();renderCtl();}
+
+/* KRI */
+function renderKri(){
+  const t=document.getElementById('kriTable');
+  if(!D.kri.length){t.innerHTML='<tr><td class="empty">أضف مؤشر إنذار مبكر — مثال: "نسبة دوران موظفي الجودة"</td></tr>';return;}
+  t.innerHTML='<tr><th>#</th><th style="min-width:180px">المؤشر KRI</th><th>القيمة الحالية</th><th>عتبة إنذار</th><th>عتبة تصعيد</th><th>الحالة</th><th></th></tr>'+
+  D.kri.map((k,i)=>{
+    const v=+k.v||0,w=+k.warn||0,c=+k.crit||0;
+    const st= c&&v>=c?['🔴 تصعيد فوري','#FEE2E2;color:#B91C1C'] : w&&v>=w?['🟠 إنذار','#FEF3C7;color:#B45309'] : ['🟢 طبيعي','#ECFDF5;color:#047857'];
+    return `<tr><td>K${i+1}</td>
+   <td><input value="${esc(k.n)}" onchange="D.kri[${i}].n=this.value;save()"></td>
+   <td><input type="number" value="${k.v}" style="width:80px" onchange="D.kri[${i}].v=this.value;save();renderKri()"></td>
+   <td><input type="number" value="${k.warn}" style="width:80px" onchange="D.kri[${i}].warn=this.value;save();renderKri()"></td>
+   <td><input type="number" value="${k.crit}" style="width:80px" onchange="D.kri[${i}].crit=this.value;save();renderKri()"></td>
+   <td><span class="tag" style="background:${st[1]}">${st[0]}</span></td>
+   <td><button class="btn btn-r" onclick="D.kri.splice(${i},1);save();renderKri()">✖</button></td></tr>`}).join('');
+}
+function addKri(){D.kri.push({n:'',v:0,warn:0,crit:0});save();renderKri();}
+
+/* النتائج */
+function renderFnd(){
+  const t=document.getElementById('fndTable');
+  if(!D.fnd.length){t.innerHTML='<tr><td class="empty">سجّل نتيجة من مراقبة أو توكيد — واغلقها بإجراء تصحيحي كامل</td></tr>';return;}
+  t.innerHTML='<tr><th>#</th><th style="min-width:170px">النتيجة</th><th style="min-width:150px">السبب الجذري</th><th style="min-width:150px">الإجراء التصحيحي</th><th>المالك</th><th>تاريخ مستهدف</th><th>الحالة</th><th></th></tr>'+
+  D.fnd.map((f,i)=>{
+    const late= f.st!=='مغلقة' && f.due && new Date(f.due)<new Date();
+    return `<tr style="${late?'background:#FFF8F8':''}"><td>F${i+1}${late?' ⏰':''}</td>
+   <td><input value="${esc(f.d)}" onchange="D.fnd[${i}].d=this.value;save()"></td>
+   <td><input value="${esc(f.rc)}" placeholder="ضعف تدريب لا خطأ فرد" onchange="D.fnd[${i}].rc=this.value;save()"></td>
+   <td><input value="${esc(f.act)}" onchange="D.fnd[${i}].act=this.value;save()"></td>
+   <td><input value="${esc(f.own)}" style="width:110px" onchange="D.fnd[${i}].own=this.value;save()"></td>
+   <td><input type="date" value="${f.due||''}" style="width:140px" onchange="D.fnd[${i}].due=this.value;save();renderFnd()"></td>
+   <td><select onchange="D.fnd[${i}].st=this.value;save();renderFnd();renderKpis()">${['مفتوحة','قيد المعالجة','مغلقة'].map(x=>`<option ${f.st===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><button class="btn btn-r" onclick="D.fnd.splice(${i},1);save();renderFnd()">✖</button></td></tr>`}).join('');
+}
+function addFnd(){D.fnd.push({d:'',rc:'',act:'',own:'',due:'',st:'مفتوحة'});save();renderFnd();}
+
+/* النضج */
+const MAT=[['LEARN','فهم السياق والثقافة'],['ALIGN','الأهداف والتحليل والتصميم'],['PERFORM','تشغيل الضوابط الثمانية'],['REVIEW','المراقبة والتوكيد والتحسين']];
+const LV=['1 عشوائي','2 مبدئي','3 موحّد','4 مُدار بالقياس','5 مُحسَّن'];
+function renderMat(){
+  document.getElementById('matWrap').innerHTML=MAT.map(([k,d])=>`
+   <div style="margin-bottom:12px"><b style="font-size:.85rem">${k}</b> <span style="color:var(--dim2);font-size:.74rem">${d}</span>
+   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px">
+   ${LV.map((l,li)=>`<div class="mt-cell ${+D.mat[k]===li+1?'on':''}" style="background:${['#FEE2E2','#FEF3C7','#E0F2FE','#D1FAE5','#ECFDF5'][li]}" onclick="D.mat['${k}']=${li+1};save();renderMat()">${l}</div>`).join('')}
+   </div></div>`).join('');
+}
+
+/* تصدير */
+function exportReport(){
+  const mvals=Object.values(D.mat);const mavg=mvals.length?(mvals.reduce((a,b)=>a+ +b,0)/mvals.length).toFixed(1):'—';
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>تقرير GRC — ${esc(D.ctx.cName||'مؤسسة')}</title>
+  <style>body{font-family:Tahoma,Arial;padding:30px;color:#1E2A3B}h1{color:#6D28D9}h2{border-bottom:2px solid #E4EAF3;padding-bottom:6px;margin-top:26px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}th,td{border:1px solid #CBD5E1;padding:6px 8px;text-align:right}th{background:#EFF3F9}
+  .ft{margin-top:36px;color:#5B6B84;font-size:12px;border-top:1px solid #E4EAF3;padding-top:10px}</style></head><body>
+  <h1>⚖️ تقرير قدرة GRC — ${esc(D.ctx.cName||'')}</h1>
+  <p><b>القطاع:</b> ${esc(D.ctx.cSector||'—')} · <b>الثقافة:</b> ${esc(D.ctx.cCulture||'—')} · <b>متوسط النضج:</b> ${mavg}/5 · <b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+  <h2>1) السياق (LEARN)</h2>
+  <p><b>خارجي:</b> ${esc(D.ctx.cExt||'—')}</p><p><b>داخلي:</b> ${esc(D.ctx.cInt||'—')}</p><p><b>شهية المخاطر:</b> ${esc(D.ctx.cAppetite||'—')}</p>
+  <h2>2) الأهداف (${D.obj.length})</h2>
+  <table><tr><th>#</th><th>الهدف</th><th>المالك</th><th>المقياس</th></tr>
+  ${D.obj.map((o,i)=>`<tr><td>O${i+1}</td><td>${esc(o.t)}</td><td>${esc(o.own)}</td><td>${esc(o.kpi)}</td></tr>`).join('')}</table>
+  <h2>3) سجل الثلاثية O's (${D.ooo.length})</h2>
+  <table><tr><th>النوع</th><th>الوصف</th><th>الهدف</th><th>كامن</th><th>متبقٍ</th><th>المعالجة</th></tr>
+  ${D.ooo.map(o=>`<tr><td>${o.kind}</td><td>${esc(o.d)}</td><td>${esc(o.obj)||'—'}</td><td>${o.p*o.i}</td><td>${o.rp*o.ri}</td><td>${o.tr}</td></tr>`).join('')}</table>
+  <h2>4) الضوابط (${D.ctl.length})</h2>
+  <table><tr><th>الضابط</th><th>IACM</th><th>النوع</th><th>البند</th><th>المشغّل</th><th>الحالة</th></tr>
+  ${D.ctl.map(c=>`<tr><td>${esc(c.d)}</td><td>${c.iacm}</td><td>${c.ty}</td><td>${esc(c.link)||'—'}</td><td>${esc(c.own)}</td><td>${c.st}</td></tr>`).join('')}</table>
+  <h2>5) مؤشرات KRI (${D.kri.length}) والنتائج (${D.fnd.length})</h2>
+  <table><tr><th>KRI</th><th>القيمة</th><th>إنذار</th><th>تصعيد</th></tr>
+  ${D.kri.map(k=>`<tr><td>${esc(k.n)}</td><td>${k.v}</td><td>${k.warn}</td><td>${k.crit}</td></tr>`).join('')}</table>
+  <table><tr><th>النتيجة</th><th>السبب الجذري</th><th>الإجراء</th><th>المالك</th><th>الاستحقاق</th><th>الحالة</th></tr>
+  ${D.fnd.map(f=>`<tr><td>${esc(f.d)}</td><td>${esc(f.rc)}</td><td>${esc(f.act)}</td><td>${esc(f.own)}</td><td>${f.due||'—'}</td><td>${f.st}</td></tr>`).join('')}</table>
+  <div class="ft">إعداد وتصميم وبرمجة د. محمد عطية — Al Saeed ETC · GRC Applied Simulation (نموذج OCEG)</div></body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='GRC-Report-'+new Date().toISOString().slice(0,10)+'.html';a.click();
+}
+function resetAll(){if(confirm('مسح كل بيانات المحاكاة؟')){localStorage.removeItem(K);location.reload();}}
+
+loadCtx();renderObj();renderOOO();renderCtl();renderKri();renderFnd();renderMat();renderKpis();
+</script>
+</body>
+</html>

@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- AlSaeed Light Theme v4.0 -->
+<title>محاكي اختبار GRCP™‎ | منصة السعيد</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#F7F9FC;--bg1:#EFF3F9;
+  --card:#FFFFFF;--card2:#FFFDF9;
+  --solid:#FFF4E2;--solid2:#FFF9F0;
+  --g:#F97316;--g2:#EA580C;--g3:#FB923C;--y:#F59E0B;--gsoft:rgba(249,115,22,.09);--ysoft:#FEF3C7;
+  --teal:#0D9488;--indigo:#4F46E5;--rose:#E11D48;--amber:#D97706;--emerald:#059669;--sky:#0284C7;--violet:#7C3AED;
+  --w:#1E2A3B;--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;
+  --bdr:rgba(234,88,12,.35);--bdr2:#E4EAF3;
+  --sh:0 18px 44px -16px rgba(23,63,143,.12),0 4px 12px -6px rgba(23,63,143,.06);
+  --r:14px;--r2:20px;--r3:28px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(820px 460px at 88% -6%,rgba(30,90,200,.07),transparent 60%),
+  radial-gradient(760px 440px at -6% 22%,rgba(249,115,22,.06),transparent 55%),
+  radial-gradient(680px 460px at 55% 112%,rgba(24,104,219,.07),transparent 55%),
+  linear-gradient(165deg,#F7F9FC 0%,#EFF3F9 50%,#F7F9FC 100%)}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 22px}
+button{font-family:'Cairo',sans-serif;cursor:pointer}
+::selection{background:rgba(249,115,22,.22)}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+.hide{display:none!important}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 28px;border-radius:15px;font-family:'Cairo',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;text-decoration:none;border:none;transition:.28s cubic-bezier(.2,.7,.3,1.3)}
+.btn-g{background:linear-gradient(120deg,var(--y),var(--g) 55%,var(--g2));color:#fff;box-shadow:0 10px 26px -8px rgba(234,88,12,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-g:hover{transform:translateY(-2px);filter:brightness(1.06);color:#fff}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid #F8D9B8}
+.btn-o:hover{background:var(--gsoft);border-color:var(--g3);transform:translateY(-2px)}
+.btn-r{background:#FFF1F2;color:var(--rose);border:1px solid #FECDD3}
+.btn-t{background:#F0FDFA;color:var(--teal);border:1px solid #99F6E4}
+.btn-sm{padding:6px 13px;font-size:.72rem;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+header{position:sticky;top:0;z-index:200;background:rgba(255,251,244,.85);backdrop-filter:blur(16px) saturate(1.3);border-bottom:1px solid var(--bdr2);box-shadow:0 4px 20px -12px rgba(23,63,143,.12)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;max-width:1180px;margin:0 auto;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.b-ico{width:52px;height:52px;background:#fff;border:1.5px solid #F8DFC0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 18px -8px rgba(234,88,12,.35);overflow:hidden}
+.b-ico img{width:100%;height:100%;object-fit:contain;padding:4px}
+.b-name{font-family:'Amiri',serif;font-size:1.35rem;line-height:1.15;background:linear-gradient(100deg,var(--g2),var(--g) 55%,var(--y));-webkit-background-clip:text;background-clip:text;color:transparent}
+.b-sub{font-size:.63rem;color:var(--dim)}
+
+.hd a{color:var(--dim);text-decoration:none;font-size:.8rem;font-weight:800;padding:8px 15px;border-radius:20px;transition:.25s}
+.hd a:hover{color:#1E4ED8;background:#EDF3FE}
+#setup{padding:48px 0 74px}
+.s-hero{text-align:center;margin-bottom:40px}
+.s-hero h1{font-family:'Amiri',serif;font-size:2.2rem;line-height:1.4;color:#13294F}
+.s-hero h1 span{background:linear-gradient(105deg,var(--y),var(--g) 55%,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.s-hero p{color:var(--dim);font-size:.93rem;margin-top:10px;line-height:2;max-width:660px;margin-inline:auto}
+.grid2{display:grid;grid-template-columns:1.4fr .9fr;gap:24px;align-items:start}
+@media(max-width:880px){.grid2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--bdr2);border-radius:24px;padding:28px;box-shadow:var(--sh)}
+.card h3{color:#173F8F;font-size:1.05rem;margin-bottom:18px;display:flex;gap:9px;align-items:center}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:13px}
+.mode{border:1.5px solid var(--bdr2);border-radius:16px;padding:17px;cursor:pointer;transition:.28s;background:#FBFCFE;position:relative;overflow:hidden}
+.mode:hover{border-color:var(--g3);transform:translateY(-2px)}
+.mode.on{border-color:var(--g);background:linear-gradient(140deg,#FFF4E2,#FFEAD1);box-shadow:0 8px 22px -10px rgba(234,88,12,.4)}
+.mode.on::after{content:'✓';position:absolute;top:10px;inset-inline-end:12px;width:22px;height:22px;border-radius:50%;background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;font-size:.75rem;font-weight:900;display:flex;align-items:center;justify-content:center}
+.mode b{display:block;font-size:.92rem;margin-bottom:6px;color:#13294F}
+.mode span{font-size:.72rem;color:var(--dim);line-height:1.75;display:block}
+.opt-row{display:flex;gap:11px;flex-wrap:wrap;margin-top:18px;align-items:center}
+select,input[type=number]{background:#fff;border:1.5px solid var(--bdr2);color:var(--ink);border-radius:12px;padding:10px 13px;font-family:'Cairo';font-size:.85rem;min-width:175px;transition:.2s}
+select:focus,input:focus{outline:none;border-color:var(--g3)}
+.sw{display:flex;align-items:center;gap:9px;font-size:.83rem;color:var(--dim);cursor:pointer;user-select:none}
+.sw input{accent-color:var(--g);width:17px;height:17px}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px dashed var(--bdr2);font-size:.78rem}
+.hist-item:last-child{border:none}
+.hist-item .sc{font-weight:900;font-size:1rem}
+.badge{font-size:.63rem;padding:4px 11px;border-radius:11px;font-weight:800}
+.bg-ok{background:#ECFDF5;color:var(--emerald);border:1px solid #A7F3D0}
+.bg-bad{background:#FFF1F2;color:var(--rose);border:1px solid #FECDD3}
+.bg-info{background:#F0F9FF;color:var(--sky);border:1px solid #BAE6FD}
+.bg-gold{background:#FFF4E2;color:var(--g2);border:1px solid #F8D9B8}
+#exam{padding:16px 0 90px;user-select:none;-webkit-user-select:none}
+.xbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid var(--bdr2);border-radius:18px;padding:12px 18px;margin-bottom:16px;position:sticky;top:74px;z-index:150;box-shadow:var(--sh)}
+.xbar-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.timer{font-family:monospace,'Cairo';font-size:1.3rem;font-weight:900;color:var(--g2);background:#FFF4E2;padding:6px 17px;border-radius:12px;border:1.5px solid #F8D9B8;letter-spacing:1.5px;direction:ltr}
+.timer.low{color:var(--rose);border-color:#FECDD3;background:#FFF1F2;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.55}}
+.tool-b{width:42px;height:42px;border-radius:12px;border:1.5px solid var(--bdr2);background:#fff;color:var(--ink);font-size:17px;transition:.22s}
+.tool-b:hover{background:var(--gsoft);border-color:var(--g3);transform:translateY(-1px)}
+.tool-b.on{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;border-color:transparent}
+.xlayout{display:grid;grid-template-columns:1fr 252px;gap:18px;align-items:start}
+@media(max-width:940px){.xlayout{grid-template-columns:1fr}}
+.qcard{background:#fff;border:1px solid var(--bdr2);border-radius:24px;padding:28px;box-shadow:var(--sh)}
+.qmeta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.qtext{font-size:1.01rem;line-height:2.1;margin-bottom:22px;color:#13294F}
+.qtext img{max-width:100%}
+.opt{display:flex;gap:13px;align-items:flex-start;border:1.5px solid var(--bdr2);border-radius:15px;padding:15px 17px;margin-bottom:11px;cursor:pointer;transition:.22s;background:#FBFCFE;position:relative}
+.opt:hover{border-color:var(--g3);transform:translateX(-3px)}
+.opt.sel{border-color:var(--g);background:linear-gradient(140deg,#FFF4E2,#FFEAD1);box-shadow:0 6px 18px -10px rgba(234,88,12,.4)}
+.opt.correct{border-color:var(--emerald);background:#ECFDF5}
+.opt.wrong{border-color:var(--rose);background:#FFF1F2}
+.opt.struck .ot{text-decoration:line-through;opacity:.4}
+.opt .ol{width:30px;height:30px;border-radius:10px;background:#FFF4E2;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;flex-shrink:0;border:1px solid #F8D9B8;color:var(--g2);transition:.2s}
+.opt.sel .ol{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;border-color:transparent}
+.opt.correct .ol{background:var(--emerald);color:#fff;border-color:transparent}
+.opt.wrong .ol{background:var(--rose);color:#fff;border-color:transparent}
+.opt .ot{font-size:.9rem;line-height:1.95;flex:1;color:#28374F}
+.strike-b{position:absolute;top:9px;inset-inline-end:11px;background:transparent;border:none;color:var(--dim2);font-size:.85rem;opacity:.45;transition:.2s}
+.strike-b:hover{opacity:1;color:var(--amber)}
+.fb-box{border-radius:16px;padding:19px;margin-top:18px;font-size:.87rem;line-height:2.05}
+.fb-ok{background:#ECFDF5;border:1px solid #A7F3D0;border-inline-start:3px solid var(--emerald)}
+.fb-bad{background:#FFF1F2;border:1px solid #FECDD3;border-inline-start:3px solid var(--rose)}
+.fb-box .fb-t{font-weight:900;margin-bottom:9px;display:flex;gap:8px;align-items:center}
+.fb-box .eco{margin-top:11px;font-size:.75rem;color:var(--g2);background:#FFF4E2;border:1px solid #F8D9B8;border-radius:10px;padding:8px 13px;display:inline-block}
+.xnav{display:flex;gap:11px;margin-top:22px;flex-wrap:wrap;align-items:center}
+.spacer{flex:1}
+.navcard{background:#fff;border:1px solid var(--bdr2);border-radius:20px;padding:19px;position:sticky;top:158px;box-shadow:var(--sh)}
+.navcard h4{font-size:.85rem;color:#173F8F;margin-bottom:13px}
+.ngrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;max-height:300px;overflow-y:auto;padding-inline-end:4px}
+.nq{aspect-ratio:1;border-radius:9px;border:1px solid var(--bdr2);background:#FBFCFE;color:var(--dim);font-size:.68rem;font-weight:800;transition:.16s}
+.nq:hover{border-color:var(--g3);transform:scale(1.08)}
+.nq.cur{outline:2px solid var(--g);outline-offset:1px}
+.nq.ans{background:#E0F2FE;color:#0369A1;border-color:#BAE6FD}
+.nq.flg{background:#FEF3C7;color:#B45309;border-color:#FDE68A}
+.legend{display:flex;flex-direction:column;gap:7px;margin-top:13px;font-size:.68rem;color:var(--dim)}
+.legend span{display:flex;align-items:center;gap:8px}
+.dot{width:13px;height:13px;border-radius:4px;display:inline-block}
+.panel{position:fixed;z-index:400;background:#fff;border:1.5px solid #F8D9B8;border-radius:18px;box-shadow:0 24px 60px -14px rgba(23,63,143,.28);overflow:hidden;display:none}
+.panel.show{display:block}
+.p-hd{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(120deg,#FFF4E2,#FFEAD1);padding:10px 15px;cursor:move;user-select:none;border-bottom:1px solid #F8D9B8}
+.p-hd b{font-size:.8rem;color:var(--g2)}
+.p-hd button{background:transparent;border:none;color:var(--dim);font-size:1rem}
+.p-hd button:hover{color:var(--rose)}
+#calc{width:252px;inset-inline-end:30px;top:130px}
+#c-scr{background:#2B1A05;color:#FCD34D;font-family:monospace;font-size:1.35rem;text-align:left;direction:ltr;padding:15px;min-height:58px;word-break:break-all}
+.c-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:11px}
+.c-grid button{padding:12px 0;border-radius:10px;border:1px solid var(--bdr2);background:#FBFCFE;color:var(--ink);font-size:1rem;font-weight:700;transition:.15s}
+.c-grid button:hover{background:var(--gsoft)}
+.c-grid .op{background:#FFF4E2;color:var(--g2)}
+.c-grid .eq{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;grid-column:span 2}
+#board{width:min(620px,92vw);inset-inline-start:50%;transform:translateX(-50%);top:110px}
+#bcv{background:#FFFFFF;display:block;touch-action:none;cursor:crosshair}
+.b-tools{display:flex;gap:6px;padding:9px 13px;background:#EFF3F9;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--bdr2)}
+.b-tools button{padding:6px 13px;border-radius:9px;border:1px solid var(--bdr2);background:#fff;color:var(--ink);font-size:.72rem}
+.b-tools button:hover{background:var(--gsoft)}
+.b-tools .clr{width:25px;height:25px;border-radius:50%;padding:0;border:2px solid transparent}
+.b-tools .clr.on{border-color:var(--g2);box-shadow:0 0 0 2px rgba(234,88,12,.25)}
+#chat{width:min(362px,92vw);inset-inline-end:26px;bottom:24px;display:none;flex-direction:column}
+#chat.show{display:flex}
+#c-msgs{height:300px;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:11px;background:#FBFCFE}
+.msg{max-width:88%;padding:11px 15px;border-radius:14px;font-size:.79rem;line-height:1.95}
+.msg.ai{background:#FFF4E2;border:1px solid #F8D9B8;align-self:flex-start;border-start-start-radius:4px;color:#28374F}
+.msg.me{background:#F0F9FF;border:1px solid #BAE6FD;align-self:flex-end;border-start-end-radius:4px;color:#0C4A6E}
+.quicks{display:flex;gap:6px;padding:9px 13px;flex-wrap:wrap;background:#FBFCFE}
+.quicks button{font-size:.66rem;padding:6px 12px;border-radius:13px;border:1px solid #F8D9B8;background:#FFF4E2;color:var(--g2);transition:.2s}
+.quicks button:hover{background:#FFEAD1}
+.c-in{display:flex;gap:8px;padding:11px 13px;border-top:1px solid var(--bdr2);background:#fff}
+.c-in input{flex:1;background:#FBFCFE;border:1.5px solid var(--bdr2);color:var(--ink);border-radius:11px;padding:10px 13px;font-family:'Cairo';font-size:.8rem}
+.c-in input:focus{outline:none;border-color:var(--g3)}
+.c-in button{background:linear-gradient(120deg,var(--y),var(--g2));border:none;color:#fff;border-radius:11px;padding:0 17px;font-weight:800}
+#pauseOv{position:fixed;inset:0;background:rgba(255,251,244,.98);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+#pauseOv.show{display:flex}
+#pauseOv h2{font-family:'Amiri',serif;font-size:2.1rem;background:linear-gradient(120deg,var(--g2),var(--y));-webkit-background-clip:text;background-clip:text;color:transparent}
+#pauseOv p{color:var(--dim)}
+#report{padding:36px 0 84px;user-select:none;-webkit-user-select:none}
+.rp-hd{background:#fff;border:1.5px solid #F8D9B8;border-radius:26px;padding:32px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;margin-bottom:24px;box-shadow:var(--sh)}
+@media(max-width:760px){.rp-hd{grid-template-columns:1fr;text-align:center}}
+.rp-hd h2{font-family:'Amiri',serif;font-size:1.75rem;margin-bottom:7px;color:#13294F}
+.rp-hd .res{font-size:2.1rem;font-weight:900}
+.rp-hd p{color:var(--dim);font-size:.84rem;line-height:1.95}
+.rp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px;margin-bottom:24px}
+.rp-st{background:#fff;border:1px solid var(--bdr2);border-radius:16px;padding:18px;text-align:center;transition:.3s;box-shadow:0 6px 18px -12px rgba(23,63,143,.09)}
+.rp-st:hover{transform:translateY(-3px);border-color:#F8D9B8}
+.rp-st b{display:block;font-size:1.55rem;font-family:'Amiri',serif;color:#13294F}
+.rp-st span{font-size:.7rem;color:var(--dim)}
+.dom-perf{background:#fff;border:1px solid var(--bdr2);border-radius:20px;padding:26px;margin-bottom:24px;box-shadow:var(--sh)}
+.dp-row{display:grid;grid-template-columns:230px 1fr 132px;gap:15px;align-items:center;padding:16px 0;border-bottom:1px dashed var(--bdr2)}
+.dp-row:last-child{border:none}
+@media(max-width:700px){.dp-row{grid-template-columns:1fr;gap:8px}}
+.dp-name{font-size:.83rem;font-weight:800;color:#13294F}
+.dp-name small{display:block;color:var(--dim);font-weight:400;font-size:.66rem}
+/* PMI-style band + marker */
+.pmiband{position:relative;height:34px;direction:ltr}
+.pmiband .segs{display:flex;height:14px;border-radius:8px;overflow:hidden;margin-top:14px;box-shadow:inset 0 1px 3px rgba(0,0,0,.15)}
+.pmiband .s1{width:60%;background:#E5484D}
+.pmiband .s2{width:10%;background:#F5A524}
+.pmiband .s3{width:10%;background:#8FD14F}
+.pmiband .s4{width:20%;background:#2FA24A}
+.pmiband .mk{position:absolute;top:-3px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font-size:.6rem;font-weight:900;color:#13294F}
+.pmiband .mk::after{content:'▼';font-size:.8rem;line-height:.7;color:#13294F}
+.rev-filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.rev-q{background:#fff;border:1px solid var(--bdr2);border-radius:18px;padding:22px;margin-bottom:13px;box-shadow:0 6px 18px -12px rgba(23,63,143,.08)}
+.rev-q .qtext{font-size:.88rem;margin-bottom:13px}
+.rev-opt{font-size:.8rem;padding:9px 13px;border-radius:10px;margin-bottom:7px;border:1px solid var(--bdr2);line-height:1.85;background:#FBFCFE;color:#28374F}
+.rev-opt.c{border-color:#A7F3D0;background:#ECFDF5}
+.rev-opt.w{border-color:#FECDD3;background:#FFF1F2}
+/* ===== PMI-style report & certificate ===== */
+:root{--blue:#1868DB;--tealp:#00A3A1}
+.pr-top{display:flex;gap:0;flex-wrap:wrap;background:#fff;border:1px solid #E5E7EB;border-radius:14px;margin-bottom:16px;overflow:hidden;font-size:.74rem;color:#4B5563}
+.pr-top span{padding:11px 18px;border-inline-start:1px solid #E5E7EB;display:flex;align-items:center;gap:6px}
+.pr-top span:first-child{border-inline-start:none}
+.pr-top b{color:#111827}
+.pr-card{background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:30px 32px;margin-bottom:18px;box-shadow:0 4px 16px -10px rgba(60,60,90,.12)}
+.pr-h{unicode-bidi:plaintext;font-size:1.5rem;font-weight:900;color:#111827;margin-bottom:8px;font-family:'Cairo'}
+.pr-sh{unicode-bidi:plaintext;font-size:1.02rem;font-weight:900;color:#111827;margin:22px 0 8px}
+.pr-p{font-size:.84rem;color:#4B5563;line-height:2.05}
+.pr-p b{color:#1F2937}
+.pr-diagram{margin:22px 0 6px}
+.pr-band{height:30px;border-radius:4px;margin-top:14px}
+.pr-lbl{font-size:.78rem;font-weight:700;color:#9CA3AF;margin-top:5px}
+.pr-lbl.hit{color:var(--blue);font-weight:900;font-size:.85rem}
+.tbl-scroll{overflow-x:auto;border:1px solid #E5E7EB;border-radius:10px}
+.pr-tbl{width:100%;border-collapse:collapse;min-width:640px;text-align:center}
+.pr-tbl th{background:#F9FAFB;color:#374151;font-size:.72rem;padding:12px 10px;border:1px solid #E5E7EB;font-weight:800}
+.pr-tbl th small{color:#9CA3AF;font-weight:400}
+.pr-tbl td{padding:14px 10px;border:1px solid #E5E7EB;font-size:.82rem}
+/* certificate */
+.certwrap{margin-bottom:18px}
+.cert{background:#B08968;padding:16px;border-radius:10px;box-shadow:0 16px 40px -14px rgba(120,80,40,.45)}
+.cert-in{background:#FFFFFF;border:1px solid #E7D8C6;border-radius:4px;padding:44px 40px 30px;text-align:center;position:relative;overflow:hidden}
+.cert-in::after{content:'';position:absolute;top:-40px;inset-inline-end:-40px;width:150px;height:150px;background:linear-gradient(135deg,#D9B08C,#B08968);transform:rotate(45deg);opacity:.9}
+.cert-logo{height:64px;margin:0 auto 18px;display:block}
+.cert-cap{font-size:.68rem;letter-spacing:3px;color:#9CA3AF;font-weight:700;direction:ltr}
+.cert-name{font-family:'Amiri',serif;font-size:2rem;color:#1F2937;margin:14px 0 16px}
+.cert-body{font-size:.72rem;letter-spacing:.5px;color:#9CA3AF;line-height:2;max-width:560px;margin:0 auto 16px;text-transform:uppercase;direction:ltr}
+.cert-title{font-size:1.15rem;font-weight:900;color:#111827;margin-bottom:18px;direction:ltr}
+.cert-perf{display:inline-block;direction:ltr;font-size:.78rem;font-weight:800;color:var(--tealp);border:1.5px solid var(--tealp);border-radius:20px;padding:6px 20px;margin-bottom:26px}
+.cert-sigs{display:flex;justify-content:space-around;gap:20px;margin:10px 0 22px;flex-wrap:wrap}
+.cert-sig{min-width:200px}
+.cert-sig .ln{font-family:'Amiri',serif;font-size:1.5rem;color:#374151;border-bottom:1.5px solid #9CA3AF;padding-bottom:6px;margin-bottom:6px}
+.cert-sig small{font-size:.66rem;color:#6B7280;font-weight:700}
+.cert-meta{direction:ltr;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.62rem;color:#9CA3AF;border-top:1px solid #EEE;padding-top:12px}
+.cert-disc{font-size:.6rem;color:#C2410C;margin-top:10px}
+/* bilingual + protection */
+.arblock{margin-top:9px;padding:10px 13px;border-radius:11px;background:#F0F9FF;border:1px solid #BAE6FD;border-inline-start:3px solid var(--sky);font-size:.92em;line-height:2;color:#0C4A6E}
+.arblock:empty{display:none}
+.endim{opacity:.55;font-size:.82em;line-height:1.8;direction:ltr;text-align:left}
+body.secure #exam,body.secure #report{filter:blur(16px);transition:filter .15s}
+#wm{position:fixed;inset:0;z-index:390;pointer-events:none;background-repeat:repeat;display:none}
+.theme-sel{background:#fff;border:1.5px solid var(--bdr2);border-radius:20px;padding:7px 12px;font-family:'Cairo';font-size:.72rem;font-weight:800;color:var(--g2);cursor:pointer}
+@media print{body{display:none!important}}
+</style>
+<script>
+/* 🎨 مبدّل الألوان */
+const THEMES={
+ saeed:{n:'🟠 السعيد',g:'#F97316',g2:'#EA580C',g3:'#FB923C',y:'#F59E0B',gsoft:'rgba(249,115,22,.09)',bdr:'rgba(234,88,12,.35)'},
+ royal:{n:'🔵 أزرق ملكي',g:'#2563EB',g2:'#1D4ED8',g3:'#60A5FA',y:'#38BDF8',gsoft:'rgba(37,99,235,.08)',bdr:'rgba(29,78,216,.35)'},
+ emerald:{n:'🟢 زمردي',g:'#059669',g2:'#047857',g3:'#34D399',y:'#10B981',gsoft:'rgba(5,150,105,.08)',bdr:'rgba(4,120,87,.35)'},
+ violet:{n:'🟣 بنفسجي',g:'#7C3AED',g2:'#6D28D9',g3:'#A78BFA',y:'#8B5CF6',gsoft:'rgba(124,58,237,.08)',bdr:'rgba(109,40,217,.35)'}
+};
+function setTheme(k){const t=THEMES[k]||THEMES.saeed;const r=document.documentElement.style;
+ r.setProperty('--g',t.g);r.setProperty('--g2',t.g2);r.setProperty('--g3',t.g3);r.setProperty('--y',t.y);
+ r.setProperty('--gsoft',t.gsoft);r.setProperty('--bdr',t.bdr);
+ localStorage.setItem('asTheme',k);const s=document.getElementById('themeSel');if(s)s.value=k}
+document.addEventListener('DOMContentLoaded',()=>setTheme(localStorage.getItem('asTheme')||'saeed'));
+</script>
+</head>
+<body oncontextmenu="return false">
+
+<header>
+  <div class="hd">
+    <div class="brand">
+      <div class="b-ico"><img src="https://alsaeed-etc.com/main/images/logo/logo3.png" alt="Al Saeed" onerror="this.parentElement.textContent='⏱️'"></div>
+      <div><div class="b-name">محاكي اختبار GRCP™‎</div><div class="b-sub">منصة السعيد — بيئة اختبار مطابقة للواقع</div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center"><a href="index.html">🏠 الرئيسية</a><a href="grcp-study.html">📚 المحتوى التدريبي</a><a href="grc-sim.html" target="_blank">🖥️ المحاكاة التطبيقية</a><select id="themeSel" class="theme-sel" onchange="setTheme(this.value)" title="لون المنصة"><option value="saeed">🟠 السعيد</option><option value="royal">🔵 أزرق ملكي</option><option value="emerald">🟢 زمردي</option><option value="violet">🟣 بنفسجي</option></select></div>
+  </div>
+</header>
+
+<!-- ============ SETUP ============ -->
+<section id="setup" class="wrap">
+  <div class="s-hero">
+    <h1>جاهز تختبر نفسك يا بطل؟ <span>اختر نمط المحاكاة</span></h1>
+    <p>بنك يضم 440+ سيناريو واقعياً مصنفاً حسب المجالات الخمسة وعمليات إدارة المخاطر — بنفس أدوات وقواعد اختبار PMI الحقيقي: مؤقّت، استراحة، سبّورة، آلة حاسبة، وتقرير أداء رسمي.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>🎛️ نمط الاختبار</h3>
+      <div class="modes" id="modeList">
+        <div class="mode on" data-m="full"><b>🏆 اختبار كامل (Full Mock)</b><span>100 سؤال / 120 دقيقة بمحاكاة اختبار OCEG الرسمي — درجة الاجتياز 70/100</span></div>
+        <div class="mode" data-m="exam"><b>📑 اختبارات جاهزة</b><span>GRCP Exams 1–2 المعتمدة في البرنامج التدريبي</span></div>
+        <div class="mode" data-m="domain"><b>🧭 تدريب حسب المكوّن</b><span>ركّز على مكوّن محدد من نموذج القدرات LEARN / ALIGN / PERFORM / REVIEW</span></div>
+        <div class="mode" data-m="chapter"><b>⚙️ تدريب حسب العنصر</b><span>حسب عناصر النموذج (L1–L4، A1–A5، P1–P8، R1–R3)</span></div>
+        <div class="mode" data-m="custom"><b>🎲 اختبار مخصص</b><span>حدد عدد الأسئلة عشوائياً من كامل البنك</span></div>
+      </div>
+      <div class="opt-row">
+        <select id="selExam" class="hide"></select>
+        <select id="selDomain" class="hide">
+          <option value="D1">المفاهيم الأساسية GRC Key Concepts</option>
+          <option value="D2">مكوّن التعلم LEARN</option>
+          <option value="D3">مكوّن المواءمة ALIGN</option>
+          <option value="D4">مكوّن الأداء PERFORM</option>
+          <option value="D5">مكوّن المراجعة REVIEW</option>
+        </select>
+        <select id="selChapter" class="hide"></select>
+        <input type="number" id="numQ" class="hide" min="5" max="200" value="30" placeholder="عدد الأسئلة">
+        <input type="text" id="trainName" placeholder="👤 اسم المتدرب — يظهر في التقرير والشهادة" style="min-width:250px">
+        <select id="selLang" title="لغة الاختبار">
+          <option value="ar" selected>🇸🇦 العربية — وزر ترجمة يعرض الإنجليزية</option>
+          <option value="en">🇬🇧 English — وزر ترجمة يعرض العربية</option>
+          <option value="both">🌐 اللغتان معاً (English + عربي)</option>
+        </select>
+        <label class="sw"><input type="checkbox" id="chkPractice"> وضع التدريب (زر فحص الإجابة + شرح فوري)</label>
+        <label class="sw"><input type="checkbox" id="chkNoTimer"> بدون مؤقّت</label>
+        <label class="sw"><input type="checkbox" id="chkShufQ" checked> 🔀 خلط ترتيب الأسئلة</label>
+        <label class="sw"><input type="checkbox" id="chkShufA" checked> 🔀 خلط ترتيب الإجابات</label>
+      </div>
+      <div class="opt-row">
+        <button class="btn btn-g" style="font-size:1rem;padding:13px 34px" onclick="startExam()">🚀 ابدأ الاختبار الآن</button>
+        <span id="setupInfo" style="font-size:.75rem;color:var(--dim)"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📈 سجل محاولاتك</h3>
+      <div id="histList" style="max-height:340px;overflow-y:auto"></div>
+      <button class="btn btn-r hide" id="clrHist" style="margin-top:14px;font-size:.72rem;padding:7px 16px" onclick="clearHist()">🗑️ مسح السجل</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXAM ============ -->
+<section id="exam" class="wrap hide">
+  <div class="xbar">
+    <div class="xbar-r">
+      <span class="badge bg-gold" id="xQnum"></span>
+      <span class="badge bg-info" id="xDom"></span>
+      <span class="badge" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE" id="xCh"></span>
+      <span class="badge" id="xStage" style="background:#F0FDFA;color:#0D9488;border:1px solid #99F6E4"></span>
+    </div>
+    <div class="xbar-r">
+      <div class="timer" id="xTimer">--:--:--</div>
+      <button class="tool-b" id="bPause" title="إيقاف مؤقت" onclick="togglePause()">⏸️</button>
+      <button class="tool-b" title="الآلة الحاسبة" onclick="togglePanel('calc')">🧮</button>
+      <button class="tool-b" title="السبّورة" onclick="togglePanel('board');initBoard()">✏️</button>
+      <button class="tool-b" title="AI — Dr. Mohamed Attia" onclick="toggleChat()">💬</button>
+      <button class="btn btn-r" style="padding:9px 18px;font-size:.78rem" onclick="confirmSubmit()">إنهاء وتسليم</button>
+    </div>
+  </div>
+
+  <div class="xlayout">
+    <div>
+      <div class="qcard">
+        <div class="qmeta">
+          <span class="badge bg-gold" id="qType"></span>
+          <button class="tool-b" id="bFlag" style="width:auto;padding:0 14px;font-size:.75rem;height:32px" onclick="toggleFlag()">🚩 علّم للمراجعة</button>
+          <button class="tool-b" id="bTr" style="width:auto;padding:0 14px;font-size:.75rem;height:32px" onclick="toggleTr()">🌐 ترجمة السؤال</button>
+        </div>
+        <div class="qtext" id="qText"></div>
+        <div id="qOpts"></div>
+        <div id="qFb"></div>
+        <div class="xnav">
+          <button class="btn btn-o" id="bPrev" onclick="go(-1)">→ السابق</button>
+          <button class="btn btn-o" id="bCheck" onclick="checkAnswer()">✔️ فحص الإجابة</button>
+          <div class="spacer"></div>
+          <button class="btn btn-g" id="bNext" onclick="go(1)">التالي ←</button>
+        </div>
+      </div>
+    </div>
+    <div class="navcard">
+      <h4>🗺️ خريطة الأسئلة</h4>
+      <div class="ngrid" id="ngrid"></div>
+      <div class="legend">
+        <span><i class="dot" style="background:rgba(52,152,219,.5)"></i> مُجاب</span>
+        <span><i class="dot" style="background:rgba(230,126,34,.5)"></i> معلَّم للمراجعة</span>
+        <span><i class="dot" style="background:rgba(255,255,255,.08)"></i> لم يُجَب</span>
+      </div>
+      <div style="margin-top:14px;font-size:.7rem;color:var(--dim)" id="navStats"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="report" class="wrap hide"></section>
+
+<!-- ============ FLOATING PANELS ============ -->
+<div class="panel" id="calc">
+  <div class="p-hd" data-drag="calc"><b>🧮 الآلة الحاسبة</b><button onclick="togglePanel('calc')">✕</button></div>
+  <div id="c-scr">0</div>
+  <div class="c-grid">
+    <button onclick="cIn('C')">C</button><button onclick="cIn('⌫')">⌫</button><button class="op" onclick="cIn('%')">%</button><button class="op" onclick="cIn('/')">÷</button>
+    <button onclick="cIn('7')">7</button><button onclick="cIn('8')">8</button><button onclick="cIn('9')">9</button><button class="op" onclick="cIn('*')">×</button>
+    <button onclick="cIn('4')">4</button><button onclick="cIn('5')">5</button><button onclick="cIn('6')">6</button><button class="op" onclick="cIn('-')">−</button>
+    <button onclick="cIn('1')">1</button><button onclick="cIn('2')">2</button><button onclick="cIn('3')">3</button><button class="op" onclick="cIn('+')">+</button>
+    <button onclick="cIn('0')">0</button><button onclick="cIn('.')">.</button><button class="eq" onclick="cIn('=')">=</button>
+  </div>
+</div>
+
+<div class="panel" id="board">
+  <div class="p-hd" data-drag="board"><b>✏️ السبّورة البيضاء</b><button onclick="togglePanel('board')">✕</button></div>
+  <div class="b-tools">
+    <button class="clr on" style="background:#1B2631" data-c="#1B2631" onclick="setClr(this)"></button>
+    <button class="clr" style="background:#C0392B" data-c="#C0392B" onclick="setClr(this)"></button>
+    <button class="clr" style="background:#2471A3" data-c="#2471A3" onclick="setClr(this)"></button>
+    <button class="clr" style="background:#1E8449" data-c="#1E8449" onclick="setClr(this)"></button>
+    <button onclick="brd.erase=!brd.erase;this.classList.toggle('on')">🧹 ممحاة</button>
+    <button onclick="clearBoard()">🗑️ مسح الكل</button>
+  </div>
+  <canvas id="bcv" width="600" height="340"></canvas>
+</div>
+
+<div class="panel" id="chat">
+  <div class="p-hd" data-drag="chat"><b>🤖 AI — Dr. Mohamed Attia <span style="font-weight:400;color:var(--dim)">| مساعد ذكي لكل سؤال</span></b><button onclick="toggleChat()">✕</button></div>
+  <div id="c-msgs"></div>
+  <div class="quicks">
+    <button onclick="askQuick('hint')">💡 أعطني تلميحاً</button>
+    <button onclick="askQuick('terms')">📖 اشرح المصطلحات</button>
+    <button onclick="askQuick('domain')">🧭 المجال والمهمة</button>
+    <button onclick="askQuick('strategy')">🗝️ كيف أفكر فيه؟</button>
+  </div>
+  <div class="c-in">
+    <input id="chatIn" placeholder="اكتب سؤالك… (مثال: ما معنى EMV؟)" onkeydown="if(event.key==='Enter')sendChat()">
+    <button onclick="sendChat()">إرسال</button>
+  </div>
+</div>
+
+<div id="pauseOv">
+  <h2>⏸️ الاختبار متوقف مؤقتاً</h2>
+  <p style="color:var(--dim)">المؤقّت متوقف — الأسئلة محجوبة حفاظاً على نزاهة المحاكاة</p>
+  <button class="btn btn-g" onclick="togglePause()">▶️ استئناف الاختبار</button>
+</div>
+
+<script>
+window.QBANK=[{"q": "Which of the following BEST defines Principled Performance?", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Achieving objectives at any cost while avoiding regulatory penalties", "Reliably achieving objectives, addressing uncertainty, and acting with integrity", "Maximizing shareholder value while maintaining minimum legal compliance", "Implementing controls that eliminate all organizational risk"], "c": [1], "f": "Principled Performance is the point of view and approach to business that helps organizations reliably achieve objectives, address uncertainty, and act with integrity. It is the goal of GRC — not mere compliance, not risk elimination, and not performance at any cost.", "id": 1}, {"q": "GRC is formally defined as a capability to:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Govern, review and control organizational departments", "Reliably achieve objectives, address uncertainty, and act with integrity", "Guarantee regulatory compliance across all jurisdictions", "Report risks and controls to the board of directors"], "c": [1], "f": "GRC is the integrated capability that enables an organization to reliably achieve objectives (governance), address uncertainty (risk management), and act with integrity (compliance). It is a capability, not a department or a software tool.", "id": 2}, {"q": "What does the acronym VUCA stand for in the context of the destabilizing forces organizations face?", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Value, Uncertainty, Compliance, Assurance", "Volatility, Uncertainty, Complexity, Ambiguity", "Vision, Unity, Culture, Accountability", "Variance, Urgency, Control, Audit"], "c": [1], "f": "VUCA stands for Volatility, Uncertainty, Complexity, and Ambiguity — the destabilizing external and internal conditions that, together with disconnection (silos), make it difficult to produce and preserve value. Protectors act as the stabilizing force.", "id": 3}, {"q": "In the GRC Capability Model, GRC professionals are referred to as \"Protectors\" because they:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Protect the organization from all lawsuits", "Produce and preserve value to help the organization achieve Principled Performance", "Physically secure organizational assets and facilities", "Protect executives from personal liability"], "c": [1], "f": "Protectors both PRODUCE and PRESERVE value. They are interdisciplinary professionals in areas such as governance, strategy, risk, compliance, ethics, legal, security, quality, internal control and audit who share a Protector Mindset and Skillset.", "id": 4}, {"q": "TRUE or FALSE: Principled Performance means that an organization only pursues objectives that outside observers would consider \"good\".", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Principled Performance is not synonymous with \"good intentions\". An organization qualifies as a Principled Performer when it reliably achieves its objectives, addresses uncertainty, and acts with integrity — measured against the definition, not against outside perceptions of its objectives.", "id": 5}, {"q": "In the Total Performance view of uncertainty, the three \"O's\" that an organization must address are:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Objectives, Outputs, Outcomes", "Opportunities, Obstacles, Obligations", "Oversight, Operations, Optimization", "Ownership, Openness, Objectivity"], "c": [1], "f": "Total Performance requires addressing Opportunities (uncertain events with positive effects / reward), Obstacles (uncertain events with negative effects / risk), and Obligations (mandatory and voluntary boundaries / compliance requirements). Together they frame integrated decision-making.", "id": 6}, {"q": "\"Reliably\" in the Principled Performance definition means the organization operates:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Quickly, cheaply, profitably, and aggressively", "Thoughtfully, consistently, dependably, and transparently", "Secretly, cautiously, defensively, and conservatively", "Automatically, digitally, centrally, and hierarchically"], "c": [1], "f": "\"Reliably\" is elaborated as acting thoughtfully, consistently, dependably, and transparently — stakeholders can depend on the organization and see how it operates.", "id": 7}, {"q": "\"Act with integrity\" in the Principled Performance definition means to:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Comply only with laws and regulations that carry penalties", "Live out organizational values and stay within mandatory and voluntary boundaries", "Always satisfy every stakeholder demand", "Avoid all activities that involve ethical dilemmas"], "c": [1], "f": "Acting with integrity means living out stated values and remaining within BOTH mandatory boundaries (laws, regulations, contracts) and voluntary boundaries (values, codes of conduct, voluntary commitments and promises).", "id": 8}, {"q": "Which of the following is a MANDATORY boundary?", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["The organization's aspirational sustainability pledge", "A data protection regulation applicable to the organization", "An internal stretch goal for customer satisfaction", "The CEO's personal leadership philosophy"], "c": [1], "f": "Mandatory boundaries are externally imposed requirements the organization MUST follow, such as laws, regulations and enforceable contract terms. Voluntary boundaries are self-imposed: values, promises, codes of conduct and voluntary standards.", "id": 9}, {"q": "A voluntary commitment made in the organization's public code of conduct is:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Not a compliance obligation because it is not a law", "A boundary the organization must honor as part of acting with integrity", "Only relevant to the marketing department", "Automatically converted into a legal requirement"], "c": [1], "f": "Voluntary boundaries (values, promises, public commitments, adopted standards) become obligations once adopted. Acting with integrity requires honoring them just like mandatory requirements — failing to do so damages trust and may create legal exposure.", "id": 10}, {"q": "In the Integrated Action & Control Model (IACM), actions and controls are categorized by timing as:", "t": "S", "ch": "Integrated Action & Control Model", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Strategic, tactical, operational", "Proactive, detective, responsive", "Manual, automated, hybrid", "Preventive, corrective, compensating only"], "c": [1], "f": "The IACM classifies actions and controls into Proactive (before events — encourage desirable / prevent undesirable), Detective (identify events and changes when or after they occur), and Responsive (recover, correct, discipline, improve after events).", "id": 11}, {"q": "A monthly reconciliation that identifies erroneous payments after they occur is an example of which IACM category?", "t": "S", "ch": "Integrated Action & Control Model", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Proactive", "Detective", "Responsive", "Directive"], "c": [1], "f": "Detective actions and controls identify the occurrence of desirable and undesirable events or conditions — reconciliations, monitoring, inspections and audits are classic detective mechanisms.", "id": 12}, {"q": "Segregation of duties in the payment process is BEST classified as:", "t": "S", "ch": "Integrated Action & Control Model", "d": "D1", "ex": "GRCP-Exam 1", "o": ["A responsive control", "A proactive control", "A detective control", "An assurance activity"], "c": [1], "f": "Segregation of duties works BEFORE undesirable events by making them harder to commit — it prevents/deters, so it is proactive.", "id": 13}, {"q": "After a confirmed compliance violation, the organization disciplines the responsible employee, remediates harm and improves the related control. These are examples of:", "t": "S", "ch": "Integrated Action & Control Model", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Proactive actions", "Detective actions", "Responsive actions", "Assurance actions"], "c": [2], "f": "Responsive actions recover value, correct problems, discipline misconduct, remediate harm, and drive improvement after an event has occurred.", "id": 14}, {"q": "Under the Lines of Accountability concept, who has the FIRST-line accountability for managing performance, risk and compliance in day-to-day work?", "t": "S", "ch": "Lines of Accountability", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Internal audit", "Management and workers who own and manage objectives and operations", "The board of directors", "External regulators"], "c": [1], "f": "The first line consists of management and the workforce who own objectives, operations and their associated actions and controls. Second-line functions (risk, compliance, etc.) guide and monitor; the assurance line (e.g., internal audit) provides independent assurance; the board provides oversight.", "id": 15}, {"q": "The primary role of the governing authority (e.g., board of directors) in GRC is to:", "t": "S", "ch": "Lines of Accountability", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Design and operate internal controls", "Provide direction and oversight, and hold management accountable", "Perform independent audits of management", "Manage day-to-day risk and compliance activities"], "c": [1], "f": "The governing authority sets direction, provides oversight, and holds management accountable for achieving objectives while addressing uncertainty and acting with integrity. It does not operate controls or perform management activities itself.", "id": 16}, {"q": "What primarily distinguishes the assurance role (e.g., internal audit) from second-line functions such as risk and compliance?", "t": "S", "ch": "Lines of Accountability", "d": "D1", "ex": "GRCP-Exam 1", "o": ["It reports to the CEO only", "Its independence and objectivity from management of the activities it assures", "It focuses only on financial statements", "It owns the risk register"], "c": [1], "f": "Assurance providers must be independent and objective with respect to the subject matter and its management. Second-line functions guide, support and monitor management but are typically part of management, so they are not fully independent.", "id": 17}, {"q": "TRUE or FALSE: An organization can achieve Principled Performance by eliminating all uncertainty.", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Uncertainty cannot be eliminated; it must be ADDRESSED. Addressing uncertainty means understanding and managing both opportunities (reward) and obstacles (risk) so that the organization stays within its appetite while pursuing objectives.", "id": 18}, {"q": "Risk appetite in a GRC context is BEST described as:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["The maximum loss the organization has ever incurred", "The amount and type of uncertainty the organization is willing to accept in pursuit of objectives", "The insurance coverage limit purchased by the organization", "The total budget allocated to the risk department"], "c": [1], "f": "Risk appetite expresses how much and what kinds of uncertainty (risk/reward) the organization is willing to take on to pursue its objectives. It guides decision-making criteria and the design of actions and controls.", "id": 19}, {"q": "Which statement about GRC and organizational size is CORRECT?", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["GRC applies only to large, regulated enterprises", "Every organization already does GRC in some way; the Model helps it do GRC well", "Small organizations must first create a GRC department", "GRC is only required for publicly listed companies"], "c": [1], "f": "Every organization governs, manages uncertainty and addresses compliance somehow. The GRC Capability Model describes how to do this in an integrated, scaled way — it is scalable to any size, sector or structure.", "id": 20}, {"q": "The main problem that integrated GRC is designed to overcome, besides VUCA, is:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 1", "o": ["Insufficient technology budgets", "Disconnection — siloed departments, people, purpose and skills", "Excessive regulation in developed markets", "Shortage of certified auditors"], "c": [1], "f": "Disconnection (silos operating at cross-purposes, disconnected people, purpose/culture and myopic single-discipline skills) wastes resources and creates blind spots. Integrated GRC connects these capabilities and disciplines.", "id": 21}, {"q": "Which sequence correctly lists the four components of the GRC Capability Model?", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 2", "o": ["PLAN – DO – CHECK – ACT", "LEARN – ALIGN – PERFORM – REVIEW", "IDENTIFY – ASSESS – RESPOND – MONITOR", "GOVERN – RISK – COMPLY – AUDIT"], "c": [1], "f": "The Model has four integrated components: LEARN (context, culture, stakeholders), ALIGN (direction, objectives, identification, analysis, design), PERFORM (controls, policies, communication, education, incentives, notification, inquiry, response), and REVIEW (monitoring, assurance, improvement). They operate continuously, not strictly sequentially.", "id": 22}, {"q": "TRUE or FALSE: The four components of the GRC Capability Model must always be executed in strict sequential order.", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Although presented in a logical order, the components and their elements operate continuously and concurrently; information flows among them in all directions as conditions change.", "id": 23}, {"q": "An anti-bribery law, a customer contract clause, and a voluntarily adopted ISO standard are all examples of:", "t": "S", "ch": "GRC Key Concepts", "d": "D1", "ex": "GRCP-Exam 2", "o": ["Obstacles", "Opportunities", "Obligations", "Objectives"], "c": [2], "f": "All three are obligations — requirements arising from mandatory boundaries (law, contract) or voluntary boundaries (adopted standards). Obligations must be identified, analyzed and addressed just like risks and opportunities.", "id": 24}, {"q": "The PRIMARY purpose of the LEARN component is to:", "t": "S", "ch": "L1 External Context", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Design controls and policies", "Understand the external context, internal context, culture and stakeholders to inform objectives and design", "Provide independent assurance on controls", "Train the workforce on the code of conduct"], "c": [1], "f": "LEARN examines the organization's external context (L1), internal context (L2), culture (L3) and stakeholders (L4) so that direction, objectives, identification, analysis and design (ALIGN) are grounded in reality.", "id": 25}, {"q": "Which of the following is part of the EXTERNAL context (L1)?", "t": "S", "ch": "L1 External Context", "d": "D2", "ex": "GRCP-Exam 1", "o": ["The organization's governance structure", "Industry forces, market conditions and the regulatory environment", "The organization's risk culture", "Internal policies and procedures"], "c": [1], "f": "External context includes industry, market, technological, legal/regulatory, political, social and natural environments — often analyzed with tools such as PESTLE and industry forces analysis.", "id": 26}, {"q": "A GRC professional performing a PESTLE analysis is primarily working on:", "t": "S", "ch": "L1 External Context", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Watching the internal context", "Watching the external context", "Designing responsive controls", "Providing assurance"], "c": [1], "f": "PESTLE (Political, Economic, Social, Technological, Legal, Environmental) is a classic technique for scanning and understanding the EXTERNAL context in L1.", "id": 27}, {"q": "Why must the external context be monitored CONTINUOUSLY rather than only during annual planning?", "t": "S", "ch": "L1 External Context", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Because regulators require monthly reports", "Because changes in external forces can alter opportunities, obstacles and obligations at any time", "Because PESTLE analysis expires after 12 months", "Because stakeholders demand real-time dashboards"], "c": [1], "f": "External forces (new laws, market shifts, technologies, geopolitical events) continuously change the organization's opportunity/obstacle/obligation profile. Watching the context is an ongoing activity that triggers re-alignment when significant change is detected.", "id": 28}, {"q": "Which of the following belongs to the INTERNAL context (L2)?", "t": "S", "ch": "L2 Internal Context", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Competitor pricing strategies", "The organization's strategy, structure, people, processes, technology and physical assets", "New government regulations", "Climate conditions in operating regions"], "c": [1], "f": "Internal context covers what the organization is and has: mission/strategy in place, governance and organizational structure, workforce, processes, information and technology, and physical/financial resources.", "id": 29}, {"q": "When a GRC professional maps key business processes and the technologies that support them, the main GRC benefit is:", "t": "S", "ch": "L2 Internal Context", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Reducing software licensing costs", "Understanding where opportunities, obstacles and obligations arise in operations and where actions/controls attach", "Eliminating the need for external audits", "Automating the code of conduct"], "c": [1], "f": "Understanding internal operations shows WHERE uncertainty and obligations live and where actions and controls must be embedded — a prerequisite for effective identification, analysis and design.", "id": 30}, {"q": "Organizational culture in the GRC Capability Model is BEST described as:", "t": "S", "ch": "L3 Culture", "d": "D2", "ex": "GRCP-Exam 1", "o": ["The written code of conduct", "The shared values, beliefs and norms that drive actual behavior in the organization", "The org chart and reporting lines", "The HR performance appraisal system"], "c": [1], "f": "Culture is \"how things really work around here\" — shared assumptions, values and norms that shape behavior. Written artifacts matter, but culture is evidenced by actual behavior, especially under pressure.", "id": 31}, {"q": "Which pairing correctly matches a culture dimension with its focus?", "t": "S", "ch": "L3 Culture", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Risk culture — willingness to report misconduct", "Ethical culture — how people perceive and act on right and wrong", "Governance culture — employee fitness programs", "Workforce culture — external market perception"], "c": [1], "f": "Ethical culture concerns how integrity and values guide behavior. Risk culture concerns attitudes toward uncertainty and risk-taking; governance culture concerns decision-making and accountability norms; workforce culture concerns engagement and how people work together.", "id": 32}, {"q": "The MOST reliable way to understand the actual ethical culture is to:", "t": "S", "ch": "L3 Culture", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Read the published values statement", "Combine climate surveys, interviews, focus groups and behavioral data such as helpline and investigation trends", "Count the number of policies published", "Review the marketing materials"], "c": [1], "f": "Culture must be measured with multiple methods: perception/climate surveys, interviews and focus groups, plus observable behavioral indicators (reports, investigations, exit data). Published statements alone show ASPIRATION, not reality.", "id": 33}, {"q": "TRUE or FALSE: If leadership consistently rewards results obtained by cutting compliance corners, formal policies will still determine employee behavior.", "t": "S", "ch": "L3 Culture", "d": "D2", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Incentives and leadership behavior (\"tone at the top\" and \"mood in the middle\") shape culture more powerfully than written policies. Misaligned incentives undermine formal boundaries.", "id": 34}, {"q": "In L4, stakeholders are BEST defined as:", "t": "S", "ch": "L4 Stakeholders", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Only shareholders and investors", "Parties who can affect, are affected by, or perceive themselves affected by the organization's decisions and activities", "Only customers and employees", "Government bodies exclusively"], "c": [1], "f": "Stakeholders include anyone who affects or is affected by the organization: investors, workforce, customers, suppliers, regulators, communities and others. Understanding them is essential to setting direction and obligations.", "id": 35}, {"q": "After identifying stakeholders, the organization should prioritize them PRIMARILY based on:", "t": "S", "ch": "L4 Stakeholders", "d": "D2", "ex": "GRCP-Exam 1", "o": ["Alphabetical order of stakeholder names", "Their influence/power and the materiality of their interests to organizational objectives", "Their geographic proximity to headquarters", "The size of their social media following"], "c": [1], "f": "Prioritization typically weighs stakeholder power/influence and interest/materiality so engagement effort is proportionate. High-power, high-interest stakeholders require the closest engagement.", "id": 36}, {"q": "Materiality, when analyzing stakeholder interests, refers to:", "t": "S", "ch": "L4 Stakeholders", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Physical materials used in production", "The significance of an issue to stakeholders and to the achievement of organizational objectives", "Financial statement thresholds only", "The cost of stakeholder engagement events"], "c": [1], "f": "Materiality assesses how significant an issue is to stakeholders and to the organization. Material issues shape objectives, obligations, disclosures and engagement priorities.", "id": 37}, {"q": "Which is the BEST example of two-way stakeholder engagement?", "t": "S", "ch": "L4 Stakeholders", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Publishing an annual report on the website", "Structured dialogue sessions where regulator concerns are heard and addressed, with feedback loops", "Sending a one-way newsletter to suppliers", "Posting policies on the intranet"], "c": [1], "f": "Engagement ranges from one-way information to two-way dialogue and collaboration. Structured dialogue with feedback loops builds trust and surfaces expectations before they become issues.", "id": 38}, {"q": "A new privacy law is announced in a market where the organization operates. Under LEARN, the FIRST thing to do is:", "t": "S", "ch": "L1 External Context", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Immediately purchase compliance software", "Capture the change, understand its applicability and implications, and feed it into ALIGN for analysis and design", "Terminate operations in that market", "Wait for the first enforcement action"], "c": [1], "f": "Watching the external context detects the change; the organization then determines applicability and impact and routes it to ALIGN (identification/analysis/design) to update obligations, objectives and controls.", "id": 39}, {"q": "Which internal change would MOST clearly trigger re-examination of the GRC capability?", "t": "S", "ch": "L2 Internal Context", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Routine office supply reorder", "A major acquisition that adds new business lines, systems and workforce", "Rescheduling the weekly team meeting", "Updating the cafeteria menu"], "c": [1], "f": "Major internal changes (M&A, restructuring, new systems, new leadership) materially change the internal context — objectives, uncertainty and obligations must be re-learned and re-aligned.", "id": 40}, {"q": "\"Mood in the middle\" refers to:", "t": "S", "ch": "L3 Culture", "d": "D2", "ex": "GRCP-Exam 2", "o": ["Employee satisfaction with compensation", "How middle managers' attitudes and behaviors translate (or block) leadership tone into daily practice", "The average tenure of employees", "Mid-year financial performance"], "c": [1], "f": "Between \"tone at the top\" and \"buzz at the bottom\", middle managers determine whether stated values reach frontline behavior. Their example and decisions are a decisive culture lever.", "id": 41}, {"q": "TRUE or FALSE: Stakeholder analysis is performed once at program launch and does not need updating.", "t": "S", "ch": "L4 Stakeholders", "d": "D2", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Stakeholders, their power and their expectations change continuously. Like all LEARN activities, stakeholder analysis is periodic/continual and must be refreshed as context changes.", "id": 42}, {"q": "The ALIGN component ensures that:", "t": "S", "ch": "A1 Direction", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Audits are performed on schedule", "Strategy, objectives and the approach to uncertainty and integrity are aligned with mission, values, context and stakeholder needs", "All employees receive annual training", "The helpline operates 24/7"], "c": [1], "f": "ALIGN sets direction (A1), defines objectives (A2), identifies (A3) and analyzes (A4) opportunities/obstacles/obligations, then designs (A5) integrated plans of actions and controls — all aligned with what was LEARNed.", "id": 43}, {"q": "Mission, vision and values statements established in A1 Direction serve to:", "t": "S", "ch": "A1 Direction", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Replace the need for objectives", "Provide the enduring purpose, aspiration and value boundaries that guide objectives and decisions", "Satisfy website content requirements", "Define the annual budget"], "c": [1], "f": "Direction articulates WHY the organization exists (mission), WHERE it aspires to go (vision) and HOW it will behave (values). Objectives and decision-making criteria cascade from this direction.", "id": 44}, {"q": "A formally documented risk appetite statement is established as part of:", "t": "S", "ch": "A1 Direction", "d": "D3", "ex": "GRCP-Exam 2", "o": ["L1 External Context", "A1 Direction", "P6 Notification", "R2 Assurance"], "c": [1], "f": "Setting direction includes defining the organization's overall attitude toward uncertainty — appetite and related criteria — which then guides objective-setting, analysis and design decisions.", "id": 45}, {"q": "Well-defined objectives in A2 should be:", "t": "S", "ch": "A2 Objectives", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Vague enough to allow flexibility", "Specific, measurable, aligned with direction, and balanced across stakeholder needs and time horizons", "Set only by the finance department", "Changed weekly to reflect market moves"], "c": [1], "f": "Objectives must be concrete and measurable (e.g., SMART), cascade from mission/vision/values, and be BALANCED — across financial and non-financial outcomes, short and long term, and stakeholder interests.", "id": 46}, {"q": "TRUE or FALSE: In the GRC Capability Model, uncertainty and compliance are analyzed in relation to defined objectives.", "t": "S", "ch": "A2 Objectives", "d": "D3", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. Opportunities and obstacles are defined by their effect ON OBJECTIVES, and obligations bound HOW objectives may be pursued. Without clear objectives, risk and compliance work loses its reference point.", "id": 47}, {"q": "An objective owner is BEST described as:", "t": "S", "ch": "A2 Objectives", "d": "D3", "ex": "GRCP-Exam 2", "o": ["The internal auditor who tests the objective", "The accountable person who manages an objective together with its associated opportunities, obstacles and obligations", "The regulator overseeing the industry", "The consultant who drafted the strategy"], "c": [1], "f": "Each objective should have a clear owner accountable for its achievement AND for addressing the uncertainty and obligations attached to it — reinforcing first-line accountability.", "id": 48}, {"q": "A3 Identification involves identifying:", "t": "S", "ch": "A3 Identification", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Only threats to physical security", "Opportunities, obstacles and obligations relevant to objectives", "Only financial reporting risks", "Employee performance issues"], "c": [1], "f": "Identification captures the full set of forces that may help (opportunities), hinder (obstacles) or bound (obligations) each objective — feeding analysis and design.", "id": 49}, {"q": "Which set contains ONLY identification techniques?", "t": "S", "ch": "A3 Identification", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Brainstorming, interviews, surveys, process analysis, historical loss data review", "Discipline, remediation, disclosure", "Reconciliation, segregation of duties, physical locks", "Certification, accreditation, licensing"], "c": [0], "f": "Identification techniques gather potential opportunities/obstacles/obligations: brainstorming, structured interviews, surveys and questionnaires, process and data analysis, loss-event history, checklists, horizon scanning and regulatory intelligence.", "id": 50}, {"q": "Regulatory-change monitoring services used to detect new legal requirements support which element?", "t": "S", "ch": "A3 Identification", "d": "D3", "ex": "GRCP-Exam 2", "o": ["A3 Identification (of obligations)", "P5 Incentives", "R3 Improvement", "P7 Inquiry"], "c": [0], "f": "Identifying obligations requires systematically capturing new and changed legal, regulatory and voluntary requirements and mapping their applicability to the organization.", "id": 51}, {"q": "TRUE or FALSE: Analysis quantifies the relative size and impact of the effects of opportunities, obstacles, and obligations.", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 1", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. A4 Analysis assesses likelihood and impact (and other criteria such as velocity or vulnerability) of identified items so they can be prioritized and addressed with proportionate actions and controls.", "id": 52}, {"q": "Qualitative analysis differs from quantitative analysis in that qualitative analysis:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Uses simulation models exclusively", "Uses descriptive scales (e.g., high/medium/low) and judgment rather than numeric probability and monetary impact", "Is always more accurate", "Applies only to opportunities"], "c": [1], "f": "Qualitative analysis rates items on descriptive/ordinal scales using expert judgment; quantitative analysis uses numeric estimates (probabilities, distributions, expected values, simulation). Many programs start qualitative and quantify the highest priorities.", "id": 53}, {"q": "A bow-tie diagram is used in analysis primarily to:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Rank stakeholders by influence", "Visualize causes leading to an event and the consequences flowing from it, with controls on both sides", "Calculate return on investment", "Document the org chart"], "c": [1], "f": "The bow-tie maps causes → event → consequences and shows proactive controls (left side) and responsive/mitigating controls (right side), clarifying where control effort is placed.", "id": 54}, {"q": "Residual exposure is the level of uncertainty:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Before any actions or controls are applied", "Remaining after existing actions and controls are taken into account", "Transferred to an insurer", "Recorded in the general ledger"], "c": [1], "f": "Inherent exposure exists before controls; residual exposure is what remains after current actions/controls. Decisions compare residual exposure to appetite/tolerance to determine whether further treatment is needed.", "id": 55}, {"q": "When residual exposure for an obstacle exceeds the defined tolerance, the organization should:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Accept it automatically", "Design additional or improved actions and controls, or otherwise change the approach (avoid/transfer/etc.)", "Delete the item from the register", "Reduce the tolerance to match the exposure"], "c": [1], "f": "Exceeding tolerance triggers treatment: strengthen controls, change activities, share/transfer, or in some cases formally accept with governance approval. Silently ignoring or gaming the criteria violates the integrity of the process.", "id": 56}, {"q": "A5 Design produces:", "t": "S", "ch": "A5 Design", "d": "D3", "ex": "GRCP-Exam 1", "o": ["Only the annual audit plan", "An integrated plan of proactive, detective and responsive actions and controls addressing prioritized opportunities, obstacles and obligations", "The marketing campaign calendar", "The IT disaster recovery test schedule only"], "c": [1], "f": "Design selects and integrates management actions and controls (across the IACM categories) — including policies, training, technology and process controls — proportionate to the analysis and aligned with decision criteria.", "id": 57}, {"q": "Choosing between adding a control, buying insurance, or discontinuing an activity is an example of:", "t": "S", "ch": "A5 Design", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Assurance planning", "Selecting management actions during design", "Culture assessment", "Notification triage"], "c": [1], "f": "Design weighs options (mitigate with controls, transfer/share, avoid, accept, exploit for opportunities) using cost-benefit and alignment with appetite before committing resources.", "id": 58}, {"q": "Why should compliance requirements, risk treatments and performance initiatives be designed in ONE integrated plan?", "t": "S", "ch": "A5 Design", "d": "D3", "ex": "GRCP-Exam 2", "o": ["To reduce the number of documents only", "Because siloed designs duplicate effort, create conflicting controls and leave gaps", "Because regulators mandate a single document", "To eliminate the need for review"], "c": [1], "f": "Integrated design is the heart of GRC: one coherent set of actions/controls serving performance, risk and compliance avoids duplication, conflict and blind spots — and lowers total cost.", "id": 59}, {"q": "An opportunity should be analyzed in terms of:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Only its downside if it fails", "Its potential reward, likelihood, required investment and associated obstacles", "Regulatory penalties only", "The number of employees involved"], "c": [1], "f": "Opportunities are analyzed like obstacles but with focus on potential positive effect (reward), probability, cost to pursue and new uncertainty it introduces — informing exploit/enhance/share/pursue decisions.", "id": 60}, {"q": "Decision-making criteria established during ALIGN should be:", "t": "S", "ch": "A1 Direction", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Kept confidential to the CEO", "Consistent with appetite, values and obligations, and communicated to decision makers", "Different for every meeting", "Applied only to major investments"], "c": [1], "f": "Criteria (thresholds, appetite/tolerance, ethical screens) make decisions consistent and defensible across the organization. They connect direction to daily choices.", "id": 61}, {"q": "A balanced set of objectives should consider:", "t": "S", "ch": "A2 Objectives", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Financial results only", "Financial and non-financial outcomes, short and long term, and the needs of multiple stakeholders", "Whatever competitors publish", "Only what can be automated"], "c": [1], "f": "Balance prevents value destruction from over-optimizing one dimension (e.g., short-term profit) at the expense of others (integrity, safety, sustainability, stakeholder trust).", "id": 62}, {"q": "TRUE or FALSE: An obligation only exists once a regulator has issued a penalty.", "t": "S", "ch": "A3 Identification", "d": "D3", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Obligations exist as soon as a requirement applies to the organization (by law, contract or voluntary adoption) — regardless of enforcement. Identification must be proactive, not penalty-driven.", "id": 63}, {"q": "Prioritization after analysis should PRIMARILY reflect:", "t": "S", "ch": "A4 Analysis", "d": "D3", "ex": "GRCP-Exam 2", "o": ["The loudest stakeholder's preference", "Significance of items relative to objectives, appetite and criteria", "Ease of closing items quickly", "Alphabetical order of the register"], "c": [1], "f": "Priorities flow from analyzed significance (impact, likelihood, other criteria) judged against objectives and appetite — ensuring resources go where they matter most.", "id": 64}, {"q": "Accepting an obstacle within appetite WITHOUT additional controls requires:", "t": "S", "ch": "A5 Design", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Nothing — silence equals acceptance", "A documented, authorized decision at the appropriate level with periodic re-review", "Approval from the external auditor", "Deleting it from the risk register"], "c": [1], "f": "Acceptance is a legitimate treatment ONLY when made consciously, documented, authorized at the right level, and revisited periodically as conditions change.", "id": 65}, {"q": "Which is the BEST example of designing a PROACTIVE action for an identified compliance obligation?", "t": "S", "ch": "A5 Design", "d": "D3", "ex": "GRCP-Exam 2", "o": ["Investigating a violation after a helpline report", "Building automated screening into the payment process so prohibited transactions cannot be executed", "Disciplining an employee for a proven breach", "Issuing a press release after an incident"], "c": [1], "f": "Proactive design prevents non-compliance before it happens — embedding requirements into processes and systems (compliance by design) is stronger than detecting and responding after the fact.", "id": 66}, {"q": "In the PERFORM component, P1 addresses:", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Independent assurance", "Implementing and operating the mix of management actions and controls designed in ALIGN", "Setting the mission statement", "Conducting climate surveys"], "c": [1], "f": "PERFORM puts the design into action: P1 operates controls and actions; P2–P8 address policies, communication, education, incentives, notification, inquiry and response.", "id": 67}, {"q": "Which trio correctly lists common control TYPES by mechanism?", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Physical, technical (automated), administrative (procedural)", "Legal, illegal, voluntary", "Fast, slow, medium", "Internal, external, lateral"], "c": [0], "f": "By mechanism, controls are physical (locks, barriers), technical/automated (system validations, access rights) and administrative/procedural (approvals, reviews, segregation of duties). Each can be proactive, detective or responsive.", "id": 68}, {"q": "An automated system validation that blocks purchase orders above an employee's authority is:", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 2", "o": ["A detective administrative control", "A proactive technical control", "A responsive physical control", "An assurance activity"], "c": [1], "f": "It is technical (automated in the system) and proactive (prevents the undesirable event before it occurs).", "id": 69}, {"q": "Control activities are MOST effective when they are:", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Added on top of processes as separate bureaucratic steps", "Embedded into business processes and systems where the work happens", "Performed only by the compliance team", "Documented but rarely operated"], "c": [1], "f": "Embedding controls in the flow of work (and automating where sensible) increases reliability and reduces friction and cost compared with bolt-on manual checks.", "id": 70}, {"q": "Which correctly orders the typical policy hierarchy from highest-level to most detailed?", "t": "S", "ch": "P2 Policies", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Procedure → Standard → Policy → Code of Conduct", "Code of Conduct / Policy → Standard → Procedure → Guideline", "Guideline → Procedure → Policy → Standard", "Standard → Code → Guideline → Policy"], "c": [1], "f": "Codes and policies state principles and requirements; standards set specific mandatory criteria; procedures give step-by-step instructions; guidelines offer recommended (non-mandatory) practices.", "id": 71}, {"q": "A well-managed policy lifecycle includes:", "t": "S", "ch": "P2 Policies", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Draft once and never revisit", "Development, approval, communication, implementation, periodic review/update and retirement — with defined ownership", "Publication on the intranet only", "Approval by external auditors"], "c": [1], "f": "Policies need owners, version control, approvals, effective communication and training, monitoring of adherence, scheduled reviews, and retirement when obsolete.", "id": 72}, {"q": "The code of conduct differs from a topical policy because it:", "t": "S", "ch": "P2 Policies", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Applies only to executives", "Expresses organization-wide values and expected behaviors, acting as the umbrella over topical policies", "Is optional for employees", "Contains detailed technical procedures"], "c": [1], "f": "The code is the umbrella document translating values into expected behavior for everyone, referencing topical policies (anti-bribery, privacy, conflicts, etc.) for detail.", "id": 73}, {"q": "TRUE or FALSE: Publishing a policy is sufficient to establish that employees are accountable for following it.", "t": "S", "ch": "P2 Policies", "d": "D4", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [1], "f": "FALSE. Effective policy management requires communication, training, attestation where appropriate, accessible language, and consistent enforcement — mere publication does not create real awareness or accountability.", "id": 74}, {"q": "P3 Communication in the Model covers:", "t": "S", "ch": "P3 Communication", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Only crisis press releases", "Ongoing internal and external communication that informs, engages and supports doing the right thing", "Marketing campaigns exclusively", "Board minutes distribution only"], "c": [1], "f": "Communication delivers the right information to the right audiences (workforce, partners, stakeholders) through appropriate channels — building awareness, transparency and trust in both directions.", "id": 75}, {"q": "Which practice makes compliance communication MOST effective?", "t": "S", "ch": "P3 Communication", "d": "D4", "ex": "GRCP-Exam 2", "o": ["One annual mass email covering all topics", "Audience-tailored, plain-language, repeated messages through multiple channels with leadership reinforcement", "Legal-department language to ensure precision", "Restricting messages to managers only"], "c": [1], "f": "Effective communication is targeted, understandable, multi-channel and reinforced by leaders — measured for reach and understanding, not just sent.", "id": 76}, {"q": "A risk-based training curriculum means:", "t": "S", "ch": "P4 Education", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Everyone takes identical courses every year", "Training depth and frequency are matched to each role's exposure to specific obligations and risks", "Training is optional for busy departments", "Only new hires receive training"], "c": [1], "f": "Education is tailored: high-exposure roles (e.g., sales in high-corruption markets, engineers handling personal data) get deeper, more frequent training; general awareness suffices for low-exposure roles.", "id": 77}, {"q": "The effectiveness of an education program is BEST measured by:", "t": "S", "ch": "P4 Education", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Completion rates alone", "Knowledge checks, behavior indicators and incident trends in addition to completion", "Number of slides delivered", "Budget spent per employee"], "c": [1], "f": "Completion is an output, not an outcome. Assess understanding (tests), application (behavior, decisions) and impact (fewer related incidents, better reporting) to judge effectiveness.", "id": 78}, {"q": "P5 Incentives aims to:", "t": "S", "ch": "P5 Incentives", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Maximize sales commissions", "Align rewards, recognition and consequences so desired conduct is encouraged and misconduct is not rewarded", "Replace disciplinary processes", "Set executive pay only"], "c": [1], "f": "Incentives (compensation, promotion, recognition) and disincentives must reinforce Principled Performance. Rewarding results achieved through misconduct destroys culture and controls.", "id": 79}, {"q": "Including integrity and compliance behaviors in performance evaluations is an example of:", "t": "S", "ch": "P5 Incentives", "d": "D4", "ex": "GRCP-Exam 2", "o": ["A detective control", "Aligning incentives with desired conduct", "External assurance", "Context watching"], "c": [1], "f": "Building \"how\" (conduct) alongside \"what\" (results) into appraisal and reward systems operationalizes values and deters rationalization of misconduct.", "id": 80}, {"q": "TRUE or FALSE: Consistent disciplinary consequences regardless of seniority strengthen the credibility of the compliance program.", "t": "S", "ch": "P5 Incentives", "d": "D4", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. Perceived \"senior-level exceptions\" are among the fastest destroyers of ethical culture. Consistency across levels signals that boundaries are real.", "id": 81}, {"q": "P6 Notification establishes:", "t": "S", "ch": "P6 Notification", "d": "D4", "ex": "GRCP-Exam 1", "o": ["The external audit schedule", "Pathways (e.g., helplines) for anyone to ask questions, raise concerns and report suspected misconduct — with anti-retaliation protection", "Regulatory filing calendars", "Marketing notification preferences"], "c": [1], "f": "Notification provides accessible, trusted channels (manager, helpline, web, in some cases anonymous) for guidance-seeking and reporting, protected by robust anti-retaliation commitments.", "id": 82}, {"q": "Why is anonymity (or at least confidentiality) important in reporting channels?", "t": "S", "ch": "P6 Notification", "d": "D4", "ex": "GRCP-Exam 1", "o": ["It reduces the volume of reports", "Fear of retaliation is a primary reason people stay silent; protection increases willingness to report", "It eliminates false reports entirely", "Regulators forbid identified reports"], "c": [1], "f": "Protection (confidential and, where lawful, anonymous options plus enforced anti-retaliation) directly addresses the main barrier to speaking up, improving early detection.", "id": 83}, {"q": "A rising number of helpline reports after a \"speak-up\" campaign MOST likely indicates:", "t": "S", "ch": "P6 Notification", "d": "D4", "ex": "GRCP-Exam 2", "o": ["The organization is becoming less ethical", "Growing trust in the channels — reporting willingness increased", "The helpline is malfunctioning", "Retaliation has increased"], "c": [1], "f": "Report volume is not a misconduct meter. After awareness campaigns, higher volume usually signals trust; analysis should look at substantiation rates, categories and trends.", "id": 84}, {"q": "P7 Inquiry includes activities such as:", "t": "S", "ch": "P7 Inquiry", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Setting the vision statement", "Triage, investigation of reports, surveys and analysis to determine what actually happened", "Paying regulatory fines", "Publishing the annual report"], "c": [1], "f": "Inquiry finds facts: triaging notifications, conducting fair and competent investigations, and using surveys/analytics to detect and understand issues and their root causes.", "id": 85}, {"q": "A credible internal investigation requires:", "t": "S", "ch": "P7 Inquiry", "d": "D4", "ex": "GRCP-Exam 1", "o": ["The accused's direct manager to lead it", "Independence/objectivity, competence, confidentiality, documented process and timely completion", "Immediate public disclosure of allegations", "Skipping interviews to save time"], "c": [1], "f": "Investigations must be objective (free of conflicts), performed by trained investigators, protect confidentiality and due process, follow a defined and documented methodology, and conclude in reasonable time.", "id": 86}, {"q": "Root cause analysis after a substantiated incident is important because it:", "t": "S", "ch": "P7 Inquiry", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Assigns maximum blame to individuals", "Reveals control, process or culture weaknesses so responses can prevent recurrence", "Satisfies the insurance company", "Delays disciplinary action"], "c": [1], "f": "Beyond individual accountability, root cause analysis (e.g., 5-Whys, fishbone) exposes systemic weaknesses — feeding R3 Improvement and better design.", "id": 87}, {"q": "P8 Response encompasses:", "t": "S", "ch": "P8 Response", "d": "D4", "ex": "GRCP-Exam 1", "o": ["Only press statements", "Discipline, remediation of harm, required disclosures, crisis management and control improvement following events", "Annual strategic planning", "Employee onboarding"], "c": [1], "f": "Response closes the loop after events: proportionate discipline, correcting/remediating harm, notifying authorities where required, managing crises, and improving actions/controls.", "id": 88}, {"q": "After confirming a data breach that triggers a legal notification duty, the organization should:", "t": "S", "ch": "P8 Response", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Wait to see if anyone notices", "Execute its response plan: contain, assess, notify affected parties/authorities within required timeframes, remediate and improve", "Delete the affected records", "Only inform the marketing team"], "c": [1], "f": "Mandatory disclosure obligations (e.g., breach notification laws) are part of designed response. Timely, honest response limits harm and demonstrates integrity.", "id": 89}, {"q": "TRUE or FALSE: Response activities should feed lessons learned back into ALIGN and design.", "t": "S", "ch": "P8 Response", "d": "D4", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. Each incident is information: response outcomes and root causes update identification, analysis and design — this is how the capability learns and improves.", "id": 90}, {"q": "Compensating controls are used when:", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Primary controls are fully effective", "A primary control cannot be applied (e.g., small team prevents full segregation) and an alternative mitigates the exposure", "The organization wants to duplicate controls", "Auditors request more paperwork"], "c": [1], "f": "When an ideal control is impractical, compensating controls (e.g., enhanced management review replacing segregation of duties) provide alternative mitigation — documented and monitored.", "id": 91}, {"q": "Policies should be written:", "t": "S", "ch": "P2 Policies", "d": "D4", "ex": "GRCP-Exam 2", "o": ["In complex legal language to be safe", "In clear, plain language appropriate to the audience, translated where needed", "Only in the headquarters language", "As long as possible to cover all cases"], "c": [1], "f": "A policy nobody understands changes nobody's behavior. Clarity, brevity, audience-appropriate language and translation drive real adherence.", "id": 92}, {"q": "Two-way communication mechanisms (Q&A sessions, feedback surveys) matter because they:", "t": "S", "ch": "P3 Communication", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Fulfill a legal formality", "Surface confusion, concerns and emerging issues that one-way broadcasting misses", "Replace the helpline", "Reduce the training budget"], "c": [1], "f": "Listening channels reveal how messages land and what is really happening — early warning that pure broadcasting cannot provide.", "id": 93}, {"q": "New-hire onboarding should include GRC content because:", "t": "S", "ch": "P4 Education", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Regulations require a signature on day one", "Early formation of expectations about values, boundaries and reporting channels shapes behavior from the start", "It fills the onboarding agenda", "Veterans do not need reminders"], "c": [1], "f": "Onboarding sets norms at the most formative moment; it establishes the code, key policies, and where to ask questions or report concerns — later reinforced by periodic training.", "id": 94}, {"q": "Anti-retaliation protection should cover:", "t": "S", "ch": "P6 Notification", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Only reports that are ultimately substantiated", "Anyone who reports in good faith or participates in an inquiry, regardless of outcome", "Only anonymous reporters", "Only senior managers"], "c": [1], "f": "Good-faith reporters and inquiry participants must be protected even when allegations are not substantiated; otherwise fear suppresses future reporting.", "id": 95}, {"q": "Triage of incoming notifications means:", "t": "S", "ch": "P7 Inquiry", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Ignoring anonymous reports", "Assessing each report's severity, credibility and category to route it to the right process and priority", "Forwarding everything to the CEO", "Batch-processing reports quarterly"], "c": [1], "f": "Triage ensures serious matters (safety, fraud, legal exposure) get urgent, competent handling while routine questions are routed appropriately — with consistent criteria and documentation.", "id": 96}, {"q": "Proportionate discipline means the consequence:", "t": "S", "ch": "P8 Response", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Is always termination", "Matches the severity and circumstances of the violation and is consistent across similar cases", "Depends on the employee's sales results", "Is decided by the reporter"], "c": [1], "f": "Proportionality and consistency make discipline fair and credible; documented criteria and case tracking prevent arbitrary or biased outcomes.", "id": 97}, {"q": "Who is PRIMARILY responsible for operating day-to-day controls?", "t": "S", "ch": "P1 Controls", "d": "D4", "ex": "GRCP-Exam 2", "o": ["Internal audit", "First-line management and process owners", "The board of directors", "External consultants"], "c": [1], "f": "Controls belong to the processes they protect; first-line owners operate them. Second-line functions support and monitor; assurance independently evaluates.", "id": 98}, {"q": "A sales bonus plan that pays purely on revenue with no conduct gate creates:", "t": "S", "ch": "P5 Incentives", "d": "D4", "ex": "GRCP-Exam 2", "o": ["A proactive control", "A misaligned incentive that can encourage boundary-crossing behavior", "A detective control", "An assurance mechanism"], "c": [1], "f": "Pure-outcome incentives without conduct conditions invite corner-cutting (mis-selling, bribery, channel stuffing). Incentive design is a core GRC lever, not an HR afterthought.", "id": 99}, {"q": "The REVIEW component exists to:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 1", "o": ["Replace management judgment", "Monitor and assure the design and operation of the GRC capability and drive its continual improvement", "Approve the annual budget", "Communicate the code of conduct"], "c": [1], "f": "REVIEW = R1 Monitoring (ongoing and periodic evaluation), R2 Assurance (independent, objective evaluation for decision-makers) and R3 Improvement (acting on findings and changes).", "id": 100}, {"q": "Ongoing monitoring differs from periodic evaluation in that ongoing monitoring:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 1", "o": ["Happens once a year", "Is built into routine operations and runs continuously (e.g., dashboards, automated alerts)", "Is performed only by external auditors", "Requires board approval each time"], "c": [1], "f": "Ongoing monitoring is embedded and continuous; periodic evaluation is a separate point-in-time assessment (e.g., quarterly control self-assessment). Both are needed.", "id": 101}, {"q": "Which correctly matches indicator types?", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 1", "o": ["KPI—key performance; KRI—key risk; KCI—key compliance/control indicator", "KPI—key policy; KRI—key reporting; KCI—key culture", "KPI—known problem; KRI—known risk; KCI—known cost", "All three are identical"], "c": [0], "f": "KPIs track progress toward objectives; KRIs give early warning that risk levels are changing; KCIs track compliance/control health (e.g., training completion, control failures, open findings).", "id": 102}, {"q": "A good Key Risk Indicator (KRI) should be:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Reported only after losses occur", "Leading (predictive), measurable, linked to a specific exposure and tied to thresholds that trigger action", "Confidential to the risk team", "Changed every week"], "c": [1], "f": "KRIs work when they anticipate change (leading), are objectively measurable, map to defined exposures, and have thresholds/escalation rules that provoke timely response.", "id": 103}, {"q": "Monitoring in the Model applies to:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Financial controls only", "The performance, effectiveness and efficiency of actions, controls and the whole GRC capability — plus changes in context", "Employee attendance", "Marketing campaign ROI only"], "c": [1], "f": "R1 watches whether designed actions/controls operate as intended and remain suitable — and detects internal/external changes that require re-alignment.", "id": 104}, {"q": "Assurance is BEST defined as:", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 1", "o": ["Any management report", "An independent, objective evaluation providing decision-makers confidence about subject matter against suitable criteria", "A guarantee that no risk will materialize", "The purchase of insurance policies"], "c": [1], "f": "Assurance gives stakeholders justified confidence. Its hallmarks are independence and objectivity of the provider, defined subject matter, suitable criteria and evidence-based conclusions.", "id": 105}, {"q": "Why can't the manager who operates a control also provide formal assurance over it?", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 1", "o": ["Managers are too busy", "Self-review threatens independence and objectivity — the evaluation would lack credibility", "Regulations prohibit managers from writing reports", "Controls cannot be evaluated at all"], "c": [1], "f": "Assurance requires independence from the subject matter. Self-assessment is useful monitoring, but formal assurance needs an evaluator free of conflicting interest (e.g., internal audit).", "id": 106}, {"q": "Levels of assurance vary based on:", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 2", "o": ["The font used in the report", "The rigor of procedures, the independence of the provider and the confidence needed by the decision maker", "The length of the engagement letter", "The seniority of the auditee"], "c": [1], "f": "Higher-stakes decisions demand higher assurance: more rigorous evidence, more independent providers (internal audit, external assurance) versus lighter reviews or self-assessments.", "id": 107}, {"q": "TRUE or FALSE: Internal audit's role in GRC includes evaluating the effectiveness of governance, risk management and control processes.", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. As the independent assurance line, internal audit evaluates and reports on how well governance, risk and control (the GRC capability) are designed and operating — informing the board and management.", "id": 108}, {"q": "Coordinating assurance activities across providers (\"assurance mapping\") helps to:", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Increase duplicate testing", "Cover key exposures without gaps or wasteful overlap, and present a coherent picture to the board", "Replace the external audit", "Hide findings from management"], "c": [1], "f": "Mapping who assures what, against key objectives/exposures, exposes gaps and duplication — enabling combined, efficient and complete assurance coverage.", "id": 109}, {"q": "R3 Improvement involves:", "t": "S", "ch": "R3 Improvement", "d": "D5", "ex": "GRCP-Exam 1", "o": ["Archiving all findings without action", "Acting on monitoring/assurance results and contextual change through corrective actions and capability enhancements", "Rewriting the mission every quarter", "Punishing the messengers"], "c": [1], "f": "Improvement closes the loop: prioritized corrective actions, redesigned controls, updated policies/training, and structural changes — managed like any change with owners and deadlines.", "id": 110}, {"q": "A finding's corrective action plan should include:", "t": "S", "ch": "R3 Improvement", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Only a description of the problem", "Root cause, specific actions, an accountable owner, target dates and follow-up verification", "A request for budget with no timeline", "Anonymous ownership to avoid blame"], "c": [1], "f": "Effective remediation is specific and accountable: root cause addressed, owner named, dates set, progress tracked, and closure verified by monitoring or assurance.", "id": 111}, {"q": "Capability maturity assessment is useful in improvement because it:", "t": "S", "ch": "R3 Improvement", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Ranks employees for bonuses", "Benchmarks how developed each GRC element is and guides a prioritized roadmap to the target state", "Replaces risk analysis", "Is required before any audit"], "c": [1], "f": "Maturity models (e.g., ad hoc → defined → managed → optimized) show current vs. desired state per element, focusing investment where improvement matters most.", "id": 112}, {"q": "Control self-assessment (CSA) is:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 2", "o": ["A form of independent assurance", "A monitoring technique where process owners evaluate their own controls, useful but not independent", "An external audit substitute", "A disciplinary process"], "c": [1], "f": "CSA engages first-line owners in evaluating control design/operation — valuable monitoring input, but because of self-review it cannot serve as independent assurance.", "id": 113}, {"q": "Exceeding a KRI threshold should trigger:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Nothing until year-end", "The predefined escalation and response defined for that indicator", "Deleting the indicator", "Raising the threshold"], "c": [1], "f": "Indicators only add value when breaches trigger defined escalation, analysis and action. Adjusting thresholds to silence alarms defeats the purpose.", "id": 114}, {"q": "Suitable criteria for an assurance engagement means:", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Whatever the auditor prefers that day", "Relevant, complete, reliable, neutral and understandable benchmarks (e.g., frameworks, policies, regulations) against which the subject is evaluated", "Criteria kept secret from the auditee", "Only financial accounting standards"], "c": [1], "f": "Assurance conclusions are only meaningful against agreed, suitable criteria — such as the GRC Capability Model, laws, standards or internal policies.", "id": 115}, {"q": "TRUE or FALSE: Significant changes in the external context can require improvement of the GRC capability even when no control failure occurred.", "t": "S", "ch": "R3 Improvement", "d": "D5", "ex": "GRCP-Exam 2", "o": ["TRUE", "FALSE"], "c": [0], "f": "TRUE. Improvement is driven by findings AND by change: new laws, markets, technologies or strategies can render existing designs unsuitable, triggering re-alignment and enhancement.", "id": 116}, {"q": "Measuring the GRC capability itself (not only business results) matters because:", "t": "S", "ch": "R1 Monitoring", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Regulators only read capability metrics", "Decision-makers need evidence that the system producing outcomes is designed and operating effectively", "It replaces financial reporting", "It guarantees Principled Performance"], "c": [1], "f": "Outcome metrics can look fine while the underlying capability decays. Measuring design/operating effectiveness and maturity of the capability provides early, reliable insight.", "id": 117}, {"q": "When a serious weakness is found, assurance providers should FIRST:", "t": "S", "ch": "R2 Assurance", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Publish it on social media", "Communicate it promptly to accountable management (and governance where warranted) with clear impact and recommendations", "Wait for the annual report", "Fix the control themselves"], "c": [1], "f": "Timely, clear reporting to the accountable parties enables risk-based response; assurance providers advise and verify but do not take over management's remediation role.", "id": 118}, {"q": "Lessons-learned reviews after major incidents or projects contribute to:", "t": "S", "ch": "R3 Improvement", "d": "D5", "ex": "GRCP-Exam 2", "o": ["Blame allocation only", "Systematic capture of what worked and what failed, feeding design and education improvements", "Marketing content", "Reducing the number of objectives"], "c": [1], "f": "Structured lessons-learned convert experience into capability: updated designs, policies, training and monitoring — institutional learning rather than repeated mistakes.", "id": 119}]
+</script>
+<script>
+/* ================= COPY PROTECTION ================= */
+document.addEventListener('copy',e=>{e.preventDefault()});
+document.addEventListener('cut',e=>{e.preventDefault()});
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&['c','x','s','p','u'].includes(e.key.toLowerCase())){e.preventDefault()}
+  if(e.key==='PrintScreen'){e.preventDefault()}
+});
+
+/* ================= CONSTANTS ================= */
+const DNAMES={D1:['المفاهيم الأساسية للحوكمة والمخاطر والالتزام','GRC Key Concepts','20%'],D2:['مكوّن التعلم','LEARN Component','15%'],D3:['مكوّن المواءمة','ALIGN Component','20%'],D4:['مكوّن الأداء','PERFORM Component','28%'],D5:['مكوّن المراجعة','REVIEW Component','17%']};
+const STAGE={'GRC Key Concepts':'المفاهيم الأساسية','Integrated Action & Control Model':'نموذج الإجراءات والضوابط المتكامل IACM','Lines of Accountability':'خطوط المساءلة','L1 External Context':'L1 السياق الخارجي','L2 Internal Context':'L2 السياق الداخلي','L3 Culture':'L3 الثقافة','L4 Stakeholders':'L4 أصحاب المصلحة','A1 Direction':'A1 التوجيه','A2 Objectives':'A2 الأهداف','A3 Identification':'A3 التحديد','A4 Analysis':'A4 التحليل','A5 Design':'A5 التصميم','P1 Controls':'P1 الضوابط','P2 Policies':'P2 السياسات','P3 Communication':'P3 التواصل','P4 Education':'P4 التثقيف والتدريب','P5 Incentives':'P5 الحوافز','P6 Notification':'P6 الإبلاغ','P7 Inquiry':'P7 التحري','P8 Response':'P8 الاستجابة','R1 Monitoring':'R1 المراقبة','R2 Assurance':'R2 التوكيد','R3 Improvement':'R3 التحسين'}};
+const BLUEPRINT={D1:20,D2:15,D3:20,D4:28,D5:17}; // 100
+const BANK=(window.QBANK||[]);
+
+/* ================= SETUP ================= */
+let mode='full';
+document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{
+  document.querySelectorAll('.mode').forEach(x=>x.classList.remove('on'));
+  m.classList.add('on'); mode=m.dataset.m; refreshSetupUI();
+});
+const selExam=document.getElementById('selExam'),selDomain=document.getElementById('selDomain'),selChapter=document.getElementById('selChapter'),numQ=document.getElementById('numQ');
+(function init(){
+  const exams=[...new Set(BANK.map(q=>q.ex))].filter(e=>e&&e!=='Bank').sort();
+  selExam.innerHTML=exams.map(e=>`<option value="${e}">${e} (${BANK.filter(q=>q.ex===e).length} سؤالاً)</option>`).join('');
+  const chs=[...new Set(BANK.map(q=>q.ch))];
+  selChapter.innerHTML=chs.map(c=>`<option value="${c}">${STAGE[c]||c} — ${c} (${BANK.filter(q=>q.ch===c).length})</option>`).join('');
+  refreshSetupUI(); renderHist();
+})();
+function refreshSetupUI(){
+  selExam.classList.toggle('hide',mode!=='exam');
+  selDomain.classList.toggle('hide',mode!=='domain');
+  selChapter.classList.toggle('hide',mode!=='chapter');
+  numQ.classList.toggle('hide',!['custom','domain','chapter'].includes(mode));
+  const info=document.getElementById('setupInfo');
+  info.textContent = mode==='full' ? `سيُبنى الاختبار بمحاكاة اختبار GRCP الرسمي: 100 سؤال (20+15+20+28+17)` : `إجمالي البنك: ${BANK.length} سؤالاً`;
+}
+
+/* ================= STATE ================= */
+let S=null, tInt=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function buildSet(){
+  if(mode==='full'){
+    let set=[];
+    for(const d in BLUEPRINT){ set=set.concat(shuffle(BANK.filter(q=>q.d===d)).slice(0,BLUEPRINT[d])); }
+    return shuffle(set);
+  }
+  if(mode==='exam') return BANK.filter(q=>q.ex===selExam.value);
+  let pool = mode==='domain'? BANK.filter(q=>q.d===selDomain.value)
+           : mode==='chapter'? BANK.filter(q=>q.ch===selChapter.value)
+           : BANK.slice();
+  const n=Math.min(+numQ.value||30,pool.length);
+  return shuffle(pool.slice()).slice(0,n);
+}
+
+function startExam(){
+  if(!BANK.length){alert('لم يتم تحميل بنك الأسئلة — تأكد من وجود data/questions.js');return}
+  let qs=buildSet();
+  if(document.getElementById('chkShufQ').checked) qs=shuffle(qs.slice());
+  const shufA=document.getElementById('chkShufA').checked;
+  qs=qs.map(q=>({...q, ord: shufA? shuffle([...q.o.keys()]) : [...q.o.keys()]}));
+  if(!qs.length){alert('لا توجد أسئلة مطابقة');return}
+  const practice=document.getElementById('chkPractice').checked;
+  const noTimer=document.getElementById('chkNoTimer').checked;
+  const secs = mode==='full'?120*60 : Math.round(qs.length*78); // ~1.3 min/q
+  S={qs, i:0, ans:qs.map(()=>[]), flag:qs.map(()=>false), struck:qs.map(()=>[]),
+     checked:qs.map(()=>false), practice, noTimer, left:secs, total:secs,
+     paused:false, start:Date.now(), breakShown:false,
+     lang:document.getElementById('selLang').value, tmpTr:{},
+     name:document.getElementById('trainName').value.trim()};
+  document.getElementById('wm').style.display='block';
+  document.getElementById('setup').classList.add('hide');
+  document.getElementById('report').classList.add('hide');
+  document.getElementById('exam').classList.remove('hide');
+  document.getElementById('bCheck').style.display = practice?'':'none';
+  buildNav(); render(); startTimer();
+  chatMsg('ai','أهلاً بك يا بطل 👋 أنا <b>AI — Dr. Mohamed Attia</b>، مساعدك الذكي لفهم كل سؤال. اسألني عن أي مصطلح في السؤال أو اطلب تلميحاً أو استراتيجية حل — دون أن أفسد عليك متعة الوصول للإجابة بنفسك!');
+}
+
+/* ================= TIMER ================= */
+function startTimer(){
+  clearInterval(tInt);
+  if(S.noTimer){document.getElementById('xTimer').textContent='∞';return}
+  tInt=setInterval(()=>{
+    if(S.paused)return;
+    S.left--;
+    const t=document.getElementById('xTimer');
+    const h=Math.floor(S.left/3600),m=Math.floor(S.left%3600/60),s=S.left%60;
+    t.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    t.classList.toggle('low',S.left<300);
+    if(mode==='full'&&!S.breakShown&&S.left<=S.total/2){
+      S.breakShown=true;
+      if(confirm('⏸️ وصلت لمنتصف الاختبار! اختبار GRCP الحقيقي ساعتان متواصلتان بدون استراحة رسمية — لكن يمكنك هنا التوقف مؤقتاً للتدريب. هل تريد إيقاف المؤقّت؟')) togglePause();
+    }
+    if(S.left<=0){clearInterval(tInt);alert('⏰ انتهى الوقت! سيتم تسليم الاختبار.');submitExam()}
+  },1000);
+}
+function togglePause(){
+  if(S.noTimer)return;
+  S.paused=!S.paused;
+  document.getElementById('pauseOv').classList.toggle('show',S.paused);
+  document.getElementById('bPause').textContent=S.paused?'▶️':'⏸️';
+}
+
+/* ================= RENDER Q ================= */
+function render(){
+  const q=S.qs[S.i];
+  document.getElementById('xQnum').textContent=`السؤال ${S.i+1} من ${S.qs.length}`;
+  document.getElementById('xDom').textContent=`المجال: ${DNAMES[q.d][0]}`;
+  document.getElementById('xCh').textContent=q.ch;
+  document.getElementById('xStage').textContent=STAGE[q.ch]||'';
+  document.getElementById('qType').textContent=q.t==='M'?`اختر ${q.c.length} إجابات`:'اختر إجابة واحدة';
+  const other=!!S.tmpTr[q.id];            // زر الترجمة مفعّل؟
+  const tr=TRC[q.id];
+  const showEN = S.lang!=='ar' || other || !tr;   // في العربي: يظهر الإنجليزي مؤقتاً حتى تصل الترجمة أو عند طلبها
+  const showAR = S.lang!=='en' || other;
+  document.getElementById('qText').innerHTML=
+    (showEN?`<div class="eno ${S.lang==='ar'?'endim':''}">${q.q}</div>`:'')+
+    (showAR?`<div class="arblock" id="arQ">${tr?tr.q:'⏳ جارٍ تجهيز الترجمة العربية…'}</div>`:'');
+  const bTr=document.getElementById('bTr');
+  bTr.classList.toggle('on',other);
+  bTr.style.display=S.lang==='both'?'none':'';
+  bTr.textContent=S.lang==='ar'?(other?'🌐 إخفاء الإنجليزية':'🌐 عرض الإنجليزية'):(other?'🌐 إخفاء العربية':'🌐 ترجمة للعربية');
+  document.getElementById('bFlag').style.background=S.flag[S.i]?'#FDE68A':'';
+  const box=document.getElementById('qOpts');box.innerHTML='';
+  q.ord.forEach((oi,j)=>{
+    const o=q.o[oi];
+    const d=document.createElement('div');
+    d.className='opt'+(S.ans[S.i].includes(oi)?' sel':'')+(S.struck[S.i].includes(oi)?' struck':'');
+    if(S.checked[S.i]){ if(q.c.includes(oi))d.classList.add('correct'); else if(S.ans[S.i].includes(oi))d.classList.add('wrong'); }
+    d.innerHTML=`<div class="ol">${'ABCDEFGH'[j]}</div><div class="ot">${showEN?`<div class="eno ${S.lang==='ar'?'endim':''}">${o}</div>`:''}${showAR?`<div class="arblock aro" data-j="${oi}">${tr?(tr.o[oi]||''):''}</div>`:''}</div><button class="strike-b" title="شطب الخيار" onclick="event.stopPropagation();strike(${oi})">✂️</button>`;
+    d.onclick=()=>pick(oi);
+    box.appendChild(d);
+  });
+  renderFb();
+  document.getElementById('bPrev').disabled=S.i===0;
+  document.getElementById('bNext').textContent=S.i===S.qs.length-1?'مراجعة وتسليم ⤴':'التالي ←';
+  updNav();
+  if(showAR&&!tr)ensureTr(S.i); else if(S.lang!=='en'&&S.i+1<S.qs.length)translateQ(S.i+1).catch(()=>{});
+}
+function pick(j){
+  const q=S.qs[S.i];
+  if(S.checked[S.i]&&S.practice)return;
+  if(q.t==='S'){S.ans[S.i]=[j]}
+  else{
+    const a=S.ans[S.i];
+    a.includes(j)?a.splice(a.indexOf(j),1):a.push(j);
+  }
+  render();
+}
+function strike(j){
+  const s=S.struck[S.i];
+  s.includes(j)?s.splice(s.indexOf(j),1):s.push(j);
+  render();
+}
+function toggleFlag(){S.flag[S.i]=!S.flag[S.i];render()}
+function go(dir){
+  if(dir>0&&S.i===S.qs.length-1){confirmSubmit();return}
+  S.i=Math.max(0,Math.min(S.qs.length-1,S.i+dir));render();
+}
+function checkAnswer(){
+  if(!S.ans[S.i].length){alert('اختر إجابة أولاً');return}
+  S.checked[S.i]=true;render();
+}
+function isCorrect(i){
+  const q=S.qs[i],a=[...S.ans[i]].sort((x,y)=>x-y),c=[...q.c].sort((x,y)=>x-y);
+  return a.length===c.length&&a.every((v,k)=>v===c[k]);
+}
+function renderFb(){
+  const box=document.getElementById('qFb');box.innerHTML='';
+  if(!S.checked[S.i]||!S.practice)return;
+  const q=S.qs[S.i],ok=isCorrect(S.i);
+  box.innerHTML=`<div class="fb-box ${ok?'fb-ok':'fb-bad'}">
+    <div class="fb-t">${ok?'✅ إجابة صحيحة — أحسنت!':'❌ إجابة غير صحيحة'}</div>
+    <b>الإجابة الصحيحة:</b> ${q.c.map(ci=>'ABCDEFGH'[q.ord.indexOf(ci)]).sort().join(' + ')}<br>
+    <b>الشرح والتفسير:</b> ${q.f||'راجع المرجع المذكور في المجال المقابل.'}
+    <div class="arblock" id="fbAr"></div>
+    <div class="eco">📌 مرجع ECO: ${DNAMES[q.d][1]} (${DNAMES[q.d][2]}) — ${STAGE[q.ch]||q.ch}</div>
+  </div>`;
+  if(S.lang!=='en'||S.tmpTr[q.id])ensureTr(S.i);
+}
+
+/* ================= NAVIGATOR ================= */
+function buildNav(){
+  const g=document.getElementById('ngrid');g.innerHTML='';
+  S.qs.forEach((_,i)=>{
+    const b=document.createElement('button');b.className='nq';b.textContent=i+1;
+    b.onclick=()=>{S.i=i;render()};g.appendChild(b);
+  });
+}
+function updNav(){
+  const bs=document.querySelectorAll('.nq');
+  bs.forEach((b,i)=>{
+    b.classList.toggle('cur',i===S.i);
+    b.classList.toggle('ans',S.ans[i].length>0&&!S.flag[i]);
+    b.classList.toggle('flg',S.flag[i]);
+  });
+  const answered=S.ans.filter(a=>a.length).length;
+  document.getElementById('navStats').innerHTML=`مُجاب: <b style="color:#5DADE2">${answered}</b> • متبقٍ: <b style="color:var(--warn)">${S.qs.length-answered}</b> • معلَّم: <b>${S.flag.filter(f=>f).length}</b>`;
+}
+
+/* ================= SUBMIT & REPORT ================= */
+function confirmSubmit(){
+  const un=S.qs.length-S.ans.filter(a=>a.length).length;
+  if(confirm(`هل أنت متأكد من التسليم؟${un?`\n⚠️ لديك ${un} سؤالاً بلا إجابة!`:''}`)) submitExam();
+}
+function submitExam(){
+  clearInterval(tInt);
+  const total=S.qs.length, correct=S.qs.reduce((n,_,i)=>n+(isCorrect(i)?1:0),0);
+  const pct=Math.round(correct/total*100);
+  const dstat={};
+  S.qs.forEach((q,i)=>{
+    dstat[q.d]=dstat[q.d]||{t:0,c:0};
+    dstat[q.d].t++; if(isCorrect(i))dstat[q.d].c++;
+  });
+  const used=S.noTimer?Math.round((Date.now()-S.start)/1000):S.total-S.left;
+  const att={date:new Date().toLocaleString('ar-EG'),mode,total,correct,pct,mins:Math.round(used/60)};
+  const h=JSON.parse(localStorage.getItem('grcpHist')||'[]');h.unshift(att);localStorage.setItem('grcpHist',JSON.stringify(h.slice(0,30)));
+  renderReport(correct,total,pct,dstat,used);
+}
+function perf(p){
+  if(p>=80)return['فوق المستهدف','Above Target','#27AE60'];
+  if(p>=70)return['ضمن المستهدف','Target','#7DCEA0'];
+  if(p>=60)return['دون المستهدف','Below Target','#E67E22'];
+  return['يحتاج تحسيناً','Needs Improvement','#C0392B'];
+}
+function gaugeSVG(pct){
+  const bands=[[0,60,'#C0392B'],[60,70,'#E67E22'],[70,80,'#7DCEA0'],[80,100,'#27AE60']];
+  const cx=110,cy=105,r=85,arc=(a)=>{const rad=(180-a*1.8)*Math.PI/180;return[cx+r*Math.cos(rad),cy-r*Math.sin(rad)]};
+  let paths='';
+  bands.forEach(b=>{
+    const [x1,y1]=arc(b[0]),[x2,y2]=arc(b[1]);
+    paths+=`<path d="M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}" stroke="${b[2]}" stroke-width="20" fill="none" stroke-linecap="butt"/>`;
+  });
+  const [nx,ny]=arc(pct);
+  return `<svg width="220" height="130" viewBox="0 0 220 130">${paths}
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#13294F" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="7" fill="#F59E0B"/>
+    <text x="${cx}" y="${cy-24}" text-anchor="middle" fill="#13294F" font-size="26" font-weight="900" font-family="Amiri">${pct}%</text></svg>`;
+}
+const escX=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderReport(correct,total,pct,dstat,used){
+  document.getElementById('exam').classList.add('hide');
+  ['calc','board','chat'].forEach(p=>document.getElementById(p).classList.remove('show'));
+  const rp=document.getElementById('report');rp.classList.remove('hide');
+  const pass=pct>=70;
+  if(pass&&!S.name){const n=prompt('🎉 مبروك الاجتياز! اكتب اسمك كما تحب أن يظهر في الشهادة:');if(n)S.name=n.trim()}
+  const name=S.name||'—';
+  const dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const comps=['D2','D3','D4','D5','D1'];
+  const compRows=comps.filter(d=>dstat[d]).map(d=>{
+    const dp=Math.round(dstat[d].c/dstat[d].t*100);
+    const col= dp>=70?'#0E9F6E': dp>=50?'#F59E0B':'#E5484D';
+    return `<div class="grc-row"><div class="grc-lbl"><b>${DNAMES[d][1]}</b><small>${DNAMES[d][0]} — ${dstat[d].c}/${dstat[d].t}</small></div>
+      <div class="grc-bar"><i style="width:${dp}%;background:${col}"></i><em style="right:70%"></em></div>
+      <div class="grc-pct" style="color:${col}">${dp}%</div></div>`;}).join('');
+  const weak=Object.keys(DNAMES).filter(d=>dstat[d]).map(d=>({d,p:Math.round(dstat[d].c/dstat[d].t*100)})).filter(x=>x.p<70).sort((a,b)=>a.p-b.p);
+  const unans=S.ans.filter(a=>!a.length).length;
+  rp.innerHTML=`
+  <style>
+  .grc-hero{border-radius:22px;padding:30px 26px;text-align:center;color:#fff;margin-bottom:16px;background:${pass?'linear-gradient(135deg,#065F46,#0E9F6E)':'linear-gradient(135deg,#7F1D1D,#DC2626)'};box-shadow:var(--sh)}
+  .grc-hero h1{font-family:'Amiri';font-size:2rem;margin-bottom:4px}
+  .grc-score{font-size:3.6rem;font-weight:900;line-height:1;font-family:'Cairo'}
+  .grc-passline{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:6px 18px;margin-top:10px;font-weight:800}
+  .grc-row{display:grid;grid-template-columns:220px 1fr 60px;gap:12px;align-items:center;margin:10px 0}
+  .grc-lbl b{display:block;color:var(--ink)}.grc-lbl small{color:var(--dim)}
+  .grc-bar{position:relative;height:16px;background:#EEF2F7;border-radius:99px;overflow:visible}
+  .grc-bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;transition:width 1s}
+  .grc-bar em{position:absolute;top:-4px;bottom:-4px;width:2px;background:#13294F;opacity:.55}
+  .grc-badge{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .grc-badge span{background:rgba(255,255,255,.14);border-radius:10px;padding:5px 12px;font-size:.8rem}
+  @media(max-width:640px){.grc-row{grid-template-columns:1fr 46px}.grc-bar{grid-column:1/3}}
+  </style>
+  <div class="grc-hero">
+    <div style="font-size:.85rem;letter-spacing:2px;opacity:.85">OCEG-STYLE RESULT REPORT — GRC PROFESSIONAL (GRCP)™ MOCK EXAM</div>
+    <h1>${pass?'PASS — ناجح 🎉':'FAIL — لم تجتز هذه المرة'}</h1>
+    <div class="grc-score">${correct}<span style="font-size:1.4rem;opacity:.8">/${total}</span></div>
+    <div class="grc-passline">درجة الاجتياز المطلوبة: 70 إجابة صحيحة من 100 (70%) — نتيجتك: ${pct}%</div>
+    <div class="grc-badge"><span>👤 ${escX(name)}</span><span>📅 ${dateStr}</span><span>⏱️ ${Math.floor(used/60)} دقيقة</span><span>Attempt ${(JSON.parse(localStorage.getItem('grcpHist')||'[]').length)||1}</span><span>Open-Book Format 📖</span></div>
+  </div>
+
+  <div class="pr-card">
+    <h2 class="pr-h" style="font-size:1.2rem">Performance by Capability Component — أداؤك حسب مكوّنات نموذج القدرات</h2>
+    <p class="pr-p">على عكس تقارير PMI ذات الفئات الأربع، يعرض تقرير GRCP نتيجتك المئوية مباشرة مقارنة بخط الاجتياز (70%) لكل مكوّن — الخط الأزرق الرأسي في كل شريط يمثل عتبة 70%.</p>
+    ${compRows}
+    <p class="pr-p" style="margin-top:14px"><b>📖 تذكير:</b> اختبار GRCP الرسمي مفتوح المصادر (Open-Book) — يمكنك استخدام كتاب النموذج الأحمر (Red Book) والبحث أثناء الاختبار، لكن الوقت هو التحدي الحقيقي: ٧٢ ثانية للسؤال في المتوسط، فلا وقت للبحث عن كل إجابة.</p>
+  </div>
+
+  <div class="pr-card">
+    <h2 class="pr-h" style="font-size:1.2rem">What Can You Do Next? — ما خطوتك التالية؟</h2>
+    ${pass
+      ?'<p class="pr-p">نتيجتك تتجاوز عتبة الاجتياز — أنت جاهز لحجز الاختبار الرسمي من موقع OCEG. حافظ على مراجعة خفيفة لعناصر النموذج (خاصة PERFORM بعناصره الثمانية) وراجع الأسئلة المعلَّمة أدناه لتثبيت المفاهيم. 🎉</p>'
+      :`<p class="pr-p">ركّز مراجعتك القادمة على: ${weak.map(x=>`<b style="color:#E5484D">${DNAMES[x.d][1]} (${x.p}%)</b>`).join('، ')||'مراجعة عامة'} — ارجع للمحتوى التدريبي لهذه المكوّنات ثم أنشئ اختباراً مخصصاً عليها. تذكّر أن الاختبار الرسمي يسمح بست محاولات سنوياً، لكن هدفنا أن تجتاز من أول محاولة 💪</p>`}
+  </div>
+
+  ${pass?certBlock(name,pct,dateStr):''}
+
+  <div class="rp-stats">
+    <div class="rp-st"><b style="color:var(--emerald)">${correct}</b><span>إجابات صحيحة</span></div>
+    <div class="rp-st"><b style="color:var(--rose)">${total-correct-unans}</b><span>إجابات خاطئة</span></div>
+    <div class="rp-st"><b style="color:var(--amber)">${unans}</b><span>بدون إجابة</span></div>
+    <div class="rp-st"><b>${total}</b><span>إجمالي الأسئلة</span></div>
+    <div class="rp-st"><b style="color:var(--blue)">${Math.floor(used/60)}د ${used%60}ث</b><span>الوقت المستغرق</span></div>
+    <div class="rp-st"><b>${Math.round(used/total)}ث</b><span>متوسط زمن السؤال</span></div>
+  </div>
+  <div class="rev-filters">
+    <button class="btn btn-o" onclick="filterRev('all',this)">كل الأسئلة</button>
+    <button class="btn btn-o" onclick="filterRev('wrong',this)" style="border-color:#FECDD3;color:var(--rose)">❌ الخاطئة فقط</button>
+    <button class="btn btn-o" onclick="filterRev('flag',this)" style="border-color:#FDE68A;color:var(--amber)">🚩 المعلَّمة</button>
+    <div class="spacer"></div>
+    <button class="btn btn-g" onclick="location.reload()">🔄 اختبار جديد</button>
+  </div>
+  <div id="revList"></div>`;
+  filterRev('all');
+  scrollTo({top:0,behavior:'smooth'});
+}
+function certBlock(name,pct,dateStr){
+  const no='AS-GRCP-'+Date.now().toString().slice(-8);
+  return `<div class="certwrap"><div class="cert" id="certEl"><div class="cert-in">
+    <img class="cert-logo" src="https://alsaeed-etc.com/main/images/logo/logo3.png" onerror="this.style.display='none'">
+    <div class="cert-cap">THIS IS TO CERTIFY THAT</div>
+    <div class="cert-name">${escX(name)}</div>
+    <div class="cert-body">has been formally evaluated through a full mock examination for knowledge and skills in integrated Governance, Risk Management and Compliance based on the GRC Capability Model and has successfully passed the simulation of</div>
+    <div class="cert-title">GRC Professional (GRCP)™‎ — Mock Exam</div>
+    <div class="cert-perf">Score: ${pct}% — ${perf(pct)[1]}</div>
+    <div class="cert-sigs">
+      <div class="cert-sig"><div class="ln">د. محمد عطية</div><small>Dr. Mohamed Attia | PMI-ATP Instructor</small></div>
+      <div class="cert-sig"><div class="ln">Al Saeed ETC</div><small>منصة السعيد للتدريب والاستشارات — alsaeed-etc.com</small></div>
+    </div>
+    <div class="cert-meta"><span>Certificate No: ${no}</span><span>Grant Date: ${dateStr}</span><span>Readiness Level: ${perf(pct)[0]}</span></div>
+    <div class="cert-disc">⚠️ شهادة اجتياز اختبار محاكاة تدريبي صادرة عن منصة السعيد — ليست شهادة OCEG®‎ الرسمية</div>
+  </div></div>
+  <div style="text-align:center;margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-g" onclick="dlCertPDF()">📄 تنزيل الشهادة PDF</button><button class="btn btn-o" onclick="dlCert()">⬇️ نسخة HTML</button></div></div>`;
+}
+function loadLib(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+async function dlCertPDF(){
+  const el=document.getElementById('certEl');if(!el)return;
+  const btn=event&&event.target;if(btn){btn.disabled=true;btn.textContent='⏳ جارٍ إنشاء PDF…'}
+  try{
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const cv=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#F3EDE4'});
+    const pdf=new jspdf.jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+    const r=Math.min((pw-40)/cv.width,(ph-40)/cv.height);
+    pdf.addImage(cv.toDataURL('image/jpeg',.95),'JPEG',(pw-cv.width*r)/2,(ph-cv.height*r)/2,cv.width*r,cv.height*r);
+    pdf.save('AlSaeed_GRCP_Certificate.pdf');
+  }catch(e){alert('تعذّر إنشاء PDF — تُحمَّل مكتبة التحويل من الإنترنت عند أول استخدام، تأكد من الاتصال')}
+  if(btn){btn.disabled=false;btn.textContent='📄 تنزيل الشهادة PDF'}
+}
+function dlCert(){
+  const el=document.getElementById('certEl');if(!el)return;
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><!-- AlSaeed Light Theme v4.0 -->
+<title>AlSaeed Certificate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>body{font-family:Cairo;background:#F3EDE4;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+  ${[...document.styleSheets].map(ss=>{try{return[...ss.cssRules].filter(r=>r.cssText.includes('.cert')).map(r=>r.cssText).join('\n')}catch(e){return''}}).join('\n')}
+  .cert{max-width:820px;width:100%}</style></head><body>${el.outerHTML}<script src="assets/lms.js"></script>
+<script>LMS.guard('grcp')</script>
+</body></html>`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='AlSaeed_GRCP_Certificate.html';a.click();
+}
+function filterRev(f,btn){
+  const box=document.getElementById('revList');box.innerHTML='';
+  S.qs.forEach((q,i)=>{
+    const ok=isCorrect(i),an=S.ans[i];
+    if(f==='wrong'&&ok)return;
+    if(f==='flag'&&!S.flag[i])return;
+    const d=document.createElement('div');d.className='rev-q';
+    d.innerHTML=`<div class="qmeta">
+      <span class="badge bg-gold">س${i+1}</span>
+      <span class="badge ${ok?'bg-ok':'bg-bad'}">${ok?'✔ صحيحة':an.length?'✘ خاطئة':'— بلا إجابة'}</span>
+      <span class="badge bg-info">${DNAMES[q.d][0]}</span>
+      ${S.flag[i]?'<span class="badge" style="background:#FFFBEB;color:#B45309;border:1px solid #FDE68A">🚩 معلَّم</span>':''}
+    </div>
+    <div class="qtext">${q.q}${TRC[q.id]?`<div class="arblock">${TRC[q.id].q}</div>`:''}</div>
+    ${q.ord.map((oi,j)=>`<div class="rev-opt ${q.c.includes(oi)?'c':an.includes(oi)?'w':''}">${'ABCDEFGH'[j]}. ${q.o[oi]} ${q.c.includes(oi)?' ✔':an.includes(oi)?' ← اخترتها':''}${TRC[q.id]&&TRC[q.id].o[oi]?`<div class="arblock">${TRC[q.id].o[oi]}</div>`:''}</div>`).join('')}
+    <div class="fb-box ${ok?'fb-ok':'fb-bad'}" style="margin-top:12px">
+      <div class="fb-t">📖 الشرح والتفسير</div>${q.f||'—'}
+      <div class="eco">📌 ECO: ${DNAMES[q.d][1]} (${DNAMES[q.d][2]}) — ${STAGE[q.ch]||q.ch}</div>
+    </div>`;
+    box.appendChild(d);
+  });
+  if(!box.children.length)box.innerHTML='<p style="color:var(--dim);text-align:center;padding:30px">لا توجد أسئلة في هذا التصنيف 🎉</p>';
+}
+
+/* ================= HISTORY ================= */
+function renderHist(){
+  const h=JSON.parse(localStorage.getItem('grcpHist')||'[]');
+  const box=document.getElementById('histList');
+  document.getElementById('clrHist').classList.toggle('hide',!h.length);
+  if(!h.length){box.innerHTML='<p style="color:var(--dim);font-size:.8rem;text-align:center;padding:20px">لا توجد محاولات بعد — ابدأ أول اختبار لك! 💪</p>';return}
+  box.innerHTML=h.map(a=>{const[ar,,c]=perf(a.pct);return`<div class="hist-item">
+    <div><b>${a.correct}/${a.total}</b> <span style="color:var(--dim)">• ${a.date} • ${a.mins} دقيقة</span></div>
+    <span class="sc" style="color:${c}">${a.pct}%</span></div>`}).join('');
+}
+function clearHist(){if(confirm('مسح سجل المحاولات؟')){localStorage.removeItem('grcpHist');renderHist()}}
+
+/* ================= CALCULATOR ================= */
+let cExp='0';
+function cIn(k){
+  const scr=document.getElementById('c-scr');
+  if(k==='C')cExp='0';
+  else if(k==='⌫')cExp=cExp.slice(0,-1)||'0';
+  else if(k==='='){try{cExp=String(Function('"use strict";return('+cExp.replace(/%/g,'/100')+')')())}catch{cExp='خطأ'}}
+  else{if(cExp==='0'&&!'+-*/.%'.includes(k))cExp='';cExp+=k}
+  scr.textContent=cExp;
+}
+
+/* ================= WHITEBOARD ================= */
+const brd={ctx:null,draw:false,clr:'#1B2631',erase:false,init:false};
+function initBoard(){
+  if(brd.init)return;brd.init=true;
+  const cv=document.getElementById('bcv');brd.ctx=cv.getContext('2d');
+  brd.ctx.fillStyle='#FDFDF8';brd.ctx.fillRect(0,0,cv.width,cv.height);
+  brd.ctx.lineCap='round';brd.ctx.lineJoin='round';
+  const pos=e=>{const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;
+    return[(t.clientX-r.left)*cv.width/r.width,(t.clientY-r.top)*cv.height/r.height]};
+  const start=e=>{brd.draw=true;const[x,y]=pos(e);brd.ctx.beginPath();brd.ctx.moveTo(x,y);e.preventDefault()};
+  const move=e=>{if(!brd.draw)return;const[x,y]=pos(e);
+    brd.ctx.strokeStyle=brd.erase?'#FDFDF8':brd.clr;brd.ctx.lineWidth=brd.erase?18:2.4;
+    brd.ctx.lineTo(x,y);brd.ctx.stroke();e.preventDefault()};
+  cv.addEventListener('mousedown',start);cv.addEventListener('mousemove',move);
+  addEventListener('mouseup',()=>brd.draw=false);
+  cv.addEventListener('touchstart',start,{passive:false});cv.addEventListener('touchmove',move,{passive:false});
+  cv.addEventListener('touchend',()=>brd.draw=false);
+}
+function setClr(b){brd.erase=false;brd.clr=b.dataset.c;document.querySelectorAll('.b-tools .clr').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
+function clearBoard(){const cv=document.getElementById('bcv');brd.ctx.fillStyle='#FDFDF8';brd.ctx.fillRect(0,0,cv.width,cv.height)}
+
+/* ================= PANELS DRAG ================= */
+function togglePanel(id){document.getElementById(id).classList.toggle('show')}
+function toggleChat(){document.getElementById('chat').classList.toggle('show')}
+document.querySelectorAll('.p-hd').forEach(hd=>{
+  let sx,sy,ox,oy,drag=false;const p=hd.parentElement;
+  const down=e=>{drag=true;const t=e.touches?e.touches[0]:e;sx=t.clientX;sy=t.clientY;
+    const r=p.getBoundingClientRect();ox=r.left;oy=r.top;
+    p.style.insetInlineEnd='auto';p.style.transform='none';e.preventDefault()};
+  const move=e=>{if(!drag)return;const t=e.touches?e.touches[0]:e;
+    p.style.left=(ox+t.clientX-sx)+'px';p.style.top=(oy+t.clientY-sy)+'px'};
+  hd.addEventListener('mousedown',down);addEventListener('mousemove',move);addEventListener('mouseup',()=>drag=false);
+  hd.addEventListener('touchstart',down,{passive:false});addEventListener('touchmove',move,{passive:false});addEventListener('touchend',()=>drag=false);
+});
+
+/* ================= ASSISTANT (LOCAL AI) ================= */
+const GLOSSARY={
+ 'risk':'الخطر (Risk): حدث غير مؤكد إن وقع أثّر إيجاباً (فرصة) أو سلباً (تهديد) على هدف أو أكثر من أهداف المشروع.',
+ 'threat':'التهديد (Threat): خطر ذو أثر سلبي على أهداف المشروع. استراتيجياته: تصعيد، تجنّب، نقل، تخفيف، قبول.',
+ 'opportunity':'الفرصة (Opportunity): خطر ذو أثر إيجابي. استراتيجياتها: تصعيد، استغلال، مشاركة، تعزيز، قبول.',
+ 'issue':'المشكلة (Issue): حدث وقع بالفعل (يقين) — تُعالج بحل التفافي Workaround وتُسجل في سجل المشكلات، بخلاف الخطر المستقبلي الاحتمالي.',
+ 'appetite':'شهية المخاطر (Risk Appetite): درجة عدم اليقين التي ترغب المنظمة في قبولها سعياً للعائد — وصفية وعامة.',
+ 'threshold':'حد التحمّل (Threshold): الترجمة الكمية القابلة للقياس للشهية (مثل: انحراف تكلفة ≤5%). تجاوزه يستدعي استجابة/تصعيداً.',
+ 'tolerance':'التحمّل (Tolerance): المدى المقبول للانحراف حول الهدف.',
+ 'attitude':'اتجاه المخاطر (Risk Attitude): الاستجابة النفسية/السلوكية المختارة تجاه عدم اليقين، تحركها الإدراكات.',
+ 'register':'سجل المخاطر (Risk Register): الوثيقة الحية التي توثق المخاطر المحددة وخصائصها وملاكها واستجاباتها — أول مكان تذهب إليه عند تحديد خطر جديد.',
+ 'rbs':'هيكل تجزئة المخاطر (RBS): تصنيف هرمي لمصادر المخاطر (تقني/خارجي/تنظيمي/إدارة مشروع) يضمن الشمولية.',
+ 'emv':'القيمة النقدية المتوقعة (EMV) = الاحتمال × الأثر. سالبة للتهديدات وموجبة للفرص، وتُستخدم في أشجار القرار وحساب الاحتياطي.',
+ 'monte':'محاكاة مونت كارلو: تحليل كمي يشغّل آلاف السيناريوهات بتوزيعات احتمالية لينتج منحنى S يوضح احتمالية تحقيق التكلفة/الجدول (P50, P80…).',
+ 'tornado':'مخطط تورنادو: مخرج تحليل الحساسية — يرتب المخاطر/المتغيرات حسب قوة أثرها على النتيجة؛ الأعرض = الأهم.',
+ 'sensitivity':'تحليل الحساسية: يحدد أي المخاطر لها الأثر الأكبر المحتمل على نتائج المشروع.',
+ 'qualitative':'التحليل النوعي: ترتيب أولويات المخاطر الفردية سريعاً عبر مصفوفة الاحتمالية×الأثر — ذاتي، سريع، لكل المشاريع.',
+ 'quantitative':'التحليل الكمي: نمذجة عددية للأثر المشترك للمخاطر على أهداف المشروع الكلية (مونت كارلو، EMV، أشجار قرار) — للمشاريع الكبيرة/المعقدة.',
+ 'mitigate':'التخفيف (Mitigate): خفض احتمالية التهديد أو أثره — الخطر يبقى لكن أصغر.',
+ 'transfer':'النقل (Transfer): تحويل ملكية أثر التهديد المالي لطرف ثالث بمقابل (تأمين، ضمانات، عقود) — لا يلغي الخطر.',
+ 'avoid':'التجنّب (Avoid): إزالة التهديد كلياً بإزالة سببه أو تغيير الخطة/النطاق.',
+ 'accept':'القبول (Accept): عدم اتخاذ إجراء استباقي — نشط (باحتياطي طوارئ) أو سلبي (مراقبة فقط).',
+ 'escalate':'التصعيد (Escalate): عندما يتجاوز الخطر صلاحية مدير المشروع — يُرفع لمستوى البرنامج/المحفظة/الإدارة.',
+ 'exploit':'الاستغلال (Exploit): ضمان تحقق الفرصة بنسبة 100% (كتعيين أفضل الموارد لإنهاء مبكر).',
+ 'enhance':'التعزيز (Enhance): زيادة احتمالية الفرصة أو أثرها.',
+ 'share':'المشاركة (Share): إشراك طرف ثالث أقدر على اقتناص الفرصة (شراكة/JV).',
+ 'secondary':'الخطر الثانوي (Secondary Risk): خطر جديد ينشأ كنتيجة مباشرة لتنفيذ استجابة — يُسجل ويُحلل كأي خطر.',
+ 'residual':'الخطر المتبقي (Residual Risk): ما يبقى من الخطر بعد تنفيذ الاستجابة — يُقبل أو يُغطى باحتياطي ويُراقب.',
+ 'contingency':'احتياطي الطوارئ (Contingency Reserve): للمخاطر المعروفة-المجهولة، ضمن خط الأساس، بيد مدير المشروع. خطة الطوارئ تُفعَّل عند رصد المحفز.',
+ 'management reserve':'احتياطي الإدارة (Management Reserve): للمجهولة-المجهولة، خارج خط الأساس، يتطلب موافقة الإدارة.',
+ 'trigger':'المحفز (Trigger): مؤشر إنذار مبكر يدل أن الخطر على وشك الوقوع — رصده يستدعي تفعيل خطة الاستجابة/الطوارئ.',
+ 'workaround':'الحل الالتفافي (Workaround): استجابة غير مخططة لخطر/مشكلة وقعت فعلاً دون خطة مسبقة.',
+ 'fallback':'خطة التراجع (Fallback Plan): تُنفَّذ إذا فشلت خطة الطوارئ نفسها.',
+ 'audit':'تدقيق المخاطر (Risk Audit): فحص فاعلية عملية إدارة المخاطر ذاتها والاستجابات — وليس المخاطر الفردية فقط.',
+ 'reassessment':'إعادة تقييم المخاطر: مراجعة دورية مجدولة للسجل لاكتشاف الجديد وإغلاق المنتهي وإعادة الترتيب.',
+ 'variance':'تحليل التباين (Variance Analysis): مقارنة الأداء الفعلي بخط الأساس — الانحراف عرَض لمخاطر تتحقق.',
+ 'reserve analysis':'تحليل الاحتياطي: مقارنة الاحتياطي المتبقي بالمخاطر المتبقية للتأكد من كفايته.',
+ 'delphi':'تقنية دلفي: استطلاع خبراء مجهول الهوية على جولات للوصول لتوافق — تزيل الانحياز وهيمنة الأصوات العالية.',
+ 'brainstorm':'العصف الذهني: جلسة جماعية متعددة التخصصات يقودها ميسّر (Facilitator) للخروج بقائمة شاملة من المخاطر.',
+ 'swot':'تحليل SWOT: قوة وضعف (داخلي) وفرص وتهديدات (خارجي) — يضمن تحديد الفرص لا التهديدات فقط.',
+ 'assumption':'تحليل الافتراضات: كل افتراض يُقيَّم باستقراره وحساسيته — غير المستقر والحساس = خطر يجب تسجيله.',
+ 'checklist':'قوائم الفحص: مبنية على التاريخ والدروس المستفادة — سريعة لكنها محدودة بالماضي ولا تغني عن غيرها.',
+ 'ishikawa':'مخطط إيشيكاوا (عظمة السمكة): تحليل السبب الجذري — معالجة الجذر قد تزيل عدة مخاطر دفعة واحدة.',
+ 'pestle':'PESTLE: فحص العوامل السياسية والاقتصادية والاجتماعية والتقنية والقانونية والبيئية لاستخلاص مخاطر خارجية.',
+ 'monte carlo':'محاكاة مونت كارلو: انظر Monte.',
+ 'burndown':'مخطط حرق المخاطر (Risk Burndown): منحنى يوضح تناقص التعرض الكلي بمرور الوقت — أداة إيصال فاعلية الاستجابات.',
+ 'urgency':'الإلحاح (Urgency): مدى قرب الحاجة لاستجابة — معيار ترتيب إضافي بجانب الاحتمالية والأثر.',
+ 'owner':'مالك الخطر (Risk Owner): المسؤول عن مراقبة الخطر وتنفيذ استجابته — يُرشَّح منذ التحديد ويُعتمد في التحليل.',
+ 'opa':'الأصول التنظيمية (OPA): سياسات وقوالب ودروس مستفادة داخلية. EEF: عوامل بيئية لا تتحكم فيها المنظمة.',
+ 'eef':'عوامل البيئة المؤسسية (EEF): سوق، تشريعات، ثقافة — خارج سيطرة الفريق وتؤثر على المشروع.',
+ 'overall':'الخطر الكلي (Overall Project Risk): أثر عدم اليقين على المشروع ككل — أكثر من مجموع المخاطر الفردية.',
+ 'p x i':'مصفوفة الاحتمالية والأثر (P×I): أداة النوعي الأساسية لترتيب المخاطر — تعريفاتها تأتي من خطة إدارة المخاطر مسبقاً.',
+ 'facilitator':'الميسّر (Facilitator): الأنسب لقيادة جلسات العصف الذهني لضمان الحياد ومعالجة الانحيازات.'
+};
+const DOMTIPS={
+ D1:'أنت في مجال الاستراتيجية والتخطيط: فكّر في خطة إدارة المخاطر، الشهية والحدود، RACI، وثقافة الوعي بالمخاطر. القاعدة: الخطة قبل أي تحديد أو تحليل.',
+ D2:'أنت في مجال التحديد: فكّر في تقنيات الاكتشاف (عصف/دلفي/مقابلات/افتراضات)، وسجّل أولاً في Risk Register، ولا تنسَ الفرص بجانب التهديدات.',
+ D3:'أنت في مجال التحليل: ميّز النوعي (مصفوفة/ترتيب/سريع) عن الكمي (أرقام/EMV/مونت كارلو/S-Curve). الأولوية = احتمال × أثر (+ الإلحاح).',
+ D4:'أنت في مجال الاستجابة: طابق الاستراتيجية مع نوع الخطر (تهديد/فرصة) وموقعه من الصلاحية (تصعيد؟)، وتذكر المالك والتوقيت والثانوي والمتبقي.',
+ D5:'أنت في مجال المتابعة والإغلاق: بيانات فعلية، تحليل تباين، تدقيق، إعادة تقييم، إغلاق المنتهي دون حذفه، وتقارير مفصّلة على مقاس المتلقي.'
+};
+function chatMsg(who,txt){
+  const box=document.getElementById('c-msgs');
+  const d=document.createElement('div');d.className='msg '+who;d.innerHTML=txt;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function findTerms(text){
+  const t=text.toLowerCase();const found=[];
+  for(const k in GLOSSARY){ if(t.includes(k)&&!found.some(f=>f[0]===GLOSSARY[k]))found.push([GLOSSARY[k],k]); }
+  return found.slice(0,5);
+}
+function askQuick(kind){
+  if(!S)return;
+  const q=S.qs[S.i];
+  if(kind==='domain'){
+    chatMsg('me','ما مجال هذا السؤال ومهمته؟');
+    chatMsg('ai',`🧭 هذا السؤال من مجال <b>${DNAMES[q.d][0]}</b> (${DNAMES[q.d][1]} — ${DNAMES[q.d][2]} من الاختبار)، ضمن <b>${STAGE[q.ch]||q.ch}</b>.`);
+  }
+  if(kind==='terms'){
+    chatMsg('me','اشرح لي المصطلحات الواردة في السؤال');
+    const f=findTerms(q.q+' '+q.o.join(' '));
+    chatMsg('ai', f.length? '📖 المصطلحات التي رصدتها:<br>• '+f.map(x=>x[0]).join('<br>• ') : 'لم أرصد مصطلحاً تقنياً من قاموسي في هذا السؤال — اسألني عن أي كلمة محددة وسأشرحها لك.');
+  }
+  if(kind==='hint'){
+    chatMsg('me','أعطني تلميحاً دون كشف الإجابة');
+    let hint=DOMTIPS[q.d];
+    const t=(q.q+' '+q.o.join(' ')).toLowerCase();
+    if(q.t==='M')hint+=`<br>⚠️ هذا سؤال إجابات متعددة — المطلوب اختيار <b>${q.c.length}</b> إجابات.`;
+    if(t.includes('first')||t.includes('next'))hint+='<br>🔑 كلمة First/Next تعني: حدّد موقعك في تسلسل العملية واختر الخطوة التالية المنطقية.';
+    if(t.includes('best')||t.includes('most'))hint+='<br>🔑 كلمة Best/Most: قد تكون هناك إجابات صحيحة جزئياً — اختر الأشمل والأسبق منطقياً.';
+    chatMsg('ai','💡 '+hint);
+  }
+  if(kind==='strategy'){
+    chatMsg('me','كيف أفكر في هذا النوع من الأسئلة؟');
+    chatMsg('ai',`🗝️ منهجية الحل:<br>1) حدّد الدور والموقف: أين أنت في دورة (خطط → حدّد → حلّل → استجب → راقب)؟<br>2) هل الحدث <b>غير مؤكد</b> (خطر) أم <b>وقع فعلاً</b> (مشكلة/Workaround)؟<br>3) استبعد الإجابات المتطرفة (دائماً/فوراً/أوقف المشروع).<br>4) فضّل الإجابات التشاركية والرجوع للخطة/السجل قبل التصعيد.<br>${S.checked[S.i]&&S.practice?'<br>✅ بما أنك فحصت إجابتك: راجع الشرح أسفل السؤال واربطه بمهمة ECO المذكورة.':''}`);
+  }
+}
+function sendChat(){
+  const inp=document.getElementById('chatIn');const v=inp.value.trim();if(!v)return;
+  chatMsg('me',v);inp.value='';
+  const f=findTerms(v);
+  if(f.length){chatMsg('ai','📖 '+f.map(x=>x[0]).join('<br><br>'));return}
+  const t=v.toLowerCase();
+  if(/إجاب|answer|صح|حل/.test(t)&&!S.checked[S.i]){chatMsg('ai','🙊 لا أكشف الإجابة أثناء المحاولة — هذا يفسد التدريب! اطلب "تلميحاً" أو افحص إجابتك أولاً (في وضع التدريب) ثم أشرح لك التفسير كاملاً.');return}
+  if(/إجاب|answer|شرح|فسر/.test(t)&&S.checked[S.i]){const q=S.qs[S.i];chatMsg('ai',`📖 <b>الشرح:</b> ${q.f||'—'}<br><span style="color:var(--gl)">📌 ${DNAMES[q.d][1]} — ${STAGE[q.ch]||q.ch}</span>`);return}
+  if(/مجال|domain|مرحل/.test(t)){askQuick('domain');return}
+  if(/تلميح|hint|ساعد/.test(t)){askQuick('hint');return}
+  chatMsg('ai','أنا متخصص في هذا السؤال ومصطلحات GRCP فقط 🙂 جرّب: اسأل عن مصطلح بعينه (EMV، Residual، Delphi…)، أو اطلب: تلميحاً • شرح المصطلحات • المجال والمهمة • استراتيجية الحل.');
+}
+
+/* ================= TRANSLATION ENGINE (EN→AR) ================= */
+let TRC={};
+try{TRC=JSON.parse(localStorage.getItem('rmpTr')||'{}')}catch(e){}
+const saveTRC=()=>{try{localStorage.setItem('rmpTr',JSON.stringify(TRC))}catch(e){}};
+const stripHTML=h=>{const d=document.createElement('div');d.innerHTML=h;return (d.textContent||'').replace(/\s+/g,' ').trim()};
+async function gtr(text){
+  if(!text)return'';
+  let out='';
+  for(let i=0;i<text.length;i+=1400){
+    const p=text.slice(i,i+1400);
+    const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q='+encodeURIComponent(p));
+    const j=await r.json();
+    out+=j[0].map(x=>x[0]).join('');
+  }
+  return out;
+}
+const trPending={};
+async function translateQ(idx){
+  const q=S.qs[idx];
+  if(TRC[q.id])return TRC[q.id];
+  if(trPending[q.id])return trPending[q.id];
+  trPending[q.id]=(async()=>{
+    const SEP='\n@@@\n';
+    const [tq,toRaw,tf]=await Promise.all([
+      gtr(stripHTML(q.q)),
+      gtr(q.o.map(stripHTML).join(SEP)),
+      q.f?gtr(stripHTML(q.f)):Promise.resolve('')
+    ]);
+    let to=toRaw.split(/\n?@@@\n?/).map(s=>s.trim());
+    if(to.length!==q.o.length){ to=[]; for(const o of q.o) to.push(await gtr(stripHTML(o))); }
+    TRC[q.id]={q:tq,o:to,f:tf};saveTRC();
+    delete trPending[q.id];
+    return TRC[q.id];
+  })();
+  return trPending[q.id];
+}
+function effLang(q){ return S.lang!=='en' ? S.lang : (S.tmpTr[q.id]?'both':'en'); }
+function toggleTr(){ const q=S.qs[S.i]; S.tmpTr[q.id]=!S.tmpTr[q.id]; render(); }
+async function ensureTr(idx){
+  const q=S.qs[idx];
+  let tr;
+  try{ tr=await translateQ(idx); }
+  catch(e){
+    if(S&&S.i===idx){const a=document.getElementById('arQ');if(a)a.innerHTML='⚠️ تعذّر الاتصال بخدمة الترجمة — تأكد من اتصال الإنترنت ثم انتقل وعُد للسؤال.'}
+    return;
+  }
+  if(!S||S.i!==idx)return;
+  const a=document.getElementById('arQ');if(a)a.innerHTML=tr.q;
+  document.querySelectorAll('.aro').forEach(el=>{el.innerHTML=tr.o[+el.dataset.j]||''});
+  if(S.lang==='ar'&&!S.tmpTr[S.qs[idx].id]) document.querySelectorAll('#qText .eno, .opt .eno').forEach(el=>el.remove());
+  const fb=document.getElementById('fbAr');if(fb&&tr.f)fb.innerHTML='<b>الشرح بالعربية:</b> '+tr.f;
+  if(idx+1<S.qs.length)translateQ(idx+1).catch(()=>{});
+}
+
+/* ================= ANTI-CAPTURE PROTECTION ================= */
+(function(){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='430' height='250'><text x='10' y='135' font-size='24' font-weight='bold' font-family='Arial' fill='rgba(234,88,12,0.07)' transform='rotate(-16 215 125)'>منصة السعيد © د. محمد عطية — GRCP</text></svg>`;
+  const d=document.createElement('div');d.id='wm';
+  d.style.backgroundImage='url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")';
+  document.body.appendChild(d);
+})();
+function flashGuard(msg){
+  const g=document.createElement('div');
+  g.style.cssText='position:fixed;inset:0;background:#FFF7ED;z-index:9999;display:flex;align-items:center;justify-content:center;color:#C2410C;font-size:1.15rem;font-weight:900;text-align:center;padding:20px';
+  g.textContent=msg;document.body.appendChild(g);setTimeout(()=>g.remove(),1700);
+}
+addEventListener('blur',()=>{ if(S) document.body.classList.add('secure'); });
+addEventListener('focus',()=>document.body.classList.remove('secure'));
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&S) document.body.classList.add('secure'); });
+document.addEventListener('keydown',e=>{
+  if(!S||document.getElementById('exam').classList.contains('hide'))return;
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+  if(e.key==='ArrowLeft'){go(1)} else if(e.key==='ArrowRight'){go(-1)}
+  else if(e.key>='1'&&e.key<='8'){const j=+e.key-1;const q=S.qs[S.i];if(q.ord[j]!==undefined)pick(q.ord[j])}
+  else if(e.key.toLowerCase()==='f'){toggleFlag()}
+});
+document.addEventListener('keyup',e=>{
+  if(e.key==='PrintScreen'){
+    try{navigator.clipboard.writeText('⚠️ محتوى محمي — منصة السعيد GRCP © د. محمد عطية')}catch(_){}
+    flashGuard('⚠️ تصوير الشاشة غير مسموح — هذا المحتوى محمي بحقوق منصة السعيد');
+  }
+});
+</script>
+</body>
+</html>

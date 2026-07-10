@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة السعيد PMI-PBA®‎ | المحتوى التدريبي لتحليل الأعمال الاحترافي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--solid2:#FFF9F0;
+--g:#0284C7;--g2:#0369A1;--g3:#38BDF8;--y:#F59E0B;--gsoft:rgba(2,132,199,.08);
+--teal:#0D9488;--rose:#E11D48;--emerald:#059669;--violet:#7C3AED;--amber:#D97706;
+--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(2,132,199,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--r2:20px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',sans-serif;background:var(--bg0);color:var(--ink)}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1100px;margin:auto;display:flex;align-items:center;gap:12px;padding:11px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:.95rem}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--g3),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:8px 13px;border-radius:10px;font-weight:800;font-size:.84rem;color:var(--dim)}
+nav a:hover{background:var(--gsoft);color:var(--g2)}
+nav a.cta{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff}
+.hero{max-width:1100px;margin:auto;padding:40px 20px 10px;text-align:center}
+.hero h1{font-family:'Amiri',serif;font-size:clamp(1.5rem,3.6vw,2.4rem)}
+.hero h1 b{color:var(--g2)}
+.hero p{color:var(--dim);max-width:740px;margin:12px auto 0;line-height:2}
+.wrap{max-width:1100px;margin:auto;padding:16px 20px 40px}
+.dnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:22px 0}
+.dnav a{background:var(--card);border:1px solid var(--bdr2);border-radius:14px;padding:13px;box-shadow:var(--sh);text-align:center;font-size:.82rem;font-weight:800;color:var(--dim)}
+.dnav a b{display:block;color:var(--ink);font-size:.9rem}
+.dnav a:hover{border-color:var(--g)}
+.dom{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r2);box-shadow:var(--sh);margin:22px 0;overflow:hidden}
+.dom-h{padding:20px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--bdr2)}
+.dom-h .n{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:1.1rem;flex-shrink:0}
+.dom-h h2{font-family:'Amiri',serif;font-size:1.35rem}
+.dom-h small{display:block;color:var(--dim);font-size:.8rem;font-family:'Cairo'}
+.dom-h .w{margin-inline-start:auto;background:var(--gsoft);color:var(--g2);border-radius:99px;padding:6px 16px;font-weight:900;font-size:.85rem;white-space:nowrap}
+.dom-b{padding:20px 24px}
+.dom-b p{color:var(--dim);line-height:2.05;margin-bottom:14px;font-size:.93rem}
+.dom-b p b, .dom-b li b{color:var(--ink)}
+h4{margin:18px 0 10px;font-size:.98rem;display:flex;align-items:center;gap:8px}
+.tasks{display:grid;gap:9px}
+.task{background:var(--bg1);border-radius:13px;padding:12px 15px;font-size:.87rem;line-height:1.9;color:var(--dim);border-inline-start:3px solid var(--g)}
+.task b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 4px}
+.chip{background:var(--gsoft);color:var(--g2);border-radius:99px;padding:5px 13px;font-size:.76rem;font-weight:800}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:8px}
+.term{background:var(--bg1);border-radius:12px;padding:11px 14px;font-size:.82rem;line-height:1.85;color:var(--dim)}
+.term b{color:var(--g2);display:block;font-size:.85rem}
+.info{background:linear-gradient(180deg,var(--card),var(--solid2));border:1.5px solid rgba(245,158,11,.4);border-radius:var(--r2);box-shadow:var(--sh);padding:22px 24px;margin:22px 0}
+.info h3{font-family:'Amiri',serif;font-size:1.25rem;margin-bottom:10px}
+.info ul{list-style:none}
+.info li{padding:5px 0;color:var(--dim);font-size:.9rem;line-height:1.9}
+.info li::before{content:'◾ ';color:var(--y)}
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px 0 6px}
+.btn{display:inline-block;padding:13px 26px;border-radius:14px;font-weight:900;font-size:.95rem}
+.btn-p{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff;box-shadow:0 10px 22px -8px rgba(2,132,199,.5)}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+footer{border-top:1px solid var(--bdr2);background:var(--card);padding:20px;text-align:center;color:var(--dim);font-size:.82rem;margin-top:30px}
+@media(max-width:640px){.dom-h{flex-wrap:wrap}.dom-h .w{margin:0}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">📊</span> منصة السعيد — PMI-PBA®</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="pba-exam.html" class="cta">🧪 محاكي الاختبار</a>
+    <a href="pba-sim.html">🖥️ المحاكاة التطبيقية</a>
+  </nav>
+</div></header>
+
+<section class="hero">
+  <h1>التأهيل الاحترافي لشهادة <b>PMI-PBA®</b><br>تحليل الأعمال من الاحتياج إلى تقييم الحل</h1>
+  <p>محتوى تدريبي كامل وفق مخطط محتوى الاختبار <b>ECO 2024</b> — المجالات الخمسة بمهامها وتقنياتها ومصطلحاتها، مدعوم ببنك <b>569 سؤالاً</b> في محاكي الاختبار ومحاكاة تطبيقية عملية لإدارة المتطلبات.</p>
+</section>
+
+<div class="wrap">
+  <div class="dnav">
+    <a href="#d1"><b>المجال 1</b>تقييم الاحتياجات 18%</a>
+    <a href="#d2"><b>المجال 2</b>التخطيط وأصحاب المصلحة 22%</a>
+    <a href="#d3"><b>المجال 3</b>الاستنباط والتحليل 35%</a>
+    <a href="#d4"><b>المجال 4</b>التتبع والمراقبة 15%</a>
+    <a href="#d5"><b>المجال 5</b>تقييم الحل 10%</a>
+  </div>
+
+  <!-- ================= D1 ================= -->
+  <div class="dom" id="d1">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#0284C7,#0369A1)">1</div>
+      <div><h2>تقييم الاحتياجات<small>Needs Assessment</small></h2></div><div class="w">18% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>هنا تبدأ قصة أي مشروع ناجح: <b>لماذا؟</b> قبل أن نسأل "ماذا نبني؟" يجب أن نفهم المشكلة أو الفرصة، ونثبت أن الاستثمار فيها مبرر. محلل الأعمال في هذا المجال هو من يمنع المؤسسة من بناء حلول ممتازة لمشاكل خاطئة.</p>
+      <h4>🎯 المهام الأساسية</h4>
+      <div class="tasks">
+        <div class="task"><b>تحديد المشكلة أو الفرصة:</b> صياغة Problem/Opportunity Statement واضحة بصيغة (الموقف — الأثر — النتيجة المرجوة)، مدعومة ببيانات لا انطباعات.</div>
+        <div class="task"><b>تحليل الوضع الحالي (Current State):</b> فهم العمليات والقدرات والأنظمة القائمة وتحديد الفجوات — أدوات مثل تحليل القدرات Capability Analysis وتحليل الأسباب الجذرية.</div>
+        <div class="task"><b>تحديد الوضع المستقبلي (Future State):</b> رسم القدرات المطلوبة وتحديد Gap Analysis بين الحالتين.</div>
+        <div class="task"><b>تقييم البدائل والتوصية بالحل:</b> دراسة خيارات متعددة بمعايير موزونة (Weighted Criteria) وتحليل التكلفة/العائد.</div>
+        <div class="task"><b>إعداد حالة العمل (Business Case):</b> الوثيقة التي تربط المشكلة بالحل بالقيمة: الأهداف، النطاق المبدئي، التكاليف، العوائد، المخاطر، ومقاييس النجاح.</div>
+        <div class="task"><b>دعم إعداد الميثاق (Charter):</b> حالة العمل مدخل رئيسي لميثاق المشروع — محلل الأعمال شريك مدير المشروع في هذه المرحلة.</div>
+      </div>
+      <h4>🧰 تقنيات المجال</h4>
+      <div class="chips"><span class="chip">SWOT</span><span class="chip">Root Cause — Fishbone / 5 Whys</span><span class="chip">Gap Analysis</span><span class="chip">Benchmarking</span><span class="chip">Cost-Benefit: NPV / ROI / IRR / Payback</span><span class="chip">Kano Model</span><span class="chip">Value Engineering</span><span class="chip">Weighted Ranking</span></div>
+      <h4>📌 مصطلحات ذهبية</h4>
+      <div class="terms">
+        <div class="term"><b>Business Need</b>المشكلة أو الفرصة التي تستدعي الاستثمار — نقطة انطلاق كل شيء.</div>
+        <div class="term"><b>Business Case</b>المبرر الاقتصادي الموثّق: هل يستحق الحل كلفته؟</div>
+        <div class="term"><b>Situation Statement</b>صياغة محايدة للمشكلة: الموقف + الأثر + النتيجة.</div>
+        <div class="term"><b>Payback Period</b>الزمن اللازم لاسترداد الاستثمار — الأبسط لكنه يتجاهل القيمة الزمنية للنقود.</div>
+        <div class="term"><b>NPV</b>صافي القيمة الحالية — موجب يعني الاستثمار مجدٍ بعد خصم قيمة الزمن.</div>
+        <div class="term"><b>Feasibility Study</b>دراسة جدوى الخيارات: تشغيلية، تقنية، زمنية، تكلفة.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= D2 ================= -->
+  <div class="dom" id="d2">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#0D9488,#0F766E)">2</div>
+      <div><h2>التخطيط وإشراك أصحاب المصلحة<small>Planning & Stakeholder Engagement</small></h2></div><div class="w">22% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>أفضل متطلبات في العالم تفشل إذا جُمعت من الأشخاص الخطأ أو أُديرت بلا خطة. هذا المجال يجيب عن سؤالين: <b>من نُشرك وكيف؟</b> و<b>كيف سندير أعمال تحليل الأعمال نفسها؟</b> (خطة تحليل الأعمال Business Analysis Plan).</p>
+      <h4>🎯 المهام الأساسية</h4>
+      <div class="tasks">
+        <div class="task"><b>تحديد أصحاب المصلحة وتحليلهم:</b> سجل أصحاب المصلحة + شبكة القوة/الاهتمام Power/Interest Grid + تحليل المواقف والتأثير — ولا تنسَ أصحاب المصلحة "الصامتين" (الأمن، الالتزام، التشغيل).</div>
+        <div class="task"><b>تحديد خصائص أصحاب المصلحة:</b> مستوى السلطة على المتطلبات، الموقف من المشروع، مستوى الاهتمام — لتفصيل أسلوب الإشراك.</div>
+        <div class="task"><b>خطة إشراك أصحاب المصلحة:</b> من يُستشار، من يوافق، من يُبلَّغ فقط — مصفوفة RACI للمتطلبات.</div>
+        <div class="task"><b>اختيار دورة حياة المشروع المناسبة:</b> تنبؤية Predictive أم تكيفية Adaptive أم هجينة — القرار يغيّر شكل توثيق المتطلبات كلياً (BRD مقابل Backlog).</div>
+        <div class="task"><b>خطة تحليل الأعمال:</b> الأنشطة، التقنيات، الأدوات، التوقيتات، آلية الموافقات، وخطة إدارة المتطلبات (التغيير، التتبع، السمات Attributes).</div>
+        <div class="task"><b>تحديد عملية الموافقة على المتطلبات وقرارات التغيير:</b> من يملك القرار؟ ما مسار التصعيد؟ ما بوابات الاعتماد؟</div>
+      </div>
+      <h4>🧰 تقنيات المجال</h4>
+      <div class="chips"><span class="chip">Stakeholder Register</span><span class="chip">Power/Interest Grid</span><span class="chip">RACI</span><span class="chip">Onion Diagram</span><span class="chip">Persona Analysis</span><span class="chip">Decomposition (WBS لأعمال BA)</span><span class="chip">Rolling Wave Planning</span><span class="chip">Burndown (Adaptive)</span></div>
+      <h4>📌 مصطلحات ذهبية</h4>
+      <div class="terms">
+        <div class="term"><b>Requirements Management Plan</b>كيف ستُوثَّق المتطلبات وتُتتبَّع وتُغيَّر وتُعتمد.</div>
+        <div class="term"><b>Stakeholder Engagement</b>ليس "إبلاغاً" بل شراكة مستمرة تتدرج من الإعلام إلى التمكين.</div>
+        <div class="term"><b>Elicitation Plan</b>من سنقابل، بأي تقنية، بأي ترتيب، وما مخرجات كل جلسة.</div>
+        <div class="term"><b>Requirement Attributes</b>سمات كل متطلب: المصدر، الأولوية، الحالة، المالك، الإصدار.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= D3 ================= -->
+  <div class="dom" id="d3">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">3</div>
+      <div><h2>الاستنباط والتحليل<small>Elicitation & Analysis</small></h2></div><div class="w">35% من الاختبار — الأثقل</div></div>
+    <div class="dom-b">
+      <p>قلب الشهادة وثلث الاختبار. الاستنباط ليس "جمع" متطلبات جاهزة — بل <b>استخراج</b> ما لا يعرف أصحاب المصلحة أنفسهم كيف يصيغونه، ثم تحويله بالتحليل إلى متطلبات دقيقة قابلة للتحقق، وبالنمذجة إلى صور يفهمها الجميع.</p>
+      <h4>🎯 مهام الاستنباط</h4>
+      <div class="tasks">
+        <div class="task"><b>التحضير للاستنباط:</b> حدد الهدف والمشاركين والتقنية والأسئلة مسبقاً — جلسة بلا تحضير = آراء لا متطلبات.</div>
+        <div class="task"><b>تنفيذ الاستنباط:</b> مقابلات، ورش عمل ميسَّرة، عصف ذهني، استبيانات، ملاحظة مباشرة (Job Shadowing)، تحليل الوثائق والأنظمة القائمة، النماذج الأولية Prototypes.</div>
+        <div class="task"><b>توثيق المخرجات والتأكيد:</b> وثّق فوراً، ثم أكّد الفهم مع المشاركين — الاستنباط دورة تكرارية وليست حدثاً واحداً.</div>
+      </div>
+      <h4>🎯 مهام التحليل</h4>
+      <div class="tasks">
+        <div class="task"><b>تحليل المتطلبات وتفصيلها:</b> التفكيك، التجريد، إزالة الغموض — كل متطلب يجب أن يكون: واضحاً، مكتملاً، متسقاً، قابلاً للقياس والاختبار، وقابلاً للتتبع.</div>
+        <div class="task"><b>النمذجة:</b> نماذج النطاق (Context Diagram، Use Case Diagram)، نماذج العمليات (Process Flow، Swimlanes)، نماذج البيانات (ERD، Data Dictionary)، نماذج القواعد (Decision Table/Tree)، نماذج الواجهات (Wireframes، Report Table).</div>
+        <div class="task"><b>تحديد الأولويات:</b> MoSCoW (يجب/ينبغي/يمكن/لن)، التصويت متعدد النقاط، الترتيب الموزون — الأولوية قرار أصحاب المصلحة بتيسير المحلل.</div>
+        <div class="task"><b>معايير القبول وسيناريوهات الاختبار:</b> Given-When-Then في البيئات الرشيقة — المتطلب بلا معيار قبول متطلبٌ ناقص.</div>
+        <div class="task"><b>الحصول على الموافقة (Sign-off):</b> اعتماد رسمي لخط الأساس Baseline قبل التنفيذ.</div>
+      </div>
+      <h4>🧰 تقنيات المجال</h4>
+      <div class="chips"><span class="chip">Interviews</span><span class="chip">Facilitated Workshops / JAD</span><span class="chip">Brainstorming</span><span class="chip">Delphi</span><span class="chip">Observation</span><span class="chip">Prototyping / Storyboarding</span><span class="chip">Document Analysis</span><span class="chip">Context Diagram</span><span class="chip">Use Cases & User Stories (INVEST)</span><span class="chip">Process Modeling BPMN</span><span class="chip">ERD</span><span class="chip">Decision Tables</span><span class="chip">MoSCoW</span><span class="chip">Definition of Ready/Done</span></div>
+      <h4>📌 مصطلحات ذهبية</h4>
+      <div class="terms">
+        <div class="term"><b>أنواع المتطلبات</b>Business ← Stakeholder ← Solution (وظيفية Functional + غير وظيفية Non-functional) ← Transition (متطلبات الانتقال المؤقتة).</div>
+        <div class="term"><b>User Story</b>"بصفتي [دور] أريد [قدرة] لكي [قيمة]" — تُقيَّم بمعايير INVEST.</div>
+        <div class="term"><b>Progressive Elaboration</b>التفصيل التدريجي: نبدأ عالياً ونعمّق كلما اقترب التنفيذ.</div>
+        <div class="term"><b>Requirements Baseline</b>النسخة المعتمدة — أي تغيير بعدها يمر بضبط التغيير الرسمي.</div>
+        <div class="term"><b>Non-functional Requirements</b>الأداء، الأمان، التوافرية، قابلية الاستخدام — تُنسى كثيراً وتُفشل الحلول.</div>
+        <div class="term"><b>Backlog Refinement</b>تشذيب مستمر لقائمة الأعمال في البيئات التكيفية.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= D4 ================= -->
+  <div class="dom" id="d4">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#D97706,#B45309)">4</div>
+      <div><h2>التتبع والمراقبة<small>Traceability & Monitoring</small></h2></div><div class="w">15% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>المتطلبات كائنات حية: تتغير وتتشعب وتضيع إن لم تُتتبَّع. هذا المجال يضمن أن <b>كل متطلب معتمد يصل إلى الحل النهائي</b>، وأن كل تغيير يمر بقرار واعٍ لا بتسلل صامت (Scope Creep).</p>
+      <h4>🎯 المهام الأساسية</h4>
+      <div class="tasks">
+        <div class="task"><b>مصفوفة التتبع (RTM):</b> ربط كل متطلب بمصدره (من أين جاء؟) وبتصميمه واختباره وتسليمه (إلى أين ذهب؟) — تتبع أمامي وخلفي Bidirectional.</div>
+        <div class="task"><b>إدارة دورة حياة المتطلب:</b> حالات المتطلب: مقترح ← معتمد ← قيد التنفيذ ← مُختبَر ← مُسلَّم ← (مؤجل/ملغى) — بسمات محدَّثة باستمرار.</div>
+        <div class="task"><b>إدارة التغييرات على المتطلبات:</b> تقييم أثر كل طلب تغيير (على النطاق والجدول والتكلفة والمتطلبات المرتبطة) قبل عرضه على سلطة القرار (CCB في التنبؤية، مالك المنتج في الرشيقة).</div>
+        <div class="task"><b>مراقبة حالة المتطلبات والتواصل:</b> تقارير دورية لأصحاب المصلحة عن الحالة والتغطية والانحرافات.</div>
+      </div>
+      <h4>🧰 تقنيات المجال</h4>
+      <div class="chips"><span class="chip">Requirements Traceability Matrix</span><span class="chip">Impact Analysis</span><span class="chip">Change Control Board</span><span class="chip">Version Control</span><span class="chip">Configuration Management</span><span class="chip">Requirements Tools (Jira/DOORS)</span></div>
+      <h4>📌 مصطلحات ذهبية</h4>
+      <div class="terms">
+        <div class="term"><b>Scope Creep</b>تضخم النطاق بتغييرات غير معتمدة — عدوّ هذا المجال الأول.</div>
+        <div class="term"><b>Gold Plating</b>إضافة ما لم يُطلب "تحسيناً" — خطأ حتى لو بنية حسنة.</div>
+        <div class="term"><b>Impact Analysis</b>قبل أي "نعم" لتغيير: ما أثره على كل ما يرتبط به؟</div>
+        <div class="term"><b>Baseline Re-approval</b>التغيير المعتمد يُحدِّث خط الأساس ويُبلَّغ للجميع.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= D5 ================= -->
+  <div class="dom" id="d5">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#059669,#047857)">5</div>
+      <div><h2>تقييم الحل<small>Solution Evaluation</small></h2></div><div class="w">10% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>الدائرة تكتمل: بدأنا بـ"لماذا؟" وننتهي بـ<b>"هل حققنا القيمة الموعودة؟"</b> تقييم الحل ليس اختبار برمجيات — بل قياس تحقق النتائج الأعمالية التي وُعدت بها حالة العمل.</p>
+      <h4>🎯 المهام الأساسية</h4>
+      <div class="tasks">
+        <div class="task"><b>التحقق من الحل (Validate):</b> هل يلبي الحل معايير القبول والمتطلبات المعتمدة؟ اختبارات القبول UAT، الفحص مقابل RTM.</div>
+        <div class="task"><b>تحليل الفجوات في الأداء:</b> مقارنة الأداء الفعلي بالمقاييس المستهدفة في حالة العمل — وتحديد أسباب أي قصور.</div>
+        <div class="task"><b>الحصول على قبول الحل وإقرار الإطلاق:</b> توصية Go/No-Go مبنية على نتائج التقييم لا على ضغط الجدول.</div>
+        <div class="task"><b>تقييم القيمة المتحققة بعد الإطلاق:</b> قياس الفوائد الفعلية (Benefits Realization) وتغذية الدروس المستفادة لدورة الاحتياجات التالية.</div>
+      </div>
+      <h4>🧰 تقنيات المجال</h4>
+      <div class="chips"><span class="chip">UAT</span><span class="chip">Day-in-the-Life Testing</span><span class="chip">A/B Testing</span><span class="chip">Surveys & Focus Groups</span><span class="chip">KPIs & Metrics</span><span class="chip">Variance Analysis</span><span class="chip">Force Field Analysis</span></div>
+      <h4>📌 مصطلحات ذهبية</h4>
+      <div class="terms">
+        <div class="term"><b>Verification vs Validation</b>التحقق الفني: "بنيناه صحيحاً" — التحقق القيمي: "بنينا الصحيح".</div>
+        <div class="term"><b>Benefits Realization</b>القيمة لا تتحقق عند التسليم بل عند الاستخدام — تُقاس بعد الإطلاق.</div>
+        <div class="term"><b>Go/No-Go Decision</b>قرار الإطلاق مبني على معايير معلنة مسبقاً.</div>
+        <div class="term"><b>Lessons Learned</b>مدخل ذهبي لتقييم الاحتياجات في المبادرة القادمة — الدورة تدور.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- معلومات الاختبار -->
+  <div class="info">
+    <h3>🎓 معلومات اختبار PMI-PBA® الرسمي</h3>
+    <ul>
+      <li><b>200 سؤال</b> في <b>240 دقيقة</b> (منها 25 سؤالاً تجريبياً غير محتسب)</li>
+      <li>الأوزان: تقييم الاحتياجات 18% • التخطيط 22% • التحليل 35% • التتبع 15% • التقييم 10%</li>
+      <li>شرط الخبرة: 4,500 ساعة تحليل أعمال (أو 7,500 لغير الجامعيين) + 35 ساعة تدريب معتمد</li>
+      <li>محاكينا يطابق البنية الرسمية: نفس الأوزان والتوقيت وتقرير الأداء بنمط PMI بالفئات الأربع</li>
+    </ul>
+    <div class="cta-row">
+      <a class="btn btn-p" href="pba-exam.html">🧪 ابدأ محاكي الاختبار — 569 سؤالاً</a>
+      <a class="btn btn-o" href="pba-sim.html">🖥️ جرّب المحاكاة التطبيقية BAS</a>
+    </div>
+  </div>
+</div>
+
+<footer>إعداد وتصميم وبرمجة <b>د. محمد عطية — Al Saeed ETC</b> · PMI-PBA® علامة مسجلة لمعهد إدارة المشاريع PMI®</footer>
+<script src="assets/lms.js"></script>
+<script>LMS.guard('pba');</script>
+</body>
+</html>

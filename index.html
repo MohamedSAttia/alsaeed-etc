@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة السعيد المتكاملة | Al Saeed ETC — التعليم الإلكتروني الاحترافي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFFFFF;--card2:#FFFDF9;--solid:#FFF4E2;--solid2:#FFF9F0;
+  --g:#F97316;--g2:#EA580C;--g3:#FB923C;--y:#F59E0B;--gsoft:rgba(249,115,22,.09);--ysoft:#FEF3C7;
+  --teal:#0D9488;--indigo:#4F46E5;--rose:#E11D48;--emerald:#059669;--sky:#0284C7;--violet:#7C3AED;
+  --ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(234,88,12,.35);--bdr2:#E4EAF3;
+  --sh:0 18px 44px -16px rgba(23,63,143,.12),0 4px 12px -6px rgba(23,63,143,.06);
+  --r:14px;--r2:20px;--r3:28px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1180px;margin:auto;display:flex;align-items:center;gap:16px;padding:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.05rem}
+.brand .lg{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--y),var(--g2));display:grid;place-items:center;color:#fff;font-size:1.2rem;box-shadow:0 6px 16px -6px rgba(234,88,12,.5)}
+.brand small{display:block;font-size:.68rem;color:var(--dim);font-weight:700}
+nav{margin-inline-start:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:8px 14px;border-radius:10px;font-weight:800;font-size:.88rem;color:var(--dim)}
+nav a:hover{background:var(--gsoft);color:var(--g2)}
+nav a.cta{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;box-shadow:0 8px 18px -8px rgba(234,88,12,.55)}
+.hero{max-width:1180px;margin:auto;padding:56px 20px 30px;text-align:center}
+.hero h1{font-family:'Amiri',serif;font-size:clamp(1.7rem,4.2vw,3rem);line-height:1.5}
+.hero h1 b{color:var(--g2)}
+.hero p{color:var(--dim);max-width:760px;margin:14px auto 0;line-height:2;font-size:1.02rem}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.badges span{background:var(--card);border:1px solid var(--bdr2);border-radius:99px;padding:7px 16px;font-size:.82rem;font-weight:800;color:var(--dim);box-shadow:var(--sh)}
+.wrap{max-width:1180px;margin:auto;padding:20px}
+.sec-t{font-family:'Amiri',serif;font-size:1.7rem;margin:34px 0 6px;display:flex;align-items:center;gap:10px}
+.sec-t::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--bdr),transparent)}
+.sec-s{color:var(--dim);margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.cc{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;transition:.25s}
+.cc:hover{transform:translateY(-4px)}
+.cc-top{padding:22px 20px 14px;display:flex;gap:14px;align-items:flex-start}
+.cc-ic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;color:#fff;flex-shrink:0}
+.cc h3{font-size:1.08rem;line-height:1.6}
+.cc h3 small{display:block;font-size:.78rem;color:var(--dim);font-weight:700}
+.cc-desc{padding:0 20px;color:var(--dim);font-size:.88rem;line-height:1.95;flex:1}
+.cc-links{display:flex;gap:8px;padding:14px 20px 6px;flex-wrap:wrap}
+.cc-links a{font-size:.78rem;font-weight:800;padding:7px 12px;border-radius:10px;background:var(--bg1);color:var(--dim)}
+.cc-links a:hover{background:var(--gsoft);color:var(--g2)}
+.cc-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 18px}
+.price{font-weight:900;font-size:1.15rem}
+.price small{font-size:.72rem;color:var(--dim);font-weight:700;display:block}
+.btn{display:inline-block;padding:10px 20px;border-radius:12px;font-weight:800;font-size:.88rem;cursor:pointer;border:none;font-family:inherit}
+.btn-p{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;box-shadow:0 8px 18px -8px rgba(234,88,12,.55)}
+.btn-soon{background:var(--bg1);color:var(--dim2);cursor:default}
+.pk{background:linear-gradient(180deg,var(--card),var(--solid2));border:1.5px solid var(--bdr);border-radius:var(--r2);box-shadow:var(--sh);padding:24px;display:flex;flex-direction:column;position:relative}
+.pk.star::before{content:'⭐ الأكثر طلباً';position:absolute;top:-13px;right:20px;background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;font-size:.72rem;font-weight:900;padding:4px 14px;border-radius:99px}
+.pk h3{font-size:1.12rem;margin-bottom:4px}
+.pk .p-pr{font-size:1.9rem;font-weight:900;color:var(--g2);margin:8px 0}
+.pk .p-pr small{font-size:.8rem;color:var(--dim)}
+.pk ul{list-style:none;flex:1;margin:8px 0 14px}
+.pk li{padding:5px 0;color:var(--dim);font-size:.88rem}
+.pk li::before{content:'✅ ';font-size:.8rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:18px}
+.st{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r2);padding:20px;box-shadow:var(--sh);text-align:center}
+.st b{display:block;margin:8px 0 4px}
+.st span{color:var(--dim);font-size:.84rem;line-height:1.8;display:block}
+.st .n{width:38px;height:38px;margin:auto;border-radius:50%;background:var(--gsoft);color:var(--g2);display:grid;place-items:center;font-weight:900}
+footer{margin-top:50px;border-top:1px solid var(--bdr2);background:var(--card)}
+.ft{max-width:1180px;margin:auto;padding:26px 20px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;color:var(--dim);font-size:.85rem}
+@media(max-width:640px){.hdr-in{flex-direction:column}.hero{padding-top:34px}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">🎓</span><span>منصة السعيد المتكاملة<small>Al Saeed ETC — E-Learning Platform</small></span></a>
+  <nav>
+    <a href="#courses">📚 الدورات</a>
+    <a href="#packages">🎁 الباقات</a>
+    <a href="#how">💳 كيف تشترك؟</a>
+    <a href="dashboard.html" id="navDash" style="display:none">📋 لوحتي</a>
+    <a href="admin.html" id="navAdmin" style="display:none">🛠️ الإدارة</a>
+    <a href="auth.html" class="cta" id="navAuth">🔑 دخول / حساب جديد</a>
+  </nav>
+</div></header>
+
+<section class="hero">
+  <h1>طريقك إلى <b>الشهادات المهنية العالمية</b><br>بمحتوى عربي احترافي ومحاكاة حقيقية</h1>
+  <p>منصة تعليم إلكتروني متكاملة من إعداد <b>د. محمد عطية — Al Saeed ETC</b>: محتوى تدريبي كامل، محاكاة تطبيقية عملية، وبنوك أسئلة ضخمة بمحاكيات اختبار مطابقة لتجربة الاختبار الرسمي وتقارير أداء بنمط الجهات المانحة نفسها.</p>
+  <div class="badges">
+    <span>🛡️ PMI-RMP® — 442 سؤالاً</span><span>📊 PMI-PBA® — 569 سؤالاً</span><span>⚖️ GRCP™ — تقرير OCEG</span><span>🏆 PMP® قريباً</span>
+  </div>
+</section>
+
+<div class="wrap">
+  <h2 class="sec-t" id="courses">📚 الدورات التأهيلية</h2>
+  <p class="sec-s">كل دورة = محتوى تدريبي شامل + محاكاة تطبيقية عملية + محاكي اختبار كامل بتقرير أداء رسمي النمط</p>
+  <div class="grid" id="coursesGrid"></div>
+
+  <h2 class="sec-t" id="packages">🎁 الباقات</h2>
+  <p class="sec-s">وفّر أكثر بالاشتراك في أكثر من مسار — الأسعار والمدد قابلة للتعديل من لوحة الإدارة</p>
+  <div class="grid" id="pkGrid"></div>
+
+  <h2 class="sec-t" id="how">💳 كيف تشترك؟</h2>
+  <div class="steps">
+    <div class="st"><span class="n">1</span><b>أنشئ حسابك</b><span>تسجيل مجاني بالاسم والبريد الإلكتروني خلال دقيقة</span></div>
+    <div class="st"><span class="n">2</span><b>اختر دورتك أو باقتك</b><span>من لوحتك الشخصية اختر ما يناسب هدفك</span></div>
+    <div class="st"><span class="n">3</span><b>ادفع عبر Payoneer أو تحويل بنكي</b><span>ادفع من رابط الدفع الآمن وأدخل رقم العملية</span></div>
+    <div class="st"><span class="n">4</span><b>يُفعَّل وصولك</b><span>فور اعتماد الدفعة يفتح المحتوى كاملاً طوال مدة الاشتراك</span></div>
+  </div>
+</div>
+
+<footer><div class="ft">
+  <div>© <span id="yy"></span> إعداد وتصميم وبرمجة <b>د. محمد عطية — Al Saeed ETC</b></div>
+  <div>🌐 al-ltc.com · alsaeed-etc.com &nbsp;|&nbsp; 📞 واتساب: <span id="ftWa"></span></div>
+</div></footer>
+
+<script src="assets/lms.js"></script>
+<script>
+document.getElementById('yy').textContent=new Date().getFullYear();
+const st=LMS.settings();
+document.getElementById('ftWa').textContent=st.whatsapp;
+const me=LMS.me();
+if(me){document.getElementById('navAuth').style.display='none';document.getElementById('navDash').style.display='';
+  if(me.role==='admin')document.getElementById('navAdmin').style.display='';}
+
+const cur=st.currency||'SAR';
+const cg=document.getElementById('coursesGrid');
+cg.innerHTML=LMS.courses().map(c=>{
+  const soon=c.status!=='open';
+  const links= soon?'' : `<div class="cc-links">
+    <a href="${c.study}">📖 المحتوى التدريبي</a>
+    <a href="${c.exam}">🧪 محاكي الاختبار</a>
+    <a href="${c.sim}">🖥️ المحاكاة التطبيقية</a></div>`;
+  return `<div class="cc">
+    <div class="cc-top"><div class="cc-ic" style="background:linear-gradient(135deg,${c.color},${c.color}CC)">${c.icon}</div>
+      <h3>${c.title}<small>${c.en}</small></h3></div>
+    <div class="cc-desc">${c.desc}</div>
+    ${links}
+    <div class="cc-foot">
+      <div class="price">${soon?'—':c.price+' '+cur}<small>${soon?'يُعلن قريباً':'صلاحية '+c.days+' يوماً'}</small></div>
+      ${soon?'<span class="btn btn-soon">🔜 قريباً</span>':`<a class="btn btn-p" href="${me?'dashboard.html':'auth.html'}?enroll=${c.id}">اشترك الآن</a>`}
+    </div></div>`;
+}).join('');
+
+document.getElementById('pkGrid').innerHTML=LMS.packages().map((p,i)=>{
+  const names=p.courses.map(id=>{const c=LMS.courses().find(x=>x.id===id);return c?c.icon+' '+c.en:id}).join('');
+  return `<div class="pk ${i===LMS.packages().length-1?'star':''}">
+    <h3>${p.name}</h3>
+    <div class="p-pr">${p.price} <small>${cur}</small></div>
+    <ul>${p.courses.map(id=>{const c=LMS.courses().find(x=>x.id===id);return '<li>'+(c?c.title+' ('+c.en+')':id)+'</li>'}).join('')}
+    <li>صلاحية ${p.days} يوماً</li><li>${p.desc}</li></ul>
+    <a class="btn btn-p" style="text-align:center" href="${me?'dashboard.html':'auth.html'}?enrollpk=${p.id}">اشترك في الباقة</a>
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>

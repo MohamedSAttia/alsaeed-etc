@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة السعيد GRCP™‎ | المحتوى التدريبي لمحترف الحوكمة والمخاطر والالتزام</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--solid2:#FBF7FF;
+--g:#7C3AED;--g2:#6D28D9;--g3:#A78BFA;--y:#F59E0B;--gsoft:rgba(124,58,237,.08);
+--teal:#0D9488;--rose:#E11D48;--emerald:#059669;--sky:#0284C7;--amber:#D97706;
+--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(124,58,237,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--r2:20px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo','Tajawal',sans-serif;background:var(--bg0);color:var(--ink)}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1100px;margin:auto;display:flex;align-items:center;gap:12px;padding:11px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:.95rem}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--g3),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:8px 13px;border-radius:10px;font-weight:800;font-size:.84rem;color:var(--dim)}
+nav a:hover{background:var(--gsoft);color:var(--g2)}
+nav a.cta{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff}
+.hero{max-width:1100px;margin:auto;padding:40px 20px 10px;text-align:center}
+.hero h1{font-family:'Amiri',serif;font-size:clamp(1.5rem,3.6vw,2.4rem)}
+.hero h1 b{color:var(--g2)}
+.hero p{color:var(--dim);max-width:760px;margin:12px auto 0;line-height:2}
+.wrap{max-width:1100px;margin:auto;padding:16px 20px 40px}
+.dnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:22px 0}
+.dnav a{background:var(--card);border:1px solid var(--bdr2);border-radius:14px;padding:13px;box-shadow:var(--sh);text-align:center;font-size:.82rem;font-weight:800;color:var(--dim)}
+.dnav a b{display:block;color:var(--ink);font-size:.9rem}
+.dnav a:hover{border-color:var(--g)}
+.dom{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r2);box-shadow:var(--sh);margin:22px 0;overflow:hidden}
+.dom-h{padding:20px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--bdr2)}
+.dom-h .n{min-width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:.95rem;padding:0 12px}
+.dom-h h2{font-family:'Amiri',serif;font-size:1.35rem}
+.dom-h small{display:block;color:var(--dim);font-size:.8rem;font-family:'Cairo'}
+.dom-h .w{margin-inline-start:auto;background:var(--gsoft);color:var(--g2);border-radius:99px;padding:6px 16px;font-weight:900;font-size:.85rem;white-space:nowrap}
+.dom-b{padding:20px 24px}
+.dom-b p{color:var(--dim);line-height:2.05;margin-bottom:14px;font-size:.93rem}
+.dom-b p b,.dom-b li b,.el b{color:var(--ink)}
+h4{margin:18px 0 10px;font-size:.98rem}
+.els{display:grid;gap:9px}
+.el{background:var(--bg1);border-radius:13px;padding:12px 15px;font-size:.87rem;line-height:1.9;color:var(--dim);border-inline-start:3px solid var(--g)}
+.el b i{font-style:normal;background:var(--gsoft);color:var(--g2);border-radius:7px;padding:1px 8px;font-size:.76rem;margin-inline-end:6px}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:8px}
+.term{background:var(--bg1);border-radius:12px;padding:11px 14px;font-size:.82rem;line-height:1.85;color:var(--dim)}
+.term b{color:var(--g2);display:block;font-size:.85rem}
+.info{background:linear-gradient(180deg,var(--card),var(--solid2));border:1.5px solid var(--bdr);border-radius:var(--r2);box-shadow:var(--sh);padding:22px 24px;margin:22px 0}
+.info h3{font-family:'Amiri',serif;font-size:1.25rem;margin-bottom:10px}
+.info ul{list-style:none}
+.info li{padding:5px 0;color:var(--dim);font-size:.9rem;line-height:1.9}
+.info li::before{content:'◾ ';color:var(--g)}
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px 0 6px}
+.btn{display:inline-block;padding:13px 26px;border-radius:14px;font-weight:900;font-size:.95rem}
+.btn-p{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff;box-shadow:0 10px 22px -8px rgba(124,58,237,.5)}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.fl{border-radius:16px;padding:16px;color:#fff;text-align:center}
+.fl b{display:block;font-size:1.05rem}
+.fl span{font-size:.78rem;opacity:.9;line-height:1.7;display:block;margin-top:4px}
+footer{border-top:1px solid var(--bdr2);background:var(--card);padding:20px;text-align:center;color:var(--dim);font-size:.82rem;margin-top:30px}
+@media(max-width:640px){.dom-h{flex-wrap:wrap}.dom-h .w{margin:0}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">⚖️</span> منصة السعيد — GRCP™</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="grcp-exam.html" class="cta">🧪 محاكي الاختبار</a>
+    <a href="grc-sim.html">🖥️ المحاكاة التطبيقية</a>
+  </nav>
+</div></header>
+
+<section class="hero">
+  <h1>محترف الحوكمة والمخاطر والالتزام <b>GRCP™</b><br>وفق نموذج قدرات OCEG — الإصدار 3.5</h1>
+  <p>المنهجية المتكاملة لتحقيق <b>الأداء المبدئي Principled Performance</b>: تحقيق الأهداف بموثوقية، ومعالجة عدم اليقين، والعمل بنزاهة — عبر المكوّنات الأربعة وعناصرها العشرين، مع محاكي اختبار 100 سؤال بتقرير أداء بنمط OCEG.</p>
+</section>
+
+<div class="wrap">
+  <div class="dnav">
+    <a href="#c0"><b>المفاهيم الأساسية</b>Principled Performance</a>
+    <a href="#c1"><b>LEARN</b>التعلم — 4 عناصر</a>
+    <a href="#c2"><b>ALIGN</b>المواءمة — 5 عناصر</a>
+    <a href="#c3"><b>PERFORM</b>الأداء — 8 عناصر</a>
+    <a href="#c4"><b>REVIEW</b>المراجعة — 3 عناصر</a>
+  </div>
+
+  <!-- ============ المفاهيم ============ -->
+  <div class="dom" id="c0">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">مفاهيم</div>
+      <div><h2>المفاهيم الأساسية<small>GRC Key Concepts</small></h2></div><div class="w">~20% من الاختبار</div></div>
+    <div class="dom-b">
+      <p><b>GRC</b> ليست قسماً ولا برنامجاً حاسوبياً — بل <b>قدرة مؤسسية متكاملة</b> تمكّن المؤسسة من: <b>تحقيق الأهداف بموثوقية</b> (الحوكمة G)، <b>معالجة عدم اليقين</b> (إدارة المخاطر R)، و<b>العمل بنزاهة</b> (الالتزام C). والغاية النهائية هي <b>الأداء المبدئي Principled Performance</b>.</p>
+      <p>لماذا نحتاجها؟ لأن المؤسسات تواجه قوى مزعزعة تُختصر في <b>VUCA</b>: التقلب Volatility، عدم اليقين Uncertainty، التعقيد Complexity، الغموض Ambiguity — يُضاف إليها داءُ <b>الانفصال Disconnection</b>: جزر إدارية معزولة تعمل بأغراض متضاربة. هنا يأتي دور "الحُماة" <b>Protectors</b> — محترفو الحوكمة والمخاطر والالتزام والأخلاقيات والتدقيق — الذين <b>يُنتجون القيمة ويحمونها</b> معاً.</p>
+      <h4>🔺 الأداء الكلي — الثلاثية O's</h4>
+      <div class="els">
+        <div class="el"><b>الفرص Opportunities:</b> أحداث غير مؤكدة بأثر إيجابي على الأهداف — تُستثمر ولا تُتجاهل (بُعد المكافأة).</div>
+        <div class="el"><b>العقبات Obstacles:</b> أحداث غير مؤكدة بأثر سلبي — تُدار بالضوابط (بُعد المخاطر التقليدي).</div>
+        <div class="el"><b>الالتزامات Obligations:</b> الحدود الإلزامية (قوانين، لوائح، عقود) والطوعية (قيم، تعهدات، معايير مُتبنّاة) — وخرق الطوعي خرقٌ للنزاهة أيضاً.</div>
+      </div>
+      <h4>🧩 نموذج الإجراءات والضوابط المتكامل IACM</h4>
+      <div class="els">
+        <div class="el"><b>استباقية Proactive:</b> قبل الحدث — تشجّع المرغوب وتمنع غير المرغوب (فصل مهام، صلاحيات، تصميم آمن).</div>
+        <div class="el"><b>كاشفة Detective:</b> أثناء/بعد الحدث — تكتشف الوقوع والتغيّر (تسويات، مراقبة، مؤشرات، تفتيش).</div>
+        <div class="el"><b>استجابية Responsive:</b> بعد الحدث — تستعيد وتصحّح وتؤدّب وتحسّن (تحقيق، معالجة، إفصاح، تطوير الضوابط).</div>
+      </div>
+      <h4>🏛️ خطوط المساءلة Lines of Accountability</h4>
+      <div class="els">
+        <div class="el"><b>الخط الأول:</b> الإدارة والعاملون مالكو الأهداف والعمليات — يشغّلون الضوابط يومياً.</div>
+        <div class="el"><b>الخط الثاني:</b> وظائف المخاطر والالتزام — توجّه وتدعم وتراقب دون أن تملك العمليات.</div>
+        <div class="el"><b>خط التوكيد:</b> التدقيق الداخلي — تقييم مستقل وموضوعي.</div>
+        <div class="el"><b>سلطة الحوكمة:</b> المجلس — توجيه وإشراف ومساءلة الإدارة، لا تشغيل.</div>
+      </div>
+      <h4>📌 تذكّر في الاختبار</h4>
+      <div class="terms">
+        <div class="term"><b>"بموثوقية Reliably"</b>= بتَدبُّر، باتساق، بإتقان يُعتمد عليه، وبشفافية.</div>
+        <div class="term"><b>النزاهة Integrity</b>عيش القيم والبقاء داخل الحدود الإلزامية والطوعية معاً.</div>
+        <div class="term"><b>عدم اليقين لا يُلغى</b>بل يُعالَج — GRC ليست "صفر مخاطر".</div>
+        <div class="term"><b>المكوّنات الأربعة متزامنة</b>ليست تسلسلاً صارماً — تعمل باستمرار وتتبادل المعلومات.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LEARN ============ -->
+  <div class="dom" id="c1">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#0284C7,#0369A1)">LEARN</div>
+      <div><h2>مكوّن التعلم<small>فهم السياق والثقافة وأصحاب المصلحة</small></h2></div><div class="w">~15% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>لا مواءمة بلا فهم. LEARN هو عدسة المؤسسة على العالم وعلى نفسها — ومخرجاته تغذّي كل قرار في ALIGN. وهو نشاط <b>مستمر</b> لا سنوي: أي تغيّر جوهري في السياق يستدعي إعادة مواءمة.</p>
+      <div class="els">
+        <div class="el"><b><i>L1</i>السياق الخارجي External Context:</b> الصناعة والسوق والقوى التنظيمية والتقنية والاجتماعية والطبيعية — أدوات مثل PESTLE وتحليل قوى الصناعة، مع رصد مستمر للتغيّر.</div>
+        <div class="el"><b><i>L2</i>السياق الداخلي Internal Context:</b> ما تكونه المؤسسة وما تملكه: الاستراتيجية القائمة، الهيكل، الأشخاص، العمليات، التقنية والمعلومات، الأصول — لتعرف أين تنشأ الفرص والعقبات والالتزامات وأين تُثبَّت الضوابط.</div>
+        <div class="el"><b><i>L3</i>الثقافة Culture:</b> "كيف تُدار الأمور فعلاً هنا" — ثقافة الحوكمة، الأخلاقيات، المخاطر، وثقافة العاملين. تُقاس بمسوح المناخ والمقابلات والمؤشرات السلوكية، لا بقراءة بيان القيم. تذكّر: <b>الحوافز وسلوك القيادة يصنعان الثقافة أكثر من السياسات المكتوبة</b>، و"مزاج الوسط Mood in the Middle" هو صمّام تمرير القيم للواقع.</div>
+        <div class="el"><b><i>L4</i>أصحاب المصلحة Stakeholders:</b> كل من يؤثر أو يتأثر: تحديد ← تحليل (القوة/الاهتمام والجوهرية Materiality) ← أولويات ← إشراك ثنائي الاتجاه يبني الثقة ويكشف التوقعات مبكراً.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ALIGN ============ -->
+  <div class="dom" id="c2">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#0D9488,#0F766E)">ALIGN</div>
+      <div><h2>مكوّن المواءمة<small>التوجيه والأهداف والتحليل والتصميم</small></h2></div><div class="w">~20% من الاختبار</div></div>
+    <div class="dom-b">
+      <p>هنا تتحول المعرفة إلى قرارات: نضع الاتجاه، نشتق الأهداف، نحدد ونحلل الثلاثية O's، ثم <b>نصمّم خطة متكاملة واحدة</b> من الإجراءات والضوابط — لا خططاً متوازية لكل قسم.</p>
+      <div class="els">
+        <div class="el"><b><i>A1</i>التوجيه Direction:</b> الرسالة والرؤية والقيم + بيانات شهية المخاطر Risk Appetite + معايير اتخاذ القرار الموحدة — البوصلة التي تشتق منها كل الأهداف.</div>
+        <div class="el"><b><i>A2</i>الأهداف Objectives:</b> محددة وقابلة للقياس (SMART)، متوازنة (مالي/غير مالي، قصير/طويل، مصالح متعددة)، ولكل هدف <b>مالك</b> مسؤول عنه وعن فرصه وعقباته والتزاماته. الأهداف هي المرجع: لا معنى لمخاطرة أو التزام إلا بالنسبة لهدف.</div>
+        <div class="el"><b><i>A3</i>التحديد Identification:</b> حصر الفرص والعقبات والالتزامات لكل هدف — عصف ذهني، مقابلات، استبيانات، تحليل عمليات وبيانات، سجل خسائر تاريخي، رصد تنظيمي. الالتزام يوجد فور انطباق المتطلب، لا عند أول غرامة.</div>
+        <div class="el"><b><i>A4</i>التحليل Analysis:</b> تقدير الاحتمالية والأثر (نوعياً بمقاييس وصفية أو كمياً بأرقام ومحاكاة)، أدوات مثل Bow-Tie، ومفهومان محوريان: <b>التعرض الكامن Inherent</b> قبل الضوابط و<b>المتبقي Residual</b> بعدها — والمقارنة دائماً بالمتبقي مقابل حدود التحمل.</div>
+        <div class="el"><b><i>A5</i>التصميم Design:</b> اختيار مزيج الإجراءات والضوابط (استباقي/كاشف/استجابي) بموازنة كلفة/عائد، وخيارات المعالجة: خفّض بضوابط، انقل/شارك، تجنّب، اقبل رسمياً بتوثيق واعتماد، أو استثمر الفرصة — في <b>خطة واحدة متكاملة</b> تخدم الأداء والمخاطر والالتزام معاً.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PERFORM ============ -->
+  <div class="dom" id="c3">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#D97706,#B45309)">PERFORM</div>
+      <div><h2>مكوّن الأداء<small>تشغيل الضوابط الثمانية</small></h2></div><div class="w">~28% من الاختبار — الأثقل</div></div>
+    <div class="dom-b">
+      <p>أكبر مكوّنات النموذج وأثقلها في الاختبار — ثمانية عناصر تحوّل التصميم إلى واقع تشغيلي يومي:</p>
+      <div class="els">
+        <div class="el"><b><i>P1</i>الضوابط Controls:</b> تشغيل الإجراءات والضوابط المصممة — بأنواعها: مادية، تقنية/آلية، إدارية/إجرائية. القاعدة الذهبية: <b>الضابط المدمج في العملية أقوى من الملصق فوقها</b>، والخط الأول هو المشغّل. وعند تعذّر ضابط مثالي (فريق صغير يمنع فصل المهام الكامل) تُستخدم <b>ضوابط تعويضية</b> موثقة.</div>
+        <div class="el"><b><i>P2</i>السياسات Policies:</b> هرم: مدونة سلوك/سياسات (مبادئ) ← معايير (اشتراطات) ← إجراءات (خطوات) ← إرشادات (اختيارية). دورة حياة كاملة: إعداد، اعتماد، تواصل، تدريب، مراجعة دورية، إحالة للتقاعد — بلغة واضحة، فـ<b>النشر وحده لا يصنع التزاماً</b>.</div>
+        <div class="el"><b><i>P3</i>التواصل Communication:</b> رسائل داخلية وخارجية مستهدفة بلغة بسيطة عبر قنوات متعددة مع تعزيز قيادي — وقنوات إصغاء ثنائية الاتجاه تكشف ما لا يكشفه البث.</div>
+        <div class="el"><b><i>P4</i>التثقيف Education:</b> منهج تدريبي <b>مبني على المخاطر</b>: عمق وتكرار حسب تعرض كل دور. يبدأ من التهيئة الأولى للموظف. القياس بالنتائج (فهم، سلوك، حوادث) لا بنِسَب الإكمال.</div>
+        <div class="el"><b><i>P5</i>الحوافز Incentives:</b> مواءمة المكافآت والترقيات والتقدير مع السلوك المطلوب — إدراج "كيف" مع "كم" في التقييم. حافز مبيعات صافٍ بلا بوابة سلوك = دعوة لتجاوز الحدود، والاتساق التأديبي عبر المستويات شرط مصداقية.</div>
+        <div class="el"><b><i>P6</i>الإبلاغ Notification:</b> قنوات موثوقة (مدير، خط ساخن، ويب، خيار مجهول حيث يجيزه القانون) للسؤال والإبلاغ — بحماية صارمة من الانتقام تشمل كل مُبلّغ بحسن نية ولو لم تثبت الواقعة. <b>ارتفاع البلاغات بعد حملة توعية إشارة ثقة لا فساد</b>.</div>
+        <div class="el"><b><i>P7</i>التحري Inquiry:</b> فرز Triage حسب الخطورة ← تحقيق مستقل كفء سرّي موثّق وفي زمن معقول ← <b>تحليل سبب جذري</b> يكشف ضعف الضابط أو العملية أو الثقافة، لا الاكتفاء بمحاسبة فرد.</div>
+        <div class="el"><b><i>P8</i>الاستجابة Response:</b> تأديب متناسب ومتسق، معالجة الضرر، إفصاحات إلزامية في مواعيدها (كإخطارات اختراق البيانات)، إدارة أزمات — وتغذية الدروس عائدةً إلى ALIGN لتحسين التصميم.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REVIEW ============ -->
+  <div class="dom" id="c4">
+    <div class="dom-h"><div class="n" style="background:linear-gradient(135deg,#059669,#047857)">REVIEW</div>
+      <div><h2>مكوّن المراجعة<small>المراقبة والتوكيد والتحسين</small></h2></div><div class="w">~17% من الاختبار</div></div>
+    <div class="dom-b">
+      <div class="els">
+        <div class="el"><b><i>R1</i>المراقبة Monitoring:</b> مستمرة (مدمجة: لوحات، تنبيهات آلية) ودورية (تقييمات نقطية كتقييم الضوابط الذاتي CSA — مفيد لكنه <b>ليس توكيداً مستقلاً</b>). عدّة المؤشرات: <b>KPI</b> أداء، <b>KRI</b> إنذار مبكر للمخاطر (رائد، مقيس، بعتبات تصعيد — وتجاهل العتبة أو رفعها لإسكات الإنذار يقتل الفكرة)، <b>KCI</b> صحة الالتزام والضوابط.</div>
+        <div class="el"><b><i>R2</i>التوكيد Assurance:</b> تقييم <b>مستقل وموضوعي</b> يمنح متخذي القرار ثقة مبررة مقابل معايير مناسبة. مشغّل الضابط لا يوكّد على ضابطه (مراجعة ذاتية). مستويات التوكيد تتدرج بصرامة الإجراءات واستقلالية المُقيِّم حسب حساسية القرار — و<b>خريطة التوكيد Assurance Map</b> تمنع الفجوات والازدواج بين المدققين.</div>
+        <div class="el"><b><i>R3</i>التحسين Improvement:</b> تحويل النتائج والتغيرات إلى إجراءات تصحيحية: سبب جذري + إجراء محدد + مالك + تاريخ + تحقق إغلاق. ويشمل تقييم <b>نضج القدرة</b> (من عشوائي إلى مُحسَّن) لرسم خارطة الاستثمار — والتحسين يُستدعى أيضاً <b>بتغيّر السياق ولو بلا إخفاق</b>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- معلومات الاختبار -->
+  <div class="info">
+    <h3>🎓 معلومات اختبار GRCP™ الرسمي (OCEG)</h3>
+    <ul>
+      <li><b>100 سؤال</b> في <b>120 دقيقة</b> — درجة الاجتياز <b>70/100</b></li>
+      <li><b>مفتوح المصادر Open-Book:</b> يمكنك فتح الكتاب الأحمر أثناء الاختبار — لكن بمعدل 72 ثانية للسؤال لا وقت للبحث عن كل إجابة، فالفهم شرط الاجتياز</li>
+      <li>النتيجة فورية بنمط <b>PASS/FAIL</b> مع النسبة — وهذا بالضبط نمط تقرير محاكينا (المختلف عن تقارير PMI)</li>
+      <li>عضوية OCEG المدفوعة تشمل قسيمة الاختبار، مع إتاحة عدة محاولات سنوياً</li>
+    </ul>
+    <div class="cta-row">
+      <a class="btn btn-p" href="grcp-exam.html">🧪 ابدأ محاكي الاختبار — تقرير OCEG</a>
+      <a class="btn btn-o" href="grc-sim.html">🖥️ جرّب محاكاة GRC التطبيقية</a>
+    </div>
+  </div>
+</div>
+
+<footer>إعداد وتصميم وبرمجة <b>د. محمد عطية — Al Saeed ETC</b> · GRCP™ علامة مسجلة لـ OCEG® — هذا محتوى تدريبي أصلي مُعدّ وفق بنية النموذج</footer>
+<script src="assets/lms.js"></script>
+<script>LMS.guard('grcp');</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول | منصة السعيد المتكاملة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--card:#FFF;--g:#F97316;--g2:#EA580C;--y:#F59E0B;--gsoft:rgba(249,115,22,.09);
+--ink:#1E2A3B;--dim:#5B6B84;--bdr2:#E4EAF3;--sh:0 18px 44px -16px rgba(23,63,143,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--bdr2);border-radius:24px;box-shadow:var(--sh);width:100%;max-width:440px;padding:34px 30px}
+.lg{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--y),var(--g2));display:grid;place-items:center;color:#fff;font-size:1.6rem;margin:auto;box-shadow:0 8px 20px -8px rgba(234,88,12,.6)}
+h1{font-family:'Amiri',serif;text-align:center;font-size:1.5rem;margin:14px 0 2px}
+.sub{text-align:center;color:var(--dim);font-size:.86rem;margin-bottom:20px}
+.tabs{display:flex;background:#EFF3F9;border-radius:14px;padding:4px;margin-bottom:20px}
+.tabs button{flex:1;border:none;background:transparent;padding:10px;border-radius:11px;font-family:inherit;font-weight:800;font-size:.9rem;color:var(--dim);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--g2);box-shadow:0 4px 10px -4px rgba(23,63,143,.15)}
+label{display:block;font-weight:800;font-size:.82rem;margin:12px 0 5px}
+input{width:100%;border:1.5px solid var(--bdr2);border-radius:12px;padding:11px 14px;font-family:inherit;font-size:.92rem;background:#FBFCFE}
+input:focus{outline:none;border-color:var(--g)}
+.btn{width:100%;margin-top:20px;border:none;border-radius:14px;padding:13px;font-family:inherit;font-weight:900;font-size:1rem;color:#fff;background:linear-gradient(120deg,var(--y),var(--g2));cursor:pointer;box-shadow:0 10px 22px -8px rgba(234,88,12,.55)}
+.msg{margin-top:14px;border-radius:12px;padding:11px 14px;font-size:.85rem;font-weight:700;display:none}
+.msg.err{display:block;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+.msg.ok{display:block;background:#ECFDF5;color:#047857;border:1px solid #A7F3D0}
+.back{display:block;text-align:center;margin-top:16px;color:var(--dim);font-size:.84rem;text-decoration:none;font-weight:700}
+.back:hover{color:var(--g2)}
+.hint{margin-top:14px;background:var(--gsoft);border-radius:12px;padding:10px 14px;font-size:.78rem;color:var(--dim);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="lg">🎓</div>
+  <h1>منصة السعيد المتكاملة</h1>
+  <div class="sub">Al Saeed ETC — التعليم الإلكتروني الاحترافي</div>
+  <div class="tabs">
+    <button id="tbLogin" class="on" onclick="setTab('login')">تسجيل الدخول</button>
+    <button id="tbReg" onclick="setTab('reg')">حساب جديد</button>
+  </div>
+
+  <div id="fLogin">
+    <label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="you@example.com">
+    <label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••">
+    <button class="btn" onclick="doLogin()">دخول ←</button>
+  </div>
+
+  <div id="fReg" style="display:none">
+    <label>الاسم الكامل</label><input id="rName" placeholder="الاسم الثلاثي">
+    <label>البريد الإلكتروني</label><input id="rEmail" type="email" placeholder="you@example.com">
+    <label>رقم الجوال (واتساب)</label><input id="rPhone" placeholder="+9665xxxxxxxx">
+    <label>كلمة المرور</label><input id="rPass" type="password" placeholder="6 أحرف على الأقل">
+    <button class="btn" onclick="doReg()">إنشاء الحساب ←</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <div class="hint">💡 حساب المتدرب مجاني — الاشتراك في الدورات يتم من لوحتك بعد الدخول. الأدمن يسجّل دخوله من هنا أيضاً بنفس النموذج.</div>
+  <a class="back" href="index.html">→ العودة للرئيسية</a>
+</div>
+
+<script src="assets/lms.js"></script>
+<script>
+const qs=new URLSearchParams(location.search);
+const next= qs.get('enroll')?'dashboard.html?enroll='+qs.get('enroll')
+          : qs.get('enrollpk')?'dashboard.html?enrollpk='+qs.get('enrollpk')
+          : 'dashboard.html';
+if(LMS.me()){location.href= LMS.isAdmin()?'admin.html':next;}
+
+function setTab(t){
+  document.getElementById('tbLogin').classList.toggle('on',t==='login');
+  document.getElementById('tbReg').classList.toggle('on',t==='reg');
+  document.getElementById('fLogin').style.display=t==='login'?'':'none';
+  document.getElementById('fReg').style.display=t==='reg'?'':'none';
+  hideMsg();
+}
+if(qs.get('enroll')||qs.get('enrollpk')) setTab('reg');
+
+const msg=document.getElementById('msg');
+function showMsg(t,ok){msg.textContent=t;msg.className='msg '+(ok?'ok':'err')}
+function hideMsg(){msg.className='msg'}
+
+function doLogin(){
+  const r=LMS.login(document.getElementById('lEmail').value,document.getElementById('lPass').value);
+  if(!r.ok) return showMsg(r.msg);
+  showMsg('تم الدخول بنجاح ✅',true);
+  setTimeout(()=>location.href= r.admin?'admin.html':next,500);
+}
+function doReg(){
+  const n=document.getElementById('rName').value.trim(),
+        e=document.getElementById('rEmail').value.trim(),
+        p=document.getElementById('rPass').value,
+        ph=document.getElementById('rPhone').value;
+  if(n.length<3) return showMsg('اكتب اسمك الكامل');
+  if(!/^\S+@\S+\.\S+$/.test(e)) return showMsg('بريد إلكتروني غير صحيح');
+  if(p.length<6) return showMsg('كلمة المرور 6 أحرف على الأقل');
+  const r=LMS.register(n,e,p,ph);
+  if(!r.ok) return showMsg(r.msg);
+  showMsg('تم إنشاء حسابك ✅',true);
+  setTimeout(()=>location.href=next,500);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){
+  if(document.getElementById('fLogin').style.display!=='none')doLogin();else doReg();}});
+</script>
+</body>
+</html>

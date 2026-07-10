@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحتي | منصة السعيد المتكاملة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--solid2:#FFF9F0;--g:#F97316;--g2:#EA580C;--y:#F59E0B;
+--gsoft:rgba(249,115,22,.09);--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(234,88,12,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--emerald:#059669;--rose:#E11D48}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1100px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--y),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+nav a,nav button{padding:8px 14px;border-radius:10px;font-weight:800;font-size:.85rem;color:var(--dim);border:none;background:none;font-family:inherit;cursor:pointer}
+nav a:hover,nav button:hover{background:var(--gsoft);color:var(--g2)}
+.wrap{max-width:1100px;margin:auto;padding:26px 20px}
+h1{font-family:'Amiri',serif;font-size:1.7rem}
+.sub{color:var(--dim);margin:4px 0 22px}
+.sec{font-weight:900;font-size:1.1rem;margin:28px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,var(--bdr),transparent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.cc{background:var(--card);border:1px solid var(--bdr2);border-radius:18px;box-shadow:var(--sh);padding:20px;display:flex;flex-direction:column;gap:10px}
+.cc-h{display:flex;gap:12px;align-items:center}
+.cc-ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:1.35rem;color:#fff;flex-shrink:0}
+.cc-h b{font-size:.98rem;line-height:1.5}
+.cc-h small{display:block;color:var(--dim);font-size:.74rem}
+.tag{display:inline-block;border-radius:99px;padding:3px 12px;font-size:.72rem;font-weight:900}
+.tag.on{background:#ECFDF5;color:#047857}.tag.exp{background:#FEF2F2;color:#B91C1C}.tag.pend{background:#FFFBEB;color:#B45309}
+.cc-links{display:flex;gap:7px;flex-wrap:wrap}
+.cc-links a{font-size:.76rem;font-weight:800;padding:7px 11px;border-radius:9px;background:var(--bg1);color:var(--dim)}
+.cc-links a:hover{background:var(--gsoft);color:var(--g2)}
+.btn{border:none;border-radius:12px;padding:10px 18px;font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer}
+.btn-p{background:linear-gradient(120deg,var(--y),var(--g2));color:#fff;box-shadow:0 8px 18px -8px rgba(234,88,12,.55)}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+.pay{background:linear-gradient(180deg,var(--card),var(--solid2));border:1.5px solid var(--bdr);border-radius:20px;box-shadow:var(--sh);padding:24px}
+.pay label{display:block;font-weight:800;font-size:.82rem;margin:12px 0 5px}
+.pay select,.pay input{width:100%;border:1.5px solid var(--bdr2);border-radius:12px;padding:11px 14px;font-family:inherit;font-size:.9rem;background:#fff}
+.paybox{background:var(--bg1);border-radius:14px;padding:14px 16px;font-size:.85rem;line-height:1.9;color:var(--dim);margin-top:12px}
+.paybox a{color:var(--g2);font-weight:900;word-break:break-all}
+.hist{width:100%;border-collapse:collapse;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--sh);font-size:.84rem}
+.hist th{background:var(--bg1);padding:10px 12px;text-align:right;font-size:.78rem}
+.hist td{padding:10px 12px;border-top:1px solid var(--bdr2)}
+.empty{background:var(--card);border:1.5px dashed var(--bdr2);border-radius:18px;padding:30px;text-align:center;color:var(--dim)}
+.msg{margin-top:12px;border-radius:12px;padding:11px 14px;font-size:.85rem;font-weight:700;display:none}
+.msg.ok{display:block;background:#ECFDF5;color:#047857;border:1px solid #A7F3D0}
+.msg.err{display:block;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+footer{margin-top:44px;border-top:1px solid var(--bdr2);padding:20px;text-align:center;color:var(--dim);font-size:.82rem}
+@media(max-width:640px){.hdr-in{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">🎓</span> منصة السعيد</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="admin.html" id="navAdmin" style="display:none">🛠️ الإدارة</a>
+    <button onclick="LMS.logout()">🚪 خروج</button>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <h1>أهلاً، <span id="uName"></span> 👋</h1>
+  <div class="sub" id="uMail"></div>
+
+  <div class="sec">📚 دوراتي</div>
+  <div class="grid" id="myCourses"></div>
+
+  <div class="sec">🛒 اشترك في دورة أو باقة</div>
+  <div class="pay">
+    <label>ماذا تريد؟</label>
+    <select id="selItem"></select>
+    <label>طريقة الدفع</label>
+    <select id="selMethod">
+      <option value="payoneer">💳 Payoneer (بطاقة / تحويل)</option>
+      <option value="bank">🏦 تحويل بنكي</option>
+      <option value="whatsapp">📱 التنسيق عبر واتساب</option>
+    </select>
+    <div class="paybox" id="payBox"></div>
+    <label>رقم مرجع العملية (Transaction ID)</label>
+    <input id="payRef" placeholder="مثال: PYN-2026-XXXXXX أو رقم الحوالة">
+    <button class="btn btn-p" style="margin-top:16px" onclick="submitPay()">📨 إرسال طلب التفعيل</button>
+    <div class="msg" id="payMsg"></div>
+  </div>
+
+  <div class="sec">🧾 طلباتي وسجل المدفوعات</div>
+  <div id="payHist"></div>
+</div>
+
+<footer>إعداد وتصميم وبرمجة <b>د. محمد عطية — Al Saeed ETC</b></footer>
+
+<script src="assets/lms.js"></script>
+<script>
+const me=LMS.me();
+if(!me){location.href='auth.html';}
+if(me.role==='admin')document.getElementById('navAdmin').style.display='';
+document.getElementById('uName').textContent=me.name;
+document.getElementById('uMail').textContent=me.email;
+const st=LMS.settings(), cur=st.currency||'SAR';
+
+/* دوراتي */
+function renderCourses(){
+  const wrap=document.getElementById('myCourses');
+  const ens=LMS.myEnrollments();
+  const cards=LMS.courses().filter(c=>c.status==='open').map(c=>{
+    const has=LMS.hasAccess(c.id);
+    const en=ens.find(e=>e.courses.includes(c.id)&&e.status==='active');
+    const daysLeft=en? Math.max(0,Math.ceil((en.expires-Date.now())/864e5)) : 0;
+    const pend=LMS.payments().find(p=>p.uid===me.id&&p.status==='pending'&&(p.itemId===c.id||(p.kind==='package'&&(LMS.packages().find(k=>k.id===p.itemId)||{courses:[]}).courses.includes(c.id))));
+    const tag= has? `<span class="tag on">✅ نشط — متبقٍ ${daysLeft} يوماً</span>`
+             : pend? `<span class="tag pend">⏳ بانتظار اعتماد الدفع</span>`
+             : `<span class="tag exp">🔒 غير مشترك</span>`;
+    const links= has? `<div class="cc-links"><a href="${c.study}">📖 المحتوى</a><a href="${c.exam}">🧪 محاكي الاختبار</a><a href="${c.sim}">🖥️ المحاكاة</a>${(c.videos&&c.videos.length?`<a href="${c.videos[0].url}" target="_blank">🎬 الفيديوهات (${c.videos.length})</a>`:'')}${(c.materials&&c.materials.length?`<a href="${c.materials[0].url}" target="_blank">📎 المواد (${c.materials.length})</a>`:'')}</div>`
+                    : `<div style="color:var(--dim);font-size:.82rem">اشترك من الأسفل ليفتح المحتوى كاملاً (${c.price} ${cur} / ${c.days} يوماً)</div>`;
+    return `<div class="cc"><div class="cc-h"><div class="cc-ic" style="background:linear-gradient(135deg,${c.color},${c.color}CC)">${c.icon}</div><div><b>${c.title}</b><small>${c.en}</small></div></div>${tag}${links}</div>`;
+  });
+  wrap.innerHTML=cards.join('')||'<div class="empty">لا توجد دورات متاحة حالياً</div>';
+}
+renderCourses();
+
+/* اختيار الدورة/الباقة */
+const sel=document.getElementById('selItem');
+sel.innerHTML=
+  '<optgroup label="الدورات">'+LMS.courses().filter(c=>c.status==='open').map(c=>`<option value="course:${c.id}">${c.icon} ${c.title} — ${c.price} ${cur}</option>`).join('')+'</optgroup>'+
+  '<optgroup label="الباقات">'+LMS.packages().map(p=>`<option value="package:${p.id}">🎁 ${p.name} — ${p.price} ${cur}</option>`).join('')+'</optgroup>';
+
+const qs=new URLSearchParams(location.search);
+if(qs.get('enroll')) sel.value='course:'+qs.get('enroll');
+if(qs.get('enrollpk')) sel.value='package:'+qs.get('enrollpk');
+
+function renderPayBox(){
+  const m=document.getElementById('selMethod').value;
+  const bx=document.getElementById('payBox');
+  if(m==='payoneer'){
+    bx.innerHTML= st.payoneerLink
+      ? `1️⃣ افتح رابط الدفع الآمن: <a href="${st.payoneerLink}" target="_blank">${st.payoneerLink}</a><br>2️⃣ ${st.payoneerNote}`
+      : `⚠️ رابط الدفع عبر Payoneer لم يُضَف بعد من لوحة الإدارة — تواصل واتساب <b>${st.whatsapp}</b> لاستلام رابط دفع مباشر، ثم أدخل رقم العملية هنا.`;
+  }else if(m==='bank'){
+    bx.innerHTML=`🏦 ${st.bankInfo}<br>بعد التحويل أدخل رقم الحوالة في الخانة أدناه.`;
+  }else{
+    bx.innerHTML=`📱 راسلنا واتساب على <b>${st.whatsapp}</b> باسم الدورة/الباقة وسنرسل لك رابط الدفع — ثم أدخل رقم العملية هنا.`;
+  }
+}
+document.getElementById('selMethod').onchange=renderPayBox;
+renderPayBox();
+
+function submitPay(){
+  const [kind,id]=sel.value.split(':');
+  const ref=document.getElementById('payRef').value.trim();
+  const m=document.getElementById('payMsg');
+  if(ref.length<4){m.textContent='أدخل رقم مرجع العملية بعد إتمام الدفع';m.className='msg err';return;}
+  const r=LMS.submitPayment(kind,null,id,ref,document.getElementById('selMethod').value);
+  if(!r.ok){m.textContent=r.msg;m.className='msg err';return;}
+  m.textContent='✅ استلمنا طلبك — سيُفعَّل اشتراكك فور اعتماد الدفعة من الإدارة (عادة خلال ساعات)';
+  m.className='msg ok';
+  document.getElementById('payRef').value='';
+  renderHist(); renderCourses();
+}
+
+/* السجل */
+function renderHist(){
+  const ps=LMS.payments().filter(p=>p.uid===me.id);
+  const el=document.getElementById('payHist');
+  if(!ps.length){el.innerHTML='<div class="empty">لا توجد طلبات بعد</div>';return;}
+  const nameOf=p=> p.kind==='package' ? '🎁 '+((LMS.packages().find(k=>k.id===p.itemId)||{}).name||p.itemId)
+                                       : ((LMS.courses().find(c=>c.id===p.itemId)||{}).icon||'')+' '+((LMS.courses().find(c=>c.id===p.itemId)||{}).en||p.itemId);
+  el.innerHTML=`<table class="hist"><tr><th>الطلب</th><th>المرجع</th><th>الطريقة</th><th>التاريخ</th><th>الحالة</th></tr>`+
+    ps.map(p=>`<tr><td>${nameOf(p)}</td><td>${p.ref}</td><td>${p.method==='payoneer'?'Payoneer':p.method==='bank'?'بنكي':'واتساب'}</td><td>${new Date(p.date).toLocaleDateString('ar-EG')}</td>
+    <td>${p.status==='approved'?'<span class="tag on">معتمد ✅</span>':p.status==='rejected'?'<span class="tag exp">مرفوض ✖️</span>':'<span class="tag pend">قيد المراجعة ⏳</span>'}</td></tr>`).join('')+'</table>';
+}
+renderHist();
+</script>
+</body>
+</html>

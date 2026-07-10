@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAS — محاكاة تحليل الأعمال التطبيقية | منصة السعيد</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#F7F9FC;--bg1:#EFF3F9;--card:#FFF;--g:#0284C7;--g2:#0369A1;--g3:#38BDF8;--y:#F59E0B;
+--gsoft:rgba(2,132,199,.08);--ink:#1E2A3B;--dim:#5B6B84;--dim2:#94A3B8;--bdr:rgba(2,132,199,.35);--bdr2:#E4EAF3;
+--sh:0 18px 44px -16px rgba(23,63,143,.12);--emerald:#059669;--rose:#E11D48;--amber:#D97706;--violet:#7C3AED}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg0);color:var(--ink);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr2)}
+.hdr-in{max-width:1240px;margin:auto;display:flex;align-items:center;gap:12px;padding:11px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:.92rem}
+.brand .lg{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--g3),var(--g2));display:grid;place-items:center;color:#fff}
+nav{margin-inline-start:auto;display:flex;gap:4px;flex-wrap:wrap}
+nav a,nav button{padding:8px 13px;border-radius:10px;font-weight:800;font-size:.82rem;color:var(--dim);border:none;background:none;font-family:inherit;cursor:pointer}
+nav a:hover,nav button:hover{background:var(--gsoft);color:var(--g2)}
+.wrap{max-width:1240px;margin:auto;padding:20px}
+.tabs{display:flex;gap:6px;background:var(--bg1);border-radius:14px;padding:5px;margin-bottom:18px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:130px;border:none;background:transparent;padding:10px 6px;border-radius:11px;font-family:inherit;font-weight:800;font-size:.82rem;color:var(--dim);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--g2);box-shadow:0 4px 10px -4px rgba(23,63,143,.15)}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--bdr2);border-radius:18px;box-shadow:var(--sh);padding:18px;margin-bottom:16px}
+.card h3{font-size:.98rem;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3 .mini{font-weight:700;color:var(--dim2);font-size:.74rem}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:var(--bg1);padding:8px 9px;text-align:right;font-size:.74rem;white-space:nowrap}
+td{padding:7px 9px;border-top:1px solid var(--bdr2);vertical-align:middle}
+input,select,textarea{border:1.5px solid var(--bdr2);border-radius:9px;padding:7px 10px;font-family:inherit;font-size:.82rem;background:#FBFCFE;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g)}
+.btn{border:none;border-radius:11px;padding:9px 16px;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer}
+.btn-p{background:linear-gradient(120deg,var(--g3),var(--g2));color:#fff}
+.btn-o{background:#fff;color:var(--g2);border:1.5px solid var(--bdr)}
+.btn-r{background:#FEF2F2;color:#B91C1C}
+.tag{display:inline-block;border-radius:99px;padding:2px 10px;font-size:.68rem;font-weight:900;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--bdr2);border-radius:15px;padding:14px;box-shadow:var(--sh);text-align:center}
+.kpi b{display:block;font-size:1.5rem;color:var(--g2)}
+.kpi span{color:var(--dim);font-size:.74rem;font-weight:700}
+.bar{height:10px;background:var(--bg1);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g3),var(--g2))}
+.note{background:var(--gsoft);border-radius:12px;padding:11px 14px;font-size:.79rem;color:var(--dim);line-height:1.9;margin-top:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}table{font-size:.74rem}}
+.matrix td,.matrix th{text-align:center}
+.matrix td.y{background:#ECFDF5;color:#047857;font-weight:900}
+.empty{color:var(--dim2);font-size:.8rem;padding:12px;text-align:center}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="brand" href="index.html"><span class="lg">🖥️</span> BAS — محاكاة تحليل الأعمال | PMI-PBA®</a>
+  <nav>
+    <a href="index.html">🏠 الرئيسية</a>
+    <a href="pba-study.html">📚 المحتوى</a>
+    <a href="pba-exam.html">🧪 المحاكي</a>
+    <button onclick="exportReport()">🖨️ تصدير تقرير</button>
+    <button onclick="resetAll()" style="color:#B91C1C">🗑️ مسح</button>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="tabs">
+    <button class="on" data-t="case" onclick="setTab('case')">1️⃣ حالة العمل</button>
+    <button data-t="stk" onclick="setTab('stk')">2️⃣ أصحاب المصلحة</button>
+    <button data-t="req" onclick="setTab('req')">3️⃣ سجل المتطلبات</button>
+    <button data-t="trace" onclick="setTab('trace')">4️⃣ مصفوفة التتبع</button>
+    <button data-t="eval" onclick="setTab('eval')">5️⃣ تقييم الحل</button>
+  </div>
+
+  <!-- 1: Business Case -->
+  <div class="tab on" id="tab-case">
+    <div class="card"><h3>📋 بيان الموقف وحالة العمل <span class="mini">Needs Assessment — المجال 1</span></h3>
+      <div class="grid2">
+        <div><label style="font-weight:800;font-size:.78rem">اسم المبادرة</label><input id="bcName" placeholder="مثال: أتمتة طلبات العملاء" onchange="saveBC()"></div>
+        <div><label style="font-weight:800;font-size:.78rem">الراعي Sponsor</label><input id="bcSponsor" placeholder="اسم الراعي" onchange="saveBC()"></div>
+      </div>
+      <label style="font-weight:800;font-size:.78rem;display:block;margin-top:10px">بيان الموقف (الموقف — الأثر — النتيجة المرجوة)</label>
+      <textarea id="bcSituation" rows="2" placeholder="مشكلة تأخر معالجة الطلبات (الموقف) تؤدي إلى فقدان 12% من العملاء سنوياً (الأثر)، والمطلوب خفض زمن المعالجة 50% (النتيجة)" onchange="saveBC()"></textarea>
+      <div class="grid2" style="margin-top:10px">
+        <div><label style="font-weight:800;font-size:.78rem">القيمة/العائد المتوقع</label><input id="bcValue" placeholder="مثال: توفير 400 ألف ريال سنوياً" onchange="saveBC()"></div>
+        <div><label style="font-weight:800;font-size:.78rem">مقياس النجاح الرئيسي</label><input id="bcKpi" placeholder="مثال: زمن المعالجة ≤ 24 ساعة" onchange="saveBC()"></div>
+      </div>
+      <div class="note">💡 قاعدة المجال الأول: لا تنتقل للمتطلبات قبل أن يكون البيان مدعوماً ببيانات، والقيمة قابلة للقياس — هذان سيظهران في تقرير التقييم النهائي (المجال 5) للمقارنة.</div>
+    </div>
+  </div>
+
+  <!-- 2: Stakeholders -->
+  <div class="tab" id="tab-stk">
+    <div class="card"><h3>👥 سجل أصحاب المصلحة <span class="mini">Planning & Stakeholder Engagement — المجال 2</span></h3>
+      <div style="overflow-x:auto"><table id="stkTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addStk()">➕ إضافة صاحب مصلحة</button>
+      <div class="note">💡 القوة × الاهتمام تحدد الأسلوب: عالٍ/عالٍ = أدر عن قرب • عالٍ/منخفض = أبقِه راضياً • منخفض/عالٍ = أبقِه مطّلعاً • منخفض/منخفض = راقب.</div>
+    </div>
+  </div>
+
+  <!-- 3: Requirements -->
+  <div class="tab" id="tab-req">
+    <div class="card"><h3>📑 سجل المتطلبات <span class="mini">Elicitation & Analysis — المجال 3 (35%)</span></h3>
+      <div style="overflow-x:auto"><table id="reqTable"></table></div>
+      <button class="btn btn-o" style="margin-top:10px" onclick="addReq()">➕ إضافة متطلب</button>
+      <div class="note">💡 كل متطلب يحتاج: نوعاً، مصدراً (من سجل أصحاب المصلحة)، أولوية MoSCoW، ومعيار قبول — المتطلب بلا معيار قبول متطلبٌ ناقص.</div>
+    </div>
+  </div>
+
+  <!-- 4: Traceability -->
+  <div class="tab" id="tab-trace">
+    <div class="card"><h3>🔗 مصفوفة تتبع المتطلبات RTM <span class="mini">Traceability & Monitoring — المجال 4</span></h3>
+      <div style="overflow-x:auto" id="traceWrap"></div>
+      <div class="note">💡 تُبنى تلقائياً من سجل المتطلبات: كل متطلب ← مصدره ← حالته ← اختباره. المتطلب "مُسلَّم" بلا معيار قبول مكتمل يظهر تحذيراً — هذا هو Scope الحقيقي تحت السيطرة.</div>
+    </div>
+  </div>
+
+  <!-- 5: Evaluation -->
+  <div class="tab" id="tab-eval">
+    <div class="card"><h3>✅ تقييم الحل <span class="mini">Solution Evaluation — المجال 5</span></h3>
+      <div id="evalWrap"></div>
+      <div class="note">💡 التقييم يقارن: نسبة المتطلبات "يجب" المُسلَّمة، واكتمال معايير القبول، وتحقق مقياس النجاح من حالة العمل — ثم توصية Go/No-Go.</div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/lms.js"></script>
+<script>
+LMS.guard('pba');
+/* ---------- تخزين ---------- */
+const K='bas_data';
+let D=JSON.parse(localStorage.getItem(K)||'null')||{bc:{},stk:[],req:[]};
+const save=()=>{localStorage.setItem(K,JSON.stringify(D));renderKpis();};
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+function setTab(t){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  if(t==='trace')renderTrace(); if(t==='eval')renderEval();
+}
+
+/* ---------- KPIs ---------- */
+function renderKpis(){
+  const must=D.req.filter(r=>r.pr==='Must'),done=D.req.filter(r=>r.st==='مُسلَّم');
+  const cov=D.req.length?Math.round(D.req.filter(r=>r.ac&&r.ac.trim()).length/D.req.length*100):0;
+  document.getElementById('kpis').innerHTML=`
+   <div class="kpi"><b>${D.stk.length}</b><span>أصحاب مصلحة</span></div>
+   <div class="kpi"><b>${D.req.length}</b><span>متطلبات مسجلة</span></div>
+   <div class="kpi"><b>${must.length}</b><span>متطلبات Must</span></div>
+   <div class="kpi"><b>${done.length}/${D.req.length}</b><span>مُسلَّم<div class="bar"><i style="width:${D.req.length?done.length/D.req.length*100:0}%"></i></div></span></div>
+   <div class="kpi"><b>${cov}%</b><span>تغطية معايير القبول<div class="bar"><i style="width:${cov}%"></i></div></span></div>`;
+}
+
+/* ---------- حالة العمل ---------- */
+function loadBC(){['bcName','bcSponsor','bcSituation','bcValue','bcKpi'].forEach(id=>{document.getElementById(id).value=D.bc[id]||''});}
+function saveBC(){['bcName','bcSponsor','bcSituation','bcValue','bcKpi'].forEach(id=>{D.bc[id]=document.getElementById(id).value});save();}
+
+/* ---------- أصحاب المصلحة ---------- */
+const PWR=['عالية','منخفضة'],INT=['عالٍ','منخفض'];
+const strat=(p,i)=> p==='عالية'&&i==='عالٍ'?['أدر عن قرب','#FEE2E2;color:#B91C1C']
+                 : p==='عالية'?['أبقِه راضياً','#FEF3C7;color:#B45309']
+                 : i==='عالٍ'?['أبقِه مطّلعاً','#E0F2FE;color:#0369A1']
+                 : ['راقب','#F1F5F9;color:#64748B'];
+function renderStk(){
+  const t=document.getElementById('stkTable');
+  if(!D.stk.length){t.innerHTML='<tr><td class="empty">أضف أول صاحب مصلحة — الراعي مثلاً</td></tr>';return;}
+  t.innerHTML='<tr><th>#</th><th>الاسم/الدور</th><th>القوة</th><th>الاهتمام</th><th>استراتيجية الإشراك</th><th>الموقف</th><th></th></tr>'+
+  D.stk.map((s,i)=>{const [st,col]=strat(s.p,s.i);return `<tr>
+   <td>S${i+1}</td>
+   <td><input value="${esc(s.n)}" onchange="D.stk[${i}].n=this.value;save()"></td>
+   <td><select onchange="D.stk[${i}].p=this.value;save();renderStk()">${PWR.map(x=>`<option ${s.p===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select onchange="D.stk[${i}].i=this.value;save();renderStk()">${INT.map(x=>`<option ${s.i===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><span class="tag" style="background:${col}">${st}</span></td>
+   <td><select onchange="D.stk[${i}].att=this.value;save()">${['داعم','محايد','مقاوم'].map(x=>`<option ${s.att===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><button class="btn btn-r" onclick="D.stk.splice(${i},1);save();renderStk();renderReq()">✖</button></td></tr>`}).join('');
+}
+function addStk(){D.stk.push({n:'',p:'عالية',i:'عالٍ',att:'محايد'});save();renderStk();}
+
+/* ---------- المتطلبات ---------- */
+const TYPES=['Business','Stakeholder','Functional','Non-functional','Transition'];
+const PRS=['Must','Should','Could','Won\u2019t'];
+const STS=['مقترح','معتمد','قيد التنفيذ','مُختبَر','مُسلَّم','مؤجل'];
+const prCol={'Must':'#FEE2E2;color:#B91C1C','Should':'#FEF3C7;color:#B45309','Could':'#E0F2FE;color:#0369A1',"Won\u2019t":'#F1F5F9;color:#64748B'};
+function renderReq(){
+  const t=document.getElementById('reqTable');
+  if(!D.req.length){t.innerHTML='<tr><td class="empty">أضف أول متطلب</td></tr>';return;}
+  const srcs=D.stk.map((s,i)=>'S'+(i+1)+' '+(s.n||''));
+  t.innerHTML='<tr><th>ID</th><th style="min-width:220px">المتطلب</th><th>النوع</th><th>المصدر</th><th>MoSCoW</th><th>الحالة</th><th style="min-width:180px">معيار القبول</th><th></th></tr>'+
+  D.req.map((r,i)=>`<tr>
+   <td>R${String(i+1).padStart(2,'0')}</td>
+   <td><input value="${esc(r.txt)}" placeholder="يجب أن يتيح النظام..." onchange="D.req[${i}].txt=this.value;save()"></td>
+   <td><select onchange="D.req[${i}].ty=this.value;save()">${TYPES.map(x=>`<option ${r.ty===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select onchange="D.req[${i}].src=this.value;save()"><option value="">—</option>${srcs.map(x=>`<option ${r.src===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select style="background:${(prCol[r.pr]||'').split(';')[0]}" onchange="D.req[${i}].pr=this.value;save();renderReq()">${PRS.map(x=>`<option ${r.pr===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><select onchange="D.req[${i}].st=this.value;save()">${STS.map(x=>`<option ${r.st===x?'selected':''}>${x}</option>`).join('')}</select></td>
+   <td><input value="${esc(r.ac)}" placeholder="Given‑When‑Then..." onchange="D.req[${i}].ac=this.value;save()"></td>
+   <td><button class="btn btn-r" onclick="D.req.splice(${i},1);save();renderReq()">✖</button></td></tr>`).join('');
+}
+function addReq(){D.req.push({txt:'',ty:'Functional',src:'',pr:'Must',st:'مقترح',ac:''});save();renderReq();}
+
+/* ---------- التتبع ---------- */
+function renderTrace(){
+  const w=document.getElementById('traceWrap');
+  if(!D.req.length){w.innerHTML='<div class="empty">سجّل متطلبات أولاً — تُبنى المصفوفة تلقائياً</div>';return;}
+  w.innerHTML=`<table class="matrix"><tr><th>ID</th><th style="text-align:right">المتطلب</th><th>المصدر ⬅</th><th>الأولوية</th><th>الحالة</th><th>معيار قبول ➡</th><th>سلامة التتبع</th></tr>`+
+  D.req.map((r,i)=>{
+    const okSrc=!!r.src, okAc=!!(r.ac&&r.ac.trim());
+    const warn= r.st==='مُسلَّم'&&!okAc ? '⚠️ مُسلَّم بلا معيار قبول' : (!okSrc?'⚠️ بلا مصدر (تتبع خلفي مفقود)':'✅ سليم');
+    return `<tr><td>R${String(i+1).padStart(2,'0')}</td><td style="text-align:right">${esc(r.txt)||'—'}</td>
+    <td class="${okSrc?'y':''}">${esc(r.src)||'✖'}</td>
+    <td><span class="tag" style="background:${prCol[r.pr]}">${r.pr}</span></td>
+    <td>${r.st}</td><td class="${okAc?'y':''}">${okAc?'✔':'✖'}</td>
+    <td style="font-size:.72rem">${warn}</td></tr>`}).join('')+'</table>';
+}
+
+/* ---------- التقييم ---------- */
+function renderEval(){
+  const w=document.getElementById('evalWrap');
+  const must=D.req.filter(r=>r.pr==='Must');
+  const mustDone=must.filter(r=>r.st==='مُسلَّم');
+  const all=D.req.length, done=D.req.filter(r=>r.st==='مُسلَّم').length;
+  const ac=all?Math.round(D.req.filter(r=>r.ac&&r.ac.trim()).length/all*100):0;
+  const mustPct=must.length?Math.round(mustDone.length/must.length*100):0;
+  const go= mustPct===100 && ac>=80;
+  w.innerHTML=`
+   <div class="kpis">
+    <div class="kpi"><b>${mustPct}%</b><span>تسليم متطلبات Must<div class="bar"><i style="width:${mustPct}%"></i></div></span></div>
+    <div class="kpi"><b>${all?Math.round(done/all*100):0}%</b><span>التسليم الكلي<div class="bar"><i style="width:${all?done/all*100:0}%"></i></div></span></div>
+    <div class="kpi"><b>${ac}%</b><span>تغطية معايير القبول<div class="bar"><i style="width:${ac}%"></i></div></span></div>
+   </div>
+   <div class="card" style="border:1.5px solid ${go?'#A7F3D0':'#FECACA'};background:${go?'#F0FDF9':'#FFF8F8'}">
+    <h3>${go?'🟢 التوصية: GO — جاهز للإطلاق':'🔴 التوصية: NO-GO — غير جاهز بعد'}</h3>
+    <p style="color:var(--dim);font-size:.86rem;line-height:2">
+    ${go?'كل متطلبات Must مُسلَّمة ومعايير القبول مغطاة بنسبة كافية. قارن الآن الأداء الفعلي بمقياس النجاح المعلن في حالة العمل: <b>'+esc(D.bc.bcKpi||'لم يُحدد')+'</b> — وقِس تحقق القيمة: <b>'+esc(D.bc.bcValue||'لم تُحدد')+'</b> بعد فترة تشغيل مناسبة (Benefits Realization).'
+        :'لا إطلاق قبل: '+(mustPct<100?'إكمال متطلبات Must ('+mustDone.length+'/'+must.length+' فقط مُسلَّمة). ':'')+(ac<80?'رفع تغطية معايير القبول إلى 80%+ (حالياً '+ac+'%).':'')+' القرار مبني على معايير معلنة لا على ضغط الجدول — هذه رسالة المجال الخامس.'}
+    </p></div>`;
+}
+
+/* ---------- تصدير ---------- */
+function exportReport(){
+  renderTrace();renderEval();
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>تقرير BAS — ${esc(D.bc.bcName||'مبادرة')}</title>
+  <style>body{font-family:Tahoma,Arial;padding:30px;color:#1E2A3B}h1{color:#0369A1}h2{border-bottom:2px solid #E4EAF3;padding-bottom:6px;margin-top:26px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}th,td{border:1px solid #CBD5E1;padding:6px 8px;text-align:right}th{background:#EFF3F9}
+  .ft{margin-top:36px;color:#5B6B84;font-size:12px;border-top:1px solid #E4EAF3;padding-top:10px}</style></head><body>
+  <h1>📊 تقرير محاكاة تحليل الأعمال — ${esc(D.bc.bcName||'')}</h1>
+  <p><b>الراعي:</b> ${esc(D.bc.bcSponsor||'—')} · <b>التاريخ:</b> ${new Date().toLocaleDateString('ar-EG')}</p>
+  <h2>1) بيان الموقف</h2><p>${esc(D.bc.bcSituation||'—')}</p>
+  <p><b>القيمة المتوقعة:</b> ${esc(D.bc.bcValue||'—')} · <b>مقياس النجاح:</b> ${esc(D.bc.bcKpi||'—')}</p>
+  <h2>2) أصحاب المصلحة (${D.stk.length})</h2>
+  <table><tr><th>#</th><th>الاسم/الدور</th><th>القوة</th><th>الاهتمام</th><th>الاستراتيجية</th><th>الموقف</th></tr>
+  ${D.stk.map((s,i)=>`<tr><td>S${i+1}</td><td>${esc(s.n)}</td><td>${s.p}</td><td>${s.i}</td><td>${strat(s.p,s.i)[0]}</td><td>${s.att}</td></tr>`).join('')}</table>
+  <h2>3) سجل المتطلبات ومصفوفة التتبع (${D.req.length})</h2>
+  <table><tr><th>ID</th><th>المتطلب</th><th>النوع</th><th>المصدر</th><th>MoSCoW</th><th>الحالة</th><th>معيار القبول</th></tr>
+  ${D.req.map((r,i)=>`<tr><td>R${String(i+1).padStart(2,'0')}</td><td>${esc(r.txt)}</td><td>${r.ty}</td><td>${esc(r.src)||'—'}</td><td>${r.pr}</td><td>${r.st}</td><td>${esc(r.ac)||'—'}</td></tr>`).join('')}</table>
+  <div class="ft">إعداد وتصميم وبرمجة د. محمد عطية — Al Saeed ETC · BAS Business Analysis Simulation</div></body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='BAS-Report-'+new Date().toISOString().slice(0,10)+'.html';a.click();
+}
+function resetAll(){if(confirm('مسح كل بيانات المحاكاة؟')){localStorage.removeItem(K);location.reload();}}
+
+loadBC();renderStk();renderReq();renderKpis();
+</script>
+</body>
+</html>
