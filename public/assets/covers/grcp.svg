@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0f2438"/><stop offset="58%" stop-color="#1f5874"/><stop offset="100%" stop-color="#d7a13b"/></linearGradient>
+    <radialGradient id="r1" cx="0.85" cy="0.2" r="0.7"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.26"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="r2" cx="0.2" cy="0.8" r="0.7"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g)"/>
+  <rect width="1600" height="900" fill="url(#r1)"/>
+  <rect width="1600" height="900" fill="url(#r2)"/>
+  <g opacity="0.15">
+    <path d="M0 96h1600M0 196h1600M0 296h1600M0 396h1600M0 496h1600M0 596h1600M0 696h1600M0 796h1600" stroke="#fff"/>
+    <path d="M100 0v900M300 0v900M500 0v900M700 0v900M900 0v900M1100 0v900M1300 0v900M1500 0v900" stroke="#fff"/>
+  </g>
+  <circle cx="1310" cy="180" r="210" fill="#fff" opacity="0.08"/>
+  <circle cx="1120" cy="740" r="160" fill="#fff" opacity="0.08"/>
+  <g opacity="0.22"><path d="M216 108l118 42v84c0 65-51 123-118 144-67-21-118-79-118-144v-84z" fill="#fff"/><path d="M177 206l28 31 54-63" stroke="#d7a13b" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="578" y="74" width="168" height="120" rx="22" fill="#fff"/><path d="M612 110h98M612 136h84M612 162h56" stroke="#0f2438" stroke-width="10" stroke-linecap="round"/></g>
+  <g transform="translate(880 248)">
+    <rect x="0" y="0" width="470" height="70" rx="18" fill="#ffffff" fill-opacity="0.13" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="34" y="46" font-family="Arial, Helvetica, sans-serif" font-size="38" fill="#fff" font-weight="700">GRCP™</text>
+    <text x="0" y="158" font-family="Arial, Helvetica, sans-serif" font-size="64" fill="#fff" font-weight="700">Governance, Risk &amp; Compliance</text>
+    <text x="0" y="220" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#EDF4FF" opacity="0.92">Capability Model v3.5 · System-Driven Learning</text>
+    <rect x="0" y="272" width="240" height="58" rx="16" fill="#0b1422" fill-opacity="0.22" stroke="#ffffff" stroke-opacity="0.16"/>
+    <text x="28" y="309" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#fff">AL SAEED LEARNING</text>
+  </g>
+  </svg>

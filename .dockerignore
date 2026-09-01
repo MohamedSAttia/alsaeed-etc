@@ -1,4 +1,9 @@
 *
 !Dockerfile
-!AlSaeed-Platform-V13.zip
 !railway.json
+!package.json
+!package-lock.json
+!server.js
+!admin.js
+!public/
+!public/**
