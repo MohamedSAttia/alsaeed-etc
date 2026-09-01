@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>التحقّق من شهادة — السعيد</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14142B;--plum:#2A2456;--violet:#6C5CE0;--gold:#C99A3E;--gold2:#E6BF6A;
+  --paper:#F7F6FB;--line:#E4E1F0;--dim:#6B6790;--ok:#15803D;--bad:#BE123C}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--paper);color:#252344;
+  min-height:100vh;display:flex;flex-direction:column}
+.hd{background:var(--ink);padding:20px 0}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px;width:100%}
+.logo{display:flex;align-items:center;gap:11px}
+.lm{width:42px;height:42px;border-radius:12px;background:linear-gradient(140deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-family:'Tajawal';font-weight:800;color:var(--ink)}
+.lt b{display:block;font-family:'Tajawal';font-weight:800;color:#fff;font-size:1.05rem}
+.lt span{font-size:.66rem;color:#9B97BA}
+main{flex:1;display:flex;align-items:center;padding:44px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:34px;
+  box-shadow:0 14px 40px -12px rgba(20,20,43,.18)}
+h1{font-family:'Tajawal';font-weight:800;font-size:1.6rem;color:var(--ink);margin-bottom:8px}
+p.sub{color:var(--dim);font-size:.92rem;line-height:1.9;margin-bottom:22px}
+label{display:block;font-size:.86rem;font-weight:600;margin-bottom:7px}
+input{width:100%;padding:13px 16px;border:1.5px solid #D2CDE6;border-radius:12px;
+  font-family:'IBM Plex Mono';direction:ltr;text-align:center;font-size:1rem;letter-spacing:1px}
+input:focus{outline:0;border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,224,.13)}
+button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:var(--violet);
+  color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer}
+button:hover{background:#5B4BD0}
+#res{margin-top:22px}
+.ok{background:#E8F6ED;border:1px solid #BBE5C8;border-radius:16px;padding:22px}
+.bad{background:#FDECF0;border:1px solid #F8CDD8;border-radius:16px;padding:22px;color:var(--bad)}
+.ok h2{font-family:'Tajawal';font-weight:800;font-size:1.15rem;color:var(--ok);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #BBE5C8;font-size:.9rem}
+.row:last-child{border:0}
+.row b{color:var(--ink)}
+.ftr{background:var(--ink);color:#9B97BA;padding:18px 0;font-size:.78rem;text-align:center}
+</style></head><body>
+<header class="hd"><div class="wrap"><a href="/" class="logo" style="text-decoration:none">
+  <div class="lm">AS</div><div class="lt"><b>السعيد</b><span>للتعليم والتدريب والاستشارات</span></div></a></div></header>
+<main><div class="wrap"><div class="card">
+  <h1>التحقّق من شهادة</h1>
+  <p class="sub">أدخل رقم الشهادة المطبوع أسفلها للتأكّد من صحتها وصدورها من مؤسسة السعيد.</p>
+  <label for="no">رقم الشهادة</label>
+  <input id="no" placeholder="AS-2026-XXXXXX" autocomplete="off">
+  <button id="go">تحقّق</button>
+  <div id="res"></div>
+</div></div></main>
+<footer class="ftr">© 2026 السعيد للتعليم والتدريب والخدمات الاستشارية</footer>
+<script>
+const $=s=>document.querySelector(s);
+const path=location.pathname.split('/').filter(Boolean);
+if(path[0]==='verify'&&path[1]){$('#no').value=path[1];setTimeout(check,300);}
+$('#go').onclick=check;
+$('#no').addEventListener('keydown',e=>{if(e.key==='Enter')check();});
+async function check(){
+  const no=$('#no').value.trim().toUpperCase();
+  if(!no){$('#res').innerHTML='';return;}
+  $('#res').innerHTML='<p class="sub">جارٍ التحقّق…</p>';
+  try{
+    const r=await fetch('/api/verify/'+encodeURIComponent(no));
+    const d=await r.json();
+    if(!d.valid){$('#res').innerHTML='<div class="bad"><b>لا توجد شهادة بهذا الرقم.</b><br>'+
+      'تأكّد من الرقم كما هو مطبوع أسفل الشهادة.</div>';return;}
+    $('#res').innerHTML='<div class="ok"><h2>✅ شهادة صحيحة وصادرة من السعيد</h2>'+
+      '<div class="row"><span>اسم الحاصل</span><b>'+esc(d.name)+'</b></div>'+
+      '<div class="row"><span>البرنامج</span><b>'+esc(d.course)+'</b></div>'+
+      (d.hours?'<div class="row"><span>الساعات التدريبية</span><b>'+d.hours+'</b></div>':'')+
+      '<div class="row"><span>تاريخ الإصدار</span><b>'+esc(d.issuedText)+'</b></div>'+
+      '<div class="row"><span>رقم الشهادة</span><b style="font-family:IBM Plex Mono">'+esc(d.no)+'</b></div></div>';
+  }catch(e){$('#res').innerHTML='<div class="bad">تعذّر الاتصال بالخادم — حاول لاحقاً.</div>';}
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);}
+</script></body></html>

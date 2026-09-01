@@ -1,46 +1,44 @@
-# منصة السعيد المتكاملة — Al Saeed ETC E-Learning Platform (v5)
+# AL-LTC Platform V8
 
-منصة تعليم إلكتروني عربية RTL كاملة، ثابتة الاستضافة (Static)، تجمع ثلاث دورات تأهيلية:
+منصة السعيد للتعليم والتدريب والاستشارات والأنظمة الذكية.
 
-| الدورة | المحتوى | المحاكاة التطبيقية | محاكي الاختبار |
-|---|---|---|---|
-| 🛡️ PMI-RMP® | rmp-study.html | rms.html (نظام إدارة مخاطر) | rmp-exam.html — 442 سؤالاً |
-| 📊 PMI-PBA® | pba-study.html | pba-sim.html (BAS: متطلبات + RTM + Go/No-Go) | pba-exam.html — 569 سؤالاً |
-| ⚖️ GRCP™ | grcp-study.html | grc-sim.html (أهداف + ثلاثية O's + IACM + KRI) | grcp-exam.html — 119 سؤالاً بتقرير OCEG (PASS/FAIL) |
+## المكونات
+- Express + SQLite backend
+- حسابات وصلاحيات Admin/Student
+- اشتراكات وانتهاء وصول
+- Vimeo lessons
+- CMS للواجهة الرئيسية
+- Courses / Packages
+- Exam & Progress tracking
+- Certificates + public verification
+- Admin CRM dashboard
+- GRC Applied System
 
-## بنية الملفات
+## التشغيل
+```bash
+cp .env.example .env
+npm install
+npm start
 ```
-platform/
-├── index.html        البوابة: كتالوج الدورات والباقات
-├── auth.html         دخول / حساب جديد
-├── dashboard.html    لوحة المتدرب: دوراته + الاشتراك والدفع + سجل الطلبات
-├── admin.html        لوحة الإدارة: مدفوعات، دورات، باقات، مستخدمون، إعدادات، نسخ احتياطي
-├── *-study / *-exam / *-sim / rms.html
-└── assets/lms.js     نواة LMS: حسابات، اشتراكات، دفع، حارس الصفحات
-```
 
-## النشر (5 دقائق)
-**GitHub Pages:** ارفع مجلد `platform/` إلى مستودع → Settings → Pages → Deploy from branch → main → `/ (root)`.
-**Vercel:** اسحب المجلد إلى vercel.com/new — بلا أي إعداد إضافي.
-> أسماء الملفات لاتينية بالكامل — آمنة على Windows وGit.
+## Admin
+لا يوجد Admin افتراضي. يتم إنشاء أول مشرف فقط من `ADMIN_EMAIL` و`ADMIN_PASSWORD` في `.env`، وكلمة المرور يجب أن تكون 10 أحرف على الأقل.
 
-## حساب الأدمن الافتراضي
-- البريد: `admin@alsaeed-etc.com`
-- كلمة المرور: `Saeed@2026`
-- **غيّرهما فوراً** من: الإدارة ← الإعدادات ← حساب الأدمن.
+## Admin analytics
+- `GET /api/admin/overview`
+- `GET /api/admin/users/:id/activity`
 
-## آلية الدفع — الحقيقة كاملة
-Payoneer **ليست** بوابة Checkout آلية مثل Stripe (يوديمي تدفع *لك* عبرها وتُحصِّل من الطلاب ببوابتها الخاصة). الآلية المطبَّقة هنا:
-1. أنشئ **Request a Payment** من لوحة Payoneer (يقبل بطاقات وتحويلات) والصق الرابط في: الإدارة ← الإعدادات.
-2. المتدرب يدفع من الرابط ويُدخل رقم العملية في لوحته.
-3. تعتمد الدفعة من تبويب المدفوعات ← يتفعّل الاشتراك **تلقائياً** بمدة الدورة/الباقة.
-- بدائل مدعومة من نفس الشاشة: تحويل بنكي، أو تنسيق واتساب.
-- يوجد **وضع مجاني** (freeMode) في الإعدادات يفتح كل المحتوى للعروض التجريبية.
+تستخدم الواجهة هذه المسارات لعرض التقدم، آخر نشاط، متوسط الاختبارات، الاشتراكات والانتهاء.
 
-## حدود مهمة (بشفافية)
-- التخزين **localStorage لكل متصفح**: حسابات واشتراكات كل جهاز مستقلة. مناسب للتجربة والتشغيل الفردي والعروض — وليس بديلاً عن قاعدة بيانات مركزية.
-- للتحويل لنسخة مركزية متعددة الأجهزة لاحقاً: نفس الشاشات تُربط بواجهة خلفية (Vercel Functions + Neon Postgres) باستبدال دوال `lms.js` بنداءات API — البنية جاهزة لذلك.
-- صدّر نسخة احتياطية دورية من: الإدارة ← الإعدادات ← النسخ الاحتياطي.
+## Vimeo
+من لوحة الإدارة يمكنك وضع Vimeo ID للدروس، وكذلك Vimeo Preview للدورة، وفيديو Hero للصفحة الرئيسية.
 
----
-إعداد وتصميم وبرمجة **د. محمد عطية — Al Saeed ETC** · al-ltc.com · alsaeed-etc.com
+## Domain
+النطاق المستهدف: `https://al-ltc.com`
+
+## Production checklist
+1. Configure `.env`.
+2. Use HTTPS.
+3. Test the payment gateway in sandbox.
+4. Use a persistent database volume or migrate to Postgres/Supabase before scale.
+5. Configure backups and transactional email.

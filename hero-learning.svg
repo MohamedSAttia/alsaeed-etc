@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0d2445"/><stop offset="55%" stop-color="#17457b"/><stop offset="100%" stop-color="#f08b2d"/></linearGradient>
+    <radialGradient id="glow1" cx="0.2" cy="0.15" r="0.6"><stop offset="0%" stop-color="#fff" stop-opacity="0.25"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow2" cx="0.8" cy="0.2" r="0.5"><stop offset="0%" stop-color="#fff" stop-opacity="0.18"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1800" height="1100" fill="url(#bg)"/>
+  <rect width="1800" height="1100" fill="url(#glow1)"/>
+  <rect width="1800" height="1100" fill="url(#glow2)"/>
+  <g opacity="0.12"><path d="M0 120h1800M0 240h1800M0 360h1800M0 480h1800M0 600h1800M0 720h1800M0 840h1800M0 960h1800" stroke="#fff"/><path d="M150 0v1100M390 0v1100M630 0v1100M870 0v1100M1110 0v1100M1350 0v1100M1590 0v1100" stroke="#fff"/></g>
+  <circle cx="260" cy="256" r="180" fill="#fff" opacity="0.09"/>
+  <circle cx="1500" cy="860" r="260" fill="#fff" opacity="0.08"/>
+  <g transform="translate(96 180)">
+    <rect x="0" y="0" width="620" height="420" rx="42" fill="#ffffff" fill-opacity="0.11" stroke="#ffffff" stroke-opacity="0.18"/>
+    <rect x="36" y="34" width="548" height="46" rx="14" fill="#fff" fill-opacity="0.1"/>
+    <circle cx="72" cy="57" r="8" fill="#fff" opacity="0.92"/><circle cx="98" cy="57" r="8" fill="#fff" opacity="0.66"/><circle cx="124" cy="57" r="8" fill="#fff" opacity="0.36"/>
+    <rect x="56" y="116" width="232" height="232" rx="30" fill="#fff" fill-opacity="0.12"/>
+    <path d="M104 248l60-78 50 40 92-112 66 58" stroke="#fff" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="324" y="118" width="208" height="28" rx="10" fill="#fff" fill-opacity="0.86"/>
+    <rect x="324" y="166" width="176" height="20" rx="10" fill="#fff" fill-opacity="0.5"/>
+    <rect x="324" y="220" width="228" height="18" rx="9" fill="#fff" fill-opacity="0.28"/>
+    <rect x="324" y="252" width="208" height="18" rx="9" fill="#fff" fill-opacity="0.28"/>
+    <rect x="324" y="284" width="168" height="18" rx="9" fill="#fff" fill-opacity="0.28"/>
+    <rect x="324" y="336" width="170" height="48" rx="15" fill="#0b1422" fill-opacity="0.24" stroke="#fff" stroke-opacity="0.18"/>
+    <text x="356" y="368" font-family="Arial" font-size="22" fill="#fff">Video · Quizzes · AI Coach</text>
+  </g>
+  <g transform="translate(860 190)">
+    <rect x="0" y="0" width="628" height="110" rx="28" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="42" y="66" font-family="Arial" font-size="52" font-weight="700" fill="#fff">AL SAEED FOR EDUCATION &amp; TRAINING</text>
+    <text x="0" y="214" font-family="Arial" font-size="84" font-weight="800" fill="#fff">Learn. Practice. Get Certified.</text>
+    <text x="0" y="286" font-family="Arial" font-size="30" fill="#EEF5FF">Professional Courses · Academic Pathways · Consulting · Smart Systems</text>
+    <g transform="translate(0 348)">
+      <rect x="0" y="0" width="220" height="60" rx="18" fill="#f08b2d"/>
+      <text x="34" y="38" font-family="Arial" font-size="26" font-weight="700" fill="#fff">Explore Programs</text>
+      <rect x="246" y="0" width="220" height="60" rx="18" fill="#fff" fill-opacity="0.12" stroke="#fff" stroke-opacity="0.18"/>
+      <text x="282" y="38" font-family="Arial" font-size="26" font-weight="700" fill="#fff">Watch Preview</text>
+    </g>
+    <g transform="translate(0 468)">
+      <rect x="0" y="0" width="178" height="86" rx="22" fill="#fff" fill-opacity="0.11"/><rect x="196" y="0" width="178" height="86" rx="22" fill="#fff" fill-opacity="0.11"/><rect x="392" y="0" width="178" height="86" rx="22" fill="#fff" fill-opacity="0.11"/>
+      <text x="28" y="36" font-family="Arial" font-size="19" fill="#fff" opacity="0.8">Training Modes</text><text x="28" y="66" font-family="Arial" font-size="26" font-weight="700" fill="#fff">5 Flexible Options</text>
+      <text x="224" y="36" font-family="Arial" font-size="19" fill="#fff" opacity="0.8">Professional Tracks</text><text x="224" y="66" font-family="Arial" font-size="26" font-weight="700" fill="#fff">Projects · GRC · AI</text>
+      <text x="420" y="36" font-family="Arial" font-size="19" fill="#fff" opacity="0.8">Admin &amp; Reports</text><text x="420" y="66" font-family="Arial" font-size="26" font-weight="700" fill="#fff">Students · Orders · Progress</text>
+    </g>
+  </g>
+  </svg>

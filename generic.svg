@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0d2445"/><stop offset="58%" stop-color="#1d5ea8"/><stop offset="100%" stop-color="#f08b2d"/></linearGradient>
+    <radialGradient id="r1" cx="0.85" cy="0.2" r="0.7"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.26"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="r2" cx="0.2" cy="0.8" r="0.7"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g)"/>
+  <rect width="1600" height="900" fill="url(#r1)"/>
+  <rect width="1600" height="900" fill="url(#r2)"/>
+  <g opacity="0.15">
+    <path d="M0 96h1600M0 196h1600M0 296h1600M0 396h1600M0 496h1600M0 596h1600M0 696h1600M0 796h1600" stroke="#fff"/>
+    <path d="M100 0v900M300 0v900M500 0v900M700 0v900M900 0v900M1100 0v900M1300 0v900M1500 0v900" stroke="#fff"/>
+  </g>
+  <circle cx="1310" cy="180" r="210" fill="#fff" opacity="0.08"/>
+  <circle cx="1120" cy="740" r="160" fill="#fff" opacity="0.08"/>
+  <g opacity="0.22"><rect x="610" y="70" width="150" height="96" rx="18" fill="#fff"/><rect x="632" y="95" width="110" height="10" rx="5" fill="#fff"/><rect x="632" y="116" width="84" height="8" rx="4" fill="#fff"/><circle cx="215" cy="220" r="124" fill="rgba(255,255,255,.09)"/><path d="M176 260l36-46 34 27 66-82 47 40" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g transform="translate(880 248)">
+    <rect x="0" y="0" width="470" height="70" rx="18" fill="#ffffff" fill-opacity="0.13" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="34" y="46" font-family="Arial, Helvetica, sans-serif" font-size="38" fill="#fff" font-weight="700">AL-SAEED</text>
+    <text x="0" y="158" font-family="Arial, Helvetica, sans-serif" font-size="64" fill="#fff" font-weight="700">Professional Learning</text>
+    <text x="0" y="220" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#EDF4FF" opacity="0.92">Attractive cover ready to be replaced from the Admin panel</text>
+    <rect x="0" y="272" width="240" height="58" rx="16" fill="#0b1422" fill-opacity="0.22" stroke="#ffffff" stroke-opacity="0.16"/>
+    <text x="28" y="309" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#fff">AL SAEED LEARNING</text>
+  </g>
+  </svg>
