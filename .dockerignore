@@ -6,5 +6,7 @@
 !server.js
 !admin.js
 !proxy.js
+!gateway.js
+!pmp-engine.js
 !public/
 !public/**
