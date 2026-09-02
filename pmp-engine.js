@@ -1,10 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import crypto from 'crypto';
-import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const EXAM_CODE = 'pmp-2026-full-180';
 const SOURCE_TAG = 'alsaeed-pmp-upload-851-v1';
@@ -110,19 +105,16 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
 
   const packageId=ensurePmpPackage();
 
-  function seedBank() {
-    const qFile=path.join(__dirname,'data','pmp_qbank_851.json');
-    if (!fs.existsSync(qFile)) { console.warn('PMP seed file missing:',qFile); return {seeded:0}; }
-    const bank=JSON.parse(fs.readFileSync(qFile,'utf8'));
-    if (!Array.isArray(bank) || !bank.length) return {seeded:0};
-    const existing=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND source_id LIKE 'PMP-%'").get(packageId).c;
-    if (existing>=bank.length) return {seeded:0,existing};
-    const ins=db.prepare(`INSERT OR IGNORE INTO questions
+  function importBank(bank, replace = false) {
+    if (!Array.isArray(bank) || !bank.length) return { imported: 0, total: 0 };
+    const ins=db.prepare(`INSERT OR REPLACE INTO questions
       (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated,approach,source_exam,source_id,correct_json,meta)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
     let n=0;
     const tx=db.transaction(()=>{
+      if (replace) db.prepare("DELETE FROM questions WHERE package_id=? AND source_id LIKE 'PMP-%'").run(packageId);
       for(const q of bank){
+        if (!q || !q.id || !q.q || !Array.isArray(q.o) || !Array.isArray(q.c)) continue;
         const sid='PMP-'+String(q.id).padStart(4,'0');
         const type=normalizeType(q.t);
         const correct=letters(q.c);
@@ -131,7 +123,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
         n+=r.changes;
       }
     });
-    tx(); return {seeded:n,total:bank.length};
+    tx(); return { imported:n, total:bank.length };
   }
 
   function ensureExamTemplate() {
@@ -147,9 +139,8 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     }
   }
 
-  const seedInfo=seedBank();
   ensureExamTemplate();
-  console.log(`PMP 2026 engine: package=${packageId}; bank=${db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=?').get(packageId).c}; seeded=${seedInfo.seeded||0}`);
+  console.log(`PMP 2026 engine: package=${packageId}; bank=${db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=?').get(packageId).c}`);
 
   function requireUser(req,res) {
     const u=getTokenUser(db,JWT_SECRET,req);
@@ -210,8 +201,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
       if(pool.length!==need)throw new Error(`تعذر استكمال توزيع ${d}`);
       pool.forEach(q=>{extras.push(q);ids.add(q.id);used[d]++});
     }
-    const first10=selected.slice(0,10);
-    const final=[...first10,...shuffle(extras)];
+    const final=[...selected.slice(0,10),...shuffle(extras)];
     if(final.length!==180)throw new Error(`خطأ في عدد أسئلة المحاكاة: ${final.length}`);
     const counts=final.reduce((a,q)=>(a[q.domain]=(a[q.domain]||0)+1,a),{});
     if(counts.people!==59||counts.process!==74||counts.business!==47)throw new Error(`خطأ توزيع domains ${JSON.stringify(counts)}`);
@@ -255,12 +245,21 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     const base='/api/pmp-2026';
     const sub=url.pathname.slice(base.length)||'/';
     const method=req.method||'GET';
+    if(method==='POST' && sub==='/admin/import'){
+      if(u.role!=='admin') return sendJson(res,403,{error:'الاستيراد للمشرف فقط'});
+      let body; try { body=await readJson(req, 8*1024*1024); } catch { return sendJson(res,400,{error:'ملف الأسئلة غير صالح'}); }
+      const raw=Array.isArray(body.questions)?body.questions:[];
+      if(!raw.length) return sendJson(res,400,{error:'لا توجد أسئلة للاستيراد'});
+      const result=importBank(raw, body.replace===true);
+      const counts=db.prepare('SELECT domain,type,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY domain,type').all(packageId);
+      return sendJson(res,200,{ok:true,...result,packageId,counts});
+    }
     if(method==='GET' && sub==='/info'){
       const bank=db.prepare('SELECT type,domain,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY type,domain').all(packageId);
       return sendJson(res,200,{packageId,config:CONFIG,bank});
     }
     if(method==='POST' && sub==='/start'){
-      const qs=chooseExamQuestions();
+      let qs; try { qs=chooseExamQuestions(); } catch(e) { return sendJson(res,409,{error:e.message}); }
       const id=uid('PMPSESS-'),now=Date.now();
       db.prepare(`INSERT INTO exam_sessions (id,user_id,package_id,exam_code,question_ids,answers,flagged,started,updated,status) VALUES (?,?,?,?,?,?,?,?,?,?)`)
         .run(id,u.id,packageId,EXAM_CODE,JSON.stringify(qs.map(q=>q.id)),'{}','[]',now,now,'active');
