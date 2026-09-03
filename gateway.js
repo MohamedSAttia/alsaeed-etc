@@ -204,9 +204,29 @@ function handlePackageSummary(req,res){
 }
 
 function forward(req,res){
-  const headers={...req.headers};delete headers.connection;headers.host=req.headers.host||'al-ltc.com';
-  const upstream=http.request({hostname:'127.0.0.1',port:INNER_PROXY_PORT,method:req.method,path:req.url,headers},up=>{res.writeHead(up.statusCode||502,up.headers);up.pipe(res)});
-  upstream.on('error',err=>{console.error('Gateway upstream error:',err.message);if(!res.headersSent)res.writeHead(502,{'content-type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:'Temporary upstream error'}))});req.pipe(upstream);
+  const headers={...req.headers};
+  delete headers.connection;
+  headers.host=req.headers.host||'al-ltc.com';
+  const upstream=http.request({hostname:'127.0.0.1',port:INNER_PROXY_PORT,method:req.method,path:req.url,headers},up=>{
+    const type=String(up.headers['content-type']||'').toLowerCase();
+    const isHtml=type.includes('text/html') && req.method==='GET';
+    if(!isHtml){res.writeHead(up.statusCode||502,up.headers);up.pipe(res);return;}
+    const chunks=[];
+    up.on('data',c=>chunks.push(c));
+    up.on('end',()=>{
+      let html=Buffer.concat(chunks).toString('utf8');
+      const premium='<link rel="stylesheet" href="/premium-v2.css?v=20260903-1">';
+      if(!html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n</head>'):premium+html;
+      const outHeaders={...up.headers};
+      delete outHeaders['content-length'];
+      delete outHeaders['content-encoding'];
+      outHeaders['cache-control']='no-cache';
+      res.writeHead(up.statusCode||200,outHeaders);
+      res.end(html);
+    });
+  });
+  upstream.on('error',err=>{console.error('Gateway upstream error:',err.message);if(!res.headersSent)res.writeHead(502,{'content-type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:'Temporary upstream error'}))});
+  req.pipe(upstream);
 }
 
 const server=http.createServer(async(req,res)=>{
