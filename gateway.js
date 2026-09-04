@@ -1,6 +1,7 @@
 import http from 'http';
 import { spawn } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
@@ -37,7 +38,6 @@ ensureColumn('questions', 'source_id', 'TEXT');
 ensureColumn('questions', 'correct_json', 'TEXT');
 ensureColumn('questions', 'meta', 'TEXT');
 
-// Repair the old PMP import: English text had been copied into both EN and AR fields.
 try {
   db.prepare(`UPDATE questions SET
     question_ar = CASE WHEN TRIM(COALESCE(question_ar,'')) = TRIM(COALESCE(question_en,'')) THEN '' ELSE question_ar END,
@@ -72,6 +72,35 @@ function savePackages(list) {
 }
 
 const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
+
+function seedV14Packages() {
+  try {
+    const seedPath = path.join(__dirname, 'public', 'v14-packages.json');
+    if (!fs.existsSync(seedPath)) return;
+    const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+    if (!Array.isArray(seed) || !seed.length) return;
+    const current = getPackages();
+    const byId = new Map(current.map((x, i) => [String(x.id || ''), i]));
+    let added = 0, enriched = 0;
+    for (const raw of seed) {
+      if (!raw || !raw.id) continue;
+      const p = { ...raw, active: raw.active !== false, updated: Date.now(), created: raw.created || Date.now() };
+      const idx = byId.get(String(p.id));
+      if (idx === undefined) {
+        current.push(p); byId.set(String(p.id), current.length - 1); added++;
+      } else {
+        const old = current[idx] || {};
+        current[idx] = { ...p, ...old, id: old.id || p.id, updated: old.updated || p.updated, created: old.created || p.created };
+        enriched++;
+      }
+    }
+    if (added || enriched) savePackages(current);
+    console.log(`V14 package catalogue ready: ${current.length} packages (${added} added, ${enriched} enriched)`);
+  } catch (e) {
+    console.warn('V14 package seeding skipped:', e.message);
+  }
+}
+seedV14Packages();
 
 function sendJson(res, status, body) {
   const data = Buffer.from(JSON.stringify(body));
@@ -215,8 +244,10 @@ function forward(req,res){
     up.on('data',c=>chunks.push(c));
     up.on('end',()=>{
       let html=Buffer.concat(chunks).toString('utf8');
-      const premium='<link rel="stylesheet" href="/premium-v2.css?v=20260903-1">';
-      if(!html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n</head>'):premium+html;
+      const premium='<link rel="stylesheet" href="/premium-v2.css?v=20260904-2">';
+      const runtime='<script defer src="/v14-runtime.js?v=20260904-2"></script>';
+      if(!html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n'+runtime+'\n</head>'):premium+runtime+html;
+      else if(!html.includes('/v14-runtime.js')) html=html.includes('</head>')?html.replace('</head>',runtime+'\n</head>'):runtime+html;
       const outHeaders={...up.headers};
       delete outHeaders['content-length'];
       delete outHeaders['content-encoding'];
