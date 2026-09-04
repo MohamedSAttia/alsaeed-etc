@@ -1,0 +1,2204 @@
+{
+  "schemaVersion": 15,
+  "courses": [
+    {
+      "id": "pmp",
+      "track": "pm",
+      "level": "inter",
+      "code": "PMP®",
+      "ar": "محترف إدارة المشاريع",
+      "en": "Project Management Professional",
+      "edition": "ECO يوليو 2026 — الإصدار المحدَّث",
+      "hours": 35,
+      "questions": 180,
+      "examMin": 240,
+      "modes": [
+        "onsite",
+        "live",
+        "recorded",
+        "sim",
+        "self"
+      ],
+      "badge": "الأكثر طلباً",
+      "featured": true,
+      "blurb": "الشهادة الأشهر عالمياً في إدارة المشاريع — وتمنحك 35 ساعة تطويرية معتمدة.",
+      "domains": [
+        {
+          "k": "people",
+          "ar": "الأفراد",
+          "en": "People",
+          "w": 33,
+          "tasks": 8
+        },
+        {
+          "k": "process",
+          "ar": "العمليات",
+          "en": "Process",
+          "w": 41,
+          "tasks": 10
+        },
+        {
+          "k": "business",
+          "ar": "بيئة العمل",
+          "en": "Business Environment",
+          "w": 26,
+          "tasks": 8
+        }
+      ],
+      "chapters": [
+        "أسس إدارة المشاريع وبيئتها",
+        "دور مدير المشروع والقيادة",
+        "بناء الفريق وتمكينه",
+        "أصحاب المصلحة والتواصل",
+        "النطاق والمتطلبات",
+        "الجدول الزمني والتقدير",
+        "التكلفة والموارد",
+        "الجودة والمخاطر",
+        "المشتريات والتعاقد",
+        "المنهجيات الرشيقة والهجينة",
+        "الحوكمة وقيمة الأعمال"
+      ],
+      "cover": "assets/covers/pmp.svg"
+    },
+    {
+      "id": "rmp",
+      "track": "pm",
+      "level": "inter",
+      "code": "PMI-RMP®",
+      "ar": "محترف إدارة المخاطر",
+      "en": "Risk Management Professional",
+      "edition": "2026",
+      "hours": 30,
+      "questions": 115,
+      "examMin": 150,
+      "modes": [
+        "live",
+        "recorded",
+        "sim",
+        "self"
+      ],
+      "blurb": "تخصص عميق في إدارة المخاطر — من التخطيط والتحديد حتى الاستجابة والرصد.",
+      "domains": [
+        {
+          "k": "strategy",
+          "ar": "استراتيجية المخاطر",
+          "en": "Risk Strategy",
+          "w": 22
+        },
+        {
+          "k": "process",
+          "ar": "تيسير عملية المخاطر",
+          "en": "Process Facilitation",
+          "w": 20
+        },
+        {
+          "k": "monitor",
+          "ar": "الرصد والإبلاغ",
+          "en": "Monitoring",
+          "w": 19
+        },
+        {
+          "k": "analysis",
+          "ar": "التحليل المتخصص",
+          "en": "Specialized Analyses",
+          "w": 39
+        }
+      ],
+      "chapters": [
+        "مدخل إلى إدارة المخاطر",
+        "الاستراتيجية وشهية المخاطرة",
+        "تخطيط إدارة المخاطر",
+        "تحديد المخاطر",
+        "التحليل النوعي",
+        "التحليل الكمي",
+        "تخطيط الاستجابات",
+        "تنفيذ الاستجابات",
+        "الرصد والإبلاغ"
+      ],
+      "cover": "assets/covers/rmp.svg"
+    },
+    {
+      "id": "pba",
+      "track": "pm",
+      "level": "adv",
+      "code": "PMI-PBA®",
+      "ar": "محترف تحليل الأعمال",
+      "en": "Professional in Business Analysis",
+      "edition": "2026",
+      "hours": 30,
+      "questions": 200,
+      "examMin": 240,
+      "modes": [
+        "live",
+        "recorded",
+        "sim"
+      ],
+      "blurb": "تحليل الأعمال من تحديد الحاجة حتى تقييم الحل.",
+      "domains": [
+        {
+          "k": "needs",
+          "ar": "تقييم الحاجة",
+          "en": "Needs Assessment",
+          "w": 18
+        },
+        {
+          "k": "plan",
+          "ar": "التخطيط",
+          "en": "Planning",
+          "w": 22
+        },
+        {
+          "k": "analysis",
+          "ar": "التحليل",
+          "en": "Analysis",
+          "w": 35
+        },
+        {
+          "k": "trace",
+          "ar": "التتبّع",
+          "en": "Traceability",
+          "w": 15
+        },
+        {
+          "k": "eval",
+          "ar": "تقييم الحل",
+          "en": "Evaluation",
+          "w": 10
+        }
+      ],
+      "chapters": [
+        "أسس تحليل الأعمال",
+        "تقييم الحاجة",
+        "تخطيط تحليل الأعمال",
+        "استخلاص المتطلبات",
+        "تحليل المتطلبات",
+        "التتبّع وإدارة التغيير",
+        "تقييم الحل"
+      ],
+      "cover": "assets/covers/pba.svg"
+    },
+    {
+      "id": "acp",
+      "track": "pm",
+      "level": "inter",
+      "code": "PMI-ACP®",
+      "ar": "ممارس الرشاقة المعتمد",
+      "en": "Agile Certified Practitioner",
+      "edition": "2026",
+      "hours": 21,
+      "questions": 120,
+      "examMin": 180,
+      "modes": [
+        "live",
+        "recorded",
+        "sim"
+      ],
+      "blurb": "المنهجيات الرشيقة عبر أطرها المتعددة — سكرم وكانبان ولين.",
+      "domains": [
+        {
+          "k": "mindset",
+          "ar": "العقلية الرشيقة",
+          "en": "Mindset",
+          "w": 16
+        },
+        {
+          "k": "value",
+          "ar": "التسليم بالقيمة",
+          "en": "Value Delivery",
+          "w": 20
+        },
+        {
+          "k": "stake",
+          "ar": "أصحاب المصلحة",
+          "en": "Stakeholders",
+          "w": 17
+        },
+        {
+          "k": "team",
+          "ar": "أداء الفريق",
+          "en": "Team",
+          "w": 16
+        },
+        {
+          "k": "adapt",
+          "ar": "التخطيط التكيّفي",
+          "en": "Adaptive Planning",
+          "w": 12
+        },
+        {
+          "k": "problem",
+          "ar": "كشف المشكلات",
+          "en": "Problem Detection",
+          "w": 10
+        },
+        {
+          "k": "improve",
+          "ar": "التحسين المستمر",
+          "en": "Improvement",
+          "w": 9
+        }
+      ],
+      "chapters": [
+        "المانيفستو والمبادئ",
+        "سكرم",
+        "كانبان ولين",
+        "التخطيط التكيّفي",
+        "قياس القيمة",
+        "تيسير الفرق"
+      ],
+      "cover": "assets/covers/acp.svg"
+    },
+    {
+      "id": "grcp",
+      "track": "grc",
+      "level": "inter",
+      "code": "GRCP™",
+      "ar": "محترف الحوكمة وإدارة المخاطر والامتثال",
+      "en": "GRC Professional",
+      "edition": "نموذج القدرات v3.5 — 2026",
+      "hours": 30,
+      "questions": 100,
+      "examMin": 120,
+      "modes": [
+        "onsite",
+        "live",
+        "recorded",
+        "sim",
+        "self"
+      ],
+      "badge": "مميّز بنظام تطبيقي",
+      "featured": true,
+      "blurb": "الشهادة الوحيدة التي تخرج منها بنظام تطبيقي تبني به منظومة حوكمة حقيقية لمنظمتك.",
+      "domains": [
+        {
+          "k": "concepts",
+          "ar": "المفاهيم الأساسية",
+          "en": "Key Concepts",
+          "w": 30
+        },
+        {
+          "k": "learn",
+          "ar": "الدراسة",
+          "en": "Learn",
+          "w": 15
+        },
+        {
+          "k": "align",
+          "ar": "المواءمة",
+          "en": "Align",
+          "w": 20
+        },
+        {
+          "k": "perform",
+          "ar": "التنفيذ",
+          "en": "Perform",
+          "w": 25
+        },
+        {
+          "k": "review",
+          "ar": "المراجعة",
+          "en": "Review",
+          "w": 10
+        }
+      ],
+      "chapters": [
+        "الأداء المنضبط ولماذا وُجد GRC",
+        "نموذج القدرات وبنيته",
+        "التخصصات الحرجة والحُماة",
+        "مكوّن الدراسة",
+        "مكوّن المواءمة",
+        "مكوّن التنفيذ",
+        "مكوّن المراجعة",
+        "التكامل والتطبيق"
+      ],
+      "system": {
+        "name": "نظام السعيد GRC®",
+        "desc": "أداة تفاعلية تبني بها منظومة حوكمة حقيقية لمنظمتك: عشرون عنصراً وثمانٍ وثلاثون أداة، مع سجلات المخاطر والفرص والالتزامات، وإطار COSO، ومكتبة السياسات، ولوحة مؤشرات، وتقارير معتمدة.",
+        "features": [
+          "٢٠ عنصراً و٣٨ أداة تطبيقية",
+          "سجل مخاطر بنموذج S×P×R",
+          "إطار COSO بمبادئه السبعة عشر",
+          "مكتبة ١٢ سياسة قابلة للتصدير",
+          "لوحة مؤشرات وتقارير احترافية",
+          "مستشار ذكي يقدّر خسائرك"
+        ]
+      },
+      "cover": "assets/covers/grcp.svg"
+    },
+    {
+      "id": "lss",
+      "track": "qual",
+      "level": "inter",
+      "code": "LSSGB™",
+      "ar": "لين سيكس سيجما — الحزام الأخضر",
+      "en": "Lean Six Sigma Green Belt",
+      "edition": "2026",
+      "hours": 30,
+      "questions": 100,
+      "examMin": 180,
+      "modes": [
+        "live",
+        "recorded",
+        "sim",
+        "self"
+      ],
+      "blurb": "منهجية DMAIC لتحسين العمليات وخفض التباين والهدر بقرارات مبنية على بيانات.",
+      "domains": [
+        {
+          "k": "define",
+          "ar": "التعريف",
+          "en": "Define",
+          "w": 20
+        },
+        {
+          "k": "measure",
+          "ar": "القياس",
+          "en": "Measure",
+          "w": 20
+        },
+        {
+          "k": "analyze",
+          "ar": "التحليل",
+          "en": "Analyze",
+          "w": 25
+        },
+        {
+          "k": "improve",
+          "ar": "التحسين",
+          "en": "Improve",
+          "w": 20
+        },
+        {
+          "k": "control",
+          "ar": "الضبط",
+          "en": "Control",
+          "w": 15
+        }
+      ],
+      "chapters": [
+        "مدخل لين وسيكس سيجما",
+        "التعريف",
+        "القياس",
+        "التحليل",
+        "التحسين",
+        "الضبط"
+      ],
+      "cover": "assets/covers/lss.svg"
+    },
+    {
+      "id": "p3o",
+      "track": "gov",
+      "level": "adv",
+      "code": "P3O®",
+      "ar": "مكاتب المحافظ والبرامج والمشاريع",
+      "en": "P3O Foundation",
+      "edition": "AXELOS",
+      "hours": 21,
+      "questions": 50,
+      "examMin": 60,
+      "modes": [
+        "live",
+        "recorded"
+      ],
+      "blurb": "إطار AXELOS لتصميم وتشغيل مكاتب الدعم على المستويات الثلاثة.",
+      "domains": [
+        {
+          "k": "overview",
+          "ar": "مدخل P3O",
+          "en": "Overview",
+          "w": 25
+        },
+        {
+          "k": "design",
+          "ar": "تصميم النموذج",
+          "en": "Design",
+          "w": 35
+        },
+        {
+          "k": "run",
+          "ar": "التشغيل والقيمة",
+          "en": "Run and Value",
+          "w": 40
+        }
+      ],
+      "chapters": [
+        "مدخل إلى P3O",
+        "نماذج المكاتب",
+        "تصميم المكتب",
+        "التشغيل",
+        "إثبات القيمة"
+      ],
+      "cover": "assets/covers/gov.svg"
+    }
+  ],
+  "packages": [
+    {
+      "id": "pmp-full",
+      "schemaVersion": 15,
+      "course": "pmp",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "PMP® — الباقة الكاملة",
+      "en": "PMP® — Complete Package",
+      "price": 150,
+      "was": 225,
+      "currency": "USD",
+      "badge": "الأكثر قيمة",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 35,
+      "category": "إدارة المشاريع",
+      "questions": 1200,
+      "videos": 114,
+      "videoMins": 2280,
+      "quizzes": 10,
+      "shortQuizzes": 38,
+      "lang": "both",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 420,
+      "activities": 24,
+      "games": 4,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس إدارة المشاريع وبيئتها",
+        "دور مدير المشروع والقيادة",
+        "بناء الفريق وتمكينه",
+        "أصحاب المصلحة والتواصل",
+        "النطاق والمتطلبات",
+        "الجدول الزمني والتقدير",
+        "التكلفة والموارد",
+        "الجودة والمخاطر",
+        "المشتريات والتعاقد",
+        "المنهجيات الرشيقة والهجينة",
+        "الحوكمة وقيمة الأعمال"
+      ]
+    },
+    {
+      "id": "pmp-sim",
+      "schemaVersion": 15,
+      "course": "pmp",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "PMP® — باقة الاختبارات",
+      "en": "PMP® — Simulation Exams",
+      "price": 120,
+      "was": 192,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 35,
+      "category": "إدارة المشاريع",
+      "questions": 1200,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 10,
+      "shortQuizzes": 4,
+      "lang": "both",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس إدارة المشاريع وبيئتها",
+        "دور مدير المشروع والقيادة",
+        "بناء الفريق وتمكينه",
+        "أصحاب المصلحة والتواصل",
+        "النطاق والمتطلبات",
+        "الجدول الزمني والتقدير",
+        "التكلفة والموارد",
+        "الجودة والمخاطر",
+        "المشتريات والتعاقد",
+        "المنهجيات الرشيقة والهجينة",
+        "الحوكمة وقيمة الأعمال"
+      ]
+    },
+    {
+      "id": "pmp-review",
+      "schemaVersion": 15,
+      "course": "pmp",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "PMP® — باقة المراجعة النهائية",
+      "en": "PMP® — Final Review",
+      "price": 99,
+      "was": 158,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 35,
+      "category": "إدارة المشاريع",
+      "questions": 600,
+      "videos": 29,
+      "videoMins": 570,
+      "quizzes": 10,
+      "shortQuizzes": 0,
+      "lang": "both",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 420,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس إدارة المشاريع وبيئتها",
+        "دور مدير المشروع والقيادة",
+        "بناء الفريق وتمكينه",
+        "أصحاب المصلحة والتواصل",
+        "النطاق والمتطلبات",
+        "الجدول الزمني والتقدير",
+        "التكلفة والموارد",
+        "الجودة والمخاطر",
+        "المشتريات والتعاقد",
+        "المنهجيات الرشيقة والهجينة",
+        "الحوكمة وقيمة الأعمال"
+      ]
+    },
+    {
+      "id": "pmp-self",
+      "schemaVersion": 15,
+      "course": "pmp",
+      "type": "self",
+      "mode": "self",
+      "ar": "PMP® — باقة الدراسة الذاتية",
+      "en": "PMP® — Self-Paced Study",
+      "price": 69,
+      "was": 110,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 35,
+      "category": "إدارة المشاريع",
+      "questions": 600,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 4,
+      "lang": "both",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 420,
+      "activities": 24,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس إدارة المشاريع وبيئتها",
+        "دور مدير المشروع والقيادة",
+        "بناء الفريق وتمكينه",
+        "أصحاب المصلحة والتواصل",
+        "النطاق والمتطلبات",
+        "الجدول الزمني والتقدير",
+        "التكلفة والموارد",
+        "الجودة والمخاطر",
+        "المشتريات والتعاقد",
+        "المنهجيات الرشيقة والهجينة",
+        "الحوكمة وقيمة الأعمال"
+      ]
+    },
+    {
+      "id": "rmp-full",
+      "schemaVersion": 15,
+      "course": "rmp",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "PMI-RMP® — الباقة الكاملة",
+      "en": "PMI-RMP® — Complete Package",
+      "price": 120,
+      "was": 180,
+      "currency": "USD",
+      "badge": "الأشمل",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 700,
+      "videos": 67,
+      "videoMins": 1450,
+      "quizzes": 5,
+      "shortQuizzes": 23,
+      "lang": "both",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 260,
+      "activities": 16,
+      "games": 2,
+      "questionTypes": [
+        "mcq",
+        "multi",
+        "calc",
+        "scenario",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-RMP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "مدخل إلى إدارة المخاطر",
+        "الاستراتيجية وشهية المخاطرة",
+        "تخطيط إدارة المخاطر",
+        "تحديد المخاطر",
+        "التحليل النوعي",
+        "التحليل الكمي",
+        "تخطيط الاستجابات",
+        "تنفيذ الاستجابات",
+        "الرصد والإبلاغ"
+      ]
+    },
+    {
+      "id": "rmp-sim",
+      "schemaVersion": 15,
+      "course": "rmp",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "PMI-RMP® — باقة الاختبارات",
+      "en": "PMI-RMP® — Simulation Exams",
+      "price": 75,
+      "was": 120,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 700,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 5,
+      "shortQuizzes": 3,
+      "lang": "both",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "multi",
+        "calc",
+        "scenario",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "مدخل إلى إدارة المخاطر",
+        "الاستراتيجية وشهية المخاطرة",
+        "تخطيط إدارة المخاطر",
+        "تحديد المخاطر",
+        "التحليل النوعي",
+        "التحليل الكمي",
+        "تخطيط الاستجابات",
+        "تنفيذ الاستجابات",
+        "الرصد والإبلاغ"
+      ]
+    },
+    {
+      "id": "rmp-review",
+      "schemaVersion": 15,
+      "course": "rmp",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "PMI-RMP® — باقة المراجعة النهائية",
+      "en": "PMI-RMP® — Final Review",
+      "price": 80,
+      "was": 128,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 350,
+      "videos": 17,
+      "videoMins": 363,
+      "quizzes": 5,
+      "shortQuizzes": 0,
+      "lang": "both",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 260,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "multi",
+        "calc",
+        "scenario",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "مدخل إلى إدارة المخاطر",
+        "الاستراتيجية وشهية المخاطرة",
+        "تخطيط إدارة المخاطر",
+        "تحديد المخاطر",
+        "التحليل النوعي",
+        "التحليل الكمي",
+        "تخطيط الاستجابات",
+        "تنفيذ الاستجابات",
+        "الرصد والإبلاغ"
+      ]
+    },
+    {
+      "id": "rmp-self",
+      "schemaVersion": 15,
+      "course": "rmp",
+      "type": "self",
+      "mode": "self",
+      "ar": "PMI-RMP® — باقة الدراسة الذاتية",
+      "en": "PMI-RMP® — Self-Paced Study",
+      "price": 55,
+      "was": 88,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 350,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 3,
+      "lang": "both",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 260,
+      "activities": 16,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "multi",
+        "calc",
+        "scenario",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-RMP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "مدخل إلى إدارة المخاطر",
+        "الاستراتيجية وشهية المخاطرة",
+        "تخطيط إدارة المخاطر",
+        "تحديد المخاطر",
+        "التحليل النوعي",
+        "التحليل الكمي",
+        "تخطيط الاستجابات",
+        "تنفيذ الاستجابات",
+        "الرصد والإبلاغ"
+      ]
+    },
+    {
+      "id": "pba-full",
+      "schemaVersion": 15,
+      "course": "pba",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "PMI-PBA® — الباقة الكاملة",
+      "en": "PMI-PBA® — Complete Package",
+      "price": 120,
+      "was": 180,
+      "currency": "USD",
+      "badge": "الأشمل",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 640,
+      "videos": 103,
+      "videoMins": 1900,
+      "quizzes": 3,
+      "shortQuizzes": 35,
+      "lang": "en",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 230,
+      "activities": 15,
+      "games": 2,
+      "questionTypes": [
+        "scenario",
+        "mcq",
+        "multi",
+        "order",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-PBA® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس تحليل الأعمال",
+        "تقييم الحاجة",
+        "تخطيط تحليل الأعمال",
+        "استخلاص المتطلبات",
+        "تحليل المتطلبات",
+        "التتبّع وإدارة التغيير",
+        "تقييم الحل"
+      ]
+    },
+    {
+      "id": "pba-sim",
+      "schemaVersion": 15,
+      "course": "pba",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "PMI-PBA® — باقة الاختبارات",
+      "en": "PMI-PBA® — Simulation Exams",
+      "price": 84,
+      "was": 134,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 640,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 3,
+      "shortQuizzes": 3,
+      "lang": "en",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "mcq",
+        "multi",
+        "order",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس تحليل الأعمال",
+        "تقييم الحاجة",
+        "تخطيط تحليل الأعمال",
+        "استخلاص المتطلبات",
+        "تحليل المتطلبات",
+        "التتبّع وإدارة التغيير",
+        "تقييم الحل"
+      ]
+    },
+    {
+      "id": "pba-review",
+      "schemaVersion": 15,
+      "course": "pba",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "PMI-PBA® — باقة المراجعة النهائية",
+      "en": "PMI-PBA® — Final Review",
+      "price": 75,
+      "was": 120,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 320,
+      "videos": 26,
+      "videoMins": 475,
+      "quizzes": 3,
+      "shortQuizzes": 0,
+      "lang": "en",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 230,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "mcq",
+        "multi",
+        "order",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس تحليل الأعمال",
+        "تقييم الحاجة",
+        "تخطيط تحليل الأعمال",
+        "استخلاص المتطلبات",
+        "تحليل المتطلبات",
+        "التتبّع وإدارة التغيير",
+        "تقييم الحل"
+      ]
+    },
+    {
+      "id": "pba-self",
+      "schemaVersion": 15,
+      "course": "pba",
+      "type": "self",
+      "mode": "self",
+      "ar": "PMI-PBA® — باقة الدراسة الذاتية",
+      "en": "PMI-PBA® — Self-Paced Study",
+      "price": 55,
+      "was": 88,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 30,
+      "category": "إدارة المشاريع",
+      "questions": 320,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 3,
+      "lang": "en",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 230,
+      "activities": 15,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "mcq",
+        "multi",
+        "order",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-PBA® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "أسس تحليل الأعمال",
+        "تقييم الحاجة",
+        "تخطيط تحليل الأعمال",
+        "استخلاص المتطلبات",
+        "تحليل المتطلبات",
+        "التتبّع وإدارة التغيير",
+        "تقييم الحل"
+      ]
+    },
+    {
+      "id": "acp-full",
+      "schemaVersion": 15,
+      "course": "acp",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "PMI-ACP® — الباقة الكاملة",
+      "en": "PMI-ACP® — Complete Package",
+      "price": 110,
+      "was": 165,
+      "currency": "USD",
+      "badge": "الأشمل",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 21,
+      "category": "إدارة المشاريع",
+      "questions": 600,
+      "videos": 52,
+      "videoMins": 1080,
+      "quizzes": 4,
+      "shortQuizzes": 18,
+      "lang": "both",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 240,
+      "activities": 14,
+      "games": 3,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "tf",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-ACP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "المانيفستو والمبادئ",
+        "سكرم",
+        "كانبان ولين",
+        "التخطيط التكيّفي",
+        "قياس القيمة",
+        "تيسير الفرق"
+      ]
+    },
+    {
+      "id": "acp-sim",
+      "schemaVersion": 15,
+      "course": "acp",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "PMI-ACP® — باقة الاختبارات",
+      "en": "PMI-ACP® — Simulation Exams",
+      "price": 70,
+      "was": 112,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 21,
+      "category": "إدارة المشاريع",
+      "questions": 600,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 4,
+      "shortQuizzes": 2,
+      "lang": "both",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "tf",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "المانيفستو والمبادئ",
+        "سكرم",
+        "كانبان ولين",
+        "التخطيط التكيّفي",
+        "قياس القيمة",
+        "تيسير الفرق"
+      ]
+    },
+    {
+      "id": "acp-review",
+      "schemaVersion": 15,
+      "course": "acp",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "PMI-ACP® — باقة المراجعة النهائية",
+      "en": "PMI-ACP® — Final Review",
+      "price": 75,
+      "was": 120,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 21,
+      "category": "إدارة المشاريع",
+      "questions": 300,
+      "videos": 13,
+      "videoMins": 270,
+      "quizzes": 4,
+      "shortQuizzes": 0,
+      "lang": "both",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 240,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "tf",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "المانيفستو والمبادئ",
+        "سكرم",
+        "كانبان ولين",
+        "التخطيط التكيّفي",
+        "قياس القيمة",
+        "تيسير الفرق"
+      ]
+    },
+    {
+      "id": "acp-self",
+      "schemaVersion": 15,
+      "course": "acp",
+      "type": "self",
+      "mode": "self",
+      "ar": "PMI-ACP® — باقة الدراسة الذاتية",
+      "en": "PMI-ACP® — Self-Paced Study",
+      "price": 50,
+      "was": 80,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 21,
+      "category": "إدارة المشاريع",
+      "questions": 300,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 2,
+      "lang": "both",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 240,
+      "activities": 14,
+      "games": 0,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "tf",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار PMI-ACP® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع",
+      "chapters": [
+        "المانيفستو والمبادئ",
+        "سكرم",
+        "كانبان ولين",
+        "التخطيط التكيّفي",
+        "قياس القيمة",
+        "تيسير الفرق"
+      ]
+    },
+    {
+      "id": "grcp-full",
+      "schemaVersion": 15,
+      "course": "grcp",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "GRCP™ — الباقة الكاملة",
+      "en": "GRCP™ — Complete Package",
+      "price": 120,
+      "was": 180,
+      "currency": "USD",
+      "badge": "الأكثر قيمة",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 30,
+      "category": "الحوكمة والمخاطر والامتثال",
+      "questions": 203,
+      "videos": 27,
+      "videoMins": 820,
+      "quizzes": 6,
+      "shortQuizzes": 9,
+      "lang": "both",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 180,
+      "activities": 20,
+      "games": 2,
+      "questionTypes": [
+        "mcq",
+        "tf",
+        "match",
+        "scenario",
+        "multi"
+      ],
+      "hasSystem": true,
+      "objectives": [
+        "إتقان إطار GRCP™ ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مسؤولو الحوكمة وإدارة المخاطر والامتثال والتدقيق الداخلي وأعضاء مجالس الإدارة",
+      "chapters": [
+        "الأداء المنضبط ولماذا وُجد GRC",
+        "نموذج القدرات وبنيته",
+        "التخصصات الحرجة والحُماة",
+        "مكوّن الدراسة",
+        "مكوّن المواءمة",
+        "مكوّن التنفيذ",
+        "مكوّن المراجعة",
+        "التكامل والتطبيق"
+      ]
+    },
+    {
+      "id": "grcp-sim",
+      "schemaVersion": 15,
+      "course": "grcp",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "GRCP™ — باقة الاختبارات",
+      "en": "GRCP™ — Simulation Exams",
+      "price": 60,
+      "was": 96,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 30,
+      "category": "الحوكمة والمخاطر والامتثال",
+      "questions": 203,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 6,
+      "shortQuizzes": 3,
+      "lang": "both",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "tf",
+        "match",
+        "scenario",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مسؤولو الحوكمة وإدارة المخاطر والامتثال والتدقيق الداخلي وأعضاء مجالس الإدارة",
+      "chapters": [
+        "الأداء المنضبط ولماذا وُجد GRC",
+        "نموذج القدرات وبنيته",
+        "التخصصات الحرجة والحُماة",
+        "مكوّن الدراسة",
+        "مكوّن المواءمة",
+        "مكوّن التنفيذ",
+        "مكوّن المراجعة",
+        "التكامل والتطبيق"
+      ]
+    },
+    {
+      "id": "grcp-review",
+      "schemaVersion": 15,
+      "course": "grcp",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "GRCP™ — باقة المراجعة النهائية",
+      "en": "GRCP™ — Final Review",
+      "price": 75,
+      "was": 120,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 30,
+      "category": "الحوكمة والمخاطر والامتثال",
+      "questions": 102,
+      "videos": 7,
+      "videoMins": 205,
+      "quizzes": 6,
+      "shortQuizzes": 0,
+      "lang": "both",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 180,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "tf",
+        "match",
+        "scenario",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مسؤولو الحوكمة وإدارة المخاطر والامتثال والتدقيق الداخلي وأعضاء مجالس الإدارة",
+      "chapters": [
+        "الأداء المنضبط ولماذا وُجد GRC",
+        "نموذج القدرات وبنيته",
+        "التخصصات الحرجة والحُماة",
+        "مكوّن الدراسة",
+        "مكوّن المواءمة",
+        "مكوّن التنفيذ",
+        "مكوّن المراجعة",
+        "التكامل والتطبيق"
+      ]
+    },
+    {
+      "id": "grcp-self",
+      "schemaVersion": 15,
+      "course": "grcp",
+      "type": "self",
+      "mode": "self",
+      "ar": "GRCP™ — باقة الدراسة الذاتية",
+      "en": "GRCP™ — Self-Paced Study",
+      "price": 79,
+      "was": 126,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 30,
+      "category": "الحوكمة والمخاطر والامتثال",
+      "questions": 102,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 3,
+      "lang": "both",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 180,
+      "activities": 20,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "tf",
+        "match",
+        "scenario",
+        "multi"
+      ],
+      "hasSystem": true,
+      "objectives": [
+        "إتقان إطار GRCP™ ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مسؤولو الحوكمة وإدارة المخاطر والامتثال والتدقيق الداخلي وأعضاء مجالس الإدارة",
+      "chapters": [
+        "الأداء المنضبط ولماذا وُجد GRC",
+        "نموذج القدرات وبنيته",
+        "التخصصات الحرجة والحُماة",
+        "مكوّن الدراسة",
+        "مكوّن المواءمة",
+        "مكوّن التنفيذ",
+        "مكوّن المراجعة",
+        "التكامل والتطبيق"
+      ]
+    },
+    {
+      "id": "lss-full",
+      "schemaVersion": 15,
+      "course": "lss",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "LSSGB™ — الباقة الكاملة",
+      "en": "LSSGB™ — Complete Package",
+      "price": 110,
+      "was": 165,
+      "currency": "USD",
+      "badge": "الأشمل",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 30,
+      "category": "الجودة وتحسين العمليات",
+      "questions": 480,
+      "videos": 45,
+      "videoMins": 1150,
+      "quizzes": 5,
+      "shortQuizzes": 15,
+      "lang": "en",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 190,
+      "activities": 18,
+      "games": 3,
+      "questionTypes": [
+        "calc",
+        "order",
+        "match",
+        "tf",
+        "scenario"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار LSSGB™ ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "مسؤولو الجودة وتحسين العمليات ومهندسو العمليات الصناعية والخدمية",
+      "chapters": [
+        "مدخل لين وسيكس سيجما",
+        "التعريف",
+        "القياس",
+        "التحليل",
+        "التحسين",
+        "الضبط"
+      ]
+    },
+    {
+      "id": "lss-sim",
+      "schemaVersion": 15,
+      "course": "lss",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "LSSGB™ — باقة الاختبارات",
+      "en": "LSSGB™ — Simulation Exams",
+      "price": 70,
+      "was": 112,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 30,
+      "category": "الجودة وتحسين العمليات",
+      "questions": 480,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 5,
+      "shortQuizzes": 2,
+      "lang": "en",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "calc",
+        "order",
+        "match",
+        "tf",
+        "scenario"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "مسؤولو الجودة وتحسين العمليات ومهندسو العمليات الصناعية والخدمية",
+      "chapters": [
+        "مدخل لين وسيكس سيجما",
+        "التعريف",
+        "القياس",
+        "التحليل",
+        "التحسين",
+        "الضبط"
+      ]
+    },
+    {
+      "id": "lss-review",
+      "schemaVersion": 15,
+      "course": "lss",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "LSSGB™ — باقة المراجعة النهائية",
+      "en": "LSSGB™ — Final Review",
+      "price": 70,
+      "was": 112,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 30,
+      "category": "الجودة وتحسين العمليات",
+      "questions": 240,
+      "videos": 11,
+      "videoMins": 288,
+      "quizzes": 5,
+      "shortQuizzes": 0,
+      "lang": "en",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 190,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "calc",
+        "order",
+        "match",
+        "tf",
+        "scenario"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "مسؤولو الجودة وتحسين العمليات ومهندسو العمليات الصناعية والخدمية",
+      "chapters": [
+        "مدخل لين وسيكس سيجما",
+        "التعريف",
+        "القياس",
+        "التحليل",
+        "التحسين",
+        "الضبط"
+      ]
+    },
+    {
+      "id": "lss-self",
+      "schemaVersion": 15,
+      "course": "lss",
+      "type": "self",
+      "mode": "self",
+      "ar": "LSSGB™ — باقة الدراسة الذاتية",
+      "en": "LSSGB™ — Self-Paced Study",
+      "price": 50,
+      "was": 80,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 30,
+      "category": "الجودة وتحسين العمليات",
+      "questions": 240,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 2,
+      "lang": "en",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 190,
+      "activities": 18,
+      "games": 0,
+      "questionTypes": [
+        "calc",
+        "order",
+        "match",
+        "tf",
+        "scenario"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار LSSGB™ ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "مسؤولو الجودة وتحسين العمليات ومهندسو العمليات الصناعية والخدمية",
+      "chapters": [
+        "مدخل لين وسيكس سيجما",
+        "التعريف",
+        "القياس",
+        "التحليل",
+        "التحسين",
+        "الضبط"
+      ]
+    },
+    {
+      "id": "p3o-full",
+      "schemaVersion": 15,
+      "course": "p3o",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "P3O® — الباقة الكاملة",
+      "en": "P3O® — Complete Package",
+      "price": 100,
+      "was": 150,
+      "currency": "USD",
+      "badge": "الأشمل",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 21,
+      "category": "الحوكمة المؤسسية والمكاتب",
+      "questions": 300,
+      "videos": 32,
+      "videoMins": 700,
+      "quizzes": 3,
+      "shortQuizzes": 11,
+      "lang": "en",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 140,
+      "activities": 10,
+      "games": 1,
+      "questionTypes": [
+        "mcq",
+        "scenario",
+        "order",
+        "match",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار P3O® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى"
+      ],
+      "audience": "قادة مكاتب إدارة المشاريع والمحافظ ومسؤولو الحوكمة المؤسسية",
+      "chapters": [
+        "مدخل إلى P3O",
+        "نماذج المكاتب",
+        "تصميم المكتب",
+        "التشغيل",
+        "إثبات القيمة"
+      ]
+    },
+    {
+      "id": "p3o-sim",
+      "schemaVersion": 15,
+      "course": "p3o",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "P3O® — باقة الاختبارات",
+      "en": "P3O® — Simulation Exams",
+      "price": 60,
+      "was": 96,
+      "currency": "USD",
+      "badge": "",
+      "desc": "بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.",
+      "hours": 21,
+      "category": "الحوكمة المؤسسية والمكاتب",
+      "questions": 300,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 3,
+      "shortQuizzes": 2,
+      "lang": "en",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 0,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "scenario",
+        "order",
+        "match",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي",
+        "التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة"
+      ],
+      "audience": "قادة مكاتب إدارة المشاريع والمحافظ ومسؤولو الحوكمة المؤسسية",
+      "chapters": [
+        "مدخل إلى P3O",
+        "نماذج المكاتب",
+        "تصميم المكتب",
+        "التشغيل",
+        "إثبات القيمة"
+      ]
+    },
+    {
+      "id": "p3o-review",
+      "schemaVersion": 15,
+      "course": "p3o",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "P3O® — باقة المراجعة النهائية",
+      "en": "P3O® — Final Review",
+      "price": 65,
+      "was": 104,
+      "currency": "USD",
+      "badge": "",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 21,
+      "category": "الحوكمة المؤسسية والمكاتب",
+      "questions": 150,
+      "videos": 8,
+      "videoMins": 175,
+      "quizzes": 3,
+      "shortQuizzes": 0,
+      "lang": "en",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 140,
+      "activities": 0,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "scenario",
+        "order",
+        "match",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "تثبيت المفاهيم الأساسية في وقت قصير",
+        "مراجعة الصيغ والمصطلحات الحرجة",
+        "الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى",
+        "استراتيجية يوم الاختبار وإدارة الوقت"
+      ],
+      "audience": "قادة مكاتب إدارة المشاريع والمحافظ ومسؤولو الحوكمة المؤسسية",
+      "chapters": [
+        "مدخل إلى P3O",
+        "نماذج المكاتب",
+        "تصميم المكتب",
+        "التشغيل",
+        "إثبات القيمة"
+      ]
+    },
+    {
+      "id": "p3o-self",
+      "schemaVersion": 15,
+      "course": "p3o",
+      "type": "self",
+      "mode": "self",
+      "ar": "P3O® — باقة الدراسة الذاتية",
+      "en": "P3O® — Self-Paced Study",
+      "price": 45,
+      "was": 72,
+      "currency": "USD",
+      "badge": "",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 21,
+      "category": "الحوكمة المؤسسية والمكاتب",
+      "questions": 150,
+      "videos": 0,
+      "videoMins": 0,
+      "quizzes": 0,
+      "shortQuizzes": 2,
+      "lang": "en",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 140,
+      "activities": 10,
+      "games": 0,
+      "questionTypes": [
+        "mcq",
+        "scenario",
+        "order",
+        "match",
+        "multi"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "إتقان إطار P3O® ومفاهيمه الأساسية وتطبيقها عملياً",
+        "فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها",
+        "بناء عادة دراسة منتظمة بخطة أسبوعية واضحة",
+        "التطبيق على أنشطة عملية بتغذية راجعة فورية"
+      ],
+      "audience": "قادة مكاتب إدارة المشاريع والمحافظ ومسؤولو الحوكمة المؤسسية",
+      "chapters": [
+        "مدخل إلى P3O",
+        "نماذج المكاتب",
+        "تصميم المكتب",
+        "التشغيل",
+        "إثبات القيمة"
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "id": "grc-system",
+      "ar": "نظام السعيد GRC®",
+      "en": "Al-Saeed GRC System",
+      "ic": "🛡️",
+      "price": 490,
+      "was": 790,
+      "currency": "USD",
+      "lang": "ar",
+      "featured": true,
+      "cat": "أنظمة تطبيقية",
+      "blurb": "منظومة تفاعلية تبني بها قدرة الحوكمة وإدارة المخاطر والامتثال في منظمتك — عشرون عنصراً وثمانٍ وثلاثون أداة بمخرجات معتمدة.",
+      "features": [
+        "تقييم نضج وأداء شامل قبل وبعد",
+        "سجلات مخاطر وفرص والتزامات بنموذج S×P×R",
+        "إطار COSO بمبادئه السبعة عشر",
+        "مكتبة اثنتي عشرة سياسة قابلة للتصدير",
+        "مستشار ذكي يقدّر خسائرك ويرشّح الأدوات",
+        "تقارير تنفيذية بأربع صيغ",
+        "إفادة تطبيق معتمدة برمز تحقّق"
+      ],
+      "file": "grc.html",
+      "cta": "افتح النظام",
+      "access": "وصول دائم",
+      "schemaVersion": 15
+    },
+    {
+      "id": "personality",
+      "ar": "تحليل الشخصية والجدارات",
+      "en": "Personality & Competency Analysis",
+      "ic": "🧭",
+      "price": 79,
+      "was": 140,
+      "currency": "USD",
+      "lang": "both",
+      "cat": "أدوات تطوير ذاتي",
+      "blurb": "تقييم متكامل لنمط شخصيتك وجداراتك المهنية مع تقرير مفصّل وتوصيات تطوير.",
+      "features": [
+        "تحليل نمط الشخصية المهني",
+        "خريطة الجدارات الأساسية والفجوات",
+        "مقارنة بمتطلبات المسارات الوظيفية",
+        "تقرير PDF مفصّل قابل للطباعة",
+        "توصيات تطوير عملية مرتّبة بالأولوية"
+      ],
+      "cta": "ابدأ التحليل",
+      "access": "٩٠ يوماً",
+      "schemaVersion": 15
+    },
+    {
+      "id": "life-plan",
+      "ar": "خطة الحياة والمسار المهني",
+      "en": "Life & Career Plan",
+      "ic": "🗺️",
+      "price": 69,
+      "was": 120,
+      "currency": "USD",
+      "lang": "ar",
+      "cat": "أدوات تطوير ذاتي",
+      "blurb": "أداة عملية لبناء خطة حياة متوازنة بأهداف قابلة للقياس ومراجعة دورية.",
+      "features": [
+        "تحديد القيم والأولويات الشخصية",
+        "أهداف SMART على المدى القصير والطويل",
+        "موازنة المجالات الثمانية للحياة",
+        "خطة تنفيذ ربع سنوية",
+        "لوحة متابعة التقدّم"
+      ],
+      "cta": "ابنِ خطتك",
+      "access": "سنة كاملة",
+      "schemaVersion": 15
+    },
+    {
+      "id": "cv-builder",
+      "ar": "قوالب السيرة الذاتية الاحترافية",
+      "en": "Professional CV Templates",
+      "ic": "📄",
+      "price": 39,
+      "was": 70,
+      "currency": "USD",
+      "lang": "both",
+      "cat": "أدوات تطوير ذاتي",
+      "blurb": "قوالب سيرة ذاتية تنفيذية بالعربية والإنجليزية مع دليل الصياغة المهنية.",
+      "features": [
+        "قوالب تنفيذية عربية وإنجليزية",
+        "نسخة ثنائية اللغة في ملف واحد",
+        "دليل صياغة الإنجازات بالأرقام",
+        "قالب خطاب تغطية",
+        "تصدير PDF جاهز للإرسال"
+      ],
+      "cta": "حمّل القوالب",
+      "access": "وصول دائم",
+      "schemaVersion": 15
+    }
+  ],
+  "promos": [
+    {
+      "code": "ALSAEED10",
+      "pct": 10,
+      "until": "2026-12-31",
+      "desc": "خصم عام",
+      "schemaVersion": 15
+    },
+    {
+      "code": "STUDENT20",
+      "pct": 20,
+      "until": "2026-12-31",
+      "desc": "خصم الطلاب",
+      "schemaVersion": 15
+    },
+    {
+      "code": "GROUP25",
+      "pct": 25,
+      "until": "2026-12-31",
+      "desc": "خصم المجموعات (3+)",
+      "schemaVersion": 15
+    },
+    {
+      "code": "WELCOME15",
+      "pct": 15,
+      "until": "2027-12-31",
+      "desc": "خصم الترحيب بالمنصة المطوّرة",
+      "schemaVersion": 15
+    }
+  ]
+}
+

@@ -179,6 +179,7 @@ function normalizePackage(body, old = {}) {
   const chapters = Array.isArray(body._chapters) ? body._chapters.map(x => String(x).trim()).filter(Boolean) : (old._chapters || []);
   return {
     ...old,
+    schemaVersion: 15,
     id,
     code: String(body.code ?? old.code ?? id).trim(),
     ar,

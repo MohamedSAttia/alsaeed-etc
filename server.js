@@ -11,6 +11,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -117,10 +118,39 @@ const DEFAULT_PROMOS_V15 = [
   { code:'GROUP25', schemaVersion:15, pct:25, until:'2026-12-31', desc:'خصم المجموعات (3+)' },
   { code:'WELCOME15', schemaVersion:15, pct:15, until:'2027-12-31', desc:'خصم الترحيب بالمنصة المطوّرة' }
 ];
-let savedPromos = [];
-try { savedPromos = JSON.parse(setting('content_promos') || '[]'); } catch (e) {}
+const V15_COURSE_IDS = ['pmp','rmp','acp','grcp','p3o','pba','lss'];
+const readList = key => {
+  try { const value = JSON.parse(setting(key) || '[]'); return Array.isArray(value) ? value : []; }
+  catch { return []; }
+};
+let v15Catalog = { courses:[], packages:[], systems:[], promos:DEFAULT_PROMOS_V15 };
+try {
+  const parsed = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'v15-catalog.json'), 'utf8'));
+  if (parsed && parsed.schemaVersion === 15) v15Catalog = parsed;
+} catch (e) { console.warn('تعذّر تحميل كتالوج V15:', e.message); }
+
+const savedCourses = readList('content_courses');
+const savedCourseIds = savedCourses.map(x => x.id).filter(Boolean).sort();
+const validCourseIds = V15_COURSE_IDS.slice().sort();
+if (JSON.stringify(savedCourseIds) !== JSON.stringify(validCourseIds) && v15Catalog.courses.length)
+  setSetting('content_courses', JSON.stringify(v15Catalog.courses));
+
+const savedPackages = readList('content_packages');
+if ((!savedPackages.length || !savedPackages.every(x => x.schemaVersion === 15 && V15_COURSE_IDS.includes(x.course))) && v15Catalog.packages.length) {
+  setSetting('content_packages', JSON.stringify(v15Catalog.packages));
+  setSetting('catalog', JSON.stringify(v15Catalog.packages.filter(p => p.active !== false).map(p => ({
+    id:p.id, ar:p.ar, en:p.en || '', code:p.code || p.id, price:p.price,
+    currency:p.currency || 'USD', days:p.days, hours:p.hours, cert:!!p.cert, type:p.type
+  }))));
+}
+
+const savedSystems = readList('content_systems');
+if ((!savedSystems.length || !savedSystems.every(x => x.schemaVersion === 15)) && v15Catalog.systems.length)
+  setSetting('content_systems', JSON.stringify(v15Catalog.systems));
+
+const savedPromos = readList('content_promos');
 if (!savedPromos.length || !savedPromos.every(x => x.schemaVersion === 15))
-  setSetting('content_promos', JSON.stringify(DEFAULT_PROMOS_V15));
+  setSetting('content_promos', JSON.stringify(v15Catalog.promos.length ? v15Catalog.promos : DEFAULT_PROMOS_V15));
 
 /* ═══════════ الحسابات ═══════════ */
 app.post('/api/auth/register', (req, res) => {
@@ -681,9 +711,9 @@ app.put('/api/admin/content', auth, admin, (req, res) => {
   });
   /* الكتالوج يُشتق من الباقات ليتحقّق الدفع من السعر */
   if (body.packages) {
-    setSetting('catalog', JSON.stringify(body.packages.map(p =>
-      ({ id: p.id, ar: p.ar, price: p.price, currency: p.currency, days: p.days,
-         hours: p.hours, cert: !!p.cert, type: p.type }))));
+    setSetting('catalog', JSON.stringify(body.packages.filter(p => p.active !== false).map(p =>
+      ({ id: p.id, ar: p.ar, en:p.en || '', code:p.code || p.id, price: p.price,
+         currency: p.currency, days: p.days, hours: p.hours, cert: !!p.cert, type: p.type }))));
   }
   res.json({ ok: true });
 });
