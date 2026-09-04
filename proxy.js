@@ -165,7 +165,9 @@ function savePackages(list) {
     price: Number(p.price || 0),
     currency: String(p.currency || 'USD').toUpperCase(),
     days: Number(p.days || 90),
-    hours: Number(p.hours || 0)
+    hours: Number(p.hours || 0),
+    type: String(p.type || ''),
+    cert: !!p.cert
   }))));
 }
 
@@ -186,6 +188,8 @@ function normalizePackage(body, old = {}) {
     currency: String(body.currency ?? old.currency ?? 'USD').toUpperCase(),
     days: Math.max(1, Number(body.days ?? old.days ?? 90) || 90),
     hours: Math.max(0, Number(body.hours ?? old.hours ?? 0) || 0),
+    type: String(body.type ?? old.type ?? '').trim(),
+    cert: String(body.type ?? old.type ?? '').trim() === 'full',
     image: String(body.image ?? old.image ?? '').trim(),
     _chapters: chapters,
     active: body.active === undefined ? old.active !== false : !!body.active,
@@ -270,8 +274,19 @@ async function handleKashierCreate(req, res) {
   if (!pkg) return sendJson(res, 404, { error: 'الباقة غير موجودة' });
   const enrolled = db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?').get(user.id, packageId);
   if (enrolled) return sendJson(res, 409, { error: 'أنت مشترك في هذه الباقة' });
-  const numericAmount = Number(pkg.price);
+  let numericAmount = Number(pkg.price);
   if (!Number.isFinite(numericAmount) || numericAmount <= 0) return sendJson(res, 400, { error: 'سعر الباقة غير صالح للدفع الإلكتروني' });
+  const promoCode = String(body.promoCode || '').trim().toUpperCase();
+  if (promoCode) {
+    let promos = [];
+    try { promos = JSON.parse(setting('content_promos') || '[]'); } catch {}
+    const promo = Array.isArray(promos) ? promos.find(p => String(p.code || '').trim().toUpperCase() === promoCode && p.active !== false) : null;
+    const validUntil = promo && (!promo.until || new Date(`${promo.until}T23:59:59Z`).getTime() >= Date.now());
+    if (!promo || !validUntil) return sendJson(res, 400, { error: 'كود الخصم غير صالح أو منتهي' });
+    const discount = Math.min(100, Math.max(0, Number(promo.pct) || 0));
+    numericAmount = Math.max(0, Math.round(numericAmount * (1 - discount / 100) * 100) / 100);
+  }
+  if (numericAmount <= 0) return sendJson(res, 400, { error: 'قيمة الطلب بعد الخصم غير صالحة للدفع الإلكتروني' });
   const amount = numericAmount.toFixed(2);
   const currency = String(pkg.currency || 'USD').toUpperCase();
   const orderId = 'ORD-' + uid().toUpperCase();

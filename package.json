@@ -1,6 +1,6 @@
 {
   "name": "alsaeed-platform",
-  "version": "8.0.0",
+  "version": "15.0.0",
   "description": "AL-LTC — منصة السعيد للتعليم والتدريب والاستشارات والذكاء الاصطناعي",
   "type": "module",
   "main": "server.js",

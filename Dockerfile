@@ -7,6 +7,7 @@ RUN npm ci --omit=dev
 
 COPY server.js admin.js proxy.js gateway.js pmp-engine.js ./
 COPY public ./public
+COPY grcp-exam.html rmp-exam.html pba-exam.html grcp-study.html rmp-study.html pba-study.html ./public/
 
 RUN mkdir -p /data
 

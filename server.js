@@ -110,6 +110,18 @@ function admin(req, res, next) {
 const setting = k => { const r = db.prepare('SELECT v FROM settings WHERE k=?').get(k); return r ? r.v : ''; };
 const setSetting = (k, v) => db.prepare('INSERT INTO settings (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=?').run(k, v, v);
 
+/* ترحيل V15: يستبدل قائمة العرض القديمة فقط، ثم تبقى تعديلات المشرف محفوظة. */
+const DEFAULT_PROMOS_V15 = [
+  { code:'ALSAEED10', schemaVersion:15, pct:10, until:'2026-12-31', desc:'خصم عام' },
+  { code:'STUDENT20', schemaVersion:15, pct:20, until:'2026-12-31', desc:'خصم الطلاب' },
+  { code:'GROUP25', schemaVersion:15, pct:25, until:'2026-12-31', desc:'خصم المجموعات (3+)' },
+  { code:'WELCOME15', schemaVersion:15, pct:15, until:'2027-12-31', desc:'خصم الترحيب بالمنصة المطوّرة' }
+];
+let savedPromos = [];
+try { savedPromos = JSON.parse(setting('content_promos') || '[]'); } catch (e) {}
+if (!savedPromos.length || !savedPromos.every(x => x.schemaVersion === 15))
+  setSetting('content_promos', JSON.stringify(DEFAULT_PROMOS_V15));
+
 /* ═══════════ الحسابات ═══════════ */
 app.post('/api/auth/register', (req, res) => {
   const { name, email, password, phone } = req.body || {};
@@ -305,15 +317,27 @@ function grant(userId, pkgId, days, source) {
 }
 
 app.post('/api/pay/create', auth, async (req, res) => {
-  const { packageId } = req.body || {};
+  const { packageId, promoCode } = req.body || {};
   const catalog = JSON.parse(setting('catalog') || '[]');
   const pkg = catalog.find(p => p.id === packageId);
   if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة' });
   if (db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?').get(req.user.id, packageId))
     return res.status(409).json({ error: 'أنت مشترك في هذه الباقة' });
 
+  let amount = pkg.price;
+  if (promoCode) {
+    let promos = [];
+    try { promos = JSON.parse(setting('content_promos') || '[]'); } catch (e) {}
+    const code = String(promoCode).trim().toUpperCase();
+    const promo = promos.find(x => String(x.code).toUpperCase() === code);
+    const validUntil = promo && (!promo.until ||
+      new Date(promo.until + 'T23:59:59Z').getTime() >= Date.now());
+    if (!promo || !validUntil)
+      return res.status(400).json({ error: 'كود الخصم غير صالح أو منتهٍ' });
+    amount = Math.max(0, Math.round(pkg.price * (1 - Math.min(100, Math.max(0, promo.pct)) / 100)));
+  }
   const order = { id: 'ORD-' + uid().toUpperCase(), user_id: req.user.id, package_id: packageId,
-    amount: pkg.price, currency: pkg.currency || 'USD',
+    amount, currency: pkg.currency || 'USD',
     email: req.user.email, name: req.user.name, phone: req.user.phone };
   db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,created)
     VALUES (?,?,?,?,?,?,?,?)`)
@@ -386,6 +410,10 @@ app.post('/api/certificate/:pkg', auth, (req, res) => {
   const owns = db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
   if (!owns) return res.status(403).json({ error: 'لست مشتركاً في هذه الباقة' });
+  const catalog = JSON.parse(setting('catalog') || '[]');
+  const pkg = catalog.find(x => x.id === req.params.pkg) || {};
+  if (!pkg.cert)
+    return res.status(400).json({ error: 'شهادة الحضور متاحة للباقة الكاملة فقط' });
   const pr = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
   const p = pr ? JSON.parse(pr.data) : {};
@@ -396,8 +424,6 @@ app.post('/api/certificate/:pkg', auth, (req, res) => {
     .get(req.user.id, req.params.pkg);
   if (ex) return res.json({ no: ex.no, verify: `${SITE}/verify/${ex.no}` });
 
-  const catalog = JSON.parse(setting('catalog') || '[]');
-  const pkg = catalog.find(x => x.id === req.params.pkg) || {};
   const no = 'AS-' + new Date().getFullYear() + '-' + uid().toUpperCase().slice(0, 6);
   db.prepare('INSERT INTO certificates (no,user_id,package_id,name,course,hours,issued) VALUES (?,?,?,?,?,?,?)')
     .run(no, req.user.id, req.params.pkg, req.user.name, pkg.ar || '', pkg.hours || 0, Date.now());
@@ -641,7 +667,7 @@ app.get('/api/admin/messages', auth, admin, (req, res) => {
 /* ═══════════ المحتوى القابل للتحرير (CMS) ═══════════ */
 app.get('/api/content', (req, res) => {
   const out = {};
-  ['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes'].forEach(k => {
+  ['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos'].forEach(k => {
     const v = setting('content_' + k);
     if (v) { try { out[k] = JSON.parse(v); } catch (e) {} }
   });
@@ -650,13 +676,14 @@ app.get('/api/content', (req, res) => {
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
   Object.keys(body).forEach(k => {
-    if (['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes'].includes(k))
+    if (['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos'].includes(k))
       setSetting('content_' + k, JSON.stringify(body[k]));
   });
   /* الكتالوج يُشتق من الباقات ليتحقّق الدفع من السعر */
   if (body.packages) {
     setSetting('catalog', JSON.stringify(body.packages.map(p =>
-      ({ id: p.id, ar: p.ar, price: p.price, currency: p.currency, days: p.days }))));
+      ({ id: p.id, ar: p.ar, price: p.price, currency: p.currency, days: p.days,
+         hours: p.hours, cert: !!p.cert, type: p.type }))));
   }
   res.json({ ok: true });
 });

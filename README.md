@@ -1,44 +1,30 @@
-# AL-LTC Platform V8
+# Al-Saeed Platform V15
 
-منصة السعيد للتعليم والتدريب والاستشارات والأنظمة الذكية.
+Interactive e-learning platform for seven professional certification programs.
 
-## المكونات
+## Catalog
+
+- Bilingual: PMP, PMI-RMP, PMI-ACP, GRCP
+- English: P3O, PMI-PBA, Lean Six Sigma
+- Four consistent package types: Complete, Simulation Exams, Final Review, Self-Paced Study
+
+## Included capabilities
+
 - Express + SQLite backend
-- حسابات وصلاحيات Admin/Student
-- اشتراكات وانتهاء وصول
-- Vimeo lessons
-- CMS للواجهة الرئيسية
-- Courses / Packages
-- Exam & Progress tracking
-- Certificates + public verification
-- Admin CRM dashboard
-- GRC Applied System
+- Student and admin accounts
+- Package CRUD and independent systems/tools CRUD
+- Vimeo lessons, short knowledge checks, mixed question types and full exam banks
+- Downloadable guides, study plans and flash cards
+- Activities and management decision games
+- Server-validated promo codes and payment creation
+- Complete-package-only attendance certificates with public verification
 
-## التشغيل
+## Run
+
 ```bash
 cp .env.example .env
 npm install
 npm start
 ```
 
-## Admin
-لا يوجد Admin افتراضي. يتم إنشاء أول مشرف فقط من `ADMIN_EMAIL` و`ADMIN_PASSWORD` في `.env`، وكلمة المرور يجب أن تكون 10 أحرف على الأقل.
-
-## Admin analytics
-- `GET /api/admin/overview`
-- `GET /api/admin/users/:id/activity`
-
-تستخدم الواجهة هذه المسارات لعرض التقدم، آخر نشاط، متوسط الاختبارات، الاشتراكات والانتهاء.
-
-## Vimeo
-من لوحة الإدارة يمكنك وضع Vimeo ID للدروس، وكذلك Vimeo Preview للدورة، وفيديو Hero للصفحة الرئيسية.
-
-## Domain
-النطاق المستهدف: `https://al-ltc.com`
-
-## Production checklist
-1. Configure `.env`.
-2. Use HTTPS.
-3. Test the payment gateway in sandbox.
-4. Use a persistent database volume or migrate to Postgres/Supabase before scale.
-5. Configure backups and transactional email.
+Open `http://localhost:3000`. Configure the first admin through `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env`.

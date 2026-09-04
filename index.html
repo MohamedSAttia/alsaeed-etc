@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>السعيد للتعليم والتدريب والخدمات الاستشارية</title>
-<meta name="description" content="منصة متكاملة تُعدّ المحترفين لشهادات PMP و PMI-RMP و GRCP — حضوري وأونلاين ومسجّل ومحاكاة ودراسة ذاتية، مع برامج أكاديمية واستشارات.">
+<meta name="description" content="منصة السعيد V15 للتعلّم التفاعلي: PMP وPMI-RMP وPMI-ACP وGRCP بالعربية والإنجليزية، وP3O وPMI-PBA وLean Six Sigma بالإنجليزية.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1000,6 +1000,48 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 .lg-svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,.18));transition:.35s var(--ease)}
 .lg:hover .lg-svg{transform:rotate(-5deg) scale(1.07)}
 .login-lg .lg-svg,.side-lg .lg-svg{filter:none}
+
+/* ════════ V15 · التعلّم التفاعلي ومختبر الأسئلة ════════ */
+.brand-orbit{position:absolute;inset-inline-end:5%;top:34px;width:170px;height:170px;opacity:.12;
+  animation:floaty 7s ease-in-out infinite;pointer-events:none;z-index:1}
+.brand-orbit .lg-svg{width:100%;height:100%;filter:none}
+.qtype-row{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0 18px}
+.qtype{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;
+  background:#F4F7FB;border:1px solid var(--line);font-size:.72rem;font-weight:700;color:var(--navy)}
+.learning-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.learning-tool{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff;
+  display:flex;gap:13px;align-items:flex-start;transition:.2s var(--ease)}
+.learning-tool:hover{transform:translateY(-3px);border-color:#f0b27c;box-shadow:var(--sh)}
+.learning-tool .ico{width:45px;height:45px;display:grid;place-items:center;border-radius:14px;
+  background:var(--orange3);font-size:1.25rem;flex:0 0 auto}
+.learning-tool b{display:block;color:var(--navy);font-family:var(--fd);margin-bottom:4px}
+.learning-tool p{font-size:.78rem;color:var(--dim);line-height:1.65;margin:0}
+.flash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.flash-card{min-height:145px;border:0;border-radius:20px;padding:20px;text-align:start;cursor:pointer;
+  color:#fff;background:linear-gradient(145deg,var(--navy2),var(--navy));position:relative;overflow:hidden}
+.flash-card::after{content:'↻';position:absolute;inset-inline-end:15px;top:12px;font-size:1.3rem;opacity:.45}
+.flash-card strong{display:block;font-family:var(--fm);font-size:1rem;margin-top:30px}
+.flash-card span{display:block;color:#C7D3E5;font-size:.82rem;margin-top:8px}
+.activity-card{display:flex;gap:12px;align-items:flex-start;padding:15px;border:1px solid var(--line);
+  border-radius:16px;background:#fff;margin-bottom:10px}
+.activity-card i{width:30px;height:30px;border-radius:10px;background:var(--teal-soft);color:var(--teal);
+  display:grid;place-items:center;font-style:normal;font-weight:800;flex:0 0 auto}
+.practice-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.practice-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.practice-meta span{padding:6px 9px;background:var(--paper);border:1px solid var(--line);
+  border-radius:999px;font-size:.7rem;font-weight:700;color:var(--dim)}
+.practice-q{font-family:var(--fd);font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.75;margin:12px 0}
+.practice-opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:start;padding:12px 13px;
+  margin:8px 0;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--txt);cursor:pointer}
+.practice-opt:hover{border-color:var(--orange)}.practice-opt input{margin-top:4px;accent-color:var(--orange)}
+.practice-opt.correct{background:#ECFDF5;border-color:#22C55E}.practice-opt.wrong{background:#FFF1F2;border-color:#F43F5E}
+.practice-feedback{padding:13px 15px;border-radius:13px;background:#EFF6FF;border:1px solid #BFDBFE;
+  color:#1E3A5F;font-size:.83rem;line-height:1.7;margin-top:12px}
+.practice-result{text-align:center;padding:22px}.practice-result .score{font:800 3rem var(--fm);color:var(--orange)}
+.resource-list{display:grid;gap:10px}.resource-row{display:flex;align-items:center;gap:11px;padding:13px 14px;
+  border:1px solid var(--line);border-radius:14px;background:#fff}.resource-row>div{flex:1;min-width:0}
+.resource-row b{display:block;color:var(--navy);font-size:.86rem}.resource-row span{font-size:.72rem;color:var(--dim)}
+@media(max-width:650px){.learning-grid,.flash-grid{grid-template-columns:1fr}.brand-orbit{width:110px;height:110px}}
 </style>
 </head>
 <body>
@@ -1794,32 +1836,56 @@ if (window.I18 && window.I18.dict) {
    ============================================================ */
 
 /* ─── الشعار: حرفا S و A متشابكان ─── */
-window.LOGO = function (size) {
-  size = size || 46;
-  const id = 'lg' + Math.random().toString(36).slice(2, 7);
-  return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" class="lg-svg"
-    role="img" aria-label="السعيد"><defs>
-    <linearGradient id="${id}o" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#E8621A"/><stop offset="55%" stop-color="#F2913A"/>
-      <stop offset="100%" stop-color="#FBC55B"/></linearGradient>
-    <linearGradient id="${id}n" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0%" stop-color="#152F55"/><stop offset="100%" stop-color="#2A6E96"/></linearGradient>
-  </defs>
-  <path d="M64 14 H32 a22 22 0 0 0 0 44 h20 a10 10 0 0 1 0 20 H26 l-10 20 h44 a26 26 0 0 0 0-52 H36
-    a6 6 0 0 1 0-12 h20 z" fill="url(#${id}o)"/>
-  <path d="M78 12 L44 98 h20 L82 52 l10 26 h-8 l-8 20 h34 z" fill="url(#${id}n)"/>
-  </svg>`;
-};
 
-window.LOGO_FULL = function (dark) {
-  const lang=window.__lang||'ar';
-  return `<span class="lg">${window.LOGO(44)}<span class="lg-t ${dark ? 'd' : ''}"><b>${lang==='ar'?'السعيد':'AL-LTC'}</b><span>${lang==='ar'?'تعليم · تدريب · استشارات':'Education · Training · Consulting · AI'}</span></span></span>`;
-};
+
+
 </script>
 <script>/* ============================================================
    منصة السعيد — البنية الموسّعة
    تدريب احترافي · تعليم أكاديمي · استشارات — بخمسة أنماط تقديم
    ============================================================ */
+
+/* ============================================================
+   شعار السعيد — SVG مُتتبَّع من الشعار الرسمي
+   ============================================================ */
+(function () {
+  var PO = "M1740 5639 c-267 -9 -578 -21 -693 -25 -114 -4 -207 -11 -207 -16 0 -7 96 -167 147 -244 15 -23 14 -24 -73 -64 -140 -65 -276 -162 -413 -295 -184 -179 -306 -353 -385 -550 -81 -199 -106 -340 -106 -585 0 -475 135 -806 460 -1130 194 -194 362 -305 571 -378 210 -74 401 -91 1022 -92 348 0 414 -8 532 -65 127 -62 263 -199 325 -330 46 -96 63 -190 57 -310 -16 -305 -194 -526 -493 -606 -66 -18 -115 -23 -302 -27 -137 -2 -228 0 -233 5 -7 7 58 147 180 393 105 210 191 386 191 391 0 5 -211 8 -502 7 l-503 -3 -422 -844 c-233 -463 -423 -847 -423 -852 0 -13 1907 -12 2028 2 350 38 645 179 911 434 200 192 325 385 405 625 213 641 9 1330 -518 1749 -213 169 -404 260 -654 311 -155 33 -289 40 -712 40 -476 0 -514 4 -659 77 -154 77 -258 195 -319 365 -24 67 -26 86 -26 218 0 131 3 153 28 225 77 225 228 371 442 425 43 11 87 20 98 20 16 0 43 -35 115 -150 52 -82 98 -150 102 -150 4 0 34 51 67 113 33 61 202 380 376 708 173 328 319 604 322 613 8 20 -67 20 -736 -5z";
+  var PN = "M3172 5533 c-33 -71 -102 -213 -153 -318 -50 -104 -113 -235 -139 -290 -26 -55 -89 -185 -139 -290 -51 -104 -126 -260 -167 -345 -41 -85 -164 -339 -273 -565 l-198 -410 76 -2 c83 -3 338 -22 386 -29 323 -51 586 -169 830 -374 162 -136 301 -297 394 -455 53 -90 52 -87 154 -320 42 -93 139 -300 217 -460 79 -159 185 -377 236 -483 l93 -193 503 5 c277 3 504 6 505 6 5 0 -42 99 -182 385 -81 165 -166 341 -190 390 -44 92 -139 289 -310 640 -54 110 -132 272 -175 360 -43 88 -121 250 -175 360 -54 110 -135 277 -180 370 -45 94 -126 260 -180 370 -54 110 -121 250 -150 310 -29 61 -114 235 -189 389 -75 153 -136 279 -136 281 0 1 -80 166 -178 366 -98 200 -184 379 -191 397 -7 17 -17 32 -21 32 -4 0 -34 -57 -68 -127z M4530 888 c1 -7 99 -209 219 -448 l219 -435 511 -3 c406 -2 511 0 511 10 0 7 -101 209 -223 448 l-222 435 -507 3 c-403 2 -508 0 -508 -10z";
+  var TR = "translate(0.000000,567.000000) scale(0.100000,-0.100000)";
+
+  window.LOGO = function (size, opts) {
+    size = size || 46;
+    opts = opts || {};
+    var id = 'sa' + Math.random().toString(36).slice(2, 7);
+    var mono = opts.mono;
+    var fillO = mono ? (opts.color || '#fff') : 'url(#' + id + 'o)';
+    var fillN = mono ? (opts.color || '#fff') : 'url(#' + id + 'n)';
+    return '<svg viewBox="0 0 600 567" width="' + size + '" height="' + (size * 0.945) +
+      '" class="lg-svg" role="img" aria-label="السعيد" xmlns="http://www.w3.org/2000/svg">' +
+      (mono ? '' :
+        '<defs>' +
+        '<linearGradient id="' + id + 'o" x1="0.05" y1="0" x2="0.95" y2="1">' +
+          '<stop offset="0%" stop-color="#E2571A"/>' +
+          '<stop offset="48%" stop-color="#F08F2B"/>' +
+          '<stop offset="100%" stop-color="#FBC94A"/></linearGradient>' +
+        '<linearGradient id="' + id + 'n" x1="0.15" y1="0" x2="0.9" y2="1">' +
+          '<stop offset="0%" stop-color="#122E52"/>' +
+          '<stop offset="55%" stop-color="#1D4F76"/>' +
+          '<stop offset="100%" stop-color="#2E7FA8"/></linearGradient>' +
+        '</defs>') +
+      '<g transform="' + TR + '">' +
+        '<path fill="' + fillO + '" d="' + PO + '"/>' +
+        '<path fill="' + fillN + '" d="' + PN + '"/>' +
+      '</g></svg>';
+  };
+
+  window.LOGO_FULL = function (dark, size) {
+    return '<span class="lg">' + window.LOGO(size || 44) +
+      '<span class="lg-t' + (dark ? ' d' : '') + '">' +
+      '<b>السعيد</b><span>للتعليم والتدريب والاستشارات</span></span></span>';
+  };
+})();
+
 
 window.BRAND = {
   ar: 'السعيد', full: 'السعيد للتعليم والتدريب والخدمات الاستشارية',
@@ -2053,7 +2119,11 @@ window.DEFAULT_COURSE_COVERS = {
   nebosh:'assets/covers/nebosh.svg',
   aipro:'assets/covers/ai.svg'
 };
-window.COURSES = window.COURSES.map(c => ({ ...c, cover: c.cover || window.DEFAULT_COURSE_COVERS[c.id] || 'assets/covers/generic.svg' }));
+/* نطاق الكتالوج المعتمد في V15 — إزالة البرامج التجريبية والقديمة */
+window.ACTIVE_COURSE_IDS = ['pmp','rmp','acp','grcp','p3o','pba','lss'];
+window.COURSES = window.COURSES
+  .filter(c => window.ACTIVE_COURSE_IDS.includes(c.id))
+  .map(c => ({ ...c, cover: c.cover || window.DEFAULT_COURSE_COVERS[c.id] || 'assets/covers/generic.svg' }));
 
 /* ═══ البرامج الأكاديمية ═══ */
 window.STAGES = [
@@ -2134,113 +2204,337 @@ window.DEFAULT_CONSULTING_COVERS = { 'pmo':'assets/covers/consulting.svg', 'grc-
 window.CONSULTING = window.CONSULTING.map(c => ({ ...c, cover: c.cover || window.DEFAULT_CONSULTING_COVERS[c.id] || 'assets/covers/consulting.svg' }));
 
 /* ═══ الباقات ═══ */
-window.PACKAGES = [
-{ id:'pmp-gold', course:'pmp', mode:'recorded', ar:'PMP® 2026 — الباقة الذهبية',
-  price:150, was:200, currency:'USD', badge:'الأكثر مبيعاً', rating:5,
-  desc:'التحضير الكامل بالإصدار الثامن — محتوى مرئي شامل واختبارات محاكاة.',
-  includes:['١١٤ فيديو تدريبي','١٠ اختبارات محاكاة كاملة','حقيبة تدريبية PDF',
-            'شهادة ٣٥ ساعة تطويرية','مراجعة مكثّفة','دعم مباشر من المدرّب'],
-  videos:114, quizzes:10, days:120 },
-{ id:'pmp-live', course:'pmp', mode:'live', ar:'PMP® 2026 — أونلاين مباشر',
-  price:290, was:400, currency:'USD', badge:'مقاعد محدودة',
-  desc:'خمسة أيام مباشرة مع المدرّب — تفاعل وأسئلة فورية وتسجيل كامل.',
-  includes:['٣٥ ساعة مباشرة مع المدرّب','التسجيلات متاحة ٦ أشهر','كل مزايا الباقة الذهبية',
-            'مجموعة واتساب للدفعة','شهادة ٣٥ ساعة معتمدة'],
-  videos:114, quizzes:10, days:180, seats:20 },
-{ id:'pmp-onsite', course:'pmp', mode:'onsite', ar:'PMP® 2026 — حضوري',
-  price:490, was:650, currency:'USD',
-  desc:'خمسة أيام في قاعة تدريب — تفاعل مباشر وأنشطة جماعية وتشبيك مهني.',
-  includes:['٣٥ ساعة حضورية','حقيبة مطبوعة','ضيافة كاملة','كل مزايا الباقة الذهبية',
-            'شهادة ٣٥ ساعة معتمدة'],
-  videos:114, quizzes:10, days:180, seats:15 },
-{ id:'pmp-sim', course:'pmp', mode:'sim', ar:'PMP® 2026 — الاختبارات الكاملة',
-  price:120, was:150, currency:'USD',
-  desc:'عشرة اختبارات تحاكي الاختبار الحقيقي بتوزيع نطاقاته ومؤقّته.',
-  includes:['١٠ اختبارات بـ١٨٠ سؤالاً','مؤقّت ٢٤٠ دقيقة','شرح لكل إجابة','تحليل بالنطاقات'],
-  videos:0, quizzes:10, days:90 },
-{ id:'pmp-self', course:'pmp', mode:'self', ar:'PMP® 2026 — دراسة ذاتية',
-  price:69, was:120, currency:'USD',
-  desc:'الحقيبة الكاملة وخطة أسبوعية بلا مواعيد — تدرس وحدك بمسار منظّم.',
-  includes:['حقيبة تدريبية كاملة PDF','خطة دراسة ١٢ أسبوعاً','ملخّصات كل فصل','٥ اختبارات'],
-  videos:0, quizzes:5, days:120 },
-{ id:'grcp-gold', course:'grcp', mode:'recorded', ar:'GRCP™ 2026 — الباقة الذهبية',
-  price:120, was:200, currency:'USD', badge:'الأكثر قيمة', featured:true,
-  desc:'الشهادة الوحيدة التي تخرج منها بنظام تطبيقي تبني به منظومة حقيقية لمنظمتك.',
-  includes:['٢٧ فيديو تدريبي','حقيبة تدريبية كاملة','بنك ٢٠٣ أسئلة ثنائية اللغة',
-            'اختبارات على المكوّنات الخمسة','نظام السعيد GRC التطبيقي','شهادة إتمام معتمدة'],
-  hasSystem:true, videos:27, quizzes:6, days:90 },
-{ id:'grcp-live', course:'grcp', mode:'live', ar:'GRCP™ 2026 — أونلاين مباشر',
-  price:290, was:390, currency:'USD',
-  desc:'عشرة أيام مباشرة مع تطبيق عملي على منظمتك أثناء الدورة.',
-  includes:['٣٠ ساعة مباشرة','بناء منظومتك أثناء الدورة','مراجعة مخرجاتك من المدرّب',
-            'كل مزايا الباقة الذهبية','نظام السعيد GRC'],
-  hasSystem:true, videos:27, quizzes:6, days:180, seats:15 },
-{ id:'grcp-onsite', course:'grcp', mode:'onsite', ar:'GRCP™ 2026 — حضوري',
-  price:490, was:650, currency:'USD',
-  desc:'عشرة أيام في قاعة تدريب مع ورش تطبيقية على منظمتك.',
-  includes:['٣٠ ساعة حضورية','ورش تطبيقية جماعية','حقيبة مطبوعة','نظام السعيد GRC',
-            'شهادة إتمام معتمدة'],
-  hasSystem:true, videos:27, quizzes:6, days:180, seats:12 },
-{ id:'grcp-sim', course:'grcp', mode:'sim', ar:'GRCP™ 2026 — اختبارات المحاكاة',
-  price:60, was:100, currency:'USD',
-  desc:'لمن أنهى الدراسة ويريد قياس جاهزيته بالمكوّن.',
-  includes:['بنك ٢٠٣ أسئلة ثنائية اللغة','اختبار لكل مكوّن بوزنه','اختبار شامل','شرح مفصّل'],
-  videos:0, quizzes:6, days:60 },
-{ id:'grcp-self', course:'grcp', mode:'self', ar:'GRCP™ 2026 — دراسة ذاتية',
-  price:79, was:130, currency:'USD',
-  desc:'الحقيبة والنظام التطبيقي بلا مواعيد.',
-  includes:['حقيبة تدريبية كاملة','خطة دراسة ١٠ أسابيع','نظام السعيد GRC','٣ اختبارات'],
-  hasSystem:true, videos:0, quizzes:3, days:120 },
-{ id:'rmp-gold', course:'rmp', mode:'recorded', ar:'PMI-RMP® 2026 — الباقة الذهبية',
-  price:100, was:200, currency:'USD', rating:3.75,
-  desc:'التخصص في إدارة المخاطر نظرياً وتطبيقياً.',
-  includes:['٦٧ فيديو تدريبي','حقيبة كاملة','٥ اختبارات محاكاة','قوالب سجلات المخاطر'],
-  videos:67, quizzes:5, days:90 },
-{ id:'rmp-sim', course:'rmp', mode:'sim', ar:'PMI-RMP® 2026 — الاختبارات الكاملة',
-  price:60, was:100, currency:'USD',
-  desc:'أربعة اختبارات كاملة على النطاقات الأربعة بأوزانها.',
-  includes:['٤ اختبارات كاملة','شرح لكل إجابة','تحليل الأداء بالنطاقات'],
-  videos:0, quizzes:4, days:60 },
-{ id:'capm-gold', course:'capm', mode:'recorded', ar:'CAPM® 2026 — الباقة الذهبية',
-  price:90, was:150, currency:'USD', badge:'للمبتدئين',
-  desc:'مدخلك الأول لإدارة المشاريع — بلا خبرة سابقة.',
-  includes:['٤٨ فيديو تدريبي','حقيبة كاملة','٦ اختبارات محاكاة','شهادة ٢٣ ساعة'],
-  videos:48, quizzes:6, days:90 },
-{ id:'pba-gold', course:'pba', mode:'recorded', ar:'PMI-PBA® 2026 — الباقة الذهبية',
-  price:120, was:200, currency:'USD', rating:2.4,
-  desc:'تحليل الأعمال من تحديد الحاجة حتى تقييم الحل.',
-  includes:['١٠٣ فيديو تدريبي','حقيبة كاملة','٣ اختبارات محاكاة','قوالب المتطلبات'],
-  videos:103, quizzes:3, days:90 },
-{ id:'acp-sim', course:'acp', mode:'sim', ar:'PMI-ACP® 2026 — اختبار المحاكاة',
-  price:60, was:100, currency:'USD',
-  desc:'أربعة اختبارات محاكاة على النطاقات السبعة.',
-  includes:['٤ اختبارات كاملة','شرح لكل إجابة','تحليل الأداء'],
-  videos:0, quizzes:4, days:60 },
-{ id:'lss-gold', course:'lss', mode:'recorded', ar:'لين سيكس سيجما — الحزام الأخضر',
-  price:110, was:180, currency:'USD',
-  desc:'منهجية DMAIC كاملة مع مشروع تطبيقي بإشراف المدرّب.',
-  includes:['٤٥ فيديو تدريبي','قوالب DMAIC','مشروع تطبيقي','٥ اختبارات','شهادة إتمام'],
-  videos:45, quizzes:5, days:90 },
-{ id:'pmocp-gold', course:'pmocp', mode:'recorded', ar:'PMO-CP™ — الباقة الذهبية',
-  price:110, was:180, currency:'USD',
-  desc:'تأسيس مكتب إدارة مشاريع يُثبت قيمته بالأرقام.',
-  includes:['٣٢ فيديو تدريبي','قوالب تأسيس المكتب','نموذج قياس القيمة','٣ اختبارات'],
-  videos:32, quizzes:3, days:75 },
-{ id:'nebosh-live', course:'nebosh', mode:'live', ar:'NEBOSH IGC — أونلاين مباشر',
-  price:590, was:790, currency:'USD',
-  desc:'الشهادة الدولية في السلامة — إعداد كامل للاختبارين IG1 و IG2.',
-  includes:['٨٠ ساعة مباشرة','حقيبة NEBOSH الرسمية','تدريب على تقييم المخاطر التطبيقي',
-            'مراجعة مشروع IG2','دعم حتى الاجتياز'],
-  videos:0, quizzes:4, days:180, seats:20 },
-{ id:'ai-pro', course:'aipro', mode:'recorded', ar:'الذكاء الاصطناعي التطبيقي',
-  price:79, was:140, currency:'USD', badge:'جديد',
-  desc:'كيف تستخدم الذكاء الاصطناعي فعلياً في عملك — بلا برمجة.',
-  includes:['٢٤ فيديو تطبيقي','مكتبة أوامر جاهزة','حالات استخدام مهنية','شهادة إتمام'],
-  videos:24, quizzes:3, days:90 }
+/* ============================================================
+   منصة السعيد — بنية الباقات الموحّدة
+   أربع باقات لكل برنامج · بيانات كاملة موحّدة
+   ============================================================ */
+
+/* ═══ أنواع الباقات الأربعة — شكل واحد لكل البرامج ═══ */
+window.PKG_TYPES = [
+  { k:'full',   ar:'الباقة الكاملة',        en:'Complete Package',   ic:'🎓', col:'#F0741A',
+    tag:'الأشمل', cert:true,
+    blurb:'كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.' },
+  { k:'sim',    ar:'باقة الاختبارات',       en:'Simulation Exams',   ic:'🎯', col:'#BE123C',
+    cert:false,
+    blurb:'بنوك أسئلة بمؤقّت الاختبار الحقيقي وتحليل أداء بالنطاق — لمن أنهى الدراسة.' },
+  { k:'review', ar:'باقة المراجعة النهائية', en:'Final Review',       ic:'⚡', col:'#7C3AED',
+    cert:false,
+    blurb:'مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.' },
+  { k:'self',   ar:'باقة الدراسة الذاتية',  en:'Self-Paced Study',   ic:'📚', col:'#0E7C7B',
+    cert:false,
+    blurb:'حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.' }
 ];
 
+/* ═══ مكوّنات المحتوى — تظهر في كل باقة ═══ */
+window.CONTENT_KINDS = [
+  { k:'video',    ar:'فيديوهات شرح',        ic:'🎬', desc:'محتوى مصوّر بجودة عالية مقسّم على الفصول' },
+  { k:'material', ar:'محتوى تعليمي',        ic:'📖', desc:'شرح نصّي مفصّل بالعربية والإنجليزية' },
+  { k:'download', ar:'ملفات قابلة للتحميل', ic:'⬇️', desc:'حقائب PDF وقوالب تُحمَّل وتبقى معك' },
+  { k:'flash',    ar:'بطاقات مراجعة',       ic:'🃏', desc:'Flash Cards للمصطلحات والصيغ بالوجهين' },
+  { k:'activity', ar:'أنشطة تطبيقية',       ic:'✍️', desc:'تمارين على حالات واقعية بتغذية راجعة' },
+  { k:'game',     ar:'ألعاب إدارية',        ic:'🎲', desc:'محاكاة قرارات إدارية تفاعلية' },
+  { k:'quiz',     ar:'اختبارات قصيرة',      ic:'✅', desc:'أسئلة بعد كل مجموعة فيديوهات' },
+  { k:'exam',     ar:'اختبارات محاكاة',     ic:'🎯', desc:'اختبارات كاملة بمؤقّت الاختبار الرسمي' }
+];
+
+/* ═══ أنماط الأسئلة ═══ */
+window.Q_TYPES = [
+  { k:'mcq',      ar:'اختيار من متعدّد',      en:'Multiple Choice' },
+  { k:'multi',    ar:'اختيار متعدّد الإجابات', en:'Multiple Response' },
+  { k:'tf',       ar:'صح أو خطأ',            en:'True / False' },
+  { k:'scenario', ar:'سيناريو تطبيقي',       en:'Scenario-Based' },
+  { k:'match',    ar:'مطابقة',               en:'Matching' },
+  { k:'order',    ar:'ترتيب خطوات',          en:'Sequencing' },
+  { k:'fill',     ar:'إكمال الفراغ',         en:'Fill in the Blank' },
+  { k:'calc',     ar:'حسابي',                en:'Calculation' }
+];
+
+/* ═══ محركات الاختبارات ومختبر الأسئلة داخل المنصة ═══ */
+window.EXAM_ROUTES = {
+  pmp:'pmp-exam-2026.html', rmp:'rmp-exam.html', grcp:'grcp-exam.html', pba:'pba-exam.html'
+};
+
+function bi(en, ar) { return { en:en, ar:ar || '' }; }
+function qx(id, type, domain, en, ar, options, correct, whyEn, whyAr, answers) {
+  return { id:id, type:type, domain:domain, q:bi(en, ar), options:options || [],
+    correct:correct || [], why:bi(whyEn, whyAr), answers:answers || [] };
+}
+
+window.QUESTION_BANK = {
+  pmp:[
+    qx('pmp-1','scenario','People','Two team members are in conflict and delivery is slowing. What should the project manager do FIRST?','يوجد خلاف بين عضوين في الفريق وأصبح التسليم أبطأ. ماذا يفعل مدير المشروع أولاً؟',[
+      bi('Escalate immediately to the sponsor','يصعّد فوراً إلى الراعي'),bi('Facilitate a collaborative discussion to identify the cause','يسيّر نقاشاً تعاونياً لتحديد السبب'),bi('Replace one team member','يستبدل أحد العضوين'),bi('Update the risk register only','يحدّث سجل المخاطر فقط')],[1],'Collaboration addresses the cause before escalation.','التعاون يعالج السبب قبل التصعيد.'),
+    qx('pmp-2','multi','Process','Select TWO actions that support effective agile delivery.','اختر إجراءين يدعمان التسليم الرشيق الفعّال.',[
+      bi('Run regular retrospectives','تنفيذ اجتماعات استرجاعية منتظمة'),bi('Freeze all requirements at initiation','تجميد جميع المتطلبات عند البدء'),bi('Remove impediments quickly','إزالة العوائق بسرعة'),bi('Measure success only by plan conformance','قياس النجاح فقط بالالتزام بالخطة')],[0,2],'Retrospectives and removing impediments improve flow and learning.','الاجتماعات الاسترجاعية وإزالة العوائق تحسّنان التدفق والتعلّم.'),
+    qx('pmp-3','order','Process','Which sequence correctly handles a requested change?','ما الترتيب الصحيح للتعامل مع طلب تغيير؟',[
+      bi('Implement → document → approve','تنفيذ ← توثيق ← اعتماد'),bi('Log → analyze impact → approve/reject → implement','تسجيل ← تحليل الأثر ← اعتماد/رفض ← تنفيذ'),bi('Approve → log → ignore impact','اعتماد ← تسجيل ← تجاهل الأثر'),bi('Escalate → implement → close','تصعيد ← تنفيذ ← إغلاق')],[1],'A change is logged and analyzed before a decision and implementation.','يُسجّل التغيير ويُحلّل أثره قبل القرار والتنفيذ.'),
+    qx('pmp-4','calc','Process','EV is 120 and AC is 100. Enter the Cost Performance Index (CPI).','القيمة المكتسبة 120 والتكلفة الفعلية 100. اكتب مؤشر أداء التكلفة CPI.',[],[],'CPI = EV / AC = 120 / 100 = 1.20.','CPI = EV ÷ AC = 120 ÷ 100 = 1.20.',['1.2','1.20']),
+    qx('pmp-5','match','Process','Which earned-value matching is correct?','أي مطابقة لمصطلحات القيمة المكتسبة صحيحة؟',[
+      bi('EV = budgeted value of completed work','EV = القيمة المخططة للعمل المنجز'),bi('AC = budgeted cost of scheduled work','AC = التكلفة المخططة للعمل المجدول'),bi('PV = actual cost of completed work','PV = التكلفة الفعلية للعمل المنجز'),bi('CPI = AC / EV','CPI = AC ÷ EV')],[0],'EV is the budgeted value of work actually completed.','EV هي القيمة المدرجة في الميزانية للعمل المنجز فعلاً.')
+  ],
+  rmp:[
+    qx('rmp-1','mcq','Risk Strategy','Risk appetite is BEST described as:','أفضل وصف لشهية المخاطر هو:',[
+      bi('The amount and type of risk an organization is willing to pursue or retain','مقدار ونوع المخاطر التي تقبل المنظمة السعي إليها أو الاحتفاظ بها'),bi('A list of all identified risks','قائمة بكل المخاطر المحددة'),bi('The maximum project budget','الحد الأقصى لميزانية المشروع'),bi('A response owner\'s authority','صلاحية مالك الاستجابة')],[0],'Risk appetite guides decisions about acceptable uncertainty.','شهية المخاطر توجّه القرارات المتعلقة بعدم اليقين المقبول.'),
+    qx('rmp-2','multi','Risk Identification','Select TWO valid sources for identifying risks.','اختر مصدرين صالحين لتحديد المخاطر.',[
+      bi('Assumption log','سجل الافتراضات'),bi('Lessons learned register','سجل الدروس المستفادة'),bi('Only the final report','التقرير النهائي فقط'),bi('Only the sponsor\'s opinion','رأي الراعي فقط')],[0,1],'Assumptions and lessons learned are direct risk-identification inputs.','الافتراضات والدروس المستفادة مدخلات مباشرة لتحديد المخاطر.'),
+    qx('rmp-3','calc','Specialized Analysis','A threat has a 30% probability and a $40,000 impact. Enter its EMV.','تهديد احتماله 30% وأثره 40,000 دولار. اكتب القيمة النقدية المتوقعة EMV.',[],[],'EMV = 0.30 × -40,000 = -12,000.','EMV = 0.30 × ‎-40,000 = ‎-12,000.',['-12000','-12,000']),
+    qx('rmp-4','scenario','Risk Response','A response creates a new risk. What is this new risk called?','نتج خطر جديد عن تنفيذ الاستجابة. ماذا يسمى؟',[
+      bi('Residual risk','خطر متبقٍ'),bi('Secondary risk','خطر ثانوي'),bi('Overall risk','الخطر الكلي'),bi('Issue','مشكلة')],[1],'A risk caused directly by a response is a secondary risk.','الخطر الناتج مباشرة عن الاستجابة هو خطر ثانوي.'),
+    qx('rmp-5','match','Risk Response','Which response matching is correct?','أي مطابقة لاستراتيجيات الاستجابة صحيحة؟',[
+      bi('Threat—mitigate; opportunity—enhance','تهديد—تخفيف؛ فرصة—تعزيز'),bi('Threat—exploit; opportunity—avoid','تهديد—استغلال؛ فرصة—تجنب'),bi('Threat—enhance; opportunity—transfer','تهديد—تعزيز؛ فرصة—نقل'),bi('Threat—share; opportunity—escalate only','تهديد—مشاركة؛ فرصة—تصعيد فقط')],[0],'Mitigate reduces a threat; enhance increases an opportunity.','التخفيف يقلل التهديد، والتعزيز يزيد احتمال أو أثر الفرصة.')
+  ],
+  acp:[
+    qx('acp-1','scenario','Team Performance','A self-organizing team is blocked by an external dependency. What should the agile leader do?','فريق ذاتي التنظيم معطّل بسبب اعتماد خارجي. ماذا يفعل القائد الرشيق؟',[
+      bi('Assign every task personally','يوزّع كل مهمة بنفسه'),bi('Remove or escalate the impediment while protecting team ownership','يزيل أو يصعّد العائق مع الحفاظ على ملكية الفريق'),bi('Extend the iteration silently','يمدد الدورة دون نقاش'),bi('Replace the product owner','يستبدل مالك المنتج')],[1],'Servant leadership removes impediments without taking ownership away from the team.','القيادة الخادمة تزيل العوائق دون سحب الملكية من الفريق.'),
+    qx('acp-2','multi','Value Delivery','Select TWO practices that maximize early value.','اختر ممارستين لتعظيم القيمة المبكرة.',[
+      bi('Prioritize by value and risk','الترتيب حسب القيمة والمخاطر'),bi('Deliver small usable increments','تسليم زيادات صغيرة قابلة للاستخدام'),bi('Delay feedback until project close','تأجيل التغذية الراجعة حتى الإغلاق'),bi('Maximize work in progress','زيادة العمل قيد التنفيذ')],[0,1],'Value-based ordering and small increments accelerate feedback and outcomes.','الترتيب حسب القيمة والزيادات الصغيرة يسرعان التغذية الراجعة والنتائج.'),
+    qx('acp-3','order','Adaptive Planning','Which iteration sequence is correct?','ما تسلسل الدورة التكرارية الصحيح؟',[
+      bi('Plan → build/test → review → retrospective','تخطيط ← بناء/اختبار ← مراجعة ← استرجاعية'),bi('Retrospective → close → plan → defer test','استرجاعية ← إغلاق ← تخطيط ← تأجيل الاختبار'),bi('Build → freeze backlog → plan → review','بناء ← تجميد القائمة ← تخطيط ← مراجعة'),bi('Plan → release everything → skip feedback','تخطيط ← إصدار كل شيء ← تجاوز التغذية الراجعة')],[0],'Each iteration plans, creates a tested increment, reviews value, then improves the process.','كل دورة تخطط وتنتج زيادة مختبرة وتراجع القيمة ثم تحسن طريقة العمل.'),
+    qx('acp-4','tf','Mindset','True or False: Limiting work in progress can improve flow.','صح أم خطأ: تقليل العمل قيد التنفيذ يمكن أن يحسّن التدفق.',[bi('True','صح'),bi('False','خطأ')],[0],'Lower WIP exposes bottlenecks and reduces cycle time.','تقليل WIP يكشف الاختناقات ويخفض زمن الدورة.'),
+    qx('acp-5','match','Continuous Improvement','Which matching is correct?','أي مطابقة صحيحة؟',[
+      bi('Retrospective—improve the team process','الاجتماع الاسترجاعي—تحسين طريقة عمل الفريق'),bi('Daily stand-up—approve the business case','الاجتماع اليومي—اعتماد دراسة الجدوى'),bi('Backlog refinement—issue the charter','تنقيح القائمة—إصدار الميثاق'),bi('Review—avoid stakeholder feedback','المراجعة—تجنب رأي أصحاب المصلحة')],[0],'The retrospective is the formal inspect-and-adapt event for the team process.','الاجتماع الاسترجاعي هو فعالية الفحص والتكيف لتحسين طريقة عمل الفريق.')
+  ],
+  grcp:[
+    qx('grcp-1','mcq','Key Concepts','Which statement BEST defines Principled Performance?','أي عبارة تعرّف الأداء المنضبط بأفضل صورة؟',[
+      bi('Reliably achieve objectives, address uncertainty, and act with integrity','تحقيق الأهداف بصورة موثوقة، ومعالجة عدم اليقين، والتصرف بنزاهة'),bi('Eliminate all risk','إلغاء جميع المخاطر'),bi('Comply only with laws','الامتثال للقوانين فقط'),bi('Maximize profit at any cost','تعظيم الربح بأي ثمن')],[0],'It integrates objectives, uncertainty and integrity.','يجمع بين الأهداف وعدم اليقين والنزاهة.'),
+    qx('grcp-2','tf','Key Concepts','True or False: GRC is a department rather than an organizational capability.','صح أم خطأ: GRC إدارة تنظيمية وليست قدرة مؤسسية.',[bi('True','صح'),bi('False','خطأ')],[1],'GRC is an integrated organizational capability.','GRC قدرة مؤسسية متكاملة.'),
+    qx('grcp-3','match','Total Performance','Which OOO matching is correct?','أي مطابقة لعناصر OOO صحيحة؟',[
+      bi('Opportunity—reward; Obstacle—risk; Obligation—requirement','الفرصة—عائد؛ العقبة—مخاطرة؛ الالتزام—متطلب'),bi('Opportunity—control; Obstacle—value; Obligation—option','الفرصة—ضابط؛ العقبة—قيمة؛ الالتزام—خيار'),bi('Opportunity—audit; Obstacle—policy; Obligation—reward','الفرصة—تدقيق؛ العقبة—سياسة؛ الالتزام—عائد'),bi('All three mean risk','جميعها تعني المخاطر')],[0],'The three Os frame reward, risk and requirements together.','تجمع العناصر الثلاثة العائد والمخاطر والمتطلبات.'),
+    qx('grcp-4','scenario','Integrity','An organization publicly adopts a voluntary code. How should it be treated?','تبنت منظمة ميثاقاً طوعياً وأعلنته. كيف يجب التعامل معه؟',[
+      bi('As an obligation within a voluntary boundary','كالتزام داخل حد طوعي'),bi('As optional marketing text','كنص تسويقي اختياري'),bi('As a risk appetite statement only','كبيان شهية مخاطر فقط'),bi('Ignore it unless a regulator asks','يُتجاهل حتى يطلبه المنظم')],[0],'Adopted voluntary boundaries become obligations the organization should honor.','الحدود الطوعية التي تتبناها المنظمة تصبح التزامات يجب الوفاء بها.'),
+    qx('grcp-5','multi','IACM','Select TWO examples of detective actions or controls.','اختر مثالين على إجراءات أو ضوابط اكتشافية.',[
+      bi('Reconciliation','المطابقة/التسوية'),bi('Exception monitoring','مراقبة الاستثناءات'),bi('Segregation of duties','فصل الواجبات'),bi('Recovery plan activation','تفعيل خطة التعافي')],[0,1],'Reconciliation and monitoring detect events; segregation is proactive and recovery is responsive.','المطابقة والمراقبة تكتشفان الأحداث؛ فصل الواجبات استباقي والتعافي استجابي.')
+  ],
+  p3o:[
+    qx('p3o-1','mcq','Overview','What is the primary purpose of a P3O model?','',[
+      bi('Enable informed portfolio, programme and project decision-making'),bi('Replace all project managers'),bi('Own every business benefit'),bi('Remove governance')],[0],'P3O provides decision-enabling support, challenge and information.'),
+    qx('p3o-2','scenario','Design','Different divisions need local support but one enterprise standard. Which model fits BEST?','',[
+      bi('Hub-and-spoke'),bi('No permanent office'),bi('One temporary project office only'),bi('Fully disconnected offices')],[0],'Hub-and-spoke balances enterprise consistency with local support.'),
+    qx('p3o-3','order','Lifecycle','Which implementation sequence is most appropriate?','',[
+      bi('Identify need → design model → implement → measure value'),bi('Implement → close → identify need → design'),bi('Buy tools → remove governance → measure'),bi('Recruit → ignore stakeholders → launch')],[0],'A P3O implementation begins with need and design, then implementation and value measurement.'),
+    qx('p3o-4','match','Functions','Which matching is correct?','',[
+      bi('Centre of Excellence—standards and capability'),bi('Portfolio Office—manages one work package'),bi('Project Office—owns corporate strategy'),bi('Programme Office—replaces the sponsor')],[0],'A Centre of Excellence develops standards, methods and capability.'),
+    qx('p3o-5','multi','Value','Select TWO ways a P3O demonstrates value.','',[bi('Better decision quality'),bi('Improved delivery confidence'),bi('More reports with no use'),bi('More approval layers')],[0,1],'Value is demonstrated through better decisions and delivery outcomes.')
+  ],
+  pba:[
+    qx('pba-1','scenario','Needs Assessment','Stakeholders request a solution before the problem is understood. What should the business analyst do FIRST?','',[
+      bi('Assess the business need and current state'),bi('Approve the requested solution'),bi('Write test cases'),bi('Close requirements')],[0],'Needs assessment precedes solution definition.'),
+    qx('pba-2','mcq','Traceability','What is the primary purpose of requirements traceability?','',[
+      bi('Link requirements to their source and downstream work products'),bi('Estimate only the project budget'),bi('Replace stakeholder engagement'),bi('Freeze every requirement')],[0],'Traceability supports coverage, impact analysis and control.'),
+    qx('pba-3','multi','Analysis','Select TWO characteristics of a high-quality requirement.','',[bi('Unambiguous'),bi('Testable'),bi('Solution-biased by default'),bi('Duplicated')],[0,1],'A requirement should be clear and verifiable.'),
+    qx('pba-4','order','Elicitation','Which sequence is appropriate?','',[bi('Plan elicitation → conduct → document → confirm results'),bi('Confirm → plan → ignore results → conduct'),bi('Build solution → identify stakeholders → plan'),bi('Close → elicit → approve')],[0],'Planning, conducting, documenting and confirming form a controlled elicitation flow.'),
+    qx('pba-5','match','Solution Evaluation','Which matching is correct?','',[bi('Acceptance criteria—conditions a solution must satisfy'),bi('Business case—list of test scripts'),bi('Traceability matrix—product roadmap only'),bi('Prototype—final signed contract')],[0],'Acceptance criteria define the conditions for acceptance.')
+  ],
+  lss:[
+    qx('lss-1','calc','Measure','A process has 10 defects, 100 units and 5 opportunities per unit. Enter DPMO.','',[],[],'DPMO = 10 / (100 × 5) × 1,000,000 = 20,000.','', ['20000','20,000']),
+    qx('lss-2','order','DMAIC','Which sequence is correct?','',[bi('Define → Measure → Analyze → Improve → Control'),bi('Measure → Control → Define → Improve → Analyze'),bi('Improve → Define → Close → Measure'),bi('Analyze → Define → Control → Measure')],[0],'DMAIC follows Define, Measure, Analyze, Improve and Control.'),
+    qx('lss-3','match','Define','Which matching is correct?','',[bi('CTQ—customer requirement translated into a measurable characteristic'),bi('SIPOC—detailed control chart'),bi('VOC—financial variance only'),bi('Kaizen—final audit')],[0],'A CTQ converts the voice of the customer into a measurable requirement.'),
+    qx('lss-4','tf','Control','True or False: A control plan helps sustain improvements.','',[bi('True'),bi('False')],[0],'A control plan defines monitoring and reaction after improvement.'),
+    qx('lss-5','scenario','Analyze','A Pareto chart shows two causes create 78% of defects. What should the team do NEXT?','',[bi('Prioritize root-cause analysis on those causes'),bi('Treat every cause equally'),bi('Skip analysis and close'),bi('Change the customer requirement')],[0],'Pareto analysis identifies the vital few for focused root-cause work.')
+  ]
+};
+
+window.LEARNING_DATA = {
+  pmp:{cards:[bi('Project Charter','ميثاق المشروع'),bi('Benefits Management Plan','خطة إدارة المنافع'),bi('Change Request','طلب تغيير'),bi('Risk Register','سجل المخاطر')],activities:[bi('Build a stakeholder engagement strategy for a delayed transformation project.','ابنِ استراتيجية مشاركة أصحاب المصلحة لمشروع تحول متأخر.'),bi('Analyze an integrated change request and recommend a decision.','حلّل طلب تغيير متكامل وقدّم توصية بالقرار.')]},
+  rmp:{cards:[bi('Risk Appetite','شهية المخاطر'),bi('Risk Threshold','عتبة المخاطر'),bi('Residual Risk','الخطر المتبقي'),bi('Secondary Risk','الخطر الثانوي')],activities:[bi('Create a risk breakdown structure for a Saudi construction project.','أنشئ هيكل تجزئة للمخاطر لمشروع إنشاءات سعودي.'),bi('Run a qualitative and quantitative analysis for five risks.','نفّذ تحليلاً نوعياً وكمياً لخمسة مخاطر.')]},
+  acp:{cards:[bi('Product Backlog','قائمة المنتج'),bi('Increment','الزيادة'),bi('Velocity','السرعة'),bi('WIP Limit','حد العمل قيد التنفيذ')],activities:[bi('Prioritize a backlog by value, risk and dependency.','رتّب قائمة منتج حسب القيمة والمخاطر والاعتمادية.'),bi('Facilitate a retrospective and define two experiments.','يسّر اجتماعاً استرجاعياً وحدد تجربتين للتحسين.')]},
+  grcp:{cards:[bi('Principled Performance','الأداء المنضبط'),bi('Opportunity, Obstacle, Obligation','الفرصة والعقبة والالتزام'),bi('IACM','نموذج الإجراءات والضوابط المتكاملة'),bi('Reliability','الموثوقية')],activities:[bi('Build one integrated register for opportunities, obstacles and obligations.','ابنِ سجلاً موحداً للفرص والعقبات والالتزامات.'),bi('Design proactive, detective and responsive controls for a compliance case.','صمّم ضوابط استباقية واكتشافية واستجابية لحالة امتثال.')]},
+  p3o:{cards:[bi('Portfolio Office'),bi('Programme Office'),bi('Project Office'),bi('Centre of Excellence')],activities:[bi('Design a hub-and-spoke P3O model for a diversified group.'),bi('Create a benefits case for establishing a permanent PMO.')]},
+  pba:{cards:[bi('Business Need'),bi('Requirement'),bi('Traceability'),bi('Acceptance Criteria')],activities:[bi('Model the current and future state of a customer onboarding process.'),bi('Create a traceability matrix from need to acceptance test.')]},
+  lss:{cards:[bi('DMAIC'),bi('SIPOC'),bi('CTQ'),bi('DPMO')],activities:[bi('Build a SIPOC for a service process.'),bi('Analyze a defect dataset and select the vital few causes.')]}
+};
+
+/* ═══ لغة كل برنامج ═══ */
+window.COURSE_LANG = {
+  pmp:'both', rmp:'both', acp:'both', grcp:'both',
+  p3o:'en', pba:'en', lss:'en'
+};
+window.LANG_LABEL = {
+  both:{ ar:'عربي وإنجليزي', en:'Arabic & English', ic:'🌐' },
+  ar:{ ar:'عربي فقط', en:'Arabic only', ic:'🇸🇦' },
+  en:{ ar:'إنجليزي فقط', en:'English only', ic:'🇬🇧' }
+};
+
+/* ═══ مولّد الباقات — أربع لكل برنامج بشكل موحّد ═══ */
+window.buildPackages = function () {
+  const out = [];
+  const C = window.COURSES || [];
+  /* أسعار أساسية حسب مستوى البرنامج */
+  const BASE = {
+    pmp:{full:150,sim:120,review:99,self:69},   rmp:{full:120,sim:75,review:80,self:55},
+    acp:{full:110,sim:70,review:75,self:50},    grcp:{full:120,sim:60,review:75,self:79},
+    capm:{full:90,sim:55,review:60,self:45},    pba:{full:120,sim:84,review:75,self:55},
+    lss:{full:110,sim:70,review:70,self:50},    p3o:{full:100,sim:60,review:65,self:45},
+    pgmp:{full:160,sim:95,review:100,self:70},  pmocp:{full:110,sim:65,review:70,self:50},
+    nebosh:{full:190,sim:0,review:110,self:80}, aipro:{full:79,sim:0,review:0,self:49}
+  };
+  /* تفاصيل المحتوى لكل برنامج */
+  const CONTENT = {
+    pmp:{ vids:114, mins:2280, qs:1200, exams:10, flash:420, acts:24, games:4 },
+    rmp:{ vids:67,  mins:1450, qs:700,  exams:5,  flash:260, acts:16, games:2 },
+    acp:{ vids:52,  mins:1080, qs:600,  exams:4,  flash:240, acts:14, games:3 },
+    grcp:{ vids:27, mins:820,  qs:203,  exams:6,  flash:180, acts:20, games:2 },
+    capm:{ vids:48, mins:960,  qs:520,  exams:6,  flash:200, acts:12, games:2 },
+    pba:{ vids:103, mins:1900, qs:640,  exams:3,  flash:230, acts:15, games:2 },
+    lss:{ vids:45,  mins:1150, qs:480,  exams:5,  flash:190, acts:18, games:3 },
+    p3o:{ vids:32,  mins:700,  qs:300,  exams:3,  flash:140, acts:10, games:1 },
+    pgmp:{ vids:58, mins:1400, qs:560,  exams:4,  flash:210, acts:14, games:2 },
+    pmocp:{ vids:32,mins:760,  qs:280,  exams:3,  flash:130, acts:12, games:2 },
+    nebosh:{ vids:74,mins:1900,qs:400,  exams:4,  flash:180, acts:22, games:1 },
+    aipro:{ vids:24, mins:540, qs:150,  exams:3,  flash:100, acts:16, games:2 }
+  };
+
+  C.forEach(c => {
+    const b = BASE[c.id] || { full:110, sim:70, review:70, self:50 };
+    const k = CONTENT[c.id] || { vids:40, mins:900, qs:400, exams:4, flash:180, acts:12, games:2 };
+    const lang = (window.COURSE_LANG || {})[c.id] || 'en';
+
+    window.PKG_TYPES.forEach(T => {
+      const price = b[T.k];
+      if (!price) return;   /* لا باقة لهذا النوع في هذا البرنامج */
+
+      /* ما يتضمّنه كل نوع */
+      const kinds = T.k === 'full'
+        ? ['video','material','download','flash','activity','game','quiz','exam']
+        : T.k === 'sim' ? ['exam','quiz','material']
+        : T.k === 'review' ? ['video','material','download','flash','exam']
+        : ['material','download','flash','activity','quiz'];
+
+      const vids   = kinds.includes('video') ? (T.k === 'review' ? Math.round(k.vids*0.25) : k.vids) : 0;
+      const mins   = kinds.includes('video') ? (T.k === 'review' ? Math.round(k.mins*0.25) : k.mins) : 0;
+      const exams  = kinds.includes('exam')  ? (T.k === 'sim' ? k.exams : T.k === 'self' ? Math.ceil(k.exams/2) : k.exams) : 0;
+      const qs     = T.k === 'sim' ? k.qs : T.k === 'full' ? k.qs : Math.round(k.qs*0.5);
+      const days   = T.k === 'full' ? 180 : T.k === 'self' ? 120 : T.k === 'sim' ? 90 : 60;
+      const shortQuizzes = kinds.includes('quiz')
+        ? Math.max(1, Math.ceil((vids || (c.chapters || []).length) / 3)) : 0;
+
+      out.push({
+        id: c.id + '-' + T.k,
+        schemaVersion:15,
+        course: c.id,
+        type: T.k,
+        mode: T.k === 'full' ? 'recorded' : T.k === 'self' ? 'self' : T.k === 'sim' ? 'sim' : 'recorded',
+        ar: `${c.code} — ${T.ar}`,
+        en: `${c.code} — ${T.en}`,
+        price, was: Math.round(price * (T.k === 'full' ? 1.5 : 1.6)),
+        currency: 'USD',
+        badge: T.k === 'full' ? (c.featured ? 'الأكثر قيمة' : 'الأشمل') : '',
+        desc: T.blurb,
+        /* البيانات الموحّدة */
+        hours: c.hours || 0,
+        category: (window.TRACKS.find(t => t.k === c.track) || {}).ar || '',
+        questions: qs,
+        videos: vids,
+        videoMins: mins,
+        quizzes: exams,
+        shortQuizzes,
+        lang,
+        cert: T.cert,
+        days,
+        kinds,
+        flashCards: kinds.includes('flash') ? k.flash : 0,
+        activities: kinds.includes('activity') ? k.acts : 0,
+        games: kinds.includes('game') ? k.games : 0,
+        questionTypes: [...new Set(((window.QUESTION_BANK || {})[c.id] || []).map(x => x.type))],
+        hasSystem: c.id === 'grcp' && (T.k === 'full' || T.k === 'self'),
+        /* أهداف وفئة مستهدفة ومحاور */
+        objectives: c.objectives || defaultObjectives(c, T),
+        audience: c.audience || defaultAudience(c),
+        chapters: c.chapters || []
+      });
+    });
+  });
+  return out;
+};
+
+function defaultObjectives(c, T) {
+  const base = [
+    `إتقان إطار ${c.code} ومفاهيمه الأساسية وتطبيقها عملياً`,
+    `فهم نطاقات الاختبار الرسمية وأوزانها وتوزيع وقت الدراسة عليها`,
+    `القدرة على تحليل الحالات وتطبيق الأدوات المناسبة لكل موقف`,
+    `الجاهزية لاجتياز الاختبار الدولي من المحاولة الأولى`
+  ];
+  if (T.k === 'sim') return [base[1], base[3],
+    'تشخيص نقاط الضعف بالنطاق قبل الاختبار الحقيقي',
+    'التعوّد على ضغط الوقت وأسلوب صياغة الأسئلة'];
+  if (T.k === 'review') return ['تثبيت المفاهيم الأساسية في وقت قصير',
+    'مراجعة الصيغ والمصطلحات الحرجة', base[3],
+    'استراتيجية يوم الاختبار وإدارة الوقت'];
+  if (T.k === 'self') return [base[0], base[1],
+    'بناء عادة دراسة منتظمة بخطة أسبوعية واضحة',
+    'التطبيق على أنشطة عملية بتغذية راجعة فورية'];
+  return base;
+}
+
+function defaultAudience(c) {
+  const map = {
+    pm:'مديرو المشاريع وأعضاء فرق المشاريع ومن يسعون للاعتماد الدولي في إدارة المشاريع',
+    grc:'مسؤولو الحوكمة وإدارة المخاطر والامتثال والتدقيق الداخلي وأعضاء مجالس الإدارة',
+    qual:'مسؤولو الجودة وتحسين العمليات ومهندسو العمليات الصناعية والخدمية',
+    gov:'قادة مكاتب إدارة المشاريع والمحافظ ومسؤولو الحوكمة المؤسسية',
+    hse:'مسؤولو السلامة والصحة المهنية في القطاعات الصناعية والإنشائية',
+    ai:'المهنيون في كل التخصصات الراغبون في توظيف الذكاء الاصطناعي في عملهم'
+  };
+  return map[c.track] || 'المحترفون الراغبون في الاعتماد الدولي وتطوير مسارهم المهني';
+}
+
+/* ═══════════ الأنظمة والخدمات — مستقلة عن الباقات ═══════════ */
+window.PROMOS = [
+  { code:'ALSAEED10',  pct:10, until:'2026-12-31', desc:'خصم عام' },
+  { code:'STUDENT20',  pct:20, until:'2026-12-31', desc:'خصم الطلاب' },
+  { code:'GROUP25',    pct:25, until:'2026-12-31', desc:'خصم المجموعات (3+)' },
+  { code:'WELCOME15',  pct:15, until:'2027-12-31', desc:'خصم الترحيب بالمنصة المطوّرة' }
+].map(x => ({ ...x, schemaVersion:15 }));
+window.DEFAULT_PROMOS_V15 = JSON.parse(JSON.stringify(window.PROMOS));
+
+window.SYSTEMS = [
+  { id:'grc-system', ar:'نظام السعيد GRC®', en:'Al-Saeed GRC System', ic:'🛡️',
+    price:490, was:790, currency:'USD', lang:'ar', featured:true,
+    cat:'أنظمة تطبيقية',
+    blurb:'منظومة تفاعلية تبني بها قدرة الحوكمة وإدارة المخاطر والامتثال في منظمتك — '
+        + 'عشرون عنصراً وثمانٍ وثلاثون أداة بمخرجات معتمدة.',
+    features:['تقييم نضج وأداء شامل قبل وبعد','سجلات مخاطر وفرص والتزامات بنموذج S×P×R',
+              'إطار COSO بمبادئه السبعة عشر','مكتبة اثنتي عشرة سياسة قابلة للتصدير',
+              'مستشار ذكي يقدّر خسائرك ويرشّح الأدوات','تقارير تنفيذية بأربع صيغ',
+              'إفادة تطبيق معتمدة برمز تحقّق'],
+    file:'grc.html', cta:'افتح النظام', access:'وصول دائم' },
+
+  { id:'personality', ar:'تحليل الشخصية والجدارات', en:'Personality & Competency Analysis', ic:'🧭',
+    price:79, was:140, currency:'USD', lang:'both',
+    cat:'أدوات تطوير ذاتي',
+    blurb:'تقييم متكامل لنمط شخصيتك وجداراتك المهنية مع تقرير مفصّل وتوصيات تطوير.',
+    features:['تحليل نمط الشخصية المهني','خريطة الجدارات الأساسية والفجوات',
+              'مقارنة بمتطلبات المسارات الوظيفية','تقرير PDF مفصّل قابل للطباعة',
+              'توصيات تطوير عملية مرتّبة بالأولوية'],
+    cta:'ابدأ التحليل', access:'٩٠ يوماً' },
+
+  { id:'life-plan', ar:'خطة الحياة والمسار المهني', en:'Life & Career Plan', ic:'🗺️',
+    price:69, was:120, currency:'USD', lang:'ar',
+    cat:'أدوات تطوير ذاتي',
+    blurb:'أداة عملية لبناء خطة حياة متوازنة بأهداف قابلة للقياس ومراجعة دورية.',
+    features:['تحديد القيم والأولويات الشخصية','أهداف SMART على المدى القصير والطويل',
+              'موازنة المجالات الثمانية للحياة','خطة تنفيذ ربع سنوية',
+              'لوحة متابعة التقدّم'],
+    cta:'ابنِ خطتك', access:'سنة كاملة' },
+
+  { id:'cv-builder', ar:'قوالب السيرة الذاتية الاحترافية', en:'Professional CV Templates', ic:'📄',
+    price:39, was:70, currency:'USD', lang:'both',
+    cat:'أدوات تطوير ذاتي',
+    blurb:'قوالب سيرة ذاتية تنفيذية بالعربية والإنجليزية مع دليل الصياغة المهنية.',
+    features:['قوالب تنفيذية عربية وإنجليزية','نسخة ثنائية اللغة في ملف واحد',
+              'دليل صياغة الإنجازات بالأرقام','قالب خطاب تغطية',
+              'تصدير PDF جاهز للإرسال'],
+    cta:'حمّل القوالب', access:'وصول دائم' }
+].map(x => ({ ...x, schemaVersion:15 }));
+window.DEFAULT_SYSTEMS_V15 = JSON.parse(JSON.stringify(window.SYSTEMS));
+
+
+/* تُبنى بعد تحميل الدورات */
+window.PACKAGES = [];
+/* البناء يتم في boot بعد اكتمال الدورات */
+
 window.LESSONS = {
-  'grcp-gold': [
+  'grcp-full': [
     { ch:0, t:'ترحيب وخريطة الرحلة', dur:'08:12', vimeo:'', free:true },
     { ch:0, t:'لماذا وُجد GRC؟ ثلاثة أسباب للفشل', dur:'14:30', vimeo:'', free:true },
     { ch:0, t:'الأداء المنضبط — التعريف بأجزائه', dur:'11:45', vimeo:'' },
@@ -2267,6 +2561,26 @@ window.LESSONS = {
     { ch:7, t:'تطبيق شامل على حالة واقعية', dur:'32:20', vimeo:'' },
     { ch:7, t:'استراتيجية الاختبار والمراجعة النهائية', dur:'19:10', vimeo:'' }
   ]
+};
+
+/* يبني هيكل المحتوى لكل باقة فيديو، حتى يستطيع المشرف ربط Vimeo دون إنشاء الدروس يدوياً */
+window.ensureLessonSkeletons = function () {
+  (window.PACKAGES || []).forEach(p => {
+    if (!(p.kinds || []).includes('video') || (window.LESSONS[p.id] || []).length) return;
+    const c = (window.COURSES || []).find(x => x.id === p.course);
+    if (!c) return;
+    const review = p.type === 'review';
+    const lessons = [];
+    (c.chapters || []).forEach((ch, i) => {
+      lessons.push({ ch:i, t:(review ? 'مراجعة مركّزة: ' : 'شرح المفهوم: ') + ch,
+        dur:review ? '12:00' : '18:00', vimeo:'', free:i === 0 });
+      if (!review) lessons.push({ ch:i, t:'مثال تطبيقي وورشة: ' + ch,
+        dur:'14:00', vimeo:'', free:false });
+      lessons.push({ ch:i, t:'Knowledge Check — ' + ch,
+        dur:'05:00', vimeo:'', free:false, quiz:true });
+    });
+    window.LESSONS[p.id] = lessons;
+  });
 };
 
 /* ═══ محتوى الواجهة — قابل للتحرير من لوحة الإدارة ═══ */
@@ -2331,29 +2645,7 @@ window.VMV = [
 ];
 
 /* ═══════════ الأنظمة والأدوات ═══════════ */
-window.SYSTEMS = [
-  { id:'grc-sys', ar:'نظام السعيد GRC®', en:'Al-Saeed GRC System', ic:'🛡️', featured:true,
-    blurb:'منظومة تفاعلية لبناء قدرة الحوكمة وإدارة المخاطر والامتثال — عشرون عنصراً وثمانٍ وثلاثون أداة.',
-    features:['تقييم نضج وأداء شامل','سجلات مخاطر وفرص والتزامات بنموذج S×P×R',
-              'إطار COSO بمبادئه السبعة عشر','مكتبة ١٢ سياسة قابلة للتصدير',
-              'مستشار ذكي يقدّر خسائرك ويوصي','تقارير تنفيذية بالرسوم والإحصاءات'],
-    file:'grc.html', cta:'افتح النظام' },
-  { id:'readiness', ar:'مقياس الجاهزية الذكي', en:'Smart Readiness Meter', ic:'🎯',
-    blurb:'يقيس أداءك في كل نطاق بوزنه الحقيقي في الاختبار — لا بالمعدّل العام الذي يخدعك.',
-    features:['تحليل بالنطاق لا بالمعدّل','مقارنة بمقياس فوق/دون المستهدف',
-              'توصية بالنطاق الأولى بالمراجعة','متابعة التحسّن عبر الوقت'],
-    cta:'جرّبه في الرئيسة' },
-  { id:'ai-advisor', ar:'المستشار الذكي', en:'AI Advisor', ic:'🤖',
-    blurb:'يقرأ ملف منظمتك ونتائج تقييمك ويقدّر خسائرك السنوية ويرشّح الأدوات المناسبة.',
-    features:['تقدير الخسائر بنموذج VUCA','تحليل انعدام التواصل',
-              'توزيع أسباب الخسارة','ترشيح الأدوات بأولوية مبرّرة'],
-    cta:'داخل نظام GRC' },
-  { id:'exam-engine', ar:'محرّك الاختبارات', en:'Exam Engine', ic:'📝',
-    blurb:'بنوك أسئلة ثنائية اللغة بمؤقّت الاختبار الحقيقي وتحليل أداء تفصيلي.',
-    features:['أسئلة ثنائية اللغة بالشرح','مؤقّت مطابق للاختبار الرسمي',
-              'حماية المحتوى من النسخ','تحليل الأداء بالنطاق'],
-    cta:'داخل كل باقة' }
-];
+
 
 /* ═══════════ المكتبة الرقمية ═══════════ */
 window.LIBRARY = [
@@ -2409,6 +2701,8 @@ async function loadContent() {
     if (d.packages && d.packages.length) window.PACKAGES = d.packages;
     if (d.academic && d.academic.length) window.ACADEMIC = d.academic;
     if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
+    if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
+    if (d.promos && d.promos.length) window.PROMOS = d.promos;
     /* دروس كل باقة من الخادم */
     await Promise.all((window.PACKAGES || []).map(p =>
       fetch('/api/lessons/' + p.id).then(r => r.ok ? r.json() : null).then(ls => {
@@ -2459,16 +2753,11 @@ async function probe() {
       if (u.role === 'admin') await syncAdminData();
     } catch (e) { API.token = null; try { localStorage.removeItem('alsaeed_token'); } catch (x) {} }
   }
-  /* مزامنة كتالوج الباقات مع الخادم ليتحقّق من السعر */
-  if (API.live && API.token) {
-    try { await api('/admin/settings'); await api('/admin/settings', { method: 'PUT',
-      body: { catalog: window.PACKAGES.map(p => ({ id: p.id, ar: p.ar, price: p.price,
-        currency: p.currency, days: p.days, hours: (course(p.course) || {}).hours })) } }); } catch (e) {}
-  }
 }
 
 /* ═══ التخزين ═══ */
-const DB_KEY = 'alsaeed_platform_v1';
+/* مفتاح جديد يمنع ظهور بيانات العرض القديمة ويبدأ بواجهة V15 نظيفة */
+const DB_KEY = 'alsaeed_platform_v15';
 let DB = { users: [], orders: [], progress: {}, session: null, settings: {} };
 function load() {
   try { const d = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); if (d) DB = Object.assign(DB, d); } catch (e) {}
@@ -2497,23 +2786,28 @@ const owns = pid => { const u = me(); return !!(u && u.packages.some(p => p.id =
 
 /* ═══ التقدّم ═══ */
 function prog(pid) {
-  const u = me(); if (!u) return { lessons: {}, weeks: {}, exams: {} };
+  const u = me(); if (!u) return { lessons: {}, weeks: {}, exams: {}, activities:{}, games:{} };
   DB.progress[u.id] = DB.progress[u.id] || {};
-  DB.progress[u.id][pid] = DB.progress[u.id][pid] || { lessons: {}, weeks: {}, exams: {} };
+  DB.progress[u.id][pid] = DB.progress[u.id][pid] || { lessons: {}, weeks: {}, exams: {}, activities:{}, games:{} };
+  DB.progress[u.id][pid].activities = DB.progress[u.id][pid].activities || {};
+  DB.progress[u.id][pid].games = DB.progress[u.id][pid].games || {};
   return DB.progress[u.id][pid];
 }
 function pct(pid) {
   const p = pack(pid); if (!p) return 0;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
-  const total = ls.length + (p.quizzes || 0);
+  const activityTotal = (p.activities || 0) ? (((window.LEARNING_DATA||{})[p.course]||{}).activities||[]).length : 0;
+  const total = ls.length + (p.quizzes || 0) + activityTotal;
   if (!total) return 0;
   const done = Object.values(pr.lessons).filter(Boolean).length +
-               Object.values(pr.exams).filter(x => x && x.passed).length;
+               Object.values(pr.exams).filter(x => x && x.passed).length +
+               Object.values(pr.activities || {}).filter(Boolean).length;
   return Math.min(100, Math.round(done / total * 100));
 }
 function certReady(pid) {
   const p = pack(pid); if (!p) return false;
+  if (!p.cert) return false;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
   const lessonsOk = !ls.length || ls.every((_, i) => pr.lessons[i]);
@@ -2595,6 +2889,9 @@ function checkout(pid) {
   if (!me()) { openAuth('login', () => checkout(pid)); return; }
   if (owns(pid)) { go('learn/' + pid); return; }
   const live = API.live;
+  const promo = window.__promo && window.__promo.ok && window.__promo.packageId === pid
+    ? window.__promo : null;
+  const due = promo ? promo.newPrice : p.price;
   modal(`
     <h3>إتمام الاشتراك</h3>
     <p>${esc(p.ar)}</p>
@@ -2608,9 +2905,13 @@ function checkout(pid) {
       <tr><td>مدة الوصول</td><td class="num">${p.days} يوماً</td></tr>
       <tr><td>السعر قبل الخصم</td><td class="num">${money(p.was)} ${p.currency}</td></tr>
       <tr><td>الخصم</td><td class="num" style="color:var(--bad)">− ${money(p.was - p.price)} ${p.currency}</td></tr>
+      ${promo ? `<tr><td>كود الخصم <b class="en">${esc(promo.code)}</b></td><td class="num" style="color:var(--ok)">− ${money(p.price-due)} ${p.currency}</td></tr>` : ''}
       <tr style="background:var(--violet-soft)"><td><b>المبلغ المستحق</b></td>
-        <td><b class="num" style="font-size:1.15rem">${money(p.price)} ${p.currency}</b></td></tr>
+        <td><b class="num" style="font-size:1.15rem">${money(due)} ${p.currency}</b></td></tr>
     </tbody></table></div>
+    <label class="f"><span>هل لديك كود خصم؟</span>
+      <div class="promo"><input class="en" id="checkoutPromo" placeholder="اكتب كود الخصم" value="${esc(promo ? promo.code : '')}">
+        <button type="button" id="checkoutPromoGo">تطبيق</button></div></label>
     <div class="mdl-act">
       <button class="btn p" id="payGo" ${live?'':'disabled'}>${live ? 'الدفع الآن' : 'الدفع غير متاح'}</button>
       <button class="btn o" data-close>إلغاء</button>
@@ -2618,13 +2919,29 @@ function checkout(pid) {
     $('#payGo').onclick = () => {
       if (API.live) {
         $('#payGo').disabled = true; $('#payGo').textContent = 'جارٍ التحويل…';
-        api('/pay/create', { method: 'POST', body: { packageId: pid } })
+        const promoCode = ($('#checkoutPromo').value || '').trim().toUpperCase();
+        api('/pay/create', { method: 'POST', body: { packageId: pid, promoCode } })
           .then(d => { location.href = d.paymentUrl; })
           .catch(e => { toast(e.message); $('#payGo').disabled = false; $('#payGo').textContent = 'الدفع الآن'; });
         return;
       }
       toast('الخادم غير متصل — لا يمكن تنفيذ الدفع أو فتح المحتوى.');
     };
+    const applyCheckoutPromo = () => {
+      const v = ($('#checkoutPromo').value || '').trim().toUpperCase();
+      const pr = (window.PROMOS || []).find(x => x.code === v);
+      const valid = pr && (!pr.until || new Date(pr.until + 'T23:59:59Z').getTime() >= Date.now());
+      window.__promo = valid
+        ? { ok:true, code:v, pct:pr.pct, packageId:pid,
+            newPrice:Math.round(p.price * (1-pr.pct/100)) }
+        : { ok:false, code:v, packageId:pid };
+      if (!valid) { toast('كود الخصم غير صالح أو منتهٍ'); return; }
+      checkout(pid);
+    };
+    $('#checkoutPromoGo').onclick = applyCheckoutPromo;
+    $('#checkoutPromo').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); applyCheckoutPromo(); }
+    });
   });
 }
 
@@ -2817,6 +3134,9 @@ function bindAll() {
 /* ═══ الإقلاع ═══ */
 async function boot() {
   load();
+  /* ابنِ الباقات الموحّدة من الدورات */
+  if (window.buildPackages && (!window.PACKAGES || !window.PACKAGES.length))
+    window.PACKAGES = window.buildPackages();
   try { const sl = JSON.parse(localStorage.getItem('alsaeed_lessons') || 'null');
     if (sl) Object.assign(window.LESSONS, sl); } catch (e) {}
   try { window.__lang = localStorage.getItem('alsaeed_lang') || 'ar'; } catch (e) { window.__lang = 'ar'; }
@@ -2826,6 +3146,24 @@ async function boot() {
   document.documentElement.setAttribute('dir', L0.dir);
   await probe();
   if (API.live) await loadContent();
+  /* تنظيف بيانات V13 التجريبية وإبقاء الكتالوج المطلوب فقط */
+  window.COURSES = (window.COURSES || []).filter(c => window.ACTIVE_COURSE_IDS.includes(c.id));
+  const hasV15 = (window.PACKAGES || []).length && window.PACKAGES.every(p =>
+    p.schemaVersion === 15 && window.ACTIVE_COURSE_IDS.includes(p.course));
+  if (!hasV15) window.PACKAGES = window.buildPackages();
+  else window.PACKAGES = window.PACKAGES.filter(p => window.ACTIVE_COURSE_IDS.includes(p.course));
+  const systemsV15 = (window.SYSTEMS || []).length && window.SYSTEMS.every(x => x.schemaVersion === 15);
+  if (!systemsV15) window.SYSTEMS = JSON.parse(JSON.stringify(window.DEFAULT_SYSTEMS_V15));
+  const promosV15 = (window.PROMOS || []).length && window.PROMOS.every(x => x.schemaVersion === 15);
+  if (!promosV15) window.PROMOS = JSON.parse(JSON.stringify(window.DEFAULT_PROMOS_V15));
+  if (window.ensureLessonSkeletons) window.ensureLessonSkeletons();
+  /* بعد الترحيل، يزامن المشرف كتالوج السعر والشهادة الصحيح مع الخادم. */
+  if (API.live && API.token && isAdmin()) {
+    try { await api('/admin/settings', { method: 'PUT', body: { catalog: window.PACKAGES.map(p => ({
+      id:p.id, ar:p.ar, price:p.price, currency:p.currency, days:p.days,
+      hours:p.hours || (course(p.course) || {}).hours, cert:!!p.cert, type:p.type
+    })) } }); } catch (e) {}
+  }
   const h = (location.hash || '').replace('#', '');
   ROUTE = h || 'home';
   render();
@@ -2995,6 +3333,7 @@ function home() {
   <section class="hero v8">
     <div class="hero-bg">${C.heroPoster?`<img src="${esc(C.heroPoster)}" alt="">`:''}</div>
     <div class="hero-mesh"></div><div class="hero-grid"></div><div class="hero-orb a"></div><div class="hero-orb b"></div>
+    <div class="brand-orbit">${window.LOGO(170,{mono:true,color:'#fff'})}</div>
     <div class="wrap hero-in">
       <div class="hero-copy-v8">
         <span class="eyebrow" style="color:var(--orange2)">${esc(C.heroKicker)}</span>
@@ -3065,29 +3404,51 @@ function home() {
 
 /* ═══════════ بطاقة الباقة ═══════════ */
 function pkgCard(p) {
-  const c = A().course(p.course);
-  const M = window.MODES.find(x => x.k === p.mode) || {};
+  const c = A().course(p.course) || {};
+  const T = (window.PKG_TYPES || []).find(x => x.k === p.type) || {};
   const off = p.was ? Math.round((1 - p.price / p.was) * 100) : 0;
-  const tv=trackVisual(c||{});
-  return `<div class="card pk ${p.badge ? 'feat' : ''} reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
-    <div style="height:126px;background:${tv.grad};position:relative;padding:14px;color:#fff;overflow:hidden">
+  const L = (window.LANG_LABEL || {})[p.lang] || {};
+  const tv = trackVisual(c);
+  const hrs = p.videoMins ? Math.floor(p.videoMins / 60) + 'س ' + (p.videoMins % 60) + 'د' : '—';
+  const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
+  return `<div class="card pk reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
+    <div style="height:118px;background:${T.col || tv.grad};position:relative;padding:14px;color:#fff;overflow:hidden">
       <div class="course-cover-grid"></div>
       <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><span class="track-pill" style="background:rgba(255,255,255,.14);padding:5px 9px;border-radius:999px;font-size:.68rem">${M.icon||'🎓'} ${esc(M.ar||'')}</span>${p.badge?`<span class="pk-badge" style="position:static">${esc(p.badge)}</span>`:''}</div>
-        <div><span class="code" style="color:#fff">${code(c)}</span><h3 style="font-family:var(--fd);font-size:1.02rem;color:#fff;line-height:1.35;margin-top:4px">${esc(p.ar)}</h3></div>
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+          <span class="code" style="font-size:.82rem;font-weight:700;opacity:.95">${esc(c.code || '')}</span>
+          ${p.badge ? `<span style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);
+            border-radius:7px;padding:2px 9px;font-size:.68rem;font-weight:700">${esc(p.badge)}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:1.7rem">${T.ic || '📦'}</span>
+          <b style="font-family:var(--fd);font-size:1.05rem;font-weight:700">${esc(T.ar || '')}</b>
+        </div>
       </div>
     </div>
     <div class="pk-body">
-      <p style="font-size:.82rem;color:var(--dim);line-height:1.75;margin-bottom:13px">${esc(p.desc)}</p>
-      <div class="pk-meta"><div class="pkm"><b>${p.videos}</b>فيديو</div><div class="pkm"><b>${p.quizzes}</b>اختبار</div><div class="pkm"><b>${p.days}</b>يوم</div>${p.hasSystem?'<div class="pkm"><b>✓</b>Lab</div>':''}</div>
-      <ul class="pk-inc">${(p.includes||[]).slice(0,3).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
-      <div class="pk-price"><b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>${p.was?`<s class="num">${money(p.was)}</s><span class="off">−${off}%</span>`:''}</div>
+      <h3 style="font-size:.98rem;margin-bottom:6px">${esc(c.ar || '')}</h3>
+      <p style="font-size:.82rem;margin-bottom:12px">${esc(p.desc || '')}</p>
+      <div class="pk-facts">
+        <div><span>الساعات</span><b class="num">${p.hours || '—'}</b></div>
+        <div><span>الأسئلة</span><b class="num">${p.questions || '—'}</b></div>
+        <div><span>الفيديو</span><b class="num">${hrs}</b></div>
+        <div><span>الاختبارات</span><b class="num">${testCount || '—'}</b></div>
+      </div>
+      <div class="pk-tags">
+        <span class="tg">${L.ic || ''} ${esc(L.ar || '')}</span>
+        <span class="tg">⏱ ${p.days} يوم</span>
+        ${p.cert ? '<span class="tg ok">🏅 شهادة حضور</span>' : ''}
+      </div>
+      <div class="pk-price">
+        <b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>
+        ${p.was ? `<s class="num">${money(p.was)}</s><span class="off">−${off}%</span>` : ''}
+      </div>
       <button class="btn p full" data-r="pkg/${p.id}">التفاصيل والاشتراك</button>
     </div>
   </div>`;
 }
 
-/* ═══════════ كل الدورات ═══════════ */
 function programs() {
   let pk = window.PACKAGES.slice();
   if (fMode) pk = pk.filter(p => p.mode === fMode);
@@ -3270,29 +3631,58 @@ function courses() { return programs(); }
 
 /* ═══ الأنظمة والأدوات ═══ */
 function systems() {
+  const cats = [];
+  (window.SYSTEMS || []).forEach(x => {
+    let g = cats.find(y => y.k === x.cat);
+    if (!g) { g = { k: x.cat, items: [] }; cats.push(g); }
+    g.items.push(x);
+  });
   return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← الأنظمة والأدوات</div>
+    <div class="crumb"><a href="#home" data-r="home">الرئيسية</a> ← الأنظمة والأدوات</div>
     <h1>الأنظمة والأدوات</h1>
-    <p>لا نكتفي بالشرح — نمنحك أدوات تعمل فعلاً وتبني بها منظومات حقيقية في منظمتك.</p>
+    <p>أدوات تطبيقية مستقلة عن البرامج التدريبية — تشتريها وتستخدمها في عملك مباشرةً.</p>
   </div></section>
 
   <section class="sec"><div class="wrap">
-    <div class="grid g2">
-      ${window.SYSTEMS.map((sy, i) => `<div class="cons-c ${sy.featured ? 'feat' : ''} reveal d${(i % 4) + 1}">
-        <span class="ic">${sy.ic}</span>
-        <h3>${esc(sy.ar)}</h3>
-        <div class="code" style="font-size:.76rem;color:var(--dim2);margin-bottom:8px">${esc(sy.en)}</div>
-        <p>${esc(sy.blurb)}</p>
-        <ul class="pk-inc" style="margin-bottom:16px">${sy.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
-        ${sy.file
-          ? `<a class="btn p" href="${sy.file}" target="_blank" rel="noopener">${esc(sy.cta)} <span class="ar">←</span></a>`
-          : `<span class="tg">${esc(sy.cta)}</span>`}
-      </div>`).join('')}
-    </div>
+    ${cats.map(g => `<div style="margin-bottom:38px">
+      <div class="sec-h" style="margin-bottom:20px">
+        <span class="eyebrow">${esc(g.k)}</span>
+        <h2 style="font-size:1.5rem">${esc(g.k)}</h2></div>
+      <div class="grid g2">
+        ${g.items.map((sy, i2) => {
+          const L = (window.LANG_LABEL || {})[sy.lang] || {};
+          const off = sy.was ? Math.round((1 - sy.price / sy.was) * 100) : 0;
+          return `<div class="sys-c reveal d${(i2 % 4) + 1}">
+            <div class="sys-top">
+              <span class="ic">${sy.ic}</span>
+              <span class="cat">${esc(sy.cat)}</span>
+              <h3>${esc(sy.ar)}</h3>
+              <span class="code" style="font-size:.74rem;color:#BFCCE0">${esc(sy.en)}</span>
+            </div>
+            <div class="sys-b">
+              <p class="muted mb">${esc(sy.blurb)}</p>
+              <div class="pk-tags" style="margin-bottom:14px">
+                <span class="tg">${L.ic || ''} ${esc(L.ar || '')}</span>
+                <span class="tg">⏱ ${esc(sy.access || '')}</span>
+              </div>
+              <ul class="pk-inc" style="margin-bottom:16px">
+                ${sy.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+              <div style="flex:1"></div>
+              <div class="pk-price">
+                <b class="num">${money(sy.price)}</b><span class="cur">${sy.currency}</span>
+                ${sy.was ? `<s class="num">${money(sy.was)}</s><span class="off">−${off}%</span>` : ''}
+              </div>
+              ${sy.file
+                ? `<a class="btn p full" href="${sy.file}" target="_blank" rel="noopener">${esc(sy.cta)} ←</a>`
+                : `<button class="btn p full" data-sys="${sy.id}">${esc(sy.cta)} ←</button>`}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('')}
   </div></section>`;
 }
 
-/* ═══ المكتبة الرقمية ═══ */
 function library() {
   return `<section class="pg-hero"><div class="wrap">
     <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← المكتبة الرقمية</div>
@@ -3479,53 +3869,129 @@ function courseView(id) {
 /* ═══════════ صفحة الباقة ═══════════ */
 function pkgView(id) {
   const p = A().pack(id);
-  if (!p) return home();
-  const c = A().course(p.course);
-  const off = Math.round((1 - p.price / p.was) * 100);
+  if (!p) return programs();
+  const c = A().course(p.course) || {};
+  const T = (window.PKG_TYPES || []).find(x => x.k === p.type) || {};
+  const L = (window.LANG_LABEL || {})[p.lang] || {};
   const has = A().owns(id);
-  const tabs = [['info', 'المعلومات'], ['plan', 'الخطة الدراسية'], ['content', 'المحتوى'],
-    ['exams', 'الاختبارات'], ...(p.hasSystem ? [['system', 'النظام التطبيقي']] : []), ['cert', 'الشهادة']];
+  const off = p.was ? Math.round((1 - p.price / p.was) * 100) : 0;
+  const hrs = p.videoMins ? Math.floor(p.videoMins/60) + ' ساعة ' + (p.videoMins%60) + ' دقيقة' : '—';
+  const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
+  const KINDS = window.CONTENT_KINDS || [];
+  const promo = window.__promo;
 
-  return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#courses" data-r="courses">الدورات</a> ←
-      <a href="#course/${c.id}" data-r="course/${c.id}">${code(c)}</a> ← الباقة</div>
-    <div style="font-family:var(--fm);color:var(--gold2);font-size:.9rem">${code(c)} · ${esc(c.edition)}</div>
-    <h1>${esc(p.ar)}</h1>
-    <p>${esc(p.desc)}</p>
+  return `<section class="pg-hero" style="background:${T.col || 'var(--navy)'}"><div class="wrap">
+    <div class="crumb"><a href="#programs" data-r="programs">البرامج</a> ←
+      <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(T.ar||'')}</div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
+      <span style="font-size:2.2rem">${T.ic||''}</span>
+      <div><h1 style="margin:0">${esc(c.ar||'')}</h1>
+        <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(T.ar||'')}</span></div>
+    </div>
+    <p>${esc(p.desc||'')}</p>
   </div></section>
 
-  <section class="sec"><div class="wrap"><div class="split">
+  <section class="sec"><div class="wrap"><div class="pd-hero">
     <div>
-      <div class="tabs">${tabs.map(([k, l]) =>
-        `<button class="${pkTab === k ? 'on' : ''}" data-pt="${k}">${l}</button>`).join('')}</div>
-      <div id="pkBody">${pkgTab(p, c, has)}</div>
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin-bottom:4px">
+        مواصفات الباقة</h3>
+      <div class="pd-spec">
+        <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>ساعة معتمدة</span></div>
+        <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(p.category||'—')}</b><span>التصنيف</span></div>
+        <div class="pd-s"><span class="ic">❓</span><b class="num">${p.questions||'—'}</b><span>سؤالاً</span></div>
+        <div class="pd-s"><span class="ic">🎬</span><b style="font-size:.88rem">${hrs}</b><span>الفيديوهات</span></div>
+        <div class="pd-s"><span class="ic">🎯</span><b class="num">${testCount||'—'}</b><span>اختباراً</span></div>
+        <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(L.ar||'')}</b><span>لغة الكورس</span></div>
+        <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>يوم وصول</span></div>
+        <div class="pd-s"><span class="ic">${p.cert?'🏅':'—'}</span>
+          <b style="font-size:.9rem;color:${p.cert?'var(--ok)':'var(--dim)'}">${p.cert?'نعم':'لا'}</b>
+          <span>شهادة حضور</span></div>
+      </div>
+
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
+        ماذا تتضمّن الباقة؟</h3>
+      <div class="kind-g">
+        ${(p.kinds||[]).map(k => {
+          const K = KINDS.find(x => x.k === k); if (!K) return '';
+          const n = k==='video' ? p.videos : k==='exam' ? p.quizzes : k==='quiz' ? p.shortQuizzes
+            : k==='flash' ? p.flashCards : k==='activity' ? p.activities
+            : k==='game' ? p.games : '';
+          return `<div class="kind"><span class="ic">${K.ic}</span>
+            <div style="flex:1;min-width:0"><b>${esc(K.ar)}</b><span>${esc(K.desc)}</span></div>
+            ${n ? `<span class="n">${n}</span>` : ''}</div>`;
+        }).join('')}
+      </div>
+
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
+        أنماط الأسئلة المتاحة</h3>
+      <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const Q=(window.Q_TYPES||[]).find(x=>x.k===k)||{};return `<span class="qtype">${esc(Q.ar||k)} <b class="en">${esc(Q.en||'')}</b></span>`;}).join('')}</div>
+      <button class="btn n" data-practice="${p.id}">ابدأ تدريباً قصيراً الآن</button>
+
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
+        أهداف الباقة</h3>
+      <div class="obj-l">
+        ${(p.objectives||[]).map((o,n) => `<div class="obj"><i>${n+1}</i><p>${esc(o)}</p></div>`).join('')}
+      </div>
+
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
+        الفئة المستهدفة</h3>
+      <div class="note info" style="margin:0">${esc(p.audience||'')}</div>
+
+      ${(p.chapters||[]).length ? `
+      <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
+        محاور الباقة</h3>
+      <div class="chap-g">${p.chapters.map((ch,n)=>`<div class="chap-c">
+        <span class="num">${n+1}</span><span>${esc(ch)}</span></div>`).join('')}</div>` : ''}
+
+      ${p.hasSystem ? `<div class="note ok mt"><b>🛡️ يشمل نظام السعيد GRC التطبيقي</b> —
+        تبني به منظومة حوكمة حقيقية لمنظمتك: عشرون عنصراً وثمانٍ وثلاثون أداة.</div>` : ''}
     </div>
 
-    <div class="side">
-      <div class="card pad">
-        <div class="pk-price">
-          <b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>
-          <s class="num">${money(p.was)}</s><span class="off">−${off}%</span>
-        </div>
-        ${has
-          ? `<button class="btn g full lg mb" data-r="learn/${p.id}">ادخل إلى المحتوى ←</button>
-             <div class="note ok" style="margin:0">✅ أنت مشترك في هذه الباقة.</div>`
-          : `<button class="btn p full lg mb" data-buy="${p.id}">اشترك الآن</button>
-             <p class="muted center" style="font-size:.8rem">وصول ${p.days} يوماً · ضمان استرداد خلال 7 أيام</p>`}
-        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
-          <div class="pk-meta" style="border:0;padding:0;margin:0">
-            <div class="pkm"><b>${p.videos}</b>فيديو</div>
-            <div class="pkm"><b>${p.quizzes}</b>اختبار</div>
-            <div class="pkm"><b>${c.hours}</b>ساعة</div>
-          </div>
-        </div>
-        <ul class="pk-inc" style="margin-top:14px">${p.includes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <div class="side"><div class="card pad">
+      <div class="pk-price" style="margin-bottom:6px">
+        <b class="num">${money(promo && promo.ok ? promo.newPrice : p.price)}</b>
+        <span class="cur">${p.currency}</span>
+        ${p.was ? `<s class="num">${money(p.was)}</s><span class="off">−${off}%</span>` : ''}
       </div>
-    </div>
+      ${promo && promo.ok ? `<div class="promo-ok">✅ كود <b>${esc(promo.code)}</b> — خصم إضافي
+        ${promo.pct}% · وفّرت ${money(p.price - promo.newPrice)} ${p.currency}</div>` : ''}
+      ${promo && !promo.ok ? `<div class="promo-no">❌ كود الخصم غير صالح أو منتهٍ</div>` : ''}
+
+      ${has
+        ? `<button class="btn p full lg mb" data-r="learn/${p.id}">ادخل إلى المحتوى ←</button>
+           <div class="note ok" style="margin:0">✅ أنت مشترك في هذه الباقة</div>`
+        : `<div style="margin:12px 0 6px">
+             <label style="font-size:.84rem;font-weight:600;display:block;margin-bottom:6px">
+               هل لديك كود خصم؟</label>
+             <div class="promo">
+               <input id="promoIn" placeholder="اكتب كود الخصم" value="${esc(promo?promo.code:'')}">
+               <button id="promoGo">تطبيق</button>
+             </div>
+           </div>
+           <button class="btn p full lg mb" data-buy="${p.id}">اشترك الآن</button>
+           <p class="muted center" style="font-size:.79rem">وصول ${p.days} يوماً · ضمان استرداد خلال 7 أيام</p>`}
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+        <b style="font-size:.88rem;color:var(--navy);display:block;margin-bottom:9px">باقات أخرى لهذا البرنامج</b>
+        ${window.PACKAGES.filter(x=>x.course===p.course&&x.id!==p.id).map(x=>{
+          const T2=(window.PKG_TYPES||[]).find(y=>y.k===x.type)||{};
+          return `<div style="display:flex;align-items:center;gap:9px;padding:9px 0;
+            border-bottom:1px solid var(--line);cursor:pointer" data-r="pkg/${x.id}">
+            <span style="font-size:1.1rem">${T2.ic||''}</span>
+            <div style="flex:1;min-width:0"><b style="font-size:.83rem;display:block">${esc(T2.ar||'')}</b></div>
+            <span class="num" style="font-size:.85rem;font-weight:700;color:var(--orange)">$${x.price}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div></div>
   </div></div></section>`;
 }
 
 function pkgTab(p, c, has) {
+  const kindDefs = window.CONTENT_KINDS || [];
+  const includes = (p.includes && p.includes.length) ? p.includes : (p.kinds || []).map(k => {
+    const x = kindDefs.find(y => y.k === k); return x ? x.ar + ' — ' + x.desc : k;
+  });
   if (pkTab === 'info') return `
     <h3 style="font-family:var(--fd);font-weight:800;font-size:1.3rem;color:var(--ink);margin-bottom:12px">ماذا ستتعلّم؟</h3>
     <p class="muted mb">${esc(c.blurb)}</p>
@@ -3536,7 +4002,7 @@ function pkgTab(p, c, has) {
       ${c.domains.map(d => `<span class="k">${esc(d.ar)} <b class="num">${d.w}%</b></span>`).join('')}
     </div>
     <h4 style="font-family:var(--fd);font-weight:700;font-size:1.1rem;color:var(--ink);margin-bottom:12px">تشمل الباقة</h4>
-    <ul class="pk-inc">${p.includes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    <ul class="pk-inc">${includes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
 
   if (pkTab === 'plan') {
     const plan = A().studyPlan(p.id);
@@ -3578,13 +4044,43 @@ function pkgTab(p, c, has) {
       </div>`).join('')}`;
   }
 
+  if (pkTab === 'resources') {
+    const studyRoutes = { rmp:'rmp-study.html', grcp:'grcp-study.html', pba:'pba-study.html' };
+    const route = studyRoutes[c.id];
+    return `<div class="note info mb"><b>ملفاتك تبقى معك.</b> حمّل دليل الدراسة والخطة والبطاقات، واستخدمها بعد انتهاء الوصول للمنصة.</div>
+      <div class="resource-list">
+        ${route ? `<div class="resource-row"><span class="ic">📘</span><div><b>الدليل التعليمي التفاعلي</b><span>${esc(c.code)} study guide</span></div>${has?`<a class="btn n sm" href="${route}" target="_blank" rel="noopener">فتح</a>`:`<button class="btn o sm" data-buy="${p.id}">🔒 اشترك</button>`}</div>` : ''}
+        <div class="resource-row"><span class="ic">📄</span><div><b>دليل البرنامج ومحاوره</b><span>ملف HTML قابل للحفظ والطباعة</span></div><button class="btn o sm" ${has?`data-download="guide" data-pk="${p.id}"`:`data-buy="${p.id}"`}>${has?'تحميل':'🔒 اشترك'}</button></div>
+        <div class="resource-row"><span class="ic">📅</span><div><b>خطة الدراسة الأسبوعية</b><span>CSV قابل للفتح في Excel</span></div><button class="btn o sm" ${has?`data-download="plan" data-pk="${p.id}"`:`data-buy="${p.id}"`}>${has?'تحميل':'🔒 اشترك'}</button></div>
+        <div class="resource-row"><span class="ic">🃏</span><div><b>بطاقات المصطلحات</b><span>ملف JSON منظم للمراجعة</span></div><button class="btn o sm" ${has?`data-download="cards" data-pk="${p.id}"`:`data-buy="${p.id}"`}>${has?'تحميل':'🔒 اشترك'}</button></div>
+      </div>`;
+  }
+
+  if (pkTab === 'flash') {
+    const d = (window.LEARNING_DATA || {})[c.id] || { cards:[] };
+    return `<div class="note info mb"><b>Flash Cards:</b> اضغط البطاقة لقلبها بين المصطلح الإنجليزي والمعنى العربي.</div>
+      <div class="flash-grid">${(d.cards||[]).map((x,i)=>`<button class="flash-card" data-flash="${i}" data-front="${esc(x.en)}" data-back="${esc(x.ar||x.en)}"><small>بطاقة ${i+1}</small><strong>${esc(x.en)}</strong><span>${x.ar?'اضغط لإظهار المعنى العربي':'Click to reveal the definition'}</span></button>`).join('')}</div>`;
+  }
+
+  if (pkTab === 'activities') {
+    const d = (window.LEARNING_DATA || {})[c.id] || { activities:[] };
+    const pr = has ? A().prog(p.id) : { activities:{} }; pr.activities = pr.activities || {};
+    return `<div class="note info mb"><b>أنشطة تطبيقية من واقع العمل.</b> نفّذ النشاط ثم علّمه كمكتمل ليظهر ضمن تقدمك.</div>
+      ${(d.activities||[]).map((x,i)=>`<div class="activity-card"><i>${i+1}</i><div style="flex:1"><b>${esc(p.lang==='en'?x.en:(x.ar||x.en))}</b><span class="en" style="display:block;color:var(--dim);font-size:.75rem;margin-top:4px">${p.lang==='both'?esc(x.en):''}</span></div><button class="btn ${pr.activities[i]?'n':'o'} sm" data-activity="${i}" data-pk="${p.id}">${pr.activities[i]?'✓ مكتمل':'تم التنفيذ'}</button></div>`).join('')}`;
+  }
+
+  if (pkTab === 'games') return `<div class="card pad" style="background:linear-gradient(145deg,var(--navy),var(--navy3));color:#fff;border:0"><span class="eyebrow" style="color:var(--orange2)">Management Game</span><h3 style="font-family:var(--fd);font-size:1.45rem;margin:8px 0">تحدّي القرار في 90 ثانية</h3><p style="color:#C7D3E5;line-height:1.8">اقرأ موقفاً من ${esc(c.code)}، اتخذ قرارك، ثم احصل على تغذية راجعة فورية مرتبطة بالمفهوم الصحيح.</p><button class="btn p lg" data-game="${p.id}">ابدأ اللعبة</button></div>`;
+
   if (pkTab === 'exams') {
     const set = A().examSet(p.id);
     const pr = has ? A().prog(p.id) : { exams: {} };
     const grp = { 'فصل': [], 'نطاق': [], 'شامل': [] };
     set.forEach(e => grp[e.kind].push(e));
+    const route = (window.EXAM_ROUTES || {})[c.id];
     return `<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
       اختبار بعد كل فصل · اختبار لكل نطاق بوزنه الحقيقي · اختبار شامل يحاكي الاختبار الفعلي بمؤقّته.</div>
+      <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const x=(window.Q_TYPES||[]).find(y=>y.k===k)||{};return `<span class="qtype">${esc(x.ar||k)} · <b class="en">${esc(x.en||'')}</b></span>`;}).join('')}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${route&&has?`<a class="btn o" href="${route}" target="_blank" rel="noopener">فتح بنك المحاكاة الكامل ↗</a>`:route?`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`:''}</div>
       ${Object.entries(grp).map(([kind, arr]) => arr.length ? `
         <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin:20px 0 12px">
           اختبارات ${kind === 'فصل' ? 'الفصول' : kind === 'نطاق' ? 'النطاقات' : 'المحاكاة الشاملة'}</h4>
@@ -3649,8 +4145,17 @@ function learn(id) {
   const scores = {};
   c.domains.forEach(d => { const r = pr.exams['dom_' + d.k]; if (r) scores[d.k] = r.score; });
   const ov = A().overallBand(A().readiness(c, scores));
-  const tabs = [['plan', 'الخطة'], ['content', 'المحتوى'], ['exams', 'الاختبارات'],
-    ...(p.hasSystem ? [['system', 'النظام التطبيقي']] : []), ['cert', 'الشهادة']];
+  const kinds = p.kinds || [];
+  const tabs = [['plan', 'الخطة'],
+    ...(kinds.includes('video') || kinds.includes('material') ? [['content', 'المحتوى والفيديو']] : []),
+    ...(kinds.includes('download') ? [['resources', 'الملفات']] : []),
+    ...(kinds.includes('flash') ? [['flash', 'Flash Cards']] : []),
+    ...(kinds.includes('activity') ? [['activities', 'الأنشطة']] : []),
+    ...(kinds.includes('game') ? [['games', 'الألعاب']] : []),
+    ...(kinds.includes('quiz') || kinds.includes('exam') ? [['exams', 'الاختبارات']] : []),
+    ...(p.hasSystem ? [['system', 'النظام التطبيقي']] : []),
+    ...(p.cert ? [['cert', 'الشهادة']] : [])];
+  if (!tabs.some(x => x[0] === learnTab)) learnTab = tabs[0][0];
 
   return `<section class="dash-hd"><div class="wrap">
     <div class="crumb"><a href="#dash" data-r="dash">لوحتي</a> ← ${esc(p.ar)}</div>
@@ -3730,7 +4235,7 @@ function dash() {
 /* ═══════════ لوحة الإدارة ═══════════ */
 function admin(sub) {
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
-  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['content','Vimeo والمحتوى'],['pay','الدفع']];
+  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
   <div class="wrap" style="padding-bottom:60px">
     <div class="admin-kpis-v8">
@@ -3839,7 +4344,7 @@ function adminTab() {
         <p class="muted">ستظهر هنا كل عمليات الاشتراك.</p></div>`;
 
   if (admTab === 'content') {
-    const pid = window.__vidPk || 'grcp-gold';
+    const pid = window.__vidPk || 'grcp-full';
     const pk = A().pack(pid) || {};
     const c = A().course(pk.course) || { chapters: [] };
     const ls = window.LESSONS[pid] || (window.LESSONS[pid] = []);
@@ -4028,6 +4533,18 @@ function adminTab() {
           </tr>`; }).join('')}</tbody></table></div>`;
   }
 
+  if (admTab === 'systems') {
+    return `<div class="note info"><b>الأنظمة مستقلة عن الباقات ورسومها منفصلة.</b> يمكنك إضافة نظام أو أداة أو تعديلها أو حذفها دون التأثير في اشتراكات الدورات.</div>
+      <div style="display:flex;gap:10px;margin:16px 0"><button class="btn p sm" id="addSystem">＋ نظام أو أداة</button></div>
+      <div class="tbl-w"><table class="t"><thead><tr><th>الاسم</th><th>التصنيف</th><th>اللغة</th><th>السعر</th><th>الوصول</th><th></th></tr></thead><tbody>${(window.SYSTEMS||[]).map(s=>{const L=(window.LANG_LABEL||{})[s.lang]||{};return `<tr><td><b>${s.ic||'🧩'} ${esc(s.ar)}</b><span class="en" style="display:block;font-size:.7rem">${esc(s.en||'')}</span></td><td>${esc(s.cat||'')}</td><td>${esc(L.ar||s.lang)}</td><td class="num"><b>${money(s.price)}</b> ${esc(s.currency||'USD')}</td><td>${esc(s.access||'')}</td><td><button class="btn o sm" data-edsys="${s.id}">تعديل</button> <button class="btn o sm" data-delsys="${s.id}">حذف</button></td></tr>`;}).join('')}</tbody></table></div>`;
+  }
+
+  if (admTab === 'promos') {
+    return `<div class="note info"><b>أكواد الخصم قابلة للتحكم الكامل.</b> استخدم تاريخ انتهاء واضحاً، ويمكن حذف أي كود قديم فوراً.</div>
+      <div style="display:flex;gap:10px;margin:16px 0"><button class="btn p sm" id="addPromo">＋ كود خصم</button></div>
+      <div class="tbl-w"><table class="t"><thead><tr><th>الكود</th><th>الخصم</th><th>الوصف</th><th>تاريخ الانتهاء</th><th></th></tr></thead><tbody>${(window.PROMOS||[]).map(x=>`<tr><td class="en"><b>${esc(x.code)}</b></td><td class="num">${x.pct}%</td><td>${esc(x.desc||'')}</td><td class="num">${esc(x.until||'بدون انتهاء')}</td><td><button class="btn o sm" data-edpromo="${esc(x.code)}">تعديل</button> <button class="btn o sm" data-delpromo="${esc(x.code)}">حذف</button></td></tr>`).join('')}</tbody></table></div>`;
+  }
+
   if (admTab === 'pay') {
     const cfg = window.PAY_CONFIG;
     return `<div class="note warn"><b>الدفع الحقيقي يحتاج خادماً.</b>
@@ -4200,6 +4717,62 @@ function needLogin(adm) {
     <button class="btn p mt" id="goLogin">تسجيل الدخول</button></div></div>`;
 }
 
+/* ═══════════ موارد قابلة للتحميل ═══════════ */
+function downloadResource(pid, kind) {
+  const p=A().pack(pid), c=p&&A().course(p.course); if(!p||!c)return;
+  const data=(window.LEARNING_DATA||{})[c.id]||{cards:[]};
+  let body='', mime='text/html;charset=utf-8', ext='html';
+  if(kind==='plan'){
+    const rows=A().studyPlan(pid); body='Week,Topic,Items\n'+rows.map(w=>[w.w,w.title,(w.items||[]).join(' | ')].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
+    body='\ufeff'+body; mime='text/csv;charset=utf-8'; ext='csv';
+  } else if(kind==='cards'){
+    body=JSON.stringify({course:c.code,language:p.lang,cards:data.cards||[]},null,2); mime='application/json;charset=utf-8'; ext='json';
+  } else {
+    body='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>'+esc(c.code)+' Study Guide</title><style>body{font-family:Tahoma,Arial;max-width:900px;margin:40px auto;line-height:1.9;color:#102746}h1{border-bottom:4px solid #F0741A;padding-bottom:12px}li{margin:8px 0}.en{direction:ltr;text-align:left;color:#52647b}</style><h1>'+esc(c.code)+' — '+esc(c.ar)+'</h1><p class="en">'+esc(c.en)+'</p><h2>أهداف البرنامج</h2><ol>'+(p.objectives||[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><h2>المحاور</h2><ol>'+(c.chapters||[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><h2>مواصفات الباقة</h2><p>'+p.hours+' ساعة · '+p.questions+' سؤال · '+p.days+' يوم وصول</p></html>';
+  }
+  const url=URL.createObjectURL(new Blob([body],{type:mime})); const a=document.createElement('a');
+  a.href=url; a.download='AlSaeed-'+c.id+'-'+kind+'.'+ext; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1200);
+  A().toast('✅ بدأ تحميل الملف');
+}
+
+/* ═══════════ مختبر الأسئلة التفاعلي ═══════════ */
+function openPractice(pid, requested) {
+  const p=A().pack(pid), c=p&&A().course(p.course); if(!p||!c)return;
+  let bank=((window.QUESTION_BANK||{})[c.id]||[]).slice();
+  if(requested==='game') bank=bank.filter(x=>x.type==='scenario');
+  if(!bank.length){A().toast('سيُضاف بنك هذا البرنامج قريباً');return;}
+  let i=0, score=0, checked=false, lang=p.lang==='en'?'en':'ar';
+  const label=k=>(window.Q_TYPES||[]).find(x=>x.k===k)||{ar:k,en:k};
+  const say=o=>lang==='ar'&&(o.ar||'')?o.ar:o.en;
+  const same=(a,b)=>a.length===b.length&&a.every((x,n)=>String(x)===String(b[n]));
+  function finish(){
+    const pct=Math.round(score/bank.length*100), pr=A().prog(pid);
+    const resultKey=requested&&requested!=='game'?requested:'practice';
+    pr.exams=pr.exams||{}; pr.exams[resultKey]={score:pct,passed:pct>=65,at:Date.now()}; A().save();
+    A().modal(`<div class="practice-result"><div class="score">${pct}%</div><h3>${pct>=80?'ممتاز — أداء قوي':pct>=65?'أحسنت — اجتزت التدريب':'راجع الشرح ثم حاول مرة أخرى'}</h3><p>${score} إجابة صحيحة من ${bank.length}</p><div class="mdl-act" style="justify-content:center"><button class="btn p" id="practiceAgain">إعادة التدريب</button><button class="btn o" data-close>إغلاق</button></div></div>`,()=>{$('#practiceAgain').onclick=()=>openPractice(pid,requested);});
+  }
+  function paint(){
+    const q=bank[i], T=label(q.type), text=say(q.q), why=say(q.why), isText=q.type==='fill'||q.type==='calc';
+    const multi=q.type==='multi'; const route=(window.EXAM_ROUTES||{})[c.id];
+    A().modal(`<div class="practice-head"><div><h3 style="margin:0">${requested==='game'?'تحدّي القرار':'مختبر '+esc(c.code)}</h3><span class="muted">السؤال ${i+1} من ${bank.length}</span></div>${p.lang==='both'?`<button class="btn o sm" id="practiceLang">${lang==='ar'?'English':'العربية'}</button>`:''}</div><div class="practice-meta"><span>${esc(lang==='ar'?T.ar:T.en)}</span><span>${esc(q.domain)}</span><span>${p.lang==='both'?'عربي + English':'English only'}</span></div><div class="practice-q">${esc(text)}</div><div id="practiceAnswers">${isText?`<label class="f"><span>${q.type==='calc'?'اكتب الناتج':'اكتب الإجابة'}</span><input id="practiceText" class="en" autocomplete="off"></label>`:(q.options||[]).map((o,n)=>`<label class="practice-opt" data-optrow="${n}"><input type="${multi?'checkbox':'radio'}" name="practiceOpt" value="${n}"><span>${esc(say(o))}</span></label>`).join('')}</div><div id="practiceFeedback"></div><div class="mdl-act"><button class="btn p" id="practiceCheck">تحقق من الإجابة</button>${route?`<a class="btn o" href="${route}" target="_blank" rel="noopener">بنك المحاكاة الكامل ↗</a>`:''}<button class="btn o" data-close>إغلاق</button></div>`,()=>{
+      const lb=$('#practiceLang'); if(lb)lb.onclick=()=>{lang=lang==='ar'?'en':'ar';paint();};
+      $('#practiceCheck').onclick=()=>{
+        if(!checked){
+          let ok=false, chosen=[];
+          if(isText){const v=($('#practiceText').value||'').trim().replace(/\s/g,'').toLowerCase();ok=(q.answers||[]).some(x=>String(x).replace(/\s/g,'').toLowerCase()===v);}
+          else {chosen=$$('[name="practiceOpt"]:checked').map(x=>+x.value).sort((a,b)=>a-b);const right=(q.correct||[]).slice().sort((a,b)=>a-b);ok=same(chosen,right);$$('[data-optrow]').forEach(r=>{const n=+r.dataset.optrow;if(right.includes(n))r.classList.add('correct');else if(chosen.includes(n))r.classList.add('wrong');});}
+          if(ok)score++; checked=true; $$('[name="practiceOpt"]').forEach(x=>x.disabled=true); const inp=$('#practiceText');if(inp)inp.disabled=true;
+          $('#practiceFeedback').innerHTML=`<div class="practice-feedback"><b>${ok?'✅ إجابة صحيحة':'❌ راجع الإجابة الصحيحة'}</b><br>${esc(why)}</div>`;
+          $('#practiceCheck').textContent=i+1<bank.length?'السؤال التالي ←':'عرض النتيجة';
+        } else {checked=false;i++;if(i>=bank.length)finish();else paint();}
+      };
+    });
+  }
+  paint();
+}
+
+function decisionGame(pid){ openPractice(pid,'game'); }
+
 /* ═══════════ مشغّل الفيديو ═══════════ */
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
@@ -4224,9 +4797,10 @@ function playLesson(pid, idx) {
       <button class="btn o" data-close>إغلاق</button>
     </div>`, () => {
     $('#lsDone').onclick = () => {
-      pr.lessons[idx] = !pr.lessons[idx]; A().save();
+      const completed = !pr.lessons[idx]; pr.lessons[idx] = completed; A().save();
       A().toast(pr.lessons[idx] ? '✓ سُجّل إتمام الدرس' : 'أُلغي التعليم');
       A().closeModal(); A().render();
+      if (completed && (l.quiz || (idx + 1) % 3 === 0)) setTimeout(() => openPractice(pid, 'ch' + (l.ch || 0)), 180);
     };
     const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, idx + 1); };
   });
@@ -4234,34 +4808,12 @@ function playLesson(pid, idx) {
 
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
-  const p = A().pack(pid), c = A().course(p.course);
-  const e = A().examSet(pid).find(x => x.id === eid);
-  A().modal(`
-    <h3>${esc(e.title)}</h3>
-    <p>${e.kind} · ${e.q} سؤالاً · ${e.min} دقيقة</p>
-    <div class="note info">
-      محرّك الاختبار الكامل ببنك الأسئلة يعمل في <b>نظام الاختبارات</b> المرتبط بالمنصة.
-      سجّل هنا نتيجتك بعد أدائه ليُحدَّث مقياس جاهزيتك تلقائياً.
-    </div>
-    <label class="f"><span>الدرجة التي حصلت عليها (٪)</span>
-      <input type="number" id="exScore" min="0" max="100" placeholder="72"></label>
-    <div class="mdl-act">
-      <button class="btn p" id="exSave">سجّل النتيجة</button>
-      <button class="btn o" data-close>إلغاء</button>
-    </div>`, () => {
-    $('#exSave').onclick = () => {
-      const v = Math.max(0, Math.min(100, parseInt($('#exScore').value) || 0));
-      const pr = A().prog(pid);
-      pr.exams[eid] = { score: v, passed: v >= 65, at: Date.now() };
-      A().save(); A().closeModal();
-      A().toast(v >= 65 ? `✅ اجتزت بـ ${v}%` : `سُجّلت ${v}% — راجع النطاق وأعد المحاولة`);
-      A().render();
-    };
-  });
+  openPractice(pid, eid);
 }
 
 /* ═══════════ الشهادة ═══════════ */
 function issueCert(pid) {
+  const pkg=A().pack(pid); if(!pkg||!pkg.cert){A().toast('شهادة الحضور متاحة للباقة الكاملة فقط');return;}
   if (A().live) {
     A().api('/certificate/' + pid, { method: 'POST' })
       .then(d => drawCert(pid, d.no, d.verify))
@@ -4363,6 +4915,21 @@ function bind() {
     fMode = q || ''; fTrack = ''; fLevel = ''; A().go('programs');
   });
   $$('[data-actab]').forEach(b => b.onclick = () => { window.__acTab = b.dataset.actab; A().render(); });
+  const pg2 = $('#promoGo');
+  if (pg2) pg2.onclick = () => {
+    const v = ($('#promoIn').value || '').trim().toUpperCase();
+    if (!v) { window.__promo = null; A().render(); return; }
+    const pr = (window.PROMOS || []).find(x => x.code === v);
+    const valid = pr && (!pr.until || new Date(pr.until) >= new Date());
+    const pk = A().pack(A().route.split('/')[1]);
+    window.__promo = valid
+      ? { ok:true, code:v, pct:pr.pct, packageId:pk.id,
+          newPrice: Math.round(pk.price * (1 - pr.pct/100)) }
+      : { ok:false, code:v, packageId:pk.id };
+    A().render();
+  };
+  const pin = $('#promoIn');
+  if (pin) pin.addEventListener('keydown', e => { if (e.key === 'Enter') $('#promoGo').click(); });
   $$('[data-ctab]').forEach(b => b.onclick = () => { window.__cTab = b.dataset.ctab; A().render(); });
   $$('[data-stage]').forEach(b => b.onclick = () => { window.__stage = b.dataset.stage; A().render(); });
   $$('[data-rm]').forEach(b => b.onclick = () => { rmPick = b.dataset.rm; A().render(); });
@@ -4373,6 +4940,18 @@ function bind() {
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
   $$('[data-lesson]').forEach(el => el.onclick = () => playLesson(el.dataset.pk, +el.dataset.lesson));
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
+  $$('[data-practice]').forEach(b => b.onclick = () => openPractice(b.dataset.practice));
+  $$('[data-game]').forEach(b => b.onclick = () => decisionGame(b.dataset.game));
+  $$('[data-download]').forEach(b => b.onclick = () => downloadResource(b.dataset.pk, b.dataset.download));
+  $$('[data-flash]').forEach(b => b.onclick = () => {
+    const show = b.dataset.show !== '1'; b.dataset.show = show ? '1' : '0';
+    b.querySelector('strong').textContent = show ? b.dataset.back : b.dataset.front;
+    b.querySelector('span').textContent = show ? 'اضغط للعودة إلى المصطلح' : 'اضغط لإظهار المعنى';
+  });
+  $$('[data-activity]').forEach(b => b.onclick = () => {
+    const pr=A().prog(b.dataset.pk); pr.activities=pr.activities||{};
+    pr.activities[b.dataset.activity]=!pr.activities[b.dataset.activity]; A().save(); A().render();
+  });
   $$('[data-week]').forEach(b => b.onclick = () => {
     const pr = A().prog(b.dataset.pk); const w = b.dataset.week;
     pr.weeks[w] = !pr.weeks[w]; A().save(); A().render();
@@ -4453,7 +5032,7 @@ function bind() {
   const vpk = $('#admPk');
   if (vpk) vpk.onchange = () => { window.__vidPk = vpk.value; A().render(); };
 
-  const curPk = () => window.__vidPk || 'grcp-gold';
+  const curPk = () => window.__vidPk || 'grcp-full';
   const curLs = () => (window.LESSONS[curPk()] = window.LESSONS[curPk()] || []);
   const curCh = () => { const p = A().pack(curPk()); const c = p && A().course(p.course);
     if (c) { c.chapters = c.chapters || []; return c.chapters; } return []; };
@@ -4634,7 +5213,8 @@ function bind() {
     $$('[data-brand]').forEach(i => { B[i.dataset.brand] = i.value; });
     if (A().live) A().api('/admin/content', { method: 'PUT',
       body: { cms: window.CMS, courses: window.COURSES, packages: window.PACKAGES,
-              academic: window.ACADEMIC, consulting: window.CONSULTING } })
+              academic: window.ACADEMIC, consulting: window.CONSULTING,
+              systems: window.SYSTEMS, promos: window.PROMOS } })
       .then(() => A().toast('✅ حُفظت التغييرات على الخادم'))
       .catch(e => A().toast(e.message));
     else A().toast('✅ حُفظت محلياً — اربط الخادم لتُحفظ للجميع');
@@ -4642,8 +5222,12 @@ function bind() {
   };
   const ac = $('#addCourse'); if (ac) ac.onclick = editCourse;
   const ap = $('#addPkg'); if (ap) ap.onclick = editPkg;
+  const asy = $('#addSystem'); if (asy) asy.onclick = () => editSystem();
+  const apr = $('#addPromo'); if (apr) apr.onclick = () => editPromo();
   $$('[data-edc]').forEach(b => b.onclick = () => editCourse(b.dataset.edc));
   $$('[data-edp]').forEach(b => b.onclick = () => editPkg(b.dataset.edp));
+  $$('[data-edsys]').forEach(b => b.onclick = () => editSystem(b.dataset.edsys));
+  $$('[data-edpromo]').forEach(b => b.onclick = () => editPromo(b.dataset.edpromo));
   $$('[data-delc]').forEach(b => b.onclick = () => {
     if (!confirm('حذف هذه الدورة وباقاتها؟')) return;
     const i = window.COURSES.findIndex(c => c.id === b.dataset.delc);
@@ -4658,6 +5242,16 @@ function bind() {
     if (i >= 0) window.PACKAGES.splice(i, 1);
     saveCatalog(); A().render(); A().toast('حُذفت الباقة');
   });
+  $$('[data-delsys]').forEach(b => b.onclick = () => {
+    if (!confirm('حذف هذا النظام أو الأداة؟')) return;
+    window.SYSTEMS = (window.SYSTEMS||[]).filter(x => x.id !== b.dataset.delsys);
+    saveCatalog(); A().render(); A().toast('حُذف النظام');
+  });
+  $$('[data-delpromo]').forEach(b => b.onclick = () => {
+    if (!confirm('حذف كود الخصم؟')) return;
+    window.PROMOS = (window.PROMOS||[]).filter(x => x.code !== b.dataset.delpromo);
+    saveCatalog(); A().render(); A().toast('حُذف كود الخصم');
+  });
   const ps = $('#paySave'); if (ps) ps.onclick = () => {
     window.PAY_CONFIG.provider = $('#payProv').value;
     window.PAY_CONFIG.publishableKey = $('#payKey').value.trim();
@@ -4668,7 +5262,8 @@ function bind() {
 
 function saveCatalog() {
   if (A().live) A().api('/admin/content', { method: 'PUT',
-    body: { courses: window.COURSES, packages: window.PACKAGES } }).catch(() => {});
+    body: { courses: window.COURSES, packages: window.PACKAGES,
+      systems: window.SYSTEMS, promos: window.PROMOS } }).catch(() => {});
 }
 
 function editCourse(id) {
@@ -4727,15 +5322,13 @@ function editPkg(id) {
   const p = id ? A().pack(id) : null;
   A().modal(`<h3>${p ? 'تعديل باقة' : 'باقة جديدة'}</h3>
     <label class="f"><span>المعرّف</span><input class="en" id="pId" value="${esc(p ? p.id : '')}" ${p ? 'disabled' : ''}></label>
-    <label class="f"><span>اسم الباقة</span><input id="pAr" value="${esc(p ? p.ar : '')}"></label>
+    <div class="f-row"><label class="f"><span>الدورة</span><select id="pCourse">${window.COURSES.map(c => `<option value="${c.id}" ${p && p.course === c.id ? 'selected' : ''}>${code(c)} — ${esc(c.ar)}</option>`).join('')}</select></label><label class="f"><span>نوع الباقة</span><select id="pType">${(window.PKG_TYPES||[]).map(t=>`<option value="${t.k}" ${p&&p.type===t.k?'selected':''}>${t.ic} ${esc(t.ar)}</option>`).join('')}</select></label></div>
+    <label class="f"><span>اسم الباقة بالعربية</span><input id="pAr" value="${esc(p ? p.ar : '')}" placeholder="يُولّد تلقائياً عند تركه فارغاً"></label>
+    <label class="f"><span>اسم الباقة بالإنجليزية</span><input class="en" id="pEn" value="${esc(p ? p.en : '')}"></label>
     <label class="f"><span>الوصف</span><textarea id="pDesc" rows="2">${esc(p ? p.desc : '')}</textarea></label>
     <div class="f-row">
-      <label class="f"><span>الدورة</span><select id="pCourse">
-        ${window.COURSES.map(c => `<option value="${c.id}" ${p && p.course === c.id ? 'selected' : ''}>${code(c)} — ${esc(c.ar)}</option>`).join('')}
-      </select></label>
-      <label class="f"><span>نمط التقديم</span><select id="pMode">
-        ${window.MODES.map(m => `<option value="${m.k}" ${p && p.mode === m.k ? 'selected' : ''}>${m.icon} ${esc(m.ar)}</option>`).join('')}
-      </select></label>
+      <label class="f"><span>لغة الكورس</span><select id="pLang">${Object.keys(window.LANG_LABEL||{}).map(k=>`<option value="${k}" ${p&&p.lang===k?'selected':''}>${esc(window.LANG_LABEL[k].ar)}</option>`).join('')}</select></label>
+      <label class="f"><span>تصنيف الدورة</span><input id="pCat" value="${esc(p ? p.category : '')}"></label>
     </div>
     <div class="f-row">
       <label class="f"><span>السعر</span><input type="number" id="pPrice" value="${p ? p.price : 100}"></label>
@@ -4743,39 +5336,74 @@ function editPkg(id) {
     </div>
     <div class="f-row">
       <label class="f"><span>الفيديوهات</span><input type="number" id="pVid" value="${p ? p.videos : 0}"></label>
-      <label class="f"><span>الاختبارات</span><input type="number" id="pQz" value="${p ? p.quizzes : 3}"></label>
+      <label class="f"><span>مدة الفيديو بالدقائق</span><input type="number" id="pVideoMins" value="${p ? p.videoMins : 0}"></label>
     </div>
     <div class="f-row">
-      <label class="f"><span>أيام الوصول</span><input type="number" id="pDays" value="${p ? p.days : 90}"></label>
-      <label class="f"><span>شارة <small>اختياري</small></span><input id="pBadge" value="${esc(p && p.badge ? p.badge : '')}"></label>
+      <label class="f"><span>عدد الأسئلة</span><input type="number" id="pQuestions" value="${p ? p.questions : 100}"></label>
+      <label class="f"><span>اختبارات المحاكاة</span><input type="number" id="pQz" value="${p ? p.quizzes : 3}"></label>
     </div>
-    <label class="f"><span>ما تشمله <small>بند في كل سطر</small></span>
-      <textarea id="pInc" rows="5">${esc(p ? p.includes.join('\n') : '')}</textarea></label>
-    <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-      <input type="checkbox" id="pSys" ${p && p.hasSystem ? 'checked' : ''}>
-      <span style="font-size:.88rem">تشمل النظام التطبيقي</span></label>
+    <div class="f-row"><label class="f"><span>الاختبارات القصيرة</span><input type="number" id="pShort" value="${p ? p.shortQuizzes : 0}"></label><label class="f"><span>أيام الوصول</span><input type="number" id="pDays" value="${p ? p.days : 90}"></label></div>
+    <div class="f-row"><label class="f"><span>الساعات المعتمدة</span><input type="number" id="pHours" value="${p ? p.hours : 30}"></label><label class="f"><span>العملة</span><input class="en" id="pCurrency" value="${esc(p?p.currency:'USD')}"></label></div>
+    <label class="f"><span>مكوّنات الباقة</span><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">${(window.CONTENT_KINDS||[]).map(k=>`<label class="qtype"><input type="checkbox" data-pkind="${k.k}" ${p&&(p.kinds||[]).includes(k.k)?'checked':''}> ${k.ic} ${esc(k.ar)}</label>`).join('')}</div></label>
+    <label class="f"><span>الأهداف <small>هدف في كل سطر</small></span><textarea id="pObjectives" rows="4">${esc(p?(p.objectives||[]).join('\n'):'')}</textarea></label>
+    <label class="f"><span>الفئة المستهدفة</span><textarea id="pAudience" rows="2">${esc(p?p.audience:'')}</textarea></label>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pCert" checked disabled><span>شهادة حضور — تُفعّل تلقائياً للكاملة فقط</span></label><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pSys" ${p&&p.hasSystem?'checked':''}><span>تشمل نظاماً تطبيقياً</span></label></div>
     <div class="mdl-act"><button class="btn p" id="pSave">حفظ</button>
       <button class="btn o" data-close>إلغاء</button></div>`, () => {
     $('#pSave').onclick = () => {
       const id2 = ($('#pId').value || '').trim();
-      if (!id2 || !$('#pAr').value.trim()) { A().toast('أكمل المعرّف والاسم'); return; }
-      const obj = { id: id2, ar: $('#pAr').value.trim(), desc: $('#pDesc').value.trim(),
-        course: $('#pCourse').value, mode: $('#pMode').value,
-        price: +$('#pPrice').value || 0, was: +$('#pWas').value || 0, currency: 'USD',
-        videos: +$('#pVid').value || 0, quizzes: +$('#pQz').value || 0,
-        days: +$('#pDays').value || 90, hasSystem: $('#pSys').checked,
-        includes: $('#pInc').value.split('\n').map(x => x.trim()).filter(Boolean) };
-      const bd = $('#pBadge').value.trim(); if (bd) obj.badge = bd;
+      if (!id2) { A().toast('أكمل المعرّف'); return; }
+      if (!p && window.PACKAGES.some(x=>x.id===id2)) { A().toast('المعرّف مستخدم'); return; }
+      const courseId=$('#pCourse').value, c=A().course(courseId), type=$('#pType').value;
+      const T=(window.PKG_TYPES||[]).find(x=>x.k===type)||{};
+      const kinds=$$('[data-pkind]').filter(x=>x.checked).map(x=>x.dataset.pkind);
+      const mode=type==='sim'?'sim':type==='self'?'self':'recorded';
+      const obj = { id:id2, schemaVersion:15, type:type, ar:$('#pAr').value.trim()||(c.code+' — '+T.ar), en:$('#pEn').value.trim()||(c.code+' — '+T.en), desc:$('#pDesc').value.trim()||T.blurb,
+        course:courseId, mode:mode, price:+$('#pPrice').value||0, was:+$('#pWas').value||0, currency:$('#pCurrency').value.trim()||'USD',
+        hours:+$('#pHours').value||0, category:$('#pCat').value.trim()||((window.TRACKS.find(x=>x.k===c.track)||{}).ar||''), questions:+$('#pQuestions').value||0,
+        videos:+$('#pVid').value||0, videoMins:+$('#pVideoMins').value||0, quizzes:+$('#pQz').value||0, shortQuizzes:+$('#pShort').value||0,
+        lang:$('#pLang').value, days:+$('#pDays').value||90, hasSystem:$('#pSys').checked, cert:type==='full',
+        kinds:kinds, objectives:$('#pObjectives').value.split('\n').map(x=>x.trim()).filter(Boolean), audience:$('#pAudience').value.trim()||defaultAudience(c), chapters:c.chapters||[],
+        questionTypes:[...new Set(((window.QUESTION_BANK||{})[courseId]||[]).map(x=>x.type))], includes:kinds.map(k=>{const x=(window.CONTENT_KINDS||[]).find(y=>y.k===k);return x?x.ar+' — '+x.desc:k;}) };
       if (p) Object.assign(p, obj); else window.PACKAGES.push(obj);
+      if(window.ensureLessonSkeletons)window.ensureLessonSkeletons();
       saveCatalog(); A().closeModal(); A().render(); A().toast('✅ حُفظت الباقة');
     };
   });
 }
 
+function editSystem(id) {
+  const s=id?(window.SYSTEMS||[]).find(x=>x.id===id):null;
+  A().modal(`<h3>${s?'تعديل النظام أو الأداة':'إضافة نظام أو أداة'}</h3>
+    <div class="f-row"><label class="f"><span>المعرّف</span><input class="en" id="sId" value="${esc(s?s.id:'')}" ${s?'disabled':''}></label><label class="f"><span>الأيقونة</span><input id="sIc" value="${esc(s?s.ic:'🧩')}"></label></div>
+    <label class="f"><span>الاسم بالعربية</span><input id="sAr" value="${esc(s?s.ar:'')}"></label>
+    <label class="f"><span>الاسم بالإنجليزية</span><input class="en" id="sEn" value="${esc(s?s.en:'')}"></label>
+    <label class="f"><span>الوصف</span><textarea id="sBlurb" rows="3">${esc(s?s.blurb:'')}</textarea></label>
+    <div class="f-row"><label class="f"><span>التصنيف</span><input id="sCat" value="${esc(s?s.cat:'أدوات تطوير ذاتي')}"></label><label class="f"><span>اللغة</span><select id="sLang">${Object.keys(window.LANG_LABEL||{}).map(k=>`<option value="${k}" ${s&&s.lang===k?'selected':''}>${esc(window.LANG_LABEL[k].ar)}</option>`).join('')}</select></label></div>
+    <div class="f-row"><label class="f"><span>السعر</span><input type="number" id="sPrice" value="${s?s.price:0}"></label><label class="f"><span>قبل الخصم</span><input type="number" id="sWas" value="${s?s.was:0}"></label></div>
+    <div class="f-row"><label class="f"><span>العملة</span><input class="en" id="sCurrency" value="${esc(s?s.currency:'USD')}"></label><label class="f"><span>مدة الوصول</span><input id="sAccess" value="${esc(s?s.access:'وصول دائم')}"></label></div>
+    <div class="f-row"><label class="f"><span>نص الزر</span><input id="sCta" value="${esc(s?s.cta:'اعرف المزيد')}"></label><label class="f"><span>رابط الأداة <small>اختياري</small></span><input class="en" id="sFile" value="${esc(s?s.file:'')}" placeholder="tool.html أو https://..."></label></div>
+    <label class="f"><span>المزايا <small>ميزة في كل سطر</small></span><textarea id="sFeatures" rows="5">${esc(s?(s.features||[]).join('\n'):'')}</textarea></label>
+    <div class="mdl-act"><button class="btn p" id="sSave">حفظ</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+      $('#sSave').onclick=()=>{const sid=($('#sId').value||'').trim();if(!sid||!$('#sAr').value.trim()){A().toast('أكمل المعرّف والاسم');return;}if(!s&&(window.SYSTEMS||[]).some(x=>x.id===sid)){A().toast('المعرّف مستخدم');return;}const obj={id:sid,schemaVersion:15,ar:$('#sAr').value.trim(),en:$('#sEn').value.trim(),ic:$('#sIc').value.trim()||'🧩',blurb:$('#sBlurb').value.trim(),cat:$('#sCat').value.trim(),lang:$('#sLang').value,price:+$('#sPrice').value||0,was:+$('#sWas').value||0,currency:$('#sCurrency').value.trim()||'USD',access:$('#sAccess').value.trim(),features:$('#sFeatures').value.split('\n').map(x=>x.trim()).filter(Boolean),cta:$('#sCta').value.trim()||'اعرف المزيد',file:$('#sFile').value.trim()};if(s)Object.assign(s,obj);else window.SYSTEMS.push(obj);saveCatalog();A().closeModal();A().render();A().toast('✅ حُفظ النظام');};
+    });
+}
+
+function editPromo(codeValue) {
+  const x=codeValue?(window.PROMOS||[]).find(p=>p.code===codeValue):null;
+  A().modal(`<h3>${x?'تعديل كود الخصم':'إضافة كود خصم'}</h3>
+    <label class="f"><span>الكود</span><input class="en" id="prCode" value="${esc(x?x.code:'')}" ${x?'disabled':''}></label>
+    <div class="f-row"><label class="f"><span>نسبة الخصم %</span><input type="number" min="1" max="100" id="prPct" value="${x?x.pct:10}"></label><label class="f"><span>تاريخ الانتهاء</span><input type="date" id="prUntil" value="${esc(x?x.until:'')}"></label></div>
+    <label class="f"><span>الوصف</span><input id="prDesc" value="${esc(x?x.desc:'')}"></label>
+    <div class="mdl-act"><button class="btn p" id="prSave">حفظ</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+      $('#prSave').onclick=()=>{const code=($('#prCode').value||'').trim().toUpperCase(),pct=Math.max(1,Math.min(100,+$('#prPct').value||0));if(!code){A().toast('اكتب الكود');return;}if(!x&&(window.PROMOS||[]).some(p=>p.code===code)){A().toast('الكود مستخدم');return;}const obj={code:code,schemaVersion:15,pct:pct,until:$('#prUntil').value,desc:$('#prDesc').value.trim()};if(x)Object.assign(x,obj);else window.PROMOS.push(obj);saveCatalog();A().closeModal();A().render();A().toast('✅ حُفظ كود الخصم');};
+    });
+}
+
 
 
 function saveLessons(notify) {
-  const pid = window.__vidPk || 'grcp-gold';
+  const pid = window.__vidPk || 'grcp-full';
   const ls = window.LESSONS[pid] || [];
   const pk = A().pack(pid);
   /* حدّث عدّاد الفيديوهات في الباقة تلقائياً */
