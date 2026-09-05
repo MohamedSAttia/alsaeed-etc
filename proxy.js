@@ -554,7 +554,7 @@ const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
-    if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/')) {
+    if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/question-bank-status' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/')) {
       const v16Result = await v16.handlePublic(req, res, requestUrl, authenticatedUser);
       if (v16Result !== false) return v16Result;
     }
