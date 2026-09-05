@@ -12,7 +12,7 @@ const INNER_PROXY_PORT = Number(process.env.INNER_PROXY_PORT || 3101);
 const INNER_APP_PORT = Number(process.env.INNER_APP_PORT || 3102);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'alsaeed.db');
 const JWT_SECRET = process.env.JWT_SECRET || '';
-const PANEL = String(process.env.ADMIN_PANEL_PATH || 'manage-x7k').replace(/^\\/+|\\/+$/g, '');
+const PANEL = String(process.env.ADMIN_PANEL_PATH || 'manage-x7k').replace(/^\/+|\/+$/g, '');
 
 const child = spawn(process.execPath, ['proxy.js'], {
   env: { ...process.env, PORT: String(INNER_PROXY_PORT), INTERNAL_APP_PORT: String(INNER_APP_PORT) },
