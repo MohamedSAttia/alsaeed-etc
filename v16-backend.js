@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -161,6 +163,44 @@ export function installV16(ctx) {
       });
     });
   }
+
+  // Import the substantial legacy exam banks shipped with the platform into
+  // the editable admin question bank. INSERT OR IGNORE makes this idempotent.
+  const legacyBanks = [
+    ['rmp-exam.html', 'rmp-full', 'RMP'],
+    ['grcp-exam.html', 'grcp-full', 'GRCP'],
+    ['pba-exam.html', 'pba-full', 'PBA']
+  ];
+  const legacyInsert = db.prepare('INSERT OR IGNORE INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+  legacyBanks.forEach(function (bank) {
+    try {
+      const file = path.join(process.cwd(), 'public', bank[0]);
+      if (!fs.existsSync(file)) return;
+      const html = fs.readFileSync(file, 'utf8');
+      const marker = 'window.QBANK=';
+      const begin = html.indexOf(marker);
+      if (begin < 0) return;
+      const arrayStart = html.indexOf('[', begin + marker.length);
+      const scriptEnd = html.indexOf('</script>', arrayStart);
+      if (arrayStart < 0 || scriptEnd < 0) return;
+      const rawBank = html.slice(arrayStart, scriptEnd).trim().replace(/;\s*$/, '');
+      const rows = JSON.parse(rawBank);
+      const now = Date.now();
+      rows.forEach(function (q, index) {
+        const answers = Array.isArray(q.c) ? q.c.map(function (n) { return String.fromCharCode(65 + Number(n)); }).join(',') : String(q.c || '');
+        const type = Array.isArray(q.c) && q.c.length > 1 ? 'multiple' : 'single';
+        legacyInsert.run(
+          'LEGACY-' + bank[2] + '-' + String(q.id || index + 1).padStart(4, '0'),
+          bank[1], String(q.d || ''), String(q.ch || ''), 'medium', type,
+          '', String(q.q || ''), JSON.stringify(Array.isArray(q.o) ? q.o : []), answers,
+          '', String(q.f || ''), String(q.ex || bank[2] + ' legacy exam bank'), 1, now, now
+        );
+      });
+      console.log('Imported legacy question bank:', bank[2], rows.length);
+    } catch (error) {
+      console.error('Legacy question bank import skipped:', bank[2], error.message);
+    }
+  });
 
   async function handleAdmin(req, res, parts, method) {
     if (parts[0] === 'blogs') {
