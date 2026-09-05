@@ -12,6 +12,7 @@ const INNER_PROXY_PORT = Number(process.env.INNER_PROXY_PORT || 3101);
 const INNER_APP_PORT = Number(process.env.INNER_APP_PORT || 3102);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'alsaeed.db');
 const JWT_SECRET = process.env.JWT_SECRET || '';
+const PANEL = String(process.env.ADMIN_PANEL_PATH || 'manage-x7k').replace(/^\\/+|\\/+$/g, '');
 
 const child = spawn(process.execPath, ['proxy.js'], {
   env: { ...process.env, PORT: String(INNER_PROXY_PORT), INTERNAL_APP_PORT: String(INNER_APP_PORT) },
@@ -204,6 +205,8 @@ function handlePackageSummary(req,res){
   return sendJson(res,200,packs.map(p=>({...p,counts:{questions:qm[p.id]||0,lessons:lm[p.id]||0,exams:em[p.id]||0,resources:rm[p.id]||0}})));
 }
 
+function urlPathIsAdmin(raw) { try { return new URL(raw || '/', 'http://local').pathname.startsWith('/' + PANEL); } catch { return false; } }
+
 function forward(req,res){
   const headers={...req.headers};
   delete headers.connection;
@@ -217,7 +220,7 @@ function forward(req,res){
     up.on('end',()=>{
       let html=Buffer.concat(chunks).toString('utf8');
       const premium='<link rel="stylesheet" href="/premium-v2.css?v=20260903-1">';
-      if(!html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n</head>'):premium+html;
+      if(!urlPathIsAdmin(req.url) && !html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n</head>'):premium+html;
       const outHeaders={...up.headers};
       delete outHeaders['content-length'];
       delete outHeaders['content-encoding'];
