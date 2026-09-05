@@ -204,8 +204,8 @@ function kashierConfig() {
   return {
     mid: String(process.env.KASHIER_MERCHANT_ID || '').trim(),
     paymentKey: String(process.env.KASHIER_PAYMENT_API_KEY || '').trim(),
-    mode: String(process.env.KASHIER_MODE || 'test').trim().toLowerCase() === 'live' ? 'live' : 'test',
-    allowedMethods: String(process.env.KASHIER_ALLOWED_METHODS || 'card,wallet').trim(),
+    mode: String(process.env.KASHIER_MODE || 'live').trim().toLowerCase() === 'test' ? 'test' : 'live',
+    allowedMethods: String(process.env.KASHIER_ALLOWED_METHODS || 'card,wallet,applepay,mada,valu,tabby,tamara,bank_installments').trim(),
     baseUrl: 'https://checkout.kashier.io/'
   };
 }
@@ -223,6 +223,34 @@ function kashierCallbackPayload(q) {
     ['orderReference', q.orderReference], ['transactionId', q.transactionId],
     ['amount', q.amount], ['currency', q.currency]
   ].map(([key, value]) => `${key}=${value ?? ''}`).join('&');
+}
+
+function questionPayload(row) {
+  let raw = [];
+  try { raw = JSON.parse(row.options || '[]'); } catch {}
+  let options_ar = [], options_en = [];
+  if (Array.isArray(raw) && raw.length && raw.every(x => x && typeof x === 'object' && !Array.isArray(x))) {
+    options_ar = raw.map(x => x.ar || '');
+    options_en = raw.map(x => x.en || x.text || '');
+  } else if (Array.isArray(raw)) {
+    options_ar = raw;
+    options_en = [];
+  }
+  return { ...row, options: options_ar.length ? options_ar : options_en, options_ar, options_en, active: !!row.active };
+}
+
+function readQuestionOptions(body, fallback) {
+  if (Array.isArray(body.options_ar) || Array.isArray(body.options_en)) {
+    const ar = Array.isArray(body.options_ar) ? body.options_ar : [];
+    const en = Array.isArray(body.options_en) ? body.options_en : [];
+    const count = Math.max(ar.length, en.length, 4);
+    return Array.from({ length: Math.min(count, 8) }, (_, i) => ({ ar: ar[i] || '', en: en[i] || '' }));
+  }
+  if (Array.isArray(body.options)) return body.options.slice(0, 8);
+  if (fallback) {
+    try { return JSON.parse(fallback || '[]'); } catch {}
+  }
+  return [];
 }
 
 function validKashierSignature(q, paymentKey) {
@@ -299,7 +327,8 @@ async function handleKashierCreate(req, res) {
     merchantRedirect: `${SITE}/api/pay/kashier/return/${encodeURIComponent(orderId)}`,
     metaData: JSON.stringify({ customerName: user.name || '', customerEmail: user.email || '', customerPhone: user.phone || '', packageId }),
     allowedMethods: cfg.allowedMethods, failureRedirect: 'true', redirectMethod: 'get', display: 'ar',
-    brandColor: 'rgba(240, 116, 26, 1)', mode: cfg.mode
+    brandColor: 'rgba(240, 116, 26, 1)', mode: cfg.mode,
+    metaDataType: 'json'
   });
   return sendJson(res, 200, { orderId, paymentUrl: `${cfg.baseUrl}?${params.toString()}`, gateway: 'kashier', mode: cfg.mode });
 }
@@ -385,12 +414,12 @@ async function handleContentAdmin(req, res, requestUrl) {
   if (parts[0] === 'questions') {
     if (method === 'GET' && parts.length === 2) {
       const rows = db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY created,id').all(decodeURIComponent(parts[1]));
-      return sendJson(res, 200, rows.map(r => ({ ...r, options: JSON.parse(r.options || '[]'), active: !!r.active })));
+      return sendJson(res, 200, rows.map(questionPayload));
     }
     if (method === 'POST' && parts.length === 1) {
       let b; try { b = await readJson(req); } catch { return sendJson(res, 400, { error: 'بيانات غير صحيحة' }); }
-      if (!b.package_id || !String(b.question_ar || '').trim()) return sendJson(res, 400, { error: 'الباقة ونص السؤال مطلوبان' });
-      const id = uid(), now = Date.now(), options = Array.isArray(b.options) ? b.options.slice(0, 8) : [];
+      if (!b.package_id || !(String(b.question_ar || '').trim() || String(b.question_en || '').trim())) return sendJson(res, 400, { error: 'الباقة ونص السؤال عربيًا أو إنجليزيًا مطلوبان' });
+      const id = uid(), now = Date.now(), options = readQuestionOptions(b);
       db.prepare(`INSERT INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,b.domain||'',b.topic||'',b.difficulty||'medium',b.type||'mcq',String(b.question_ar).trim(),b.question_en||'',JSON.stringify(options),String(b.correct||'A').toUpperCase(),b.explanation_ar||'',b.explanation_en||'',b.reference||'',b.active===false?0:1,now,now);
       return sendJson(res, 200, { ok: true, id });
@@ -402,9 +431,9 @@ async function handleContentAdmin(req, res, requestUrl) {
       const ins = db.prepare(`INSERT INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
       const tx = db.transaction(() => rows.forEach(q => {
-        if (!String(q.question_ar || '').trim()) return;
+        if (!(String(q.question_ar || '').trim() || String(q.question_en || '').trim())) return;
         const now = Date.now();
-        ins.run(uid(),pkg,q.domain||'',q.topic||'',q.difficulty||'medium',q.type||'mcq',String(q.question_ar).trim(),q.question_en||'',JSON.stringify(Array.isArray(q.options)?q.options:[]),String(q.correct||'A').toUpperCase(),q.explanation_ar||'',q.explanation_en||'',q.reference||'',1,now,now);
+        ins.run(uid(),pkg,q.domain||'',q.topic||'',q.difficulty||'medium',q.type||'mcq',String(q.question_ar || '').trim(),q.question_en||'',JSON.stringify(readQuestionOptions(q)),String(q.correct||'A').toUpperCase(),q.explanation_ar||'',q.explanation_en||'',q.reference||'',q.active===false?0:1,now,now);
       }));
       tx(); return sendJson(res, 200, { ok: true, count: rows.length });
     }
@@ -415,7 +444,7 @@ async function handleContentAdmin(req, res, requestUrl) {
         const old = db.prepare('SELECT * FROM questions WHERE id=?').get(id);
         if (!old) return sendJson(res, 404, { error: 'السؤال غير موجود' });
         db.prepare(`UPDATE questions SET package_id=?,domain=?,topic=?,difficulty=?,type=?,question_ar=?,question_en=?,options=?,correct=?,explanation_ar=?,explanation_en=?,reference=?,active=?,updated=? WHERE id=?`)
-          .run(b.package_id||old.package_id,b.domain??old.domain,b.topic??old.topic,b.difficulty||old.difficulty,b.type||old.type,b.question_ar??old.question_ar,b.question_en??old.question_en,JSON.stringify(Array.isArray(b.options)?b.options:JSON.parse(old.options||'[]')),String(b.correct||old.correct).toUpperCase(),b.explanation_ar??old.explanation_ar,b.explanation_en??old.explanation_en,b.reference??old.reference,b.active===false?0:1,Date.now(),id);
+          .run(b.package_id||old.package_id,b.domain??old.domain,b.topic??old.topic,b.difficulty||old.difficulty,b.type||old.type,b.question_ar??old.question_ar,b.question_en??old.question_en,JSON.stringify(readQuestionOptions(b, old.options)),String(b.correct||old.correct).toUpperCase(),b.explanation_ar??old.explanation_ar,b.explanation_en??old.explanation_en,b.reference??old.reference,b.active===false?0:1,Date.now(),id);
         return sendJson(res, 200, { ok: true });
       }
       if (method === 'DELETE') { db.prepare('DELETE FROM questions WHERE id=?').run(id); return sendJson(res, 200, { ok: true }); }
@@ -446,6 +475,31 @@ async function handleContentAdmin(req, res, requestUrl) {
     if (method === 'GET' && parts.length === 2) return sendJson(res,200,db.prepare('SELECT * FROM resources WHERE package_id=? ORDER BY sort,created').all(decodeURIComponent(parts[1])).map(x=>({...x,active:!!x.active})));
     if (method === 'POST' && parts.length === 1) { let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}if(!b.package_id||!String(b.title||'').trim())return sendJson(res,400,{error:'الباقة والعنوان مطلوبان'});const id=uid(),now=Date.now();db.prepare(`INSERT INTO resources (id,package_id,title,type,url,note,sort,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,String(b.title).trim(),b.type||'link',b.url||'',b.note||'',+b.sort||0,b.active===false?0:1,now,now);return sendJson(res,200,{ok:true,id}); }
     if (parts.length===2){const id=decodeURIComponent(parts[1]),old=db.prepare('SELECT * FROM resources WHERE id=?').get(id);if(!old)return sendJson(res,404,{error:'المورد غير موجود'});if(method==='PUT'){let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}db.prepare(`UPDATE resources SET package_id=?,title=?,type=?,url=?,note=?,sort=?,active=?,updated=? WHERE id=?`).run(b.package_id||old.package_id,b.title||old.title,b.type||old.type,b.url??old.url,b.note??old.note,+b.sort||old.sort,b.active===false?0:1,Date.now(),id);return sendJson(res,200,{ok:true})}if(method==='DELETE'){db.prepare('DELETE FROM resources WHERE id=?').run(id);return sendJson(res,200,{ok:true})}}
+  }
+
+  if (parts[0] === 'exams' && method === 'POST' && parts[1] === 'seed') {
+    const packages = getPackages().filter(p => p.active !== false);
+    const exists = db.prepare('SELECT id FROM exams WHERE package_id=? AND kind=?').pluck();
+    const insert = db.prepare('INSERT INTO exams (id,package_id,title,kind,duration,question_count,pass_score,config,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+    const now = Date.now();
+    let created = 0;
+    const tx = db.transaction(() => {
+      packages.forEach(p => {
+        const type = String(p.type || '').trim();
+        const templates = [];
+        if (type === 'sim') templates.push(['Simulation Exam', 'simulation', 180, Math.min(Number(p.questions || 100), 180) || 100, 75]);
+        else if (type === 'review') templates.push(['Final Review Test', 'final', 90, Math.min(Number(p.questions || 80), 100) || 60, 75]);
+        else if (type === 'full') templates.push(['Quick Knowledge Check', 'mini', 20, Math.min(Number(p.shortQuizzes || 20), 20) || 10, 70], ['Full Mock Exam', 'simulation', 180, Math.min(Number(p.questions || 120), 180) || 120, 75]);
+        else if (type === 'self') templates.push(['Self Study Quiz', 'practice', 45, Math.min(Number(p.questions || 60), 60) || 40, 70]);
+        templates.forEach(([title, kind, duration, count, pass]) => {
+          if (exists(p.id, kind)) return;
+          insert.run(uid(), p.id, title, kind, duration, count, pass, JSON.stringify({ source: 'v15-auto', lang: p.lang || 'both', packageType: type }), 1, now, now);
+          created++;
+        });
+      });
+    });
+    tx();
+    return sendJson(res, 200, { ok: true, created });
   }
 
   if (parts[0] === 'enroll' && (method === 'POST' || method === 'DELETE')) {
@@ -489,6 +543,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
     if (requestUrl.pathname.startsWith(`/${PANEL}/api/content-admin`)) return await handleContentAdmin(req,res,requestUrl);
+    if (requestUrl.pathname.startsWith('/api/admin-question-bank')) { requestUrl.pathname = `/${PANEL}/api/content-admin/questions` + requestUrl.pathname.slice('/api/admin-question-bank'.length); return await handleContentAdmin(req,res,requestUrl); }
     if (PAYMENT_GATEWAY === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
     if (PAYMENT_GATEWAY === 'kashier' && req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
     return forwardToApp(req,res);
