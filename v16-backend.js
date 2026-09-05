@@ -306,6 +306,9 @@ export function installV16(ctx) {
       return sendJson(res, 200, db.prepare('SELECT slug,title_ar,title_en,excerpt_ar,excerpt_en,body_ar,body_en,category,image,author,created FROM blogs WHERE published=1 ORDER BY created DESC').all());
     }
     if (method === 'GET' && pathname === '/api/payment-config') return sendJson(res, 200, publicConfig());
+    if (method === 'GET' && pathname === '/api/question-bank-status') {
+      return sendJson(res, 200, db.prepare('SELECT package_id packageId, COUNT(*) count FROM questions GROUP BY package_id ORDER BY package_id').all());
+    }
     if (method === 'POST' && pathname === '/api/demo/login') {
       const email = 'demo@al-ltc.local', id = 'alsaeed-demo-student';
       let user = db.prepare('SELECT * FROM users WHERE email=?').get(email);
