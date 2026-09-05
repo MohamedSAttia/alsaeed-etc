@@ -97,9 +97,22 @@ function adminFromToken(req) {
     return u && u.active!==0 ? u : null;
   } catch { return null; }
 }
+function userFromToken(req) {
+  if (!JWT_SECRET) return null;
+  const h=String(req.headers.authorization||''); if(!h.startsWith('Bearer ')) return null;
+  try {
+    const p=jwt.verify(h.slice(7),JWT_SECRET);
+    const u=db.prepare('SELECT id,name,email,role,active FROM users WHERE id=?').get(p.id);
+    return u && u.active!==0 ? u : null;
+  } catch { return null; }
+}
 function normalizeType(t) {
   const s=String(t||'').toLowerCase();
   if(['m','multiple','multi'].includes(s)) return 'multiple';
+  if(['match','mt'].includes(s)) return 'matching';
+  if(['order','or','sequence','sequencing'].includes(s)) return 'ordering';
+  if(['fill','fb','calculation','calc'].includes(s)) return s==='calc'||s==='calculation'?'calculation':'fill_blank';
+  if(['drag','dragdrop'].includes(s)) return 'drag_drop';
   if(['matching','drag_drop','ordering','hotspot','fill_blank','scenario'].includes(s)) return s;
   return 'single';
 }
@@ -157,7 +170,7 @@ async function importPmpBank(req, res) {
   const total=db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1').get(packageId).c;
   const arabic=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND TRIM(COALESCE(question_ar,''))!=''").get(packageId).c;
   return sendJson(res,200,{ok:true,packageId,imported:clean.length,total,arabic,englishOnly:total-arabic,stats,
-    expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:5},{after:96,minutes:10}]}});
+    expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:10},{after:94,minutes:10}]}});
 }
 
 async function handleQuestionAdmin(req,res,url){
@@ -205,6 +218,27 @@ function handlePackageSummary(req,res){
   return sendJson(res,200,packs.map(p=>({...p,counts:{questions:qm[p.id]||0,lessons:lm[p.id]||0,exams:em[p.id]||0,resources:rm[p.id]||0}})));
 }
 
+function handleLearnerQuestionBank(req,res,url){
+  const u=userFromToken(req); if(!u)return sendJson(res,401,{error:'يلزم تسجيل الدخول'});
+  const prefix='/api/learner-question-bank/';
+  const packageId=decodeURIComponent(url.pathname.slice(prefix.length));
+  if(!packageId)return sendJson(res,400,{error:'الباقة مطلوبة'});
+  if(u.role!=='admin'){
+    const en=db.prepare('SELECT id,expires FROM enrollments WHERE user_id=? AND package_id=?').get(u.id,packageId);
+    if(!en)return sendJson(res,403,{error:'بنك الأسئلة متاح للمشتركين في هذه الباقة فقط'});
+    if(en.expires && en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
+  }
+  const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
+  const rows=db.prepare('SELECT * FROM questions WHERE package_id=? AND active=1 ORDER BY RANDOM() LIMIT ?').all(packageId,requested);
+  return sendJson(res,200,{packageId,total:rows.length,questions:rows.map(q=>({
+    id:q.id,domain:q.domain||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
+    question_ar:q.question_ar||'',question_en:q.question_en||'',
+    options_ar:parseJson(q.options_ar,[]),options_en:parseJson(q.options_en,parseJson(q.options,[])),
+    correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
+    explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||''
+  }))});
+}
+
 function urlPathIsAdmin(raw) { try { return new URL(raw || '/', 'http://local').pathname.startsWith('/' + PANEL); } catch { return false; } }
 
 function forward(req,res){
@@ -239,6 +273,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
+    if(req.method==='GET'&&url.pathname.startsWith('/api/learner-question-bank/'))return handleLearnerQuestionBank(req,res,url);
     if(url.pathname.startsWith('/api/pmp-2026'))return await pmp.handle(req,res,url);
     return forward(req,res);
   }catch(err){console.error('Gateway request error:',err);if(!res.headersSent)return sendJson(res,500,{error:'حدث خطأ أثناء تنفيذ الطلب'});res.end()}

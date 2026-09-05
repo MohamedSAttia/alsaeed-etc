@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/unified-exam.css?v=20260905-1">
 <style>/* ============================================================
    منصة السعيد — التصميم
    كحلي عميق · برتقالي السعيد · حركة هادئة
@@ -2250,10 +2251,7 @@ window.Q_TYPES = [
   { k:'calc',     ar:'حسابي',                en:'Calculation' }
 ];
 
-/* ═══ محركات الاختبارات ومختبر الأسئلة داخل المنصة ═══ */
-window.EXAM_ROUTES = {
-  pmp:'pmp-exam-2026.html', rmp:'rmp-exam.html', grcp:'grcp-exam.html', pba:'pba-exam.html'
-};
+/* ═══ محرك الاختبارات الموحد يعمل داخل المنصة لكل البرامج ═══ */
 
 function bi(en, ar) { return { en:en, ar:ar || '' }; }
 function qx(id, type, domain, en, ar, options, correct, whyEn, whyAr, answers) {
@@ -4077,11 +4075,10 @@ function pkgTab(p, c, has) {
     const pr = has ? A().prog(p.id) : { exams: {} };
     const grp = { 'فصل': [], 'نطاق': [], 'شامل': [] };
     set.forEach(e => grp[e.kind].push(e));
-    const route = (window.EXAM_ROUTES || {})[c.id];
     return `${c.id==='pmp'?`<div class="note ok mb"><b>محاكي PMP® 2026 المحدث:</b> 892 سؤالاً · 4 اختبارات كاملة من 180 سؤالاً خلال 240 دقيقة · أسئلة 1–10 على سيناريو طويل · استراحتان مدة كل منهما 10 دقائق · ترجمة عربي/English · فحص الإجابة · التعليم للمراجعة · الاختبار الذهبي · الحاسبة · مساعد د. محمد عطية · تقرير أداء وفق مجالات PMI.</div>`:''}<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
       اختبار بعد كل فصل · اختبار لكل نطاق بوزنه الحقيقي · اختبار شامل يحاكي الاختبار الفعلي بمؤقّته.</div>
       <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const x=(window.Q_TYPES||[]).find(y=>y.k===k)||{};return `<span class="qtype">${esc(x.ar||k)} · <b class="en">${esc(x.en||'')}</b></span>`;}).join('')}</div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${route&&has?`<a class="btn p" href="${route}">${c.id==='pmp'?'ابدأ محاكي PMP® 2026':'فتح بنك المحاكاة الكامل'} ←</a>`:route?`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`:''}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${has?`<button class="btn p" data-unified-exam="${p.id}" data-exam-code="full">ابدأ محرك ${esc(c.code)} الموحد ←</button>`:`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`}</div>
       ${Object.entries(grp).map(([kind, arr]) => arr.length ? `
         <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin:20px 0 12px">
           اختبارات ${kind === 'فصل' ? 'الفصول' : kind === 'نطاق' ? 'النطاقات' : 'المحاكاة الشاملة'}</h4>
@@ -4754,9 +4751,10 @@ function openPractice(pid, requested) {
   }
   function paint(){
     const q=bank[i], T=label(q.type), text=say(q.q), why=say(q.why), isText=q.type==='fill'||q.type==='calc';
-    const multi=q.type==='multi'; const route=(window.EXAM_ROUTES||{})[c.id];
-    A().modal(`<div class="practice-head"><div><h3 style="margin:0">${requested==='game'?'تحدّي القرار':'مختبر '+esc(c.code)}</h3><span class="muted">السؤال ${i+1} من ${bank.length}</span></div>${p.lang==='both'?`<button class="btn o sm" id="practiceLang">${lang==='ar'?'English':'العربية'}</button>`:''}</div><div class="practice-meta"><span>${esc(lang==='ar'?T.ar:T.en)}</span><span>${esc(q.domain)}</span><span>${p.lang==='both'?'عربي + English':'English only'}</span></div><div class="practice-q">${esc(text)}</div><div id="practiceAnswers">${isText?`<label class="f"><span>${q.type==='calc'?'اكتب الناتج':'اكتب الإجابة'}</span><input id="practiceText" class="en" autocomplete="off"></label>`:(q.options||[]).map((o,n)=>`<label class="practice-opt" data-optrow="${n}"><input type="${multi?'checkbox':'radio'}" name="practiceOpt" value="${n}"><span>${esc(say(o))}</span></label>`).join('')}</div><div id="practiceFeedback"></div><div class="mdl-act"><button class="btn p" id="practiceCheck">تحقق من الإجابة</button>${route?`<a class="btn o" href="${route}" target="_blank" rel="noopener">بنك المحاكاة الكامل ↗</a>`:''}<button class="btn o" data-close>إغلاق</button></div>`,()=>{
+    const multi=q.type==='multi';
+    A().modal(`<div class="practice-head"><div><h3 style="margin:0">${requested==='game'?'تحدّي القرار':'مختبر '+esc(c.code)}</h3><span class="muted">السؤال ${i+1} من ${bank.length}</span></div>${p.lang==='both'?`<button class="btn o sm" id="practiceLang">${lang==='ar'?'English':'العربية'}</button>`:''}</div><div class="practice-meta"><span>${esc(lang==='ar'?T.ar:T.en)}</span><span>${esc(q.domain)}</span><span>${p.lang==='both'?'عربي + English':'English only'}</span></div><div class="practice-q">${esc(text)}</div><div id="practiceAnswers">${isText?`<label class="f"><span>${q.type==='calc'?'اكتب الناتج':'اكتب الإجابة'}</span><input id="practiceText" class="en" autocomplete="off"></label>`:(q.options||[]).map((o,n)=>`<label class="practice-opt" data-optrow="${n}"><input type="${multi?'checkbox':'radio'}" name="practiceOpt" value="${n}"><span>${esc(say(o))}</span></label>`).join('')}</div><div id="practiceFeedback"></div><div class="mdl-act"><button class="btn p" id="practiceCheck">تحقق من الإجابة</button><button class="btn o" id="openUnifiedFromPractice">المحرك الكامل داخل المنصة</button><button class="btn o" data-close>إغلاق</button></div>`,()=>{
       const lb=$('#practiceLang'); if(lb)lb.onclick=()=>{lang=lang==='ar'?'en':'ar';paint();};
+      $('#openUnifiedFromPractice').onclick=()=>{A().closeModal();runExam(pid,'full')};
       $('#practiceCheck').onclick=()=>{
         if(!checked){
           let ok=false, chosen=[];
@@ -4809,7 +4807,8 @@ function playLesson(pid, idx) {
 
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
-  openPractice(pid, eid);
+  if(window.UnifiedExam) window.UnifiedExam.open(pid, eid);
+  else openPractice(pid, eid);
 }
 
 /* ═══════════ الشهادة ═══════════ */
@@ -4941,6 +4940,7 @@ function bind() {
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
   $$('[data-lesson]').forEach(el => el.onclick = () => playLesson(el.dataset.pk, +el.dataset.lesson));
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
+  $$('[data-unified-exam]').forEach(b => b.onclick = () => runExam(b.dataset.unifiedExam, b.dataset.examCode || 'full'));
   $$('[data-practice]').forEach(b => b.onclick = () => openPractice(b.dataset.practice));
   $$('[data-game]').forEach(b => b.onclick = () => decisionGame(b.dataset.game));
   $$('[data-download]').forEach(b => b.onclick = () => downloadResource(b.dataset.pk, b.dataset.download));
@@ -5921,6 +5921,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
+<script src="/unified-exam.js?v=20260905-1"></script>
 <script>
   document.getElementById('logoLink').innerHTML = window.LOGO_FULL();
   document.getElementById('ftrLogo').innerHTML = window.LOGO_FULL();

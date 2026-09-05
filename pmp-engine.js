@@ -15,8 +15,8 @@ const CONFIG = Object.freeze({
   },
   scenarioBlock: { startQuestion: 1, endQuestion: 10, count: 10 },
   breaks: [
-    { afterQuestion: 10, durationMinutes: 5, labelAr: 'الاستراحة الأولى' },
-    { afterQuestion: 96, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
+    { afterQuestion: 10, durationMinutes: 10, labelAr: 'الاستراحة الأولى' },
+    { afterQuestion: 94, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
   ],
   timerPausesDuringBreak: true,
   typePolicy: 'include-every-active-type-when-available',
