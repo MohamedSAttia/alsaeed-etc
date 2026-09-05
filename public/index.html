@@ -4078,10 +4078,10 @@ function pkgTab(p, c, has) {
     const grp = { 'فصل': [], 'نطاق': [], 'شامل': [] };
     set.forEach(e => grp[e.kind].push(e));
     const route = (window.EXAM_ROUTES || {})[c.id];
-    return `<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
+    return `${c.id==='pmp'?`<div class="note ok mb"><b>محاكي PMP® 2026 المحدث:</b> 892 سؤالاً · 4 اختبارات كاملة · ترجمة عربي/English · فحص الإجابة · التعليم للمراجعة · الاختبار الذهبي · الحاسبة · مساعد د. محمد عطية · تقرير أداء وفق مجالات PMI.</div>`:''}<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
       اختبار بعد كل فصل · اختبار لكل نطاق بوزنه الحقيقي · اختبار شامل يحاكي الاختبار الفعلي بمؤقّته.</div>
       <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const x=(window.Q_TYPES||[]).find(y=>y.k===k)||{};return `<span class="qtype">${esc(x.ar||k)} · <b class="en">${esc(x.en||'')}</b></span>`;}).join('')}</div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${route&&has?`<a class="btn o" href="${route}" target="_blank" rel="noopener">فتح بنك المحاكاة الكامل ↗</a>`:route?`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`:''}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${route&&has?`<a class="btn p" href="${route}">${c.id==='pmp'?'ابدأ محاكي PMP® 2026':'فتح بنك المحاكاة الكامل'} ←</a>`:route?`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`:''}</div>
       ${Object.entries(grp).map(([kind, arr]) => arr.length ? `
         <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin:20px 0 12px">
           اختبارات ${kind === 'فصل' ? 'الفصول' : kind === 'نطاق' ? 'النطاقات' : 'المحاكاة الشاملة'}</h4>
