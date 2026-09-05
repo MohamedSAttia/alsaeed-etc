@@ -237,14 +237,14 @@ footer{padding:26px 0;text-align:center;color:var(--dim);font-size:.78rem;border
 <section id="setup" class="wrap">
   <div class="hero-badge">🎯 مطابق لـ ECO يوليو 2026 — People 33% · Process 41% · Business 26% · دراسة حالة + استراحات + كل أنواع الأسئلة</div>
   <h2 class="sec">اختر نمط التدريب</h2>
-  <p class="muted">الاختبار الكامل يبدأ بقسم <b>دراسة حالة</b> ثم <b>استراحة</b> ثم قسم الأسئلة المستقلة — بكل أنواع أسئلة PMI الجديدة.</p>
+  <p class="muted">الاختبار الكامل: <b>10 أسئلة على سيناريو طويل</b> ثم استراحة، ثم الأسئلة <b>11–94</b> واستراحة ثانية، ثم الأسئلة <b>95–180</b> — خلال 240 دقيقة.</p>
   <div class="stat-row" id="statRow"></div>
   <div class="types-legend">
     <span class="tl">اختيار مفرد</span><span class="tl">اختيار متعدد</span><span class="tl">توصيل (Matching)</span><span class="tl">رسم بياني (Graphic)</span><span class="tl">نقر على صورة (Hotspot)</span><span class="tl">ترتيب/سحب (Drag)</span><span class="tl">إكمال فراغ</span><span class="tl">دراسة حالة</span>
   </div>
   <div class="modes" id="modeList">
-    <div class="mode" data-mode="exam1" onclick="pickMode(this)"><div class="mi">📘</div><h4>الاختبار الكامل 1 (نمط 2026)</h4><p>185 سؤالاً: دراسة حالة (10) + استراحة + أسئلة مستقلة (175) بكل الأنواع. توزيع 33/41/26.</p></div>
-    <div class="mode" data-mode="exam2" onclick="pickMode(this)"><div class="mi">📗</div><h4>الاختبار الكامل 2 (نمط 2026)</h4><p>185 سؤالاً بدراسة حالة مختلفة ومجموعة أسئلة مختلفة — نفس البنية الرسمية.</p></div>
+    <div class="mode" data-mode="exam1" onclick="pickMode(this)"><div class="mi">📘</div><h4>الاختبار الكامل 1 (نمط 2026)</h4><p>180 سؤالاً: سيناريو طويل (1–10) + استراحة 10 دقائق + الأسئلة 11–94 + استراحة 10 دقائق + الأسئلة 95–180. توزيع 33/41/26.</p></div>
+    <div class="mode" data-mode="exam2" onclick="pickMode(this)"><div class="mi">📗</div><h4>الاختبار الكامل 2 (نمط 2026)</h4><p>180 سؤالاً بدراسة حالة مختلفة ومجموعة أسئلة مختلفة — نفس بنية المحاكاة.</p></div>
     <div class="mode" data-mode="exam3" onclick="pickMode(this)"><div class="mi">📙</div><h4>الاختبار الكامل 3</h4><p>مجموعة أسئلة إضافية بنفس نمط 2026.</p></div>
     <div class="mode" data-mode="exam4" onclick="pickMode(this)"><div class="mi">📕</div><h4>الاختبار الكامل 4</h4><p>مجموعة أسئلة إضافية بنفس نمط 2026.</p></div>
     <div class="mode" data-mode="approach" onclick="pickMode(this)"><div class="mi">🧭</div><h4>حسب النهج</h4><p>تنبؤي · رشيق · مختلط (بدون قسم حالة/استراحة).</p></div>
@@ -355,7 +355,7 @@ footer{padding:26px 0;text-align:center;color:var(--dim);font-size:.78rem;border
 <div id="breakOv">
   <div style="font-size:2.6rem">☕</div>
   <div style="font-size:1.5rem;font-weight:800" id="breakTitle">استراحة</div>
-  <div class="bt" id="breakTimer">05:00</div>
+  <div class="bt" id="breakTimer">10:00</div>
   <div class="muted" style="color:#cbd5e1;max-width:460px">استرِح قليلاً. بعد بدء الاستراحة <b>لا يمكنك الرجوع إلى أسئلة القسم السابق</b> — تمامًا كما في اختبار PMI الرسمي.</div>
   <button class="btn btn-g" onclick="endBreak()">▶️ متابعة القسم التالي الآن</button>
 </div>
@@ -378,7 +378,7 @@ const AP_AR={predictive:'تنبؤي',agile:'رشيق',hybrid:'مختلط',genera
 const AP_EN={predictive:'Predictive',agile:'Agile',hybrid:'Hybrid',general:'General'};
 const TYPE_AR={S:'اختيار مفرد',M:'اختيار متعدد (اختر كل ما ينطبق)',MT:'توصيل (Matching)',GR:'سؤال رسم بياني (Graphic)',HS:'نقر على الصورة (Point & Click)',OR:'ترتيب/سحب (Drag & Drop)',FB:'إكمال فراغ (Fill-in-blank)',EM:'مطابقة معزّزة — سحب وإفلات (Enhanced Matching)',PD:'قائمة منسدلة (Pull-down List)',GRM:'سؤال رسم/مستند — اختيار متعدد (Graphic-Based)'};
 const PASS=0.65, ABOVE=0.75, LOW=0.55;
-const EXAM_CFG={breakSec:300}; // official: two 5-minute breaks. Change to 600 for 10-minute breaks.
+const EXAM_CFG={breakSec:600,caseCount:10,sectionTwoEnd:94,totalQuestions:180};
 const MODE_AR={exam1:'الاختبار الكامل 1',exam2:'الاختبار الكامل 2',exam3:'الاختبار الكامل 3',exam4:'الاختبار الكامل 4',approach:'حسب النهج',domain:'حسب المجال',chapter:'حسب الموضوع',golden:'الاختبار الذهبي',custom:'تدريب مخصّص'};
 let S=null, timerInt=null, paused=false, breakInt=null;
 function loadGold(){try{return JSON.parse(localStorage.getItem('pmpGold'))||{flag:[],wrong:[]}}catch(e){return{flag:[],wrong:[]}}}
@@ -398,7 +398,7 @@ function renderHist(){const w=document.getElementById('histWrap');if(!w)return;c
     '</div><button class="btn btn-sm" style="margin-top:12px;background:var(--roseS);color:var(--rose)" onclick="clearHist()">🗑️ مسح السجل</button>';}
 function initStats(){
   const g=loadGold();const c={people:0,process:0,business:0};BANK.forEach(b=>c[b.dm]!==undefined&&c[b.dm]++);
-  document.getElementById('statRow').innerHTML=`<div class="stat"><div class="n">${BANK.length}</div><div class="l">إجمالي البنك</div></div><div class="stat"><div class="n">4×185</div><div class="l">اختبارات كاملة</div></div><div class="stat"><div class="n">${Object.keys(CASES).length}</div><div class="l">دراسات حالة</div></div><div class="stat"><div class="n">${new Set([...g.flag,...g.wrong]).size}</div><div class="l">⭐ ذهبية محفوظة</div></div>`;
+  document.getElementById('statRow').innerHTML=`<div class="stat"><div class="n">${BANK.length}</div><div class="l">إجمالي البنك</div></div><div class="stat"><div class="n">4×180</div><div class="l">اختبارات كاملة</div></div><div class="stat"><div class="n">${Object.keys(CASES).length}</div><div class="l">دراسات حالة</div></div><div class="stat"><div class="n">${new Set([...g.flag,...g.wrong]).size}</div><div class="l">⭐ ذهبية محفوظة</div></div>`;
   const chs=[...new Set(BANK.map(b=>b.ch))].filter(Boolean).sort();
   document.getElementById('selChapter').innerHTML=chs.map(x=>`<option value="${x.replace(/"/g,'&quot;')}">${x} (${BANK.filter(b=>b.ch===x).length})</option>`).join('');
   renderHist();
@@ -411,7 +411,7 @@ function pickMode(el){document.querySelectorAll('.mode').forEach(m=>m.classList.
   document.getElementById('selChapter').classList.toggle('hide',MODE!=='chapter');
   document.getElementById('numWrap').classList.toggle('hide',!['approach','domain','chapter'].includes(MODE));
   document.getElementById('chkBreaks').parentElement.style.display=isFullExam(MODE)?'':'none';
-  document.getElementById('setupInfo').textContent=isFullExam(MODE)?'185 سؤالاً: دراسة حالة + استراحة + أسئلة مستقلة.':'تدريب مركّز بدون قسم حالة/استراحة.';}
+  document.getElementById('setupInfo').textContent=isFullExam(MODE)?'180 سؤالاً خلال 240 دقيقة: 10 أسئلة سيناريو + استراحة 10 دقائق + الأسئلة 11–94 + استراحة 10 دقائق + الأسئلة 95–180.':'تدريب مركّز بدون قسم حالة/استراحة.';}
 /* build item per type */
 function mkItem(q,shufA){
   const it={id:q.id,q:q.q,qa:q.qa,t:q.t,dm:q.dm,ap:q.ap,ch:q.ch,ex:q.ex,f:q.f,fa:q.fa,svg:q.svg||null,caseId:q.caseId||null,
@@ -447,15 +447,15 @@ function startExam(){
   if(isFullExam(MODE)){
     const ex=EXAMS[MODE]; if(!ex){alert('هذا الاختبار غير متوفر.');return;}
     const caseQ=CASES[ex.caseId].qids.map(id=>byId[id]).filter(Boolean);
-    let s2=ex.s2.slice(); shuffle(s2);
+    let s2=ex.s2.slice(); shuffle(s2); s2=s2.slice(0,EXAM_CFG.totalQuestions-caseQ.length);
     const s2q=s2.map(id=>byId[id]).filter(Boolean);
     items=[...caseQ,...s2q].map(q=>mkItem(q,shufA));
-    const nCase=caseQ.length, half=Math.ceil(s2q.length/2);
+    const nCase=caseQ.length, secondEnd=EXAM_CFG.sectionTwoEnd;
     const useBreaks=document.getElementById('chkBreaks').checked;
     sections=[
-      {name:'دراسة الحالة',start:0,end:nCase,brk:useBreaks?EXAM_CFG.breakSec:0},
-      {name:'الأسئلة المستقلة — الجزء 1',start:nCase,end:nCase+half,brk:useBreaks?EXAM_CFG.breakSec:0},
-      {name:'الأسئلة المستقلة — الجزء 2',start:nCase+half,end:items.length,brk:0},
+      {name:'السيناريو الطويل — الأسئلة 1–10',start:0,end:nCase,brk:useBreaks?EXAM_CFG.breakSec:0},
+      {name:'الأسئلة 11–94',start:nCase,end:secondEnd,brk:useBreaks?EXAM_CFG.breakSec:0},
+      {name:'الأسئلة 95–180',start:secondEnd,end:items.length,brk:0},
     ];
   } else {
     const qs=buildQuestions(MODE);
@@ -622,7 +622,7 @@ function go(d){const sec=curSec();
   renderQ();window.scrollTo({top:0,behavior:'smooth'});}
 function advanceSection(){S.curSection++;S.idx=S.sections[S.curSection].start;renderQ();buildGrid();window.scrollTo({top:0,behavior:'smooth'});}
 function startBreak(sec){paused=true;const ov=document.getElementById('breakOv');ov.classList.add('on');
-  document.getElementById('breakTitle').textContent='استراحة — '+(S.curSection===0?'انتهى قسم دراسة الحالة':'استراحة منتصف الاختبار');
+  document.getElementById('breakTitle').textContent='استراحة 10 دقائق — '+(S.curSection===0?'انتهت أسئلة السيناريو 1–10':'انتهت الأسئلة 11–94');
   let left=sec;const t=document.getElementById('breakTimer');t.textContent=p2(Math.floor(left/60))+':'+p2(left%60);
   clearInterval(breakInt);breakInt=setInterval(()=>{left--;t.textContent=p2(Math.floor(left/60))+':'+p2(left%60);if(left<=0)endBreak();},1000);}
 function endBreak(){clearInterval(breakInt);document.getElementById('breakOv').classList.remove('on');paused=false;advanceSection();}
