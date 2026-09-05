@@ -239,6 +239,24 @@ export function installV16(ctx) {
     console.error('Unified question bank import skipped:', unifiedError.message);
   }
 
+  // Every package type for a course draws from the same editable course bank.
+  // Materialized copies keep the existing package-scoped exam engine working.
+  try {
+    if (Array.isArray(packageList)) {
+      const copyQuestionBank = db.prepare(`INSERT OR IGNORE INTO questions
+        (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated)
+        SELECT ? || '::' || id, ?, domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated
+        FROM questions WHERE package_id=?`);
+      packageList.forEach(function (pkg) {
+        if (!pkg || !pkg.id || !pkg.course || pkg.type === 'full' || String(pkg.id).endsWith('-full')) return;
+        const source = String(pkg.course) + '-full';
+        copyQuestionBank.run(String(pkg.id), String(pkg.id), source);
+      });
+    }
+  } catch (copyError) {
+    console.error('Package question bank copy skipped:', copyError.message);
+  }
+
   async function handleAdmin(req, res, parts, method) {
     if (parts[0] === 'blogs') {
       if (method === 'GET' && parts.length === 1) {
