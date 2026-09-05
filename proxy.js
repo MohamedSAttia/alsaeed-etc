@@ -6,6 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
+import { installV16 } from './v16-backend.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -114,6 +115,8 @@ async function readJson(req, limit = 3 * 1024 * 1024) {
     req.on('error', reject);
   });
 }
+
+const v16 = installV16({ db, setting, setSetting, uid, sendJson, readJson, grant, jwtSecret: JWT_SECRET });
 
 function tokenPayload(req) {
   if (!JWT_SECRET) return null;
@@ -279,7 +282,9 @@ function markOrderPaid(order) {
   const tx = db.transaction(() => {
     const current = db.prepare('SELECT status FROM orders WHERE id=?').get(order.id);
     if (!current || current.status === 'paid') return;
-    db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=?").run(Date.now(), order.id);
+    const paidAt=Date.now();
+    db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=?").run(paidAt, order.id);
+    v16.markPaid(order.id, paidAt);
     grant(order.user_id, order.package_id, pkg.days || 90, 'Kashier');
   });
   tx();
@@ -316,11 +321,15 @@ async function handleKashierCreate(req, res) {
     numericAmount = Math.max(0, Math.round(numericAmount * (1 - discount / 100) * 100) / 100);
   }
   if (numericAmount <= 0) return sendJson(res, 400, { error: 'قيمة الطلب بعد الخصم غير صالحة للدفع الإلكتروني' });
+  const sourceCurrency = String(pkg.currency || 'USD').toUpperCase();
+  const currency = String(body.currency || sourceCurrency).toUpperCase();
+  try { numericAmount = v16.convert(numericAmount, sourceCurrency, currency); }
+  catch (e) { return sendJson(res, 400, { error: e.message }); }
   const amount = numericAmount.toFixed(2);
-  const currency = String(pkg.currency || 'USD').toUpperCase();
   const orderId = 'ORD-' + uid().toUpperCase();
   db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,gateway_id,created)
     VALUES (?,?,?,?,?,?,?,?,?)`).run(orderId, user.id, packageId, numericAmount, currency, 'pending', 'kashier', orderId, Date.now());
+  v16.createInvoice(orderId, user, numericAmount, currency, { name: body.billingName, taxId: body.buyerTaxId, address: body.billingAddress });
   const hash = kashierOrderHash(cfg.mid, orderId, amount, currency, cfg.paymentKey);
   const params = new URLSearchParams({
     merchantId: cfg.mid, orderId, amount, currency, hash,
@@ -519,6 +528,9 @@ async function handleContentAdmin(req, res, requestUrl) {
     return sendJson(res,200,rows.map(u=>({...u,enrollments:ens.filter(e=>e.user_id===u.id)})));
   }
 
+  const v16Result = await v16.handleAdmin(req, res, parts, method);
+  if (v16Result !== false) return v16Result;
+
   return sendJson(res, 404, { error: 'مسار إدارة المحتوى غير معروف' });
 }
 
@@ -542,6 +554,10 @@ const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
+    if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname.startsWith('/api/invoices/')) {
+      const v16Result = await v16.handlePublic(req, res, requestUrl, authenticatedUser);
+      if (v16Result !== false) return v16Result;
+    }
     if (requestUrl.pathname.startsWith(`/${PANEL}/api/content-admin`)) return await handleContentAdmin(req,res,requestUrl);
     if (requestUrl.pathname.startsWith('/api/admin-question-bank')) { requestUrl.pathname = `/${PANEL}/api/content-admin/questions` + requestUrl.pathname.slice('/api/admin-question-bank'.length); return await handleContentAdmin(req,res,requestUrl); }
     if (PAYMENT_GATEWAY === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
