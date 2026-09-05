@@ -99,7 +99,6 @@ export function installV16(ctx) {
     });
   }
 
-
   async function handleAdmin(req, res, parts, method) {
     if (parts[0] === 'blogs') {
       if (method === 'GET' && parts.length === 1) {
