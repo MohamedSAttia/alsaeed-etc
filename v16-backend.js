@@ -40,7 +40,8 @@ export function installV16(ctx) {
       baseCurrency: value.baseCurrency,
       currencies: Object.keys(value.currencies || {}).filter(function (key) {
         return Number(value.currencies[key]) > 0;
-      })
+      }),
+      rates: value.currencies || {}
     };
   }
 
@@ -180,6 +181,11 @@ export function installV16(ctx) {
         user: { id: user.id, name: user.name, email: user.email, role: 'student' },
         packageId: 'pmp-full'
       });
+    }
+    if (method === 'GET' && pathname === '/api/my-invoices') {
+      const user = authenticatedUser(req);
+      if (!user) return sendJson(res, 401, { error: 'يلزم تسجيل الدخول' });
+      return sendJson(res, 200, db.prepare('SELECT i.*,o.package_id FROM invoices i JOIN orders o ON o.id=i.order_id WHERE i.user_id=? ORDER BY i.created DESC').all(user.id));
     }
     if (method === 'GET' && pathname.startsWith('/api/invoices/')) {
       const user = authenticatedUser(req);
