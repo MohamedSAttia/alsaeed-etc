@@ -167,7 +167,6 @@ export function installV16(ctx) {
   // Import the substantial legacy exam banks shipped with the platform into
   // the editable admin question bank. INSERT OR IGNORE makes this idempotent.
   const legacyBanks = [
-    ['rmp-exam.html', 'rmp-full', 'RMP'],
     ['grcp-exam.html', 'grcp-full', 'GRCP'],
     ['pba-exam.html', 'pba-full', 'PBA']
   ];
@@ -201,6 +200,37 @@ export function installV16(ctx) {
       console.error('Legacy question bank import skipped:', bank[2], error.message);
     }
   });
+
+  // Unified bank supplied with the V15 merge package: PMP, RMP and CAPM.
+  try {
+    const unifiedFile = path.join(process.cwd(), 'public', 'data', 'qbank.json');
+    if (fs.existsSync(unifiedFile)) {
+      const rows = JSON.parse(fs.readFileSync(unifiedFile, 'utf8'));
+      const typeMap = { mcq: 'single', multi: 'multiple', match: 'matching' };
+      const now = Date.now();
+      rows.forEach(function (q, index) {
+        const course = String(q.course || '').toLowerCase();
+        if (!['pmp', 'rmp', 'capm'].includes(course)) return;
+        const enOptions = q.o && Array.isArray(q.o.en) ? q.o.en : [];
+        const arOptions = q.o && Array.isArray(q.o.ar) ? q.o.ar : [];
+        const options = arOptions.length ? arOptions : enOptions;
+        const correct = (Array.isArray(q.c) ? q.c : [q.c]).filter(Number.isInteger).map(function (answer) {
+          return String.fromCharCode(65 + answer);
+        }).join(',');
+        if (!correct || !options.length) return;
+        legacyInsert.run(
+          'QB-' + String(q.id || course + '-' + index), course + '-full', q.domain || '', q.chapter || '',
+          'medium', typeMap[q.type] || q.type || 'single',
+          q.q && q.q.ar ? q.q.ar : '', q.q && q.q.en ? q.q.en : '', JSON.stringify(options), correct,
+          q.x && q.x.ar ? q.x.ar : '', q.x && q.x.en ? q.x.en : '',
+          String(q.ref || '') + (q.review === 'NEEDS REVIEW' ? ' | NEEDS REVIEW' : ''),
+          q.active === 0 ? 0 : 1, now, now
+        );
+      });
+    }
+  } catch (unifiedError) {
+    console.error('Unified question bank import skipped:', unifiedError.message);
+  }
 
   async function handleAdmin(req, res, parts, method) {
     if (parts[0] === 'blogs') {
