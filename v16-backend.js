@@ -146,9 +146,11 @@ export function installV16(ctx) {
   };
   let packageList = [];
   try { packageList = JSON.parse(setting('content_packages') || setting('catalog') || '[]'); } catch {}
+  try {
   if (Array.isArray(packageList)) {
     const insertQuestion = db.prepare('INSERT INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     packageList.forEach(function (pkg) {
+      if (!pkg || typeof pkg !== 'object' || !pkg.id) return;
       const count = db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=?').get(pkg.id).c;
       if (count) return;
       const courseId = String(pkg.course || pkg.id.split('-')[0]).toLowerCase();
@@ -160,6 +162,9 @@ export function installV16(ctx) {
         insertQuestion.run(id, pkg.id, q[1], 'V16 foundation', index === 2 ? 'hard' : 'medium', q[0], q[3] || '', q[2], JSON.stringify(options), q[6], q[3] ? 'راجع المفهوم والسبب قبل اختيار الإجابة.' : '', 'Review the concept and rationale before selecting the answer.', 'AlSaeed V16 foundation bank', 1, now, now);
       });
     });
+  }
+  } catch (seedError) {
+    console.error('Question seed skipped:', seedError && seedError.message ? seedError.message : seedError);
   }
 
   async function handleAdmin(req, res, parts, method) {
