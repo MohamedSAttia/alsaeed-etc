@@ -205,9 +205,14 @@ export function installV16(ctx) {
   try {
     // Remove the temporary RMP legacy import now superseded by qbank.json.
     db.prepare("DELETE FROM questions WHERE id LIKE 'LEGACY-RMP-%'").run();
-    const unifiedFile = path.join(process.cwd(), 'public', 'data', 'qbank.json');
-    if (fs.existsSync(unifiedFile)) {
-      const rows = JSON.parse(fs.readFileSync(unifiedFile, 'utf8'));
+    const bankDir = path.join(process.cwd(), 'public', 'data');
+    const chunkFiles = fs.existsSync(bankDir)
+      ? fs.readdirSync(bankDir).filter(function (name) { return /^qbank-\d+\.json$/.test(name); }).sort()
+      : [];
+    if (chunkFiles.length) {
+      const rows = chunkFiles.flatMap(function (name) {
+        return JSON.parse(fs.readFileSync(path.join(bankDir, name), 'utf8'));
+      });
       const typeMap = { mcq: 'single', multi: 'multiple', match: 'matching' };
       const now = Date.now();
       rows.forEach(function (q, index) {
