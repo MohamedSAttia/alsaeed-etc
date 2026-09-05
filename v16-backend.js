@@ -203,6 +203,8 @@ export function installV16(ctx) {
 
   // Unified bank supplied with the V15 merge package: PMP, RMP and CAPM.
   try {
+    // Remove the temporary RMP legacy import now superseded by qbank.json.
+    db.prepare("DELETE FROM questions WHERE id LIKE 'LEGACY-RMP-%'").run();
     const unifiedFile = path.join(process.cwd(), 'public', 'data', 'qbank.json');
     if (fs.existsSync(unifiedFile)) {
       const rows = JSON.parse(fs.readFileSync(unifiedFile, 'utf8'));
