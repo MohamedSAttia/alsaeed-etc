@@ -421,7 +421,7 @@ async function handleContentAdmin(req, res, requestUrl) {
       if (!b.package_id || !(String(b.question_ar || '').trim() || String(b.question_en || '').trim())) return sendJson(res, 400, { error: 'الباقة ونص السؤال عربيًا أو إنجليزيًا مطلوبان' });
       const id = uid(), now = Date.now(), options = readQuestionOptions(b);
       db.prepare(`INSERT INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,b.domain||'',b.topic||'',b.difficulty||'medium',b.type||'mcq',String(b.question_ar).trim(),b.question_en||'',JSON.stringify(options),String(b.correct||'A').toUpperCase(),b.explanation_ar||'',b.explanation_en||'',b.reference||'',b.active===false?0:1,now,now);
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,b.domain||'',b.topic||'',b.difficulty||'medium',b.type||'mcq',String(b.question_ar || '').trim(),b.question_en||'',JSON.stringify(options),String(b.correct||'A').toUpperCase(),b.explanation_ar||'',b.explanation_en||'',b.reference||'',b.active===false?0:1,now,now);
       return sendJson(res, 200, { ok: true, id });
     }
     if (method === 'POST' && parts.length === 3 && parts[2] === 'bulk') {
@@ -451,6 +451,31 @@ async function handleContentAdmin(req, res, requestUrl) {
     }
   }
 
+  if (parts[0] === 'exams' && method === 'POST' && parts[1] === 'seed') {
+    const packages = getPackages().filter(p => p.active !== false);
+    const exists = db.prepare('SELECT id FROM exams WHERE package_id=? AND kind=?').pluck();
+    const insert = db.prepare('INSERT INTO exams (id,package_id,title,kind,duration,question_count,pass_score,config,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+    const now = Date.now();
+    let created = 0;
+    const tx = db.transaction(() => {
+      packages.forEach(p => {
+        const type = String(p.type || '').trim();
+        const templates = [];
+        if (type === 'sim') templates.push(['Simulation Exam', 'simulation', 180, Math.min(Number(p.questions || 100), 180) || 100, 75]);
+        else if (type === 'review') templates.push(['Final Review Test', 'final', 90, Math.min(Number(p.questions || 80), 100) || 60, 75]);
+        else if (type === 'full') templates.push(['Quick Knowledge Check', 'mini', 20, Math.min(Number(p.shortQuizzes || 20), 20) || 10, 70], ['Full Mock Exam', 'simulation', 180, Math.min(Number(p.questions || 120), 180) || 120, 75]);
+        else if (type === 'self') templates.push(['Self Study Quiz', 'practice', 45, Math.min(Number(p.questions || 60), 60) || 40, 70]);
+        templates.forEach(([title, kind, duration, count, pass]) => {
+          if (exists(p.id, kind)) return;
+          insert.run(uid(), p.id, title, kind, duration, count, pass, JSON.stringify({ source: 'v15-auto', lang: p.lang || 'both', packageType: type }), 1, now, now);
+          created++;
+        });
+      });
+    });
+    tx();
+    return sendJson(res, 200, { ok: true, created });
+  }
+
   if (parts[0] === 'exams') {
     if (method === 'GET' && parts.length === 2) {
       return sendJson(res, 200, db.prepare('SELECT * FROM exams WHERE package_id=? ORDER BY created').all(decodeURIComponent(parts[1])).map(x => ({ ...x, active: !!x.active })));
@@ -475,31 +500,6 @@ async function handleContentAdmin(req, res, requestUrl) {
     if (method === 'GET' && parts.length === 2) return sendJson(res,200,db.prepare('SELECT * FROM resources WHERE package_id=? ORDER BY sort,created').all(decodeURIComponent(parts[1])).map(x=>({...x,active:!!x.active})));
     if (method === 'POST' && parts.length === 1) { let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}if(!b.package_id||!String(b.title||'').trim())return sendJson(res,400,{error:'الباقة والعنوان مطلوبان'});const id=uid(),now=Date.now();db.prepare(`INSERT INTO resources (id,package_id,title,type,url,note,sort,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,String(b.title).trim(),b.type||'link',b.url||'',b.note||'',+b.sort||0,b.active===false?0:1,now,now);return sendJson(res,200,{ok:true,id}); }
     if (parts.length===2){const id=decodeURIComponent(parts[1]),old=db.prepare('SELECT * FROM resources WHERE id=?').get(id);if(!old)return sendJson(res,404,{error:'المورد غير موجود'});if(method==='PUT'){let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}db.prepare(`UPDATE resources SET package_id=?,title=?,type=?,url=?,note=?,sort=?,active=?,updated=? WHERE id=?`).run(b.package_id||old.package_id,b.title||old.title,b.type||old.type,b.url??old.url,b.note??old.note,+b.sort||old.sort,b.active===false?0:1,Date.now(),id);return sendJson(res,200,{ok:true})}if(method==='DELETE'){db.prepare('DELETE FROM resources WHERE id=?').run(id);return sendJson(res,200,{ok:true})}}
-  }
-
-  if (parts[0] === 'exams' && method === 'POST' && parts[1] === 'seed') {
-    const packages = getPackages().filter(p => p.active !== false);
-    const exists = db.prepare('SELECT id FROM exams WHERE package_id=? AND kind=?').pluck();
-    const insert = db.prepare('INSERT INTO exams (id,package_id,title,kind,duration,question_count,pass_score,config,active,created,updated) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-    const now = Date.now();
-    let created = 0;
-    const tx = db.transaction(() => {
-      packages.forEach(p => {
-        const type = String(p.type || '').trim();
-        const templates = [];
-        if (type === 'sim') templates.push(['Simulation Exam', 'simulation', 180, Math.min(Number(p.questions || 100), 180) || 100, 75]);
-        else if (type === 'review') templates.push(['Final Review Test', 'final', 90, Math.min(Number(p.questions || 80), 100) || 60, 75]);
-        else if (type === 'full') templates.push(['Quick Knowledge Check', 'mini', 20, Math.min(Number(p.shortQuizzes || 20), 20) || 10, 70], ['Full Mock Exam', 'simulation', 180, Math.min(Number(p.questions || 120), 180) || 120, 75]);
-        else if (type === 'self') templates.push(['Self Study Quiz', 'practice', 45, Math.min(Number(p.questions || 60), 60) || 40, 70]);
-        templates.forEach(([title, kind, duration, count, pass]) => {
-          if (exists(p.id, kind)) return;
-          insert.run(uid(), p.id, title, kind, duration, count, pass, JSON.stringify({ source: 'v15-auto', lang: p.lang || 'both', packageType: type }), 1, now, now);
-          created++;
-        });
-      });
-    });
-    tx();
-    return sendJson(res, 200, { ok: true, created });
   }
 
   if (parts[0] === 'enroll' && (method === 'POST' || method === 'DELETE')) {
