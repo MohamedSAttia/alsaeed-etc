@@ -2,6 +2,7 @@ import http from 'http';
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
@@ -343,7 +344,21 @@ function forward(req,res){
     const chunks=[];
     up.on('data',c=>chunks.push(c));
     up.on('end',()=>{
-      let html=Buffer.concat(chunks).toString('utf8');
+      const raw=Buffer.concat(chunks);
+      const encoding=String(up.headers['content-encoding']||'').toLowerCase();
+      let body;
+      try {
+        if(encoding==='br') body=zlib.brotliDecompressSync(raw);
+        else if(encoding==='gzip'||encoding==='x-gzip') body=zlib.gunzipSync(raw);
+        else if(encoding==='deflate') body=zlib.inflateSync(raw);
+        else body=raw;
+      } catch (e) {
+        console.warn('HTML decompression skipped:', e.message);
+        res.writeHead(up.statusCode||200,up.headers);
+        res.end(raw);
+        return;
+      }
+      let html=body.toString('utf8');
       const premium='<link rel="stylesheet" href="/premium-v2.css?v=20260903-1">';
       if(!urlPathIsAdmin(req.url) && !html.includes('/premium-v2.css')) html=html.includes('</head>')?html.replace('</head>',premium+'\n</head>'):premium+html;
       const outHeaders={...up.headers};
