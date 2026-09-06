@@ -1,6 +1,7 @@
 import http from 'http';
 import { spawn } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
@@ -26,10 +27,45 @@ child.on('exit', (code, signal) => {
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
+try {
+  db.exec(`CREATE TABLE IF NOT EXISTS questions (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL,
+  domain TEXT, topic TEXT, difficulty TEXT DEFAULT 'medium', type TEXT DEFAULT 'mcq',
+  question_ar TEXT NOT NULL, question_en TEXT,
+  options TEXT NOT NULL, correct TEXT NOT NULL,
+  explanation_ar TEXT, explanation_en TEXT, reference TEXT,
+  active INTEGER DEFAULT 1, created INTEGER NOT NULL, updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_questions_package ON questions(package_id);
+CREATE TABLE IF NOT EXISTS exams (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL, title TEXT NOT NULL,
+  kind TEXT DEFAULT 'mini', duration INTEGER DEFAULT 60,
+  question_count INTEGER DEFAULT 50, pass_score INTEGER DEFAULT 70,
+  config TEXT DEFAULT '{}', active INTEGER DEFAULT 1,
+  created INTEGER NOT NULL, updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_exams_package ON exams(package_id);
+CREATE TABLE IF NOT EXISTS lessons (
+  package_id TEXT NOT NULL, idx INTEGER NOT NULL,
+  title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT,
+  free INTEGER DEFAULT 0, notes TEXT, notes_en TEXT,
+  PRIMARY KEY (package_id, idx)
+);
+`);
+} catch (e) { console.warn('content tables:', e.message); }
+
 function ensureColumn(table, col, ddl) {
-  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(x => x.name);
-  if (!cols.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+  try {
+    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
+    if (!exists) return false;
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(x => x.name);
+    if (!cols.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+    return true;
+  } catch { return false; }
 }
+ensureColumn('lessons', 'title_en', 'TEXT');
+ensureColumn('lessons', 'notes', 'TEXT');
+ensureColumn('lessons', 'notes_en', 'TEXT');
 ensureColumn('questions', 'options_en', "TEXT DEFAULT '[]'");
 ensureColumn('questions', 'options_ar', "TEXT DEFAULT '[]'");
 ensureColumn('questions', 'approach', 'TEXT');
@@ -37,6 +73,8 @@ ensureColumn('questions', 'source_exam', 'TEXT');
 ensureColumn('questions', 'source_id', 'TEXT');
 ensureColumn('questions', 'correct_json', 'TEXT');
 ensureColumn('questions', 'meta', 'TEXT');
+ensureColumn('questions', 'is_official', 'INTEGER DEFAULT 0');
+ensureColumn('questions', 'priority', 'INTEGER DEFAULT 0');
 
 // Repair the old PMP import: English text had been copied into both EN and AR fields.
 try {
@@ -63,6 +101,56 @@ function getPackages() {
   try { const a = JSON.parse(setting('catalog') || '[]'); return Array.isArray(a) ? a : []; }
   catch { return []; }
 }
+
+function seedOfficialQuestions() {
+  try {
+    const seedPath = path.join(__dirname, 'public', 'data', 'pmi-official-101.json');
+    if (!fs.existsSync(seedPath)) return;
+    const rows = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+    const have = db.prepare("SELECT COUNT(*) c FROM questions WHERE id LIKE 'PMI-OFFICIAL-%'").get().c;
+    if (have >= rows.length) return;
+    const cols = db.prepare('PRAGMA table_info(questions)').all().map(x => x.name);
+    const packageIds = ['pmp-full', 'pmp-sim', 'pmp-review'];
+    const wanted = ['id','course','type','domain','topic','difficulty','question_en','question_ar',
+      'options_en','options_ar','correct','correct_json','explanation_en','explanation_ar',
+      'reference','active','is_official','priority','source_exam','source_id','package_id'];
+    const info = db.prepare('PRAGMA table_info(questions)').all();
+    const required = info.filter(c => c.notnull && c.dflt_value === null).map(c => c.name);
+    const fields = [...new Set(wanted.filter(c => cols.includes(c)).concat(
+      required.filter(c => cols.includes(c))))];
+    const insert = db.prepare(`INSERT OR REPLACE INTO questions (${fields.join(',')})
+      VALUES (${fields.map(c => '@' + c).join(',')})`);
+    let sequence = 0;
+    const transaction = db.transaction(list => list.forEach(row => {
+      const values = {
+        package_id: packageIds[sequence++ % packageIds.length],
+        id: row.id, course: row.course, type: row.type, domain: row.domain,
+        topic: row.topic, difficulty: row.difficulty,
+        question_en: row.question_en || '', question_ar: row.question_ar || '',
+        options_en: JSON.stringify(row.options_en || []),
+        options_ar: JSON.stringify(row.options_ar || []),
+        correct: row.correct || '', correct_json: JSON.stringify(row.correct_json || []),
+        explanation_en: row.explanation_en || '', explanation_ar: row.explanation_ar || '',
+        reference: row.reference || '', active: 1, is_official: 1, priority: 100,
+        source_exam: row.source_exam || 'PMI Official', source_id: row.source_id || row.id
+      };
+      const params = {};
+      fields.forEach(field => {
+        if (values[field] !== undefined) { params[field] = values[field]; return; }
+        if (field === 'options') params[field] = JSON.stringify(row.options_ar || row.options_en || []);
+        else if (field === 'question') params[field] = row.question_ar || row.question_en || '';
+        else if (field === 'explanation') params[field] = row.explanation_ar || row.explanation_en || '';
+        else if (field === 'created' || field === 'updated') params[field] = Date.now();
+        else params[field] = '';
+      });
+      insert.run(params);
+    }));
+    transaction(rows);
+    console.log(`✅ بُذرت ${rows.length} سؤالاً رسمياً من PMI`);
+  } catch (e) { console.warn('PMI official seed:', e.message); }
+}
+seedOfficialQuestions();
+
 function savePackages(list) {
   const safe = Array.isArray(list) ? list : [];
   setSetting('content_packages', JSON.stringify(safe));
@@ -229,7 +317,9 @@ function handleLearnerQuestionBank(req,res,url){
     if(en.expires && en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
   }
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
-  const rows=db.prepare('SELECT * FROM questions WHERE package_id=? AND active=1 ORDER BY RANDOM() LIMIT ?').all(packageId,requested);
+  const rows=db.prepare(`SELECT * FROM questions WHERE package_id=? AND active=1
+    ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
+    LIMIT ?`).all(packageId,requested);
   return sendJson(res,200,{packageId,total:rows.length,questions:rows.map(q=>({
     id:q.id,domain:q.domain||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
     question_ar:q.question_ar||'',question_en:q.question_en||'',

@@ -179,7 +179,18 @@ function normalizePackage(body, old = {}) {
   if (!/^[a-z0-9][a-z0-9_-]{2,80}$/.test(id)) throw new Error('معرّف الباقة يجب أن يكون إنجليزياً وبدون مسافات');
   const ar = String(body.ar ?? old.ar ?? '').trim();
   if (!ar) throw new Error('اسم الباقة بالعربية مطلوب');
-  const chapters = Array.isArray(body._chapters) ? body._chapters.map(x => String(x).trim()).filter(Boolean) : (old._chapters || []);
+  const normalizeChapters = value => (Array.isArray(value) ? value : []).map(chapter => {
+    if (chapter && typeof chapter === 'object') {
+      const chapterAr = String(chapter.ar || '').trim();
+      const chapterEn = String(chapter.en || '').trim();
+      return (chapterAr || chapterEn) ? { ar: chapterAr, en: chapterEn } : null;
+    }
+    const text = String(chapter || '').trim();
+    return text ? { ar: text, en: '' } : null;
+  }).filter(Boolean);
+  const chapters = body._chapters !== undefined
+    ? normalizeChapters(body._chapters)
+    : normalizeChapters(old._chapters || []);
   return {
     ...old,
     schemaVersion: 15,
@@ -188,6 +199,9 @@ function normalizePackage(body, old = {}) {
     ar,
     en: String(body.en ?? old.en ?? '').trim(),
     desc: String(body.desc ?? old.desc ?? '').trim(),
+    desc_en: String(body.desc_en ?? old.desc_en ?? '').trim(),
+    audience: String(body.audience ?? old.audience ?? '').trim(),
+    audience_en: String(body.audience_en ?? old.audience_en ?? '').trim(),
     price: Math.max(0, Number(body.price ?? old.price ?? 0) || 0),
     currency: String(body.currency ?? old.currency ?? 'USD').toUpperCase(),
     days: Math.max(1, Number(body.days ?? old.days ?? 90) || 90),

@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url';
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 const SITE = process.env.SITE_URL || `http://localhost:${PORT}`;
@@ -50,7 +51,8 @@ CREATE TABLE IF NOT EXISTS progress (
 );
 CREATE TABLE IF NOT EXISTS lessons (
   package_id TEXT NOT NULL, idx INTEGER NOT NULL,
-  title TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER DEFAULT 0,
+  title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER DEFAULT 0,
+  notes TEXT, notes_en TEXT,
   PRIMARY KEY (package_id, idx)
 );
 CREATE TABLE IF NOT EXISTS certificates (
@@ -214,7 +216,7 @@ app.put('/api/progress/:pkg', auth, (req, res) => {
 
 /* ═══════════ الدروس والفيديو — لا تُسلَّم إلا لمشترك ═══════════ */
 app.get('/api/lessons/:pkg', (req, res) => {
-  const rows = db.prepare('SELECT idx,title,chapter,duration,vimeo,free FROM lessons WHERE package_id=? ORDER BY idx')
+  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en FROM lessons WHERE package_id=? ORDER BY idx')
     .all(req.params.pkg);
   let enrolled = false;
   const h = req.headers.authorization || '';
@@ -664,18 +666,20 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
 app.put('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
   const list = req.body || [];
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,chapter,duration,vimeo,free)
-    VALUES (?,?,?,?,?,?,?)`);
+  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en)
+    VALUES (?,?,?,?,?,?,?,?,?,?)`);
   db.transaction(() => {
     del.run(req.params.pkg);
-    list.forEach((l, i) => ins.run(req.params.pkg, i, l.t || l.title || '', l.ch || 0,
-      l.dur || '', l.vimeo || '', l.free ? 1 : 0));
+    list.forEach((l, i) => ins.run(req.params.pkg, i,
+      l.t || l.title || '', l.t_en || l.title_en || '',
+      l.ch || 0, l.dur || l.duration || '', l.vimeo || '', l.free ? 1 : 0,
+      l.notes || '', l.notes_en || ''));
   })();
   res.json({ ok: true, count: list.length });
 });
 app.get('/api/admin/settings', auth, admin, (req, res) => {
   res.json({
-    gateway: setting('gateway') || 'paymob',
+    gateway: setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier',
     hasPaymob: !!process.env.PAYMOB_SECRET_KEY,
     hasMoyasar: !!process.env.MOYASAR_SECRET_KEY,
     hasTap: !!process.env.TAP_SECRET_KEY,
@@ -745,6 +749,6 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 
 app.listen(PORT, () => {
   console.log(`\n🚀 منصة السعيد تعمل على ${SITE}`);
-  console.log(`   البوابة: ${setting('gateway') || 'paymob'} · ` +
+  console.log(`   البوابة: ${setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier'} · ` +
     `المفتاح السرّي: ${process.env.PAYMOB_SECRET_KEY || process.env.MOYASAR_SECRET_KEY || process.env.TAP_SECRET_KEY ? 'مضبوط ✅' : 'غير مضبوط ⚠️'}\n`);
 });

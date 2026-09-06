@@ -33,8 +33,13 @@ function shuffle(a) {
 }
 function safeJson(v, fallback) { try { return JSON.parse(v); } catch { return fallback; } }
 function ensureColumn(db, table, col, ddl) {
-  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(x=>x.name);
-  if (!cols.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+  try {
+    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
+    if (!exists) return false;
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(x=>x.name);
+    if (!cols.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+    return true;
+  } catch { return false; }
 }
 function normalizeType(t) {
   const s=String(t||'').toLowerCase();
