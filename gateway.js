@@ -334,6 +334,7 @@ function urlPathIsAdmin(raw) { try { return new URL(raw || '/', 'http://local').
 function forward(req,res){
   const headers={...req.headers};
   delete headers.connection;
+  delete headers['accept-encoding'];
   headers.host=req.headers.host||'al-ltc.com';
   const upstream=http.request({hostname:'127.0.0.1',port:INNER_PROXY_PORT,method:req.method,path:req.url,headers},up=>{
     const type=String(up.headers['content-type']||'').toLowerCase();
