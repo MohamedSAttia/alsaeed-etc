@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-COPY server.js admin.js proxy.js gateway.js pmp-engine.js v16-backend.js v18-seed.js v18-build.js ./
+COPY server.js admin.js proxy.js gateway.js pmp-engine.js v16-backend.js v18-seed.js v18-build.js ai-assistant.js ./
 COPY public ./public
 COPY grcp-exam.html rmp-exam.html pba-exam.html grcp-study.html rmp-study.html pba-study.html ./public/
 
