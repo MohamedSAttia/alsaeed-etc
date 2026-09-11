@@ -14,6 +14,13 @@ function inject(file, marker, payload, where='head') {
     : html + '\n' + payload;
   fs.writeFileSync(file, html);
 }
+function replaceIn(file, from, to) {
+  if (!fs.existsSync(file)) return;
+  let html = fs.readFileSync(file, 'utf8');
+  if (!html.includes(from)) return;
+  html = html.split(from).join(to);
+  fs.writeFileSync(file, html);
+}
 function patchGatewayForAI() {
   const f = path.join(__dirname, 'gateway.js');
   if (!fs.existsSync(f)) return;
@@ -42,11 +49,12 @@ const indexFile = path.join(publicDir,'index.html');
 inject(indexFile, '/v18-interface.css', '<link rel="stylesheet" href="/v18-interface.css?v=18.0">');
 inject(indexFile, '/v18-interface.js', '<script src="/v18-interface.js?v=18.0"></script>', 'body');
 inject(indexFile, '/hotfix-v18.js', '<script src="/hotfix-v18.js?v=18.1"></script>', 'body');
-inject(indexFile, '/exam-ai-v19.js', '<script src="/exam-ai-v19.js?v=19.0"></script>', 'body');
+inject(indexFile, '/exam-ai-v19.js', '<script src="/exam-ai-v19.js?v=20.0"></script>', 'body');
+replaceIn(indexFile, '/exam-ai-v19.js?v=19.0', '/exam-ai-v19.js?v=20.0');
 for (const name of ['panel.html','content-admin.html']) {
   const f = path.join(publicDir,name);
   inject(f, '/admin-v18.css', '<link rel="stylesheet" href="/admin-v18.css?v=18.0">');
   inject(f, '/admin-v18.js', '<script src="/admin-v18.js?v=18.0"></script>', 'body');
 }
 patchGatewayForAI();
-console.log('✅ V18/V19 assets injected safely; AI gateway route enabled');
+console.log('✅ V20 zero-cost exam coach asset injected; optional AI backend remains available for future use');
