@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 const EXAM_CODE = 'pmp-2026-full-180';
-const SOURCE_TAG = 'alsaeed-pmp-upload-851-v1';
+const SOURCE_TAG = 'alsaeed-pmp-upload-851-v2';
 const CONFIG = Object.freeze({
   code: EXAM_CODE,
   title: 'PMP® 2026 — المحاكاة الكاملة',
@@ -15,10 +15,16 @@ const CONFIG = Object.freeze({
   },
   scenarioBlock: { startQuestion: 1, endQuestion: 10, count: 10 },
   breaks: [
-    { afterQuestion: 10, durationMinutes: 10, labelAr: 'الاستراحة الأولى' },
-    { afterQuestion: 94, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
+    { afterQuestion: 10, durationMinutes: 5, labelAr: 'الاستراحة الأولى' },
+    { afterQuestion: 96, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
+  ],
+  sections: [
+    { startQuestion: 1, endQuestion: 10 },
+    { startQuestion: 11, endQuestion: 96 },
+    { startQuestion: 97, endQuestion: 180 }
   ],
   timerPausesDuringBreak: true,
+  lockPreviousSectionAfterBreak: true,
   typePolicy: 'include-every-active-type-when-available',
   supportedTypes: ['single','multiple','matching','drag_drop','ordering','hotspot','fill_blank','scenario'],
   sourceBankCount: 851,
@@ -42,11 +48,20 @@ function ensureColumn(db, table, col, ddl) {
   } catch { return false; }
 }
 function normalizeType(t) {
-  const s=String(t||'').toLowerCase();
+  const s=String(t||'').toLowerCase().trim();
   if (s==='s' || s==='mcq' || s==='single') return 'single';
   if (s==='m' || s==='multiple' || s==='multi') return 'multiple';
+  if (s==='match' || s==='mt') return 'matching';
+  if (s==='drag' || s==='dragdrop') return 'drag_drop';
+  if (s==='order' || s==='or' || s==='sequence' || s==='sequencing') return 'ordering';
+  if (s==='fill' || s==='fb') return 'fill_blank';
   if (CONFIG.supportedTypes.includes(s)) return s;
   return 'single';
+}
+function normalizeDomain(d) {
+  const s=String(d||'').toLowerCase().trim();
+  if (s==='business environment') return 'business';
+  return ['people','process','business'].includes(s) ? s : '';
 }
 function letters(indices) {
   return (Array.isArray(indices)?indices:[]).map(i=>String.fromCharCode(65+Number(i))).join(',');
@@ -58,7 +73,7 @@ function extractReference(text) {
 }
 function looksScenario(q) {
   const text=String(q.question_ar||q.question_en||'');
-  const situational=/(project manager|project team|stakeholder|sponsor|product owner|scrum|iteration|sprint|team member|vendor|customer|organization)/i.test(text);
+  const situational=/(project manager|project team|stakeholder|sponsor|product owner|scrum|iteration|sprint|team member|vendor|customer|organization|مدير المشروع|صاحب المصلحة|فريق المشروع)/i.test(text);
   return text.length >= 145 && situational;
 }
 function getTokenUser(db, JWT_SECRET, req) {
@@ -70,8 +85,19 @@ function getTokenUser(db, JWT_SECRET, req) {
     return db.prepare('SELECT id,name,email,role,active FROM users WHERE id=?').get(p.id)||null;
   } catch { return null; }
 }
-function sendJson(res,status,body){const data=Buffer.from(JSON.stringify(body));res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':data.length,'cache-control':'no-store'});res.end(data)}
-async function readJson(req,limit=1024*1024){return await new Promise((resolve,reject)=>{let n=0,ch=[];req.on('data',c=>{n+=c.length;if(n>limit){reject(new Error('too large'));req.destroy();return}ch.push(c)});req.on('end',()=>{if(!ch.length)return resolve({});try{resolve(JSON.parse(Buffer.concat(ch).toString('utf8')))}catch{reject(new Error('bad json'))}});req.on('error',reject)})}
+function sendJson(res,status,body){
+  const data=Buffer.from(JSON.stringify(body));
+  res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':data.length,'cache-control':'no-store'});
+  res.end(data);
+}
+async function readJson(req,limit=1024*1024){
+  return await new Promise((resolve,reject)=>{
+    let n=0,ch=[];
+    req.on('data',c=>{n+=c.length;if(n>limit){reject(new Error('too large'));req.destroy();return}ch.push(c)});
+    req.on('end',()=>{if(!ch.length)return resolve({});try{resolve(JSON.parse(Buffer.concat(ch).toString('utf8'))}catch{reject(new Error('bad json'))}});
+    req.on('error',reject);
+  });
+}
 
 export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
   db.exec(`
@@ -91,7 +117,11 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     );
     CREATE INDEX IF NOT EXISTS idx_exam_sessions_user ON exam_sessions(user_id,exam_code,status);
   `);
+  ensureColumn(db,'questions','options_en',"TEXT DEFAULT '[]'");
+  ensureColumn(db,'questions','options_ar',"TEXT DEFAULT '[]'");
   ensureColumn(db,'questions','approach','TEXT');
+  ensureColumn(db,'questions','task','TEXT');
+  ensureColumn(db,'questions','review_status',"TEXT DEFAULT 'needs_review'");
   ensureColumn(db,'questions','source_exam','TEXT');
   ensureColumn(db,'questions','source_id','TEXT');
   ensureColumn(db,'questions','correct_json','TEXT');
@@ -102,7 +132,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     const list=getPackages();
     let p=list.find(x=>/pmp/i.test([x.id,x.code,x.en,x.ar].filter(Boolean).join(' ')));
     if (!p) {
-      p={id:'pmp-2026',code:'PMP® 2026',ar:'PMP® 2026 — إدارة المشاريع الاحترافية',en:'PMP® 2026 Exam Preparation',desc:'باقة إعداد ومحاكاة PMP® 2026',price:0,currency:'USD',days:90,hours:35,active:false,featured:false,_chapters:[],created:Date.now(),updated:Date.now()};
+      p={id:'pmp-2026',course:'pmp',code:'PMP® 2026',ar:'PMP® 2026 — إدارة المشاريع الاحترافية',en:'PMP® 2026 Exam Preparation',desc:'باقة إعداد ومحاكاة PMP® 2026',price:0,currency:'USD',days:90,hours:35,active:false,featured:false,_chapters:[],created:Date.now(),updated:Date.now()};
       list.push(p); savePackages(list);
     }
     return p.id;
@@ -113,18 +143,28 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
   function importBank(bank, replace = false) {
     if (!Array.isArray(bank) || !bank.length) return { imported: 0, total: 0 };
     const ins=db.prepare(`INSERT OR REPLACE INTO questions
-      (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated,approach,source_exam,source_id,correct_json,meta)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+      (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,options_ar,options_en,correct,
+       explanation_ar,explanation_en,reference,active,created,updated,approach,task,review_status,source_exam,source_id,correct_json,meta)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
     let n=0;
     const tx=db.transaction(()=>{
       if (replace) db.prepare("DELETE FROM questions WHERE package_id=? AND source_id LIKE 'PMP-%'").run(packageId);
       for(const q of bank){
-        if (!q || !q.id || !q.q || !Array.isArray(q.o) || !Array.isArray(q.c)) continue;
+        if (!q || q.id===undefined || q.id===null) continue;
+        const questionEn=String(q.q_en ?? q.question_en ?? q.q ?? '').trim();
+        const questionAr=String(q.q_ar ?? q.question_ar ?? '').trim();
+        const optionsEn=(Array.isArray(q.o_en)?q.o_en:(Array.isArray(q.options_en)?q.options_en:(Array.isArray(q.o)?q.o:[]))).map(String);
+        const optionsAr=(Array.isArray(q.o_ar)?q.o_ar:(Array.isArray(q.options_ar)?q.options_ar:[])).map(String);
+        const correctIdx=Array.isArray(q.c)?q.c.map(Number):[];
+        const domain=normalizeDomain(q.dm||q.domain);
+        if (!questionEn || !domain || optionsEn.length<2 || !correctIdx.length) continue;
         const sid='PMP-'+String(q.id).padStart(4,'0');
-        const type=normalizeType(q.t);
-        const correct=letters(q.c);
-        const meta={source:SOURCE_TAG,originalId:q.id,approach:q.ap||'',sourceExam:q.ex||'',chapter:q.ch||'',scenarioCandidate:String(q.q||'').length>=145};
-        const r=ins.run(sid,packageId,String(q.dm||'').toLowerCase(),q.ch||'', 'medium',type,q.q||'',q.q||'',JSON.stringify(q.o||[]),correct,q.f||'',q.f||'',extractReference(q.f),1,Date.now(),Date.now(),q.ap||'',q.ex||'',sid,JSON.stringify(q.c||[]),JSON.stringify(meta));
+        const type=normalizeType(q.t||q.type);
+        const explanationEn=String(q.f_en ?? q.explanation_en ?? q.f ?? '').trim();
+        const explanationAr=String(q.f_ar ?? q.explanation_ar ?? '').trim();
+        const displayOptions=optionsAr.some(Boolean)?optionsAr:optionsEn;
+        const meta={source:SOURCE_TAG,originalId:q.id,approach:q.ap||q.approach||'',sourceExam:q.ex||q.source_exam||'',chapter:q.ch||q.topic||'',scenarioCandidate:String(questionEn||questionAr).length>=145,language:questionAr?'bilingual':'en'};
+        const r=ins.run(sid,packageId,domain,String(q.ch||q.topic||''),'medium',type,questionAr,questionEn,JSON.stringify(displayOptions),JSON.stringify(optionsAr),JSON.stringify(optionsEn),letters(correctIdx),explanationAr,explanationEn,String(q.reference||extractReference(explanationEn)),1,Date.now(),Date.now(),String(q.ap||q.approach||''),String(q.task||''),questionAr?'reviewed':'needs_review',String(q.ex||q.source_exam||''),sid,JSON.stringify(correctIdx),JSON.stringify(meta));
         n+=r.changes;
       }
     });
@@ -139,8 +179,8 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
       db.prepare(`INSERT INTO exams (id,package_id,title,kind,duration,question_count,pass_score,config,active,created,updated)
         VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(EXAM_CODE,packageId,CONFIG.title,'full',CONFIG.durationMinutes,CONFIG.totalQuestions,CONFIG.passScore,JSON.stringify(config),1,now,now);
     } else {
-      db.prepare(`UPDATE exams SET package_id=?,title=?,kind='full',duration=?,question_count=?,config=?,active=1,updated=? WHERE id=?`)
-        .run(packageId,CONFIG.title,CONFIG.durationMinutes,CONFIG.totalQuestions,JSON.stringify(config),Date.now(),EXAM_CODE);
+      db.prepare(`UPDATE exams SET package_id=?,title=?,kind='full',duration=?,question_count=?,pass_score=?,config=?,active=1,updated=? WHERE id=?`)
+        .run(packageId,CONFIG.title,CONFIG.durationMinutes,CONFIG.totalQuestions,CONFIG.passScore,JSON.stringify(config),Date.now(),EXAM_CODE);
     }
   }
 
@@ -168,57 +208,59 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
   }
 
   function chooseExamQuestions() {
-    const rows=db.prepare('SELECT * FROM questions WHERE package_id=? AND active=1').all(packageId);
+    const rows=db.prepare("SELECT * FROM questions WHERE package_id=? AND active=1 AND COALESCE(review_status,'reviewed')!='rejected'").all(packageId);
     const byDomain={people:[],process:[],business:[]};
-    rows.forEach(q=>{const d=String(q.domain||'').toLowerCase();if(byDomain[d])byDomain[d].push(q)});
+    rows.forEach(q=>{const d=normalizeDomain(q.domain);if(byDomain[d])byDomain[d].push(q)});
     for(const [d,t] of Object.entries(CONFIG.domainTargets)) if(byDomain[d].length<t.count) throw new Error(`بنك ${d} لا يكفي: ${byDomain[d].length}/${t.count}`);
 
     const selected=[]; const ids=new Set(); const used={people:0,process:0,business:0};
-    const scenarioPool=shuffle(rows.filter(q=>looksScenario(q))).sort((a,b)=>String(b.question_ar||'').length-String(a.question_ar||'').length).slice(0,160);
-    for(const q of shuffle(scenarioPool)){
+    const scenarioPool=shuffle(rows.filter(q=>looksScenario(q))).sort((a,b)=>String(b.question_ar||b.question_en||'').length-String(a.question_ar||a.question_en||'').length).slice(0,160);
+    for(const q of scenarioPool){
       if(selected.length>=CONFIG.scenarioBlock.count)break;
-      const d=String(q.domain||'').toLowerCase();
+      const d=normalizeDomain(q.domain);
       if(!byDomain[d] || used[d]>=CONFIG.domainTargets[d].count || ids.has(q.id))continue;
       selected.push(q);ids.add(q.id);used[d]++;
     }
-    if(selected.length<10){
+    if(selected.length<CONFIG.scenarioBlock.count){
       for(const q of shuffle(rows)){
-        if(selected.length>=10)break;const d=String(q.domain||'').toLowerCase();
+        if(selected.length>=CONFIG.scenarioBlock.count)break;
+        const d=normalizeDomain(q.domain);
         if(!byDomain[d]||used[d]>=CONFIG.domainTargets[d].count||ids.has(q.id))continue;
         selected.push(q);ids.add(q.id);used[d]++;
       }
     }
 
+    const extras=[];
     const activeTypes=[...new Set(rows.map(q=>normalizeType(q.type)))];
     const chosenTypes=new Set(selected.map(q=>normalizeType(q.type)));
     for(const type of activeTypes){
       if(chosenTypes.has(type))continue;
       const q=shuffle(rows.filter(x=>normalizeType(x.type)===type && !ids.has(x.id))).find(x=>{
-        const d=String(x.domain||'').toLowerCase();return byDomain[d] && used[d]<CONFIG.domainTargets[d].count;
+        const d=normalizeDomain(x.domain);return byDomain[d] && used[d]<CONFIG.domainTargets[d].count;
       });
-      if(q){selected.push(q);ids.add(q.id);used[String(q.domain).toLowerCase()]++;chosenTypes.add(type)}
+      if(q){extras.push(q);ids.add(q.id);used[normalizeDomain(q.domain)]++;chosenTypes.add(type)}
     }
 
-    const extras=selected.slice(10);
     for(const [d,target] of Object.entries(CONFIG.domainTargets)){
       const need=target.count-used[d];
       const pool=shuffle(byDomain[d].filter(q=>!ids.has(q.id))).slice(0,need);
       if(pool.length!==need)throw new Error(`تعذر استكمال توزيع ${d}`);
       pool.forEach(q=>{extras.push(q);ids.add(q.id);used[d]++});
     }
-    const final=[...selected.slice(0,10),...shuffle(extras)];
-    if(final.length!==180)throw new Error(`خطأ في عدد أسئلة المحاكاة: ${final.length}`);
-    const counts=final.reduce((a,q)=>(a[q.domain]=(a[q.domain]||0)+1,a),{});
+    const final=[...selected,...shuffle(extras)];
+    if(final.length!==CONFIG.totalQuestions)throw new Error(`خطأ في عدد أسئلة المحاكاة: ${final.length}`);
+    const counts=final.reduce((a,q)=>{const d=normalizeDomain(q.domain);a[d]=(a[d]||0)+1;return a},{});
     if(counts.people!==59||counts.process!==74||counts.business!==47)throw new Error(`خطأ توزيع domains ${JSON.stringify(counts)}`);
     return final;
   }
 
   function sanitizeQuestion(q,index) {
     const meta=safeJson(q.meta,{});
+    const optionsAr=safeJson(q.options_ar,[]),optionsEn=safeJson(q.options_en,safeJson(q.options,[]));
     return {
-      id:q.id,index:index+1,domain:q.domain,topic:q.topic,difficulty:q.difficulty,
-      type:normalizeType(q.type),question:q.question_ar||q.question_en||'',question_en:q.question_en||'',
-      options:safeJson(q.options,[]),approach:q.approach||'',scenario:index<10,
+      id:q.id,index:index+1,domain:q.domain,task:q.task||'',topic:q.topic,difficulty:q.difficulty,
+      type:normalizeType(q.type),question:q.question_ar||q.question_en||'',question_ar:q.question_ar||'',question_en:q.question_en||'',
+      options:optionsAr.some(Boolean)?optionsAr:optionsEn,options_ar:optionsAr,options_en:optionsEn,approach:q.approach||'',scenario:index<10,
       meta:{scenarioText:meta.scenarioText||'',image:meta.image||'',pairs:meta.pairs||null,hotspots:meta.hotspots||null}
     };
   }
@@ -235,7 +277,8 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     const lettersExpected=idx.map(i=>String.fromCharCode(65+Number(i)));
     if(type==='multiple'){
       const a=(Array.isArray(answer)?answer:String(answer||'').split(',')).map(x=>String(x).trim().toUpperCase()).filter(Boolean).sort();
-      return JSON.stringify(a)===JSON.stringify(lettersExpected.sort());
+      const expected=(lettersExpected.length?lettersExpected:String(q.correct||'').split(',')).map(x=>String(x).trim().toUpperCase()).filter(Boolean).sort();
+      return JSON.stringify(a)===JSON.stringify(expected);
     }
     if(type==='fill_blank') return String(answer||'').trim().toLowerCase()===String(q.correct||'').trim().toLowerCase();
     if(['matching','drag_drop','ordering','hotspot'].includes(type)) {
@@ -256,11 +299,11 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
       const raw=Array.isArray(body.questions)?body.questions:[];
       if(!raw.length) return sendJson(res,400,{error:'لا توجد أسئلة للاستيراد'});
       const result=importBank(raw, body.replace===true);
-      const counts=db.prepare('SELECT domain,type,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY domain,type').all(packageId);
-      return sendJson(res,200,{ok:true,...result,packageId,counts});
+      const counts=db.prepare("SELECT domain,type,COUNT(*) n FROM questions WHERE package_id=? AND active=1 AND COALESCE(review_status,'reviewed')!='rejected' GROUP BY domain,type").all(packageId);
+      return sendJson(res,200,{ok:true,...result,packageId,counts,config:CONFIG});
     }
     if(method==='GET' && sub==='/info'){
-      const bank=db.prepare('SELECT type,domain,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY type,domain').all(packageId);
+      const bank=db.prepare("SELECT type,domain,COUNT(*) n FROM questions WHERE package_id=? AND active=1 AND COALESCE(review_status,'reviewed')!='rejected' GROUP BY type,domain").all(packageId);
       return sendJson(res,200,{packageId,config:CONFIG,bank});
     }
     if(method==='POST' && sub==='/start'){
@@ -289,9 +332,9 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
         if(row.status==='finished')return sendJson(res,200,safeJson(row.result,{}));
         const ids=safeJson(row.question_ids,[]),answers=safeJson(row.answers,{}),qs=questionRowsByIds(ids);
         let correct=0;const domains={},types={},review=[];
-        qs.forEach((q,i)=>{const ok=equivalentAnswer(q,answers[q.id]);if(ok)correct++;const d=q.domain||'other',t=normalizeType(q.type);domains[d]=domains[d]||{correct:0,total:0};domains[d].total++;if(ok)domains[d].correct++;types[t]=types[t]||{correct:0,total:0};types[t].total++;if(ok)types[t].correct++;review.push({id:q.id,index:i+1,correct:ok,answer:answers[q.id]??null,correctAnswer:q.correct,explanation:q.explanation_ar||q.explanation_en||'',reference:q.reference||'',domain:d,type:t})});
+        qs.forEach((q,i)=>{const ok=equivalentAnswer(q,answers[q.id]);if(ok)correct++;const d=normalizeDomain(q.domain)||'other',t=normalizeType(q.type);domains[d]=domains[d]||{correct:0,total:0};domains[d].total++;if(ok)domains[d].correct++;types[t]=types[t]||{correct:0,total:0};types[t].total++;if(ok)types[t].correct++;review.push({id:q.id,index:i+1,correct:ok,answer:answers[q.id]??null,correctAnswer:q.correct,explanation:q.explanation_ar||q.explanation_en||'',reference:q.reference||'',domain:d,type:t})});
         const score=Math.round(correct/qs.length*10000)/100;Object.values(domains).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);Object.values(types).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);
-        const result={sessionId:sid,total:qs.length,correct,score,passed:score>=CONFIG.passScore,domains,types,review,finishedAt:Date.now()};
+        const result={sessionId:sid,total:qs.length,correct,score,passed:score>=CONFIG.passScore,domains,types,review,finishedAt:Date.now(),config:{breaks:CONFIG.breaks,sections:CONFIG.sections}};
         db.prepare("UPDATE exam_sessions SET status='finished',finished=?,updated=?,result=? WHERE id=?").run(Date.now(),Date.now(),JSON.stringify(result),sid);return sendJson(res,200,result);
       }
     }
