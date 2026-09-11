@@ -8,7 +8,10 @@ function inject(file, marker, payload, where='head') {
   let html = fs.readFileSync(file, 'utf8');
   if (html.includes(marker)) return;
   const needle = where === 'body' ? '</body>' : '</head>';
-  html = html.includes(needle) ? html.replace(needle, payload + '\n' + needle) : html + '\n' + payload;
+  const idx = html.lastIndexOf(needle);
+  html = idx >= 0
+    ? html.slice(0, idx) + payload + '\n' + html.slice(idx)
+    : html + '\n' + payload;
   fs.writeFileSync(file, html);
 }
 const indexFile = path.join(publicDir,'index.html');
@@ -20,4 +23,4 @@ for (const name of ['panel.html','content-admin.html']) {
   inject(f, '/admin-v18.css', '<link rel="stylesheet" href="/admin-v18.css?v=18.0">');
   inject(f, '/admin-v18.js', '<script src="/admin-v18.js?v=18.0"></script>', 'body');
 }
-console.log('✅ V18 interface assets + package editor hotfix injected');
+console.log('✅ V18 interface assets + package editor hotfix injected safely at final closing tags');
