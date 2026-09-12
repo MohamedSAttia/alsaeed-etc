@@ -218,6 +218,7 @@ export function installV16(ctx) {
       rows.forEach(function (q, index) {
         const course = String(q.course || '').toLowerCase();
         if (!['pmp', 'rmp', 'capm'].includes(course)) return;
+        if (course === 'pmp' && setting('pmp_learning_bank_version') === 'pmp-learning-bank-889-v20') return;
         const enOptions = q.o && Array.isArray(q.o.en) ? q.o.en : [];
         const arOptions = q.o && Array.isArray(q.o.ar) ? q.o.ar : [];
         const options = arOptions.length ? arOptions : enOptions;

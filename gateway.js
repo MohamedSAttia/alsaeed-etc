@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
 import { createPmpEngine } from './pmp-engine.js';
+import { createAiAssistant } from './ai-assistant.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -52,6 +53,13 @@ CREATE TABLE IF NOT EXISTS lessons (
   free INTEGER DEFAULT 0, notes TEXT, notes_en TEXT,
   PRIMARY KEY (package_id, idx)
 );
+CREATE TABLE IF NOT EXISTS resources (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL, title TEXT NOT NULL,
+  type TEXT DEFAULT 'link', url TEXT, note TEXT, sort INTEGER DEFAULT 0,
+  active INTEGER DEFAULT 1, created INTEGER NOT NULL, updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_resources_package ON resources(package_id);
+CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT);
 `);
 } catch (e) { console.warn('content tables:', e.message); }
 
@@ -76,6 +84,8 @@ ensureColumn('questions', 'correct_json', 'TEXT');
 ensureColumn('questions', 'meta', 'TEXT');
 ensureColumn('questions', 'is_official', 'INTEGER DEFAULT 0');
 ensureColumn('questions', 'priority', 'INTEGER DEFAULT 0');
+ensureColumn('questions', 'task', 'TEXT');
+ensureColumn('questions', 'review_status', "TEXT DEFAULT 'needs_review'");
 
 // Repair the old PMP import: English text had been copied into both EN and AR fields.
 try {
@@ -92,6 +102,7 @@ function setting(key) {
   catch { return ''; }
 }
 function setSetting(key, value) {
+  db.exec('CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT)');
   db.prepare(`INSERT INTO settings (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=?`).run(key, value, value);
 }
 function getPackages() {
@@ -99,8 +110,14 @@ function getPackages() {
     const a = JSON.parse(setting('content_packages') || '[]');
     if (Array.isArray(a) && a.length) return a;
   } catch {}
-  try { const a = JSON.parse(setting('catalog') || '[]'); return Array.isArray(a) ? a : []; }
-  catch { return []; }
+  try {
+    const a=JSON.parse(setting('catalog')||'[]');
+    if(Array.isArray(a)&&a.length)return a;
+  } catch {}
+  try {
+    const c=JSON.parse(fs.readFileSync(path.join(__dirname,'public','v15-catalog.json'),'utf8'));
+    return Array.isArray(c.packages)?c.packages:[];
+  } catch { return []; }
 }
 
 function seedOfficialQuestions() {
@@ -163,6 +180,7 @@ function savePackages(list) {
 }
 
 const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
+const aiAssistant = createAiAssistant({ dbPath: DB_PATH, jwtSecret: JWT_SECRET });
 
 function sendJson(res, status, body) {
   const data = Buffer.from(JSON.stringify(body));
@@ -216,21 +234,27 @@ function parseJson(v, fallback=[]) { try { return JSON.parse(v||''); } catch { r
 
 function normalizeUploadedQuestion(q, i) {
   const objectOptions = Array.isArray(q.options) && q.options.some(x => x && typeof x === 'object');
-  const optionsEn = objectOptions ? q.options.map(x=>String(x?.en||'')) : arr(q.o_en||q.o).map(String);
-  const optionsAr = objectOptions ? q.options.map(x=>String(x?.ar||'')) : arr(q.o_ar).map(String);
+  const optionsEn = objectOptions ? q.options.map(x=>String(x?.en||'')) : arr(q.oe||q.o_en||q.o).map(String);
+  const optionsAr = objectOptions ? q.options.map(x=>String(x?.ar||'')) : arr(q.oa||q.o_ar).map(String);
   const correctFromObjects = objectOptions ? q.options.map((x,ix)=>x?.correct?ix:null).filter(x=>x!==null) : [];
-  const correct = arr(q.c).length ? q.c.map(Number) : correctFromObjects;
-  const questionEn = String(q.q_en ?? q.q ?? '').trim();
-  const questionAr = String(q.q_ar ?? '').trim();
+  const correct = arr(q.c||q.correct_json).length ? arr(q.c||q.correct_json).map(Number) : correctFromObjects;
+  const questionEn = String(q.qe ?? q.q_en ?? q.question_en ?? q.q ?? '').trim();
+  const questionAr = String(q.qa ?? q.q_ar ?? q.question_ar ?? '').trim();
   return {
-    id:'PMP-'+String(q.id ?? (i+1)).padStart(4,'0'), domain:validDomain(q.dm||q.domain),
-    topic:String(q.ch||q.topic||'').trim(), type:normalizeType(q.t||q.type),
+    id:String(q.i||q.id||('PMP-'+String(i+1).padStart(4,'0'))),
+    domain:({E:'people',R:'process',B:'business'}[String(q.d||'').toUpperCase()]||validDomain(q.dm||q.domain)),
+    task:String(q.tk||q.task||'').trim(), topic:String(q.ch||q.topic||'').trim(), type:normalizeType(q.t||q.type),
     questionEn, questionAr, optionsEn, optionsAr, correct,
-    explanationEn:String(q.f_en ?? q.explain_en ?? q.f ?? '').trim(),
-    explanationAr:String(q.f_ar ?? q.explain_ar ?? '').trim(),
+    explanationEn:String(q.xe ?? q.f_en ?? q.explain_en ?? q.explanation_en ?? q.f ?? '').trim(),
+    explanationAr:String(q.xa ?? q.f_ar ?? q.explain_ar ?? q.explanation_ar ?? '').trim(),
     approach:String(q.ap||q.approach||'').trim(), sourceExam:String(q.ex||q.sourceExam||'').trim(),
-    originalId:q.id ?? (i+1), reference:String(q.reference||'').trim()
+    originalId:q.i||q.id||(i+1), reference:String(q.reference||'').trim(),
+    sourceClass:String(q.s||''), priority:Number(q.p||90)
   };
+}
+
+function normalizeArabicText(value) {
+  return String(value||'').replace(/\u06cc/g,'ي').replace(/\u06be/g,'ه');
 }
 
 async function importPmpBank(req, res) {
@@ -239,27 +263,42 @@ async function importPmpBank(req, res) {
   const rows=Array.isArray(body.questions)?body.questions.slice(0,5000):[];
   if(!rows.length)return sendJson(res,400,{error:'لا توجد أسئلة للاستيراد'});
   const packageId=pmp.packageId;
-  const clean=rows.map(normalizeUploadedQuestion).filter(q=>q.questionEn&&q.domain&&q.optionsEn.length>=2&&q.correct.length);
+  const clean=rows.map(normalizeUploadedQuestion).filter(q=>
+    (q.questionEn||q.questionAr) && q.domain &&
+    (q.optionsEn.length>=2||q.optionsAr.length>=2) && q.correct.length
+  );
   if(clean.length<Math.min(rows.length,100))return sendJson(res,400,{error:'صيغة بنك الأسئلة غير متوافقة'});
 
   const ins=db.prepare(`INSERT OR REPLACE INTO questions
     (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,options_ar,options_en,correct,
-     explanation_ar,explanation_en,reference,active,created,updated,approach,source_exam,source_id,correct_json,meta)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+     explanation_ar,explanation_en,reference,active,created,updated,approach,source_exam,source_id,correct_json,meta,
+     is_official,priority,task,review_status)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const replace=body.replace!==false, now=Date.now();
   db.transaction(()=>{
-    if(replace)db.prepare("DELETE FROM questions WHERE package_id=? AND (source_id LIKE 'PMP-%' OR id LIKE 'PMP-%')").run(packageId);
+    if(replace)db.prepare("DELETE FROM questions WHERE package_id=? AND source_exam LIKE 'PMP-V20:%'").run(packageId);
+    db.prepare("UPDATE questions SET active=0, review_status='needs_review' WHERE package_id=? AND id LIKE 'QB-pmp-%'").run(packageId);
     for(const q of clean){
-      const meta={source:'AlSaeed_PMP_Platform upload',originalId:q.originalId,approach:q.approach,sourceExam:q.sourceExam,chapter:q.topic,language:q.questionAr?'bilingual':'en'};
-      const displayOptions=q.optionsAr.some(Boolean)?q.optionsAr:q.optionsEn;
-      ins.run(q.id,packageId,q.domain,q.topic,'medium',q.type,q.questionAr,q.questionEn,JSON.stringify(displayOptions),JSON.stringify(q.optionsAr),JSON.stringify(q.optionsEn),letters(q.correct),q.explanationAr,q.explanationEn,q.reference,1,now,now,q.approach,q.sourceExam,q.id,JSON.stringify(q.correct),JSON.stringify(meta));
+      const arOptions=q.optionsAr.map(normalizeArabicText), enOptions=q.optionsEn;
+      const questionAr=normalizeArabicText(q.questionAr), explanationAr=normalizeArabicText(q.explanationAr);
+      const bilingual=!!(questionAr&&q.questionEn&&arOptions.length>=2&&enOptions.length>=2);
+      const meta={source:'AlSaeed PMP Learning Hub V20',originalId:q.originalId,task:q.task,
+        approach:q.approach,chapter:q.topic,sourceClass:q.sourceClass,language:bilingual?'bilingual':'needs_review'};
+      const displayOptions=arOptions.some(Boolean)?arOptions:enOptions;
+      ins.run(q.id,packageId,q.domain,q.topic,'medium',q.type,questionAr,q.questionEn,
+        JSON.stringify(displayOptions),JSON.stringify(arOptions),JSON.stringify(enOptions),letters(q.correct),
+        explanationAr,q.explanationEn,q.reference,1,now,now,q.approach,'PMP-V20:'+q.sourceClass,q.id,
+        JSON.stringify(q.correct),JSON.stringify(meta),q.sourceClass==='O'?1:0,q.priority,q.task,
+        bilingual?'reviewed':'needs_review');
     }
+    db.prepare("UPDATE questions SET domain='business' WHERE package_id=? AND LOWER(domain)='business environment'").run(packageId);
+    setSetting('pmp_learning_bank_version','pmp-learning-bank-889-v20');
   })();
   const stats=db.prepare(`SELECT domain,type,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY domain,type`).all(packageId);
   const total=db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1').get(packageId).c;
   const arabic=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND TRIM(COALESCE(question_ar,''))!=''").get(packageId).c;
   return sendJson(res,200,{ok:true,packageId,imported:clean.length,total,arabic,englishOnly:total-arabic,stats,
-    expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:10},{after:94,minutes:10}]}});
+    expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:5},{after:94,minutes:10}]}});
 }
 
 async function handleQuestionAdmin(req,res,url){
@@ -317,17 +356,34 @@ function handleLearnerQuestionBank(req,res,url){
     if(!en)return sendJson(res,403,{error:'بنك الأسئلة متاح للمشتركين في هذه الباقة فقط'});
     if(en.expires && en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
   }
+  const sourcePackageId=/pmp/i.test(packageId)?pmp.packageId:packageId;
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
   const rows=db.prepare(`SELECT * FROM questions WHERE package_id=? AND active=1
     ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
-    LIMIT ?`).all(packageId,requested);
-  return sendJson(res,200,{packageId,total:rows.length,questions:rows.map(q=>({
-    id:q.id,domain:q.domain||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
+    LIMIT ?`).all(sourcePackageId,requested);
+  return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,questions:rows.map(q=>({
+    id:q.id,domain:q.domain||'',task:q.task||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
     question_ar:q.question_ar||'',question_en:q.question_en||'',
     options_ar:parseJson(q.options_ar,[]),options_en:parseJson(q.options_en,parseJson(q.options,[])),
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
-    explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||''
+    explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
+    source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }))});
+}
+
+function handleLearnerResources(req,res,url){
+  const u=userFromToken(req); if(!u)return sendJson(res,401,{error:'يلزم تسجيل الدخول'});
+  const prefix='/api/learner-resources/';
+  const packageId=decodeURIComponent(url.pathname.slice(prefix.length));
+  if(!packageId)return sendJson(res,400,{error:'الباقة مطلوبة'});
+  if(u.role!=='admin'){
+    const en=db.prepare('SELECT id,expires FROM enrollments WHERE user_id=? AND package_id=?').get(u.id,packageId);
+    if(!en)return sendJson(res,403,{error:'موارد الباقة متاحة للمشتركين فقط'});
+    if(en.expires&&en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
+  }
+  const rows=db.prepare(`SELECT id,title,type,url,note,sort FROM resources
+    WHERE package_id=? AND active=1 ORDER BY sort,created`).all(packageId);
+  return sendJson(res,200,{packageId,resources:rows});
 }
 
 function urlPathIsAdmin(raw) { try { return new URL(raw || '/', 'http://local').pathname.startsWith('/' + PANEL); } catch { return false; } }
@@ -376,10 +432,12 @@ function forward(req,res){
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
   try{
+    if(url.pathname.startsWith('/api/ai/'))return await aiAssistant.handle(req,res,url);
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-question-bank/'))return handleLearnerQuestionBank(req,res,url);
+    if(req.method==='GET'&&url.pathname.startsWith('/api/learner-resources/'))return handleLearnerResources(req,res,url);
     if(url.pathname.startsWith('/api/pmp-2026'))return await pmp.handle(req,res,url);
     return forward(req,res);
   }catch(err){console.error('Gateway request error:',err);if(!res.headersSent)return sendJson(res,500,{error:'حدث خطأ أثناء تنفيذ الطلب'});res.end()}

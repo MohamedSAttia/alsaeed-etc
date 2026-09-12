@@ -15,13 +15,13 @@ const CONFIG = Object.freeze({
   },
   scenarioBlock: { startQuestion: 1, endQuestion: 10, count: 10 },
   breaks: [
-    { afterQuestion: 10, durationMinutes: 10, labelAr: 'الاستراحة الأولى' },
+    { afterQuestion: 10, durationMinutes: 5, labelAr: 'الاستراحة الأولى' },
     { afterQuestion: 94, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
   ],
   timerPausesDuringBreak: true,
   typePolicy: 'include-every-active-type-when-available',
   supportedTypes: ['single','multiple','matching','drag_drop','ordering','hotspot','fill_blank','scenario'],
-  sourceBankCount: 851,
+  sourceBankCount: 889,
   passScore: 65
 });
 
@@ -214,7 +214,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
   }
 
   function sanitizeQuestion(q,index) {
-    const meta=safeJson(q.meta,{});
+    const meta=safeJson(q.meta,{})||{};
     return {
       id:q.id,index:index+1,domain:q.domain,topic:q.topic,difficulty:q.difficulty,
       type:normalizeType(q.type),question:q.question_ar||q.question_en||'',question_en:q.question_en||'',

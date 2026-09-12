@@ -4077,10 +4077,10 @@ function pkgTab(p, c, has) {
     const pr = has ? A().prog(p.id) : { exams: {} };
     const grp = { 'فصل': [], 'نطاق': [], 'شامل': [] };
     set.forEach(e => grp[e.kind].push(e));
-    return `${c.id==='pmp'?`<div class="note ok mb"><b>محاكي PMP® 2026 المحدث:</b> 892 سؤالاً · 4 اختبارات كاملة من 180 سؤالاً خلال 240 دقيقة · أسئلة 1–10 على سيناريو طويل · استراحتان مدة كل منهما 10 دقائق · ترجمة عربي/English · فحص الإجابة · التعليم للمراجعة · الاختبار الذهبي · الحاسبة · مساعد د. محمد عطية · تقرير أداء وفق مجالات PMI.</div>`:''}<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
+    return `${c.id==='pmp'?`<div class="note ok mb"><b>منصة PMP® 2026 المتكاملة:</b> أكثر من 900 سؤال وتدريب تفاعلي · محاكاة كاملة من 180 سؤالاً خلال 240 دقيقة · الأسئلة 1–10 مواقف وسيناريوهات · استراحة أولى 5 دقائق بعد السؤال 10 · استراحة ثانية 10 دقائق بعد السؤال 94 · عربي/English · بنك أخطائك · خطة اجتياز · سجل أداء وتحليل حسب مجالات PMI.</div>`:''}<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
       اختبار بعد كل فصل · اختبار لكل نطاق بوزنه الحقيقي · اختبار شامل يحاكي الاختبار الفعلي بمؤقّته.</div>
       <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const x=(window.Q_TYPES||[]).find(y=>y.k===k)||{};return `<span class="qtype">${esc(x.ar||k)} · <b class="en">${esc(x.en||'')}</b></span>`;}).join('')}</div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${has?`<button class="btn p" data-unified-exam="${p.id}" data-exam-code="full">ابدأ محرك ${esc(c.code)} الموحد ←</button>`:`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${has?`${c.id==='pmp'?`<button class="btn p" data-pmp-hub>افتح منصة PMP المتكاملة ←</button>`:''}<button class="btn o" data-unified-exam="${p.id}" data-exam-code="full">المحاكاة الآمنة 180 سؤالاً</button>`:`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`}</div>
       ${Object.entries(grp).map(([kind, arr]) => arr.length ? `
         <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin:20px 0 12px">
           اختبارات ${kind === 'فصل' ? 'الفصول' : kind === 'نطاق' ? 'النطاقات' : 'المحاكاة الشاملة'}</h4>
@@ -4856,7 +4856,8 @@ function drawCert(pid, no, verify) {
     .sig .l{border-top:2px solid #252344;width:200px;margin-bottom:6px}
     .sig b{color:#14142B;font-size:.92rem}
     @media print{body{background:#fff}.c{box-shadow:none}}
-    </style></head><body><div class="c">
+    </style><link rel="stylesheet" href="/v18-interface.css?v=18.0">
+</head><body><div class="c">
       <div class="seal">CERTIFIED<br>ALSAEED</div>
       <h1>شهادة إتمام</h1>
       <div class="sub">Certificate of Completion</div>
@@ -4949,6 +4950,7 @@ function bind() {
   $$('[data-lesson]').forEach(el => el.onclick = () => playLesson(el.dataset.pk, +el.dataset.lesson));
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
   $$('[data-unified-exam]').forEach(b => b.onclick = () => runExam(b.dataset.unifiedExam, b.dataset.examCode || 'full'));
+  $$('[data-pmp-hub]').forEach(b => b.onclick = () => { window.location.href = '/pmp/'; });
   $$('[data-practice]').forEach(b => b.onclick = () => openPractice(b.dataset.practice));
   $$('[data-game]').forEach(b => b.onclick = () => decisionGame(b.dataset.game));
   $$('[data-download]').forEach(b => b.onclick = () => downloadResource(b.dataset.pk, b.dataset.download));
@@ -5948,5 +5950,8 @@ return { mount, toggle, send, get messages() { return msgs; } };
   window.APP.boot();
   if (window.CHAT) window.CHAT.mount();
 </script>
+<script src="/v18-interface.js?v=18.0"></script>
+<script src="/hotfix-v18.js?v=18.1"></script>
+<script src="/exam-ai-v19.js?v=20.0"></script>
 </body>
 </html>
