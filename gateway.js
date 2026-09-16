@@ -257,17 +257,32 @@ function normalizeArabicText(value) {
   return String(value||'').replace(/\u06cc/g,'ي').replace(/\u06be/g,'ه');
 }
 
+function questionSignature(q) {
+  return String(q.questionEn||q.questionAr||'')
+    .toLowerCase().replace(/\s+/g,' ').replace(/[?؟.!،,;:]+$/g,'').trim();
+}
+
 async function importPmpBank(req, res) {
   const admin=adminFromToken(req); if(!admin) return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});
   let body; try{body=await readJson(req)}catch{return sendJson(res,400,{error:'تعذر قراءة ملف بنك الأسئلة'})}
   const rows=Array.isArray(body.questions)?body.questions.slice(0,5000):[];
   if(!rows.length)return sendJson(res,400,{error:'لا توجد أسئلة للاستيراد'});
   const packageId=pmp.packageId;
-  const clean=rows.map(normalizeUploadedQuestion).filter(q=>
-    (q.questionEn||q.questionAr) && q.domain &&
-    (q.optionsEn.length>=2||q.optionsAr.length>=2) && q.correct.length
-  );
+  const clean=rows.map(normalizeUploadedQuestion).filter(q=>{
+    const optionCount=Math.max(q.optionsEn.length,q.optionsAr.length);
+    return (q.questionEn||q.questionAr) && q.domain && optionCount>=2 && q.correct.length &&
+      q.correct.every(x=>Number.isInteger(x)&&x>=0&&x<optionCount);
+  });
   if(clean.length<Math.min(rows.length,100))return sendJson(res,400,{error:'صيغة بنك الأسئلة غير متوافقة'});
+
+  const signatures=new Map();
+  const duplicateOf=new Map();
+  for(const q of clean){
+    const signature=questionSignature(q);
+    if(!signature)continue;
+    if(signatures.has(signature))duplicateOf.set(q.id,signatures.get(signature));
+    else signatures.set(signature,q.id);
+  }
 
   const ins=db.prepare(`INSERT OR REPLACE INTO questions
     (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,options_ar,options_en,correct,
@@ -276,28 +291,34 @@ async function importPmpBank(req, res) {
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const replace=body.replace!==false, now=Date.now();
   db.transaction(()=>{
-    if(replace)db.prepare("DELETE FROM questions WHERE package_id=? AND source_exam LIKE 'PMP-V20:%'").run(packageId);
+    if(replace)db.prepare("DELETE FROM questions WHERE package_id=? AND (source_exam LIKE 'PMP-V20:%' OR source_exam LIKE 'PMP-V21:%')").run(packageId);
     db.prepare("UPDATE questions SET active=0, review_status='needs_review' WHERE package_id=? AND id LIKE 'QB-pmp-%'").run(packageId);
     for(const q of clean){
       const arOptions=q.optionsAr.map(normalizeArabicText), enOptions=q.optionsEn;
       const questionAr=normalizeArabicText(q.questionAr), explanationAr=normalizeArabicText(q.explanationAr);
-      const bilingual=!!(questionAr&&q.questionEn&&arOptions.length>=2&&enOptions.length>=2);
-      const meta={source:'AlSaeed PMP Learning Hub V20',originalId:q.originalId,task:q.task,
-        approach:q.approach,chapter:q.topic,sourceClass:q.sourceClass,language:bilingual?'bilingual':'needs_review'};
+      const bilingual=!!(questionAr&&q.questionEn&&arOptions.filter(Boolean).length>=2&&enOptions.filter(Boolean).length>=2&&explanationAr&&q.explanationEn);
+      const duplicate=duplicateOf.get(q.id)||'';
+      const meta={source:'AlSaeed PMP Learning Hub V21',originalId:q.originalId,task:q.task,
+        approach:q.approach,chapter:q.topic,sourceClass:q.sourceClass,language:bilingual?'bilingual':'needs_review',
+        duplicateOf:duplicate||null,importVersion:21};
       const displayOptions=arOptions.some(Boolean)?arOptions:enOptions;
       ins.run(q.id,packageId,q.domain,q.topic,'medium',q.type,questionAr,q.questionEn,
         JSON.stringify(displayOptions),JSON.stringify(arOptions),JSON.stringify(enOptions),letters(q.correct),
-        explanationAr,q.explanationEn,q.reference,1,now,now,q.approach,'PMP-V20:'+q.sourceClass,q.id,
+        explanationAr,q.explanationEn,q.reference,1,now,now,q.approach,'PMP-V21:'+(q.sourceClass||'U'),q.id,
         JSON.stringify(q.correct),JSON.stringify(meta),q.sourceClass==='O'?1:0,q.priority,q.task,
-        bilingual?'reviewed':'needs_review');
+        bilingual&&!duplicate?'reviewed':'needs_review');
     }
+    db.prepare("UPDATE questions SET domain=LOWER(domain) WHERE package_id=? AND LOWER(domain) IN ('people','process','business')").run(packageId);
     db.prepare("UPDATE questions SET domain='business' WHERE package_id=? AND LOWER(domain)='business environment'").run(packageId);
-    setSetting('pmp_learning_bank_version','pmp-learning-bank-889-v20');
+    setSetting('pmp_learning_bank_version',`pmp-learning-bank-${clean.length}-v21`);
   })();
   const stats=db.prepare(`SELECT domain,type,COUNT(*) n FROM questions WHERE package_id=? AND active=1 GROUP BY domain,type`).all(packageId);
   const total=db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1').get(packageId).c;
-  const arabic=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND TRIM(COALESCE(question_ar,''))!=''").get(packageId).c;
-  return sendJson(res,200,{ok:true,packageId,imported:clean.length,total,arabic,englishOnly:total-arabic,stats,
+  const arabic=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1 AND TRIM(COALESCE(question_ar,''))!=''").get(packageId).c;
+  const english=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1 AND TRIM(COALESCE(question_en,''))!=''").get(packageId).c;
+  const bilingual=db.prepare("SELECT COUNT(*) c FROM questions WHERE package_id=? AND active=1 AND TRIM(COALESCE(question_ar,''))!='' AND TRIM(COALESCE(question_en,''))!=''").get(packageId).c;
+  return sendJson(res,200,{ok:true,packageId,imported:clean.length,rejected:rows.length-clean.length,total,arabic,english,bilingual,englishOnly:english-bilingual,arabicOnly:arabic-bilingual,
+    duplicateTextGroups:duplicateOf.size,reviewRequired:clean.filter(q=>duplicateOf.has(q.id)||!q.questionEn||!q.explanationEn||q.optionsEn.filter(Boolean).length<2).length,stats,
     expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:5},{after:94,minutes:10}]}});
 }
 

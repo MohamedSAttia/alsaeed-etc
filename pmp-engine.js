@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 const EXAM_CODE = 'pmp-2026-full-180';
-const SOURCE_TAG = 'alsaeed-pmp-upload-851-v1';
+const SOURCE_TAG = 'alsaeed-pmp-upload-903-v21';
 const CONFIG = Object.freeze({
   code: EXAM_CODE,
   title: 'PMP® 2026 — المحاكاة الكاملة',
@@ -21,7 +21,7 @@ const CONFIG = Object.freeze({
   timerPausesDuringBreak: true,
   typePolicy: 'include-every-active-type-when-available',
   supportedTypes: ['single','multiple','matching','drag_drop','ordering','hotspot','fill_blank','scenario'],
-  sourceBankCount: 889,
+  sourceBankCount: 903,
   passScore: 65
 });
 
@@ -208,7 +208,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     }
     const final=[...selected.slice(0,10),...shuffle(extras)];
     if(final.length!==180)throw new Error(`خطأ في عدد أسئلة المحاكاة: ${final.length}`);
-    const counts=final.reduce((a,q)=>(a[q.domain]=(a[q.domain]||0)+1,a),{});
+    const counts=final.reduce((a,q)=>{const d=String(q.domain||'').toLowerCase();a[d]=(a[d]||0)+1;return a},{});
     if(counts.people!==59||counts.process!==74||counts.business!==47)throw new Error(`خطأ توزيع domains ${JSON.stringify(counts)}`);
     return final;
   }
@@ -216,7 +216,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
   function sanitizeQuestion(q,index) {
     const meta=safeJson(q.meta,{})||{};
     return {
-      id:q.id,index:index+1,domain:q.domain,topic:q.topic,difficulty:q.difficulty,
+      id:q.id,index:index+1,domain:String(q.domain||'').toLowerCase(),topic:q.topic,difficulty:q.difficulty,
       type:normalizeType(q.type),question:q.question_ar||q.question_en||'',question_en:q.question_en||'',
       options:safeJson(q.options,[]),approach:q.approach||'',scenario:index<10,
       meta:{scenarioText:meta.scenarioText||'',image:meta.image||'',pairs:meta.pairs||null,hotspots:meta.hotspots||null}
@@ -289,7 +289,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
         if(row.status==='finished')return sendJson(res,200,safeJson(row.result,{}));
         const ids=safeJson(row.question_ids,[]),answers=safeJson(row.answers,{}),qs=questionRowsByIds(ids);
         let correct=0;const domains={},types={},review=[];
-        qs.forEach((q,i)=>{const ok=equivalentAnswer(q,answers[q.id]);if(ok)correct++;const d=q.domain||'other',t=normalizeType(q.type);domains[d]=domains[d]||{correct:0,total:0};domains[d].total++;if(ok)domains[d].correct++;types[t]=types[t]||{correct:0,total:0};types[t].total++;if(ok)types[t].correct++;review.push({id:q.id,index:i+1,correct:ok,answer:answers[q.id]??null,correctAnswer:q.correct,explanation:q.explanation_ar||q.explanation_en||'',reference:q.reference||'',domain:d,type:t})});
+        qs.forEach((q,i)=>{const ok=equivalentAnswer(q,answers[q.id]);if(ok)correct++;const d=String(q.domain||'other').toLowerCase(),t=normalizeType(q.type);domains[d]=domains[d]||{correct:0,total:0};domains[d].total++;if(ok)domains[d].correct++;types[t]=types[t]||{correct:0,total:0};types[t].total++;if(ok)types[t].correct++;review.push({id:q.id,index:i+1,correct:ok,answer:answers[q.id]??null,correctAnswer:q.correct,explanation:q.explanation_ar||q.explanation_en||'',reference:q.reference||'',domain:d,type:t})});
         const score=Math.round(correct/qs.length*10000)/100;Object.values(domains).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);Object.values(types).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);
         const result={sessionId:sid,total:qs.length,correct,score,passed:score>=CONFIG.passScore,domains,types,review,finishedAt:Date.now()};
         db.prepare("UPDATE exam_sessions SET status='finished',finished=?,updated=?,result=? WHERE id=?").run(Date.now(),Date.now(),JSON.stringify(result),sid);return sendJson(res,200,result);
