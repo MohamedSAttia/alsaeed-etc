@@ -4091,7 +4091,7 @@ function pkgTab(p, c, has) {
     return `${c.id==='pmp'?`<div class="note ok mb"><b>منصة PMP® 2026 المتكاملة:</b> أكثر من 900 سؤال وتدريب تفاعلي · محاكاة كاملة من 180 سؤالاً خلال 240 دقيقة · الأسئلة 1–10 مواقف وسيناريوهات · استراحة أولى 5 دقائق بعد السؤال 10 · استراحة ثانية 10 دقائق بعد السؤال 94 · عربي/English · بنك أخطائك · خطة اجتياز · سجل أداء وتحليل حسب مجالات PMI.</div>`:''}<div class="note info mb"><b>ثلاثة مستويات من الاختبار:</b>
       اختبار بعد كل فصل · اختبار لكل نطاق بوزنه الحقيقي · اختبار شامل يحاكي الاختبار الفعلي بمؤقّته.</div>
       <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const x=(window.Q_TYPES||[]).find(y=>y.k===k)||{};return `<span class="qtype">${esc(x.ar||k)} · <b class="en">${esc(x.en||'')}</b></span>`;}).join('')}</div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${has?`${c.id==='pmp'?`<button class="btn p" data-pmp-hub>افتح منصة PMP المتكاملة ←</button>`:''}<button class="btn o" data-unified-exam="${p.id}" data-exam-code="full">المحاكاة الآمنة 180 سؤالاً</button>`:`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px"><button class="btn n" data-practice="${p.id}">مختبر الأسئلة التفاعلي</button>${has?(c.id==='pmp'?`<button class="btn p" data-pmp-hub>ابدأ منصة ومحاكاة PMP® 2026 ←</button>`:`<button class="btn o" data-unified-exam="${p.id}" data-exam-code="full">المحاكاة الآمنة</button>`):`<button class="btn o" data-buy="${p.id}">🔒 بنك المحاكاة الكامل</button>`}</div>
       ${Object.entries(grp).map(([kind, arr]) => arr.length ? `
         <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin:20px 0 12px">
           اختبارات ${kind === 'فصل' ? 'الفصول' : kind === 'نطاق' ? 'النطاقات' : 'المحاكاة الشاملة'}</h4>
@@ -4826,6 +4826,10 @@ function playLesson(pid, idx) {
 
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
+  if (/^pmp(?:-|$)/i.test(String(pid || ''))) {
+    window.location.href = '/pmp/';
+    return;
+  }
   if(window.UnifiedExam) window.UnifiedExam.open(pid, eid);
   else openPractice(pid, eid);
 }
@@ -5950,7 +5954,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
-<script src="/unified-exam.js?v=20260916-1"></script>
+<script src="/unified-exam.js?v=20260916-2"></script>
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>
 <script src="/v17-interactive.js"></script>

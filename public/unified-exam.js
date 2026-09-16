@@ -8,6 +8,7 @@ const typeLabel=t=>({single:'اختيار مفرد',multiple:'اختيار مت�
 function courseProfile(){const id=S.course.id;if(['pmp','rmp','acp','pba'].includes(id))return{title:'تقرير أداء بنمط PMI',labels:S.course.domains||[]};if(id==='grcp')return{title:'GRC Capability Performance',labels:['Learn','Align','Perform','Review'].map(k=>({k,ar:k}))};if(id==='lss')return{title:'Lean Six Sigma DMAIC Report',labels:['Define','Measure','Analyze','Improve','Control'].map(k=>({k,ar:k}))};if(id==='p3o')return{title:'P3O Capability Report',labels:['Governance','Portfolio Office','Programme Office','Project Office','Centre of Excellence'].map(k=>({k,ar:k}))};return{title:'تقرير الأداء حسب المحاور',labels:[]}}
 function normalize(raw){return raw.map(q=>({...q,answer:null,flag:false,checked:false,correctLetters:letters(q)}))}
 async function open(pid,eid){
+ if(/^pmp(?:-|$)/i.test(String(pid||''))){window.location.href='/pmp/';return}
  const p=window.APP.pack(pid),c=p&&window.APP.course(p.course);if(!p||!c)return;
  document.body.classList.add('ux-lock');document.body.insertAdjacentHTML('beforeend','<div class="ux-shell" id="ux"><div class="ux-loading"><div><h2>جارٍ تحميل بنك '+esc(c.code)+'…</h2><p>يتم جلب الأسئلة النشطة من لوحة الإدارة.</p></div></div></div>');
  try{const isFull=eid==='full',domain=eid&&eid.startsWith('dom_')?eid.slice(4):'',chapter=eid&&eid.startsWith('ch')?(c.chapters||[])[Number(eid.slice(2))]||'':'';
