@@ -2682,13 +2682,24 @@ async function api(path, opts) {
   opts = opts || {};
   const h = { 'Content-Type': 'application/json' };
   if (API.token) h.Authorization = 'Bearer ' + API.token;
-  const r = await fetch(API.base + '/api' + path, {
-    method: opts.method || 'GET', headers: h,
-    body: opts.body ? JSON.stringify(opts.body) : undefined
-  });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(d.error || 'تعذّر الاتصال');
-  return d;
+  const timeoutMs = Math.max(0, Number(opts.timeoutMs || 0));
+  const controller = timeoutMs ? new AbortController() : null;
+  const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try {
+    const r = await fetch(API.base + '/api' + path, {
+      method: opts.method || 'GET', headers: h,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      signal: controller ? controller.signal : undefined
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'تعذّر الاتصال');
+    return d;
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('استغرق تحميل الأسئلة وقتاً أطول من المتوقع');
+    throw e;
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 async function loadContent() {
   try {
@@ -5939,7 +5950,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
-<script src="/unified-exam.js?v=20260905-1"></script>
+<script src="/unified-exam.js?v=20260916-1"></script>
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>
 <script src="/v17-interactive.js"></script>

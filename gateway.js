@@ -379,10 +379,15 @@ function handleLearnerQuestionBank(req,res,url){
   }
   const sourcePackageId=/pmp/i.test(packageId)?pmp.packageId:packageId;
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
-  const rows=db.prepare(`SELECT * FROM questions WHERE package_id=? AND active=1
+  const filters=['package_id=?','active=1'], params=[sourcePackageId];
+  const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
+  const topic=String(url.searchParams.get('topic')||'').trim();
+  if(domain){filters.push('LOWER(domain)=?');params.push(domain)}
+  if(topic){filters.push('topic=?');params.push(topic)}
+  const rows=db.prepare(`SELECT * FROM questions WHERE ${filters.join(' AND ')}
     ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
-    LIMIT ?`).all(sourcePackageId,requested);
-  return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,questions:rows.map(q=>({
+    LIMIT ?`).all(...params,requested);
+  return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions:rows.map(q=>({
     id:q.id,domain:q.domain||'',task:q.task||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
     question_ar:q.question_ar||'',question_en:q.question_en||'',
     options_ar:parseJson(q.options_ar,[]),options_en:parseJson(q.options_en,parseJson(q.options,[])),
