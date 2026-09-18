@@ -382,7 +382,10 @@ function handleLearnerQuestionBank(req,res,url){
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
-  if(domain){filters.push('LOWER(domain)=?');params.push(domain)}
+  if(domain){
+    const aliases={people:['people','e'],process:['process','r'],business:['business','business environment','b']}[domain]||[domain];
+    filters.push(`LOWER(TRIM(domain)) IN (${aliases.map(()=>'?').join(',')})`);params.push(...aliases)
+  }
   if(topic){filters.push('topic=?');params.push(topic)}
   const rows=db.prepare(`SELECT * FROM questions WHERE ${filters.join(' AND ')}
     ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
