@@ -3,7 +3,6 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import zlib from 'zlib';
-import { createHash, timingSafeEqual } from 'crypto';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
@@ -17,8 +16,6 @@ const INNER_APP_PORT = Number(process.env.INNER_APP_PORT || 3102);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'alsaeed.db');
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const PANEL = String(process.env.ADMIN_PANEL_PATH || 'manage-x7k').replace(/^\/+|\/+$/g, '');
-const PMP_BOOTSTRAP_DIGEST = '33bc7a62b5892928f28c057267324c44f24082db7d22d9aed1a0ed9c368a6df3';
-let pmpBootstrapRunning = false;
 
 const child = spawn(process.execPath, ['proxy.js'], {
   env: { ...process.env, PORT: String(INNER_PROXY_PORT), INTERNAL_APP_PORT: String(INNER_APP_PORT) },
@@ -265,8 +262,8 @@ function questionSignature(q) {
     .toLowerCase().replace(/\s+/g,' ').replace(/[?؟.!،,;:]+$/g,'').trim();
 }
 
-async function importPmpBank(req, res, { trusted = false } = {}) {
-  if(!trusted){const admin=adminFromToken(req); if(!admin) return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});}
+async function importPmpBank(req, res) {
+  const admin=adminFromToken(req); if(!admin) return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});
   let body; try{body=await readJson(req)}catch{return sendJson(res,400,{error:'تعذر قراءة ملف بنك الأسئلة'})}
   const rows=Array.isArray(body.questions)?body.questions.slice(0,5000):[];
   if(!rows.length)return sendJson(res,400,{error:'لا توجد أسئلة للاستيراد'});
@@ -322,23 +319,6 @@ async function importPmpBank(req, res, { trusted = false } = {}) {
   return sendJson(res,200,{ok:true,packageId,imported:clean.length,rejected:rows.length-clean.length,total,arabic,english,bilingual,englishOnly:english-bilingual,arabicOnly:arabic-bilingual,
     duplicateTextGroups:duplicateOf.size,reviewRequired:clean.filter(q=>duplicateOf.has(q.id)||!q.questionEn||!q.explanationEn||q.optionsEn.filter(Boolean).length<2).length,stats,
     expectedSimulation:{totalQuestions:180,durationMinutes:240,domains:{people:59,process:74,business:47},breaks:[{after:10,minutes:5},{after:94,minutes:10}]}});
-}
-
-function validPmpBootstrapKey(req) {
-  const key=String(req.headers['x-pmp-import-key']||'');
-  if(!/^[0-9a-f]{64}$/i.test(key))return false;
-  const actual=createHash('sha256').update(key).digest();
-  const expected=Buffer.from(PMP_BOOTSTRAP_DIGEST,'hex');
-  return actual.length===expected.length&&timingSafeEqual(actual,expected);
-}
-
-async function bootstrapPmpBank(req,res){
-  if(!validPmpBootstrapKey(req))return sendJson(res,404,{error:'المسار غير متاح'});
-  if(setting('pmp_learning_bank_version')==='pmp-learning-bank-903-v21')return sendJson(res,410,{error:'تم استخدام مسار الاستيراد المؤقت'});
-  if(pmpBootstrapRunning)return sendJson(res,409,{error:'الاستيراد قيد التنفيذ'});
-  pmpBootstrapRunning=true;
-  try{return await importPmpBank(req,res,{trusted:true})}
-  finally{pmpBootstrapRunning=false}
 }
 
 async function handleQuestionAdmin(req,res,url){
@@ -481,7 +461,6 @@ const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
   try{
     if(url.pathname.startsWith('/api/ai/'))return await aiAssistant.handle(req,res,url);
-    if(req.method==='POST'&&url.pathname==='/api/internal/pmp-bootstrap')return await bootstrapPmpBank(req,res);
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
