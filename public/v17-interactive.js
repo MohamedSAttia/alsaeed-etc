@@ -135,11 +135,13 @@ window.InteractiveVideo = {
       pkgId, lessonIdx, lesson, course: (c && c.id) || 'pmp',
       cues: buildCues(lesson, lessonIdx),
       done: {}, t: 0, dur: durSec(lesson.dur || lesson.duration),
-      answered: 0, correct: 0, paused: false, cue: null
+      answered: 0, correct: 0, paused: false, cue: null,
+      discussion: [], discussionStatus: 'loading', discussionError: '', canReply: false, replying: null
     };
     document.body.classList.add('iv-lock');
     document.body.insertAdjacentHTML('beforeend', `<div class="iv-shell" id="iv"></div>`);
     render();
+    loadDiscussion();
   },
   close() { close(); }
 };
@@ -207,9 +209,50 @@ function render() {
               <span class="t">${esc(o.x.t || o.x.title || '')}</span>
               <span class="d">${esc(o.x.dur || '')}</span></button>`).join('')}
         </div>
+        <div class="iv-discussion" id="ivDiscussion"></div>
       </aside>
     </div>`;
   bind();
+  renderDiscussion();
+}
+
+async function loadDiscussion() {
+  if (!V || !window.APP || !window.APP.api) return;
+  const pkg=V.pkgId, idx=V.lessonIdx;
+  V.discussionStatus='loading';V.discussionError='';renderDiscussion();
+  try {
+    const data=await window.APP.api('/lesson-discussions/'+encodeURIComponent(pkg)+'/'+idx,{timeoutMs:15000});
+    if(!V||V.pkgId!==pkg||V.lessonIdx!==idx)return;
+    V.discussion=Array.isArray(data.items)?data.items:[];V.canReply=!!data.canReply;V.discussionStatus='ready';
+  } catch(e) {
+    if(!V||V.pkgId!==pkg||V.lessonIdx!==idx)return;
+    V.discussionStatus='error';V.discussionError=e.message||T('تعذر تحميل المناقشة','Could not load discussion');
+  }
+  renderDiscussion();
+}
+
+function discussionDate(value){try{return new Date(Number(value)).toLocaleString(L()==='en'?'en-GB':'ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch{return''}}
+function roleLabel(role){return ['admin','trainer','instructor'].includes(String(role||'').toLowerCase())?T('المدرب / الإدارة','Trainer / Admin'):T('متدرب','Learner')}
+function renderDiscussion(){
+  const el=$('#ivDiscussion');if(!el||!V)return;
+  if(V.discussionStatus==='loading'){el.innerHTML='<div class="iv-discussion-empty">'+T('جارٍ تحميل أسئلة الدرس…','Loading lesson questions…')+'</div>';return}
+  if(V.discussionStatus==='error'){el.innerHTML='<div class="iv-discussion-head"><h4>'+T('الأسئلة والمناقشة','Questions & discussion')+'</h4></div><div class="iv-discussion-error">'+esc(V.discussionError)+'</div>';return}
+  const roots=V.discussion.filter(x=>!x.parent_id), replies=V.discussion.filter(x=>x.parent_id);
+  el.innerHTML='<div class="iv-discussion-head"><h4>'+T('الأسئلة والمناقشة','Questions & discussion')+'</h4><span>'+roots.length+' '+T('سؤال','questions')+'</span></div>'+
+    '<div class="iv-ask"><textarea id="ivAsk" maxlength="2000" placeholder="'+T('اكتب سؤالك عن هذا الفيديو…','Ask a question about this video…')+'"></textarea><button id="ivAskSend">'+T('إرسال السؤال','Send question')+'</button></div>'+
+    (roots.length?roots.map(q=>{const rs=replies.filter(x=>x.parent_id===q.id);return '<article class="iv-thread"><div class="iv-thread-meta"><b>'+esc(q.name||T('متدرب','Learner'))+'</b><span class="iv-role">'+esc(roleLabel(q.role))+'</span><span>'+esc(discussionDate(q.created))+'</span></div><p>'+esc(q.body)+'</p>'+
+      (rs.length?'<div class="iv-replies">'+rs.map(a=>'<div class="iv-reply"><div class="iv-thread-meta"><b>'+esc(a.name||T('الإدارة','Admin'))+'</b><span class="iv-role">'+esc(roleLabel(a.role))+'</span><span>'+esc(discussionDate(a.created))+'</span></div><p>'+esc(a.body)+'</p></div>').join('')+'</div>':'')+
+      (V.canReply?'<button class="iv-reply-action" data-disc-reply="'+esc(q.id)+'">'+T('رد كمدرب','Reply as trainer')+'</button>':'')+
+      (V.replying===q.id?'<div class="iv-reply-form"><textarea id="ivReplyText" maxlength="2000" placeholder="'+T('اكتب الرد…','Write a reply…')+'"></textarea><button id="ivReplySend" data-parent="'+esc(q.id)+'">'+T('إرسال الرد','Send reply')+'</button></div>':'')+'</article>'}).join(''):'<div class="iv-discussion-empty">'+T('لا توجد أسئلة بعد. ابدأ المناقشة حول هذا الدرس.','No questions yet. Start the discussion for this lesson.')+'</div>');
+  const send=$('#ivAskSend');if(send)send.onclick=()=>postDiscussion($('#ivAsk')?.value||'',null,send);
+  $$('[data-disc-reply]').forEach(b=>b.onclick=()=>{V.replying=V.replying===b.dataset.discReply?null:b.dataset.discReply;renderDiscussion()});
+  const reply=$('#ivReplySend');if(reply)reply.onclick=()=>postDiscussion($('#ivReplyText')?.value||'',reply.dataset.parent,reply);
+}
+async function postDiscussion(body,parentId,button){
+  const text=String(body||'').trim();if(text.length<2)return window.APP.toast(T('اكتب السؤال أولًا','Write the question first'));
+  button.disabled=true;button.textContent=T('جارٍ الإرسال…','Sending…');
+  try{await window.APP.api('/lesson-discussions/'+encodeURIComponent(V.pkgId)+'/'+V.lessonIdx,{method:'POST',body:{body:text,parentId}});V.replying=null;await loadDiscussion();window.APP.toast(T('تم إرسال رسالتك','Your message was sent'))}
+  catch(e){button.disabled=false;button.textContent=parentId?T('إرسال الرد','Send reply'):T('إرسال السؤال','Send question');window.APP.toast(e.message)}
 }
 
 function cueOverlay() {
@@ -261,7 +304,9 @@ function bind() {
     V.cues = buildCues(V.lesson, V.lessonIdx);
     V.done = {}; V.answered = 0; V.correct = 0; V.cue = null;
     V.dur = durSec(V.lesson.dur || V.lesson.duration); V.t = 0;
+    V.discussion=[];V.discussionStatus='loading';V.discussionError='';V.replying=null;
     render();
+    loadDiscussion();
   });
   $$('[data-cue]').forEach(b => b.onclick = () => openCue(+b.dataset.cue));
   $$('[data-cueo]').forEach(b => b.onclick = () => {

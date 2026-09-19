@@ -668,6 +668,23 @@ app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
   res.json(rows.map(row => ({ ...row, free: !!row.free })));
 });
+app.get('/api/admin/vimeo/:id', auth, admin, async (req, res) => {
+  const id = String(req.params.id || '').replace(/\D/g, '');
+  if (!/^\d{6,12}$/.test(id)) return res.status(400).json({ error: 'رقم Vimeo غير صحيح' });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const url = 'https://vimeo.com/api/oembed.json?url=' + encodeURIComponent('https://vimeo.com/' + id);
+    const response = await fetch(url, { signal: controller.signal, headers: { accept: 'application/json' } });
+    if (!response.ok) return res.status(404).json({ error: 'تعذر قراءة بيانات الفيديو. تأكد أن الفيديو يسمح بالتضمين.' });
+    const data = await response.json();
+    const seconds = Math.max(0, Number(data.duration || 0));
+    const duration = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+    res.json({ id, seconds, duration, title: data.title || '', thumbnail: data.thumbnail_url || '' });
+  } catch (error) {
+    res.status(error?.name === 'AbortError' ? 504 : 502).json({ error: 'تعذر الاتصال بـ Vimeo الآن' });
+  } finally { clearTimeout(timer); }
+});
 app.put('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
   const list = req.body || [];
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');

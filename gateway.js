@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import zlib from 'zlib';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
@@ -15,6 +16,7 @@ const INNER_PROXY_PORT = Number(process.env.INNER_PROXY_PORT || 3101);
 const INNER_APP_PORT = Number(process.env.INNER_APP_PORT || 3102);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'alsaeed.db');
 const JWT_SECRET = process.env.JWT_SECRET || '';
+const uid = () => crypto.randomBytes(9).toString('base64url');
 const PANEL = String(process.env.ADMIN_PANEL_PATH || 'manage-x7k').replace(/^\/+|\/+$/g, '');
 
 const child = spawn(process.execPath, ['proxy.js'], {
@@ -59,6 +61,13 @@ CREATE TABLE IF NOT EXISTS resources (
   active INTEGER DEFAULT 1, created INTEGER NOT NULL, updated INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_resources_package ON resources(package_id);
+CREATE TABLE IF NOT EXISTS lesson_discussions (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL, lesson_idx INTEGER NOT NULL,
+  user_id TEXT NOT NULL, parent_id TEXT, body TEXT NOT NULL,
+  active INTEGER DEFAULT 1, created INTEGER NOT NULL, updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_lesson_discussions_lesson
+  ON lesson_discussions(package_id,lesson_idx,created);
 CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT);
 `);
 } catch (e) { console.warn('content tables:', e.message); }
@@ -181,6 +190,26 @@ function savePackages(list) {
 
 const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
 const aiAssistant = createAiAssistant({ dbPath: DB_PATH, jwtSecret: JWT_SECRET });
+
+function courseIdForPackage(packageId) {
+  const id=String(packageId||'');
+  const pkg=getPackages().find(p=>String(p.id)===id);
+  return String(pkg?.course||id.split('-')[0]||id).toLowerCase();
+}
+function questionSourcePackageId(packageId, activeOnly=true) {
+  const id=String(packageId||'');
+  const activeSql=activeOnly?' AND active=1':'';
+  const exact=db.prepare(`SELECT COUNT(*) c FROM questions WHERE package_id=?${activeSql}`).get(id).c;
+  if(exact>0)return id;
+  const course=courseIdForPackage(id);
+  const candidates=[course,...getPackages().filter(p=>String(p.course||'').toLowerCase()===course).map(p=>String(p.id))];
+  let best=id,bestCount=0;
+  for(const candidate of [...new Set(candidates)]){
+    const count=db.prepare(`SELECT COUNT(*) c FROM questions WHERE package_id=?${activeSql}`).get(candidate).c;
+    if(count>bestCount){best=candidate;bestCount=count}
+  }
+  return bestCount?best:id;
+}
 
 function sendJson(res, status, body) {
   const data = Buffer.from(JSON.stringify(body));
@@ -326,7 +355,8 @@ async function handleQuestionAdmin(req,res,url){
   const base='/api/admin-question-bank'; const sub=url.pathname.slice(base.length)||'/'; const parts=sub.split('/').filter(Boolean); const method=req.method||'GET';
   if(method==='GET' && parts.length===1){
     const pkg=decodeURIComponent(parts[0]);
-    const rows=db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY id').all(pkg).map(r=>({
+    const sourcePkg=questionSourcePackageId(pkg,true);
+    const rows=db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY id').all(sourcePkg).map(r=>({
       ...r, active:!!r.active, options:parseJson(r.options,[]), options_en:parseJson(r.options_en,r.question_en?parseJson(r.options,[]):[]), options_ar:parseJson(r.options_ar,[])
     }));
     return sendJson(res,200,rows);
@@ -363,7 +393,7 @@ function handlePackageSummary(req,res){
   const e=db.prepare('SELECT package_id,COUNT(*) n FROM exams GROUP BY package_id').all();
   const r=db.prepare('SELECT package_id,COUNT(*) n FROM resources GROUP BY package_id').all();
   const map=(a)=>Object.fromEntries(a.map(x=>[x.package_id,x.n])); const qm=map(q),lm=map(l),em=map(e),rm=map(r);
-  return sendJson(res,200,packs.map(p=>({...p,counts:{questions:qm[p.id]||0,lessons:lm[p.id]||0,exams:em[p.id]||0,resources:rm[p.id]||0}})));
+  return sendJson(res,200,packs.map(p=>{const source=questionSourcePackageId(p.id,true);return {...p,questionSource:source,counts:{questions:qm[p.id]||qm[source]||0,lessons:lm[p.id]||0,exams:em[p.id]||0,resources:rm[p.id]||0}}}));
 }
 
 function handleLearnerQuestionBank(req,res,url){
@@ -376,7 +406,7 @@ function handleLearnerQuestionBank(req,res,url){
     if(!en)return sendJson(res,403,{error:'بنك الأسئلة متاح للمشتركين في هذه الباقة فقط'});
     if(en.expires && en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
   }
-  const sourcePackageId=/pmp/i.test(packageId)?pmp.packageId:packageId;
+  const sourcePackageId=questionSourcePackageId(packageId,true);
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
@@ -397,6 +427,40 @@ function handleLearnerQuestionBank(req,res,url){
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
     source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }))});
+}
+
+function lessonAccess(user, packageId) {
+  if(!user)return false;
+  if(['admin','trainer','instructor'].includes(String(user.role||'').toLowerCase()))return true;
+  const enrollment=db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(user.id,packageId);
+  return !!(enrollment&&(!enrollment.expires||enrollment.expires>=Date.now()));
+}
+async function handleLessonDiscussions(req,res,url){
+  const user=userFromToken(req);if(!user)return sendJson(res,401,{error:'سجّل الدخول لعرض أسئلة الدرس'});
+  const prefix='/api/lesson-discussions/';
+  const parts=url.pathname.slice(prefix.length).split('/').filter(Boolean);
+  const packageId=decodeURIComponent(parts[0]||''),lessonIdx=Number(parts[1]);
+  if(!packageId||!Number.isInteger(lessonIdx)||lessonIdx<0)return sendJson(res,400,{error:'بيانات الدرس غير صحيحة'});
+  if(!lessonAccess(user,packageId))return sendJson(res,403,{error:'الأسئلة متاحة للمشتركين في هذه الباقة'});
+  const staff=['admin','trainer','instructor'].includes(String(user.role||'').toLowerCase());
+  if(req.method==='GET'){
+    const rows=db.prepare(`SELECT d.id,d.parent_id,d.body,d.created,d.updated,u.name,u.role,d.user_id
+      FROM lesson_discussions d LEFT JOIN users u ON u.id=d.user_id
+      WHERE d.package_id=? AND d.lesson_idx=? AND d.active=1 ORDER BY d.created`).all(packageId,lessonIdx);
+    return sendJson(res,200,{packageId,lessonIdx,canReply:staff,items:rows.map(x=>({...x,mine:x.user_id===user.id}))});
+  }
+  if(req.method==='POST'){
+    let body;try{body=await readJson(req,64*1024)}catch{return sendJson(res,400,{error:'تعذر قراءة السؤال'})}
+    const text=String(body.body||'').trim(),parentId=String(body.parentId||'').trim()||null;
+    if(text.length<2||text.length>2000)return sendJson(res,400,{error:'اكتب سؤالًا أو تعليقًا من حرفين إلى 2000 حرف'});
+    if(parentId&&!staff)return sendJson(res,403,{error:'الردود مخصصة للمدرب أو المشرف'});
+    if(parentId){const parent=db.prepare('SELECT id FROM lesson_discussions WHERE id=? AND package_id=? AND lesson_idx=? AND parent_id IS NULL AND active=1').get(parentId,packageId,lessonIdx);if(!parent)return sendJson(res,404,{error:'السؤال الأصلي غير موجود'})}
+    const id=uid(),now=Date.now();
+    db.prepare('INSERT INTO lesson_discussions (id,package_id,lesson_idx,user_id,parent_id,body,active,created,updated) VALUES (?,?,?,?,?,?,1,?,?)')
+      .run(id,packageId,lessonIdx,user.id,parentId,text,now,now);
+    return sendJson(res,200,{ok:true,id});
+  }
+  return sendJson(res,405,{error:'العملية غير مدعومة'});
 }
 
 function handleLearnerResources(req,res,url){
@@ -465,6 +529,7 @@ const server=http.createServer(async(req,res)=>{
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-question-bank/'))return handleLearnerQuestionBank(req,res,url);
+    if(url.pathname.startsWith('/api/lesson-discussions/'))return await handleLessonDiscussions(req,res,url);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-resources/'))return handleLearnerResources(req,res,url);
     if(url.pathname.startsWith('/api/pmp-2026'))return await pmp.handle(req,res,url);
     return forward(req,res);
