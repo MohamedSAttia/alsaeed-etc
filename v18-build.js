@@ -54,7 +54,9 @@ replaceIn(indexFile, '/exam-ai-v19.js?v=19.0', '/exam-ai-v19.js?v=20.0');
 for (const name of ['panel.html','content-admin.html']) {
   const f = path.join(publicDir,name);
   inject(f, '/admin-v18.css', '<link rel="stylesheet" href="/admin-v18.css?v=18.0">');
-  inject(f, '/admin-v18.js', '<script src="/admin-v18.js?v=18.0"></script>', 'body');
+  // V19 owns the admin runtime. Keeping the V18 observer creates an endless
+  // V18/V19 mutation loop and makes the upgraded interface appear unchanged.
+  replaceIn(f, '<script src="/admin-v18.js?v=18.0"></script>', '');
 }
 patchGatewayForAI();
 console.log('✅ V20 zero-cost exam coach asset injected; optional AI backend remains available for future use');
