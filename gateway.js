@@ -358,7 +358,7 @@ async function handleQuestionAdmin(req,res,url){
 function handlePackageSummary(req,res){
   const admin=adminFromToken(req); if(!admin)return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});
   const packs=getPackages();
-  const q=db.prepare('SELECT package_id,COUNT(*) n FROM questions GROUP BY package_id').all();
+  const q=db.prepare('SELECT package_id,COUNT(*) n FROM questions WHERE active=1 GROUP BY package_id').all();
   const l=db.prepare('SELECT package_id,COUNT(*) n FROM lessons GROUP BY package_id').all();
   const e=db.prepare('SELECT package_id,COUNT(*) n FROM exams GROUP BY package_id').all();
   const r=db.prepare('SELECT package_id,COUNT(*) n FROM resources GROUP BY package_id').all();

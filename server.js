@@ -663,6 +663,11 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
   res.json(db.prepare(`SELECT o.*, u.name user_name, u.email user_email
     FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 500`).all());
 });
+app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
+  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en
+    FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
+  res.json(rows.map(row => ({ ...row, free: !!row.free })));
+});
 app.put('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
   const list = req.body || [];
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
