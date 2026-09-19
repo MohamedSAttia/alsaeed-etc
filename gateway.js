@@ -260,6 +260,20 @@ function validDomain(d) {
 }
 function arr(v) { return Array.isArray(v) ? v : []; }
 function parseJson(v, fallback=[]) { try { return JSON.parse(v||''); } catch { return fallback; } }
+function normalizedQuestionOptions(row) {
+  const legacy=parseJson(row.options,[]);
+  let ar=parseJson(row.options_ar,[]),en=parseJson(row.options_en,[]);
+  if(Array.isArray(legacy)&&legacy.some(x=>x&&typeof x==='object'&&!Array.isArray(x))){
+    if(!ar.some(Boolean))ar=legacy.map(x=>String(x.ar||''));
+    if(!en.some(Boolean))en=legacy.map(x=>String(x.en||x.text||''));
+  } else if(Array.isArray(legacy)&&legacy.some(Boolean)) {
+    if(!ar.some(Boolean)&&!en.some(Boolean)){
+      if(String(row.question_ar||'').trim()&&!String(row.question_en||'').trim())ar=legacy.map(String);
+      else en=legacy.map(String);
+    }
+  }
+  return { ar, en, display: ar.some(Boolean)?ar:(en.some(Boolean)?en:legacy) };
+}
 
 function normalizeUploadedQuestion(q, i) {
   const objectOptions = Array.isArray(q.options) && q.options.some(x => x && typeof x === 'object');
@@ -356,9 +370,9 @@ async function handleQuestionAdmin(req,res,url){
   if(method==='GET' && parts.length===1){
     const pkg=decodeURIComponent(parts[0]);
     const sourcePkg=questionSourcePackageId(pkg,true);
-    const rows=db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY id').all(sourcePkg).map(r=>({
-      ...r, active:!!r.active, options:parseJson(r.options,[]), options_en:parseJson(r.options_en,r.question_en?parseJson(r.options,[]):[]), options_ar:parseJson(r.options_ar,[])
-    }));
+    const rows=db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY id').all(sourcePkg).map(r=>{const o=normalizedQuestionOptions(r);return {
+      ...r, active:!!r.active, options:o.display, options_en:o.en, options_ar:o.ar
+    }});
     return sendJson(res,200,rows);
   }
   if(method==='POST' && parts.length===0){
@@ -419,14 +433,15 @@ function handleLearnerQuestionBank(req,res,url){
   const rows=db.prepare(`SELECT * FROM questions WHERE ${filters.join(' AND ')}
     ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
     LIMIT ?`).all(...params,requested);
-  return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions:rows.map(q=>({
+  const questions=rows.map(q=>{const o=normalizedQuestionOptions(q);return {
     id:q.id,domain:q.domain||'',task:q.task||'',topic:q.topic||'',difficulty:q.difficulty||'medium',type:normalizeType(q.type),
     question_ar:q.question_ar||'',question_en:q.question_en||'',
-    options_ar:parseJson(q.options_ar,[]),options_en:parseJson(q.options_en,parseJson(q.options,[])),
+    options_ar:o.ar,options_en:o.en,
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
     source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
-  }))});
+  }});
+  return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions});
 }
 
 function lessonAccess(user, packageId) {
