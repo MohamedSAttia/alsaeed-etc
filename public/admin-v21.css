@@ -1,0 +1,36 @@
+/* Al-Saeed Admin V21 — calmer, denser and responsive workspace */
+:root{--a21-navy:#071f3d;--a21-orange:#f47b20;--a21-teal:#0e8f8b;--a21-line:rgba(13,44,82,.11);--a21-shadow:0 20px 55px -34px rgba(7,31,61,.48)}
+body{background:radial-gradient(circle at 92% 8%,rgba(244,123,32,.08),transparent 24rem),linear-gradient(180deg,#f7f9fc,#eef3f9)!important}
+.admin-shell,.shell{max-width:1600px;margin:auto}
+.side,.sidebar{background:linear-gradient(180deg,#061a34,#0b2b50)!important;border-inline-end:1px solid rgba(255,255,255,.07)!important}
+.side::after,.sidebar::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.side>* ,.sidebar>*{position:relative;z-index:1}
+.side a,.sidebar a,.nav-item{border-radius:12px!important;transition:.22s!important}
+.side a:hover,.sidebar a:hover,.nav-item:hover{transform:translateX(-2px);background:rgba(255,255,255,.09)!important}
+[dir=ltr] .side a:hover,[dir=ltr] .sidebar a:hover{transform:translateX(2px)}
+.side a.on,.sidebar a.on,.nav-item.on{background:linear-gradient(135deg,var(--a21-orange),#ff9b4d)!important;color:#fff!important;box-shadow:0 14px 32px -17px rgba(244,123,32,.8)}
+.topbar,.admin-top,.content-head{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(16px) saturate(150%);border-bottom:1px solid var(--a21-line)!important}
+.panel,.card,.stat,.kpi,.modal{border-color:var(--a21-line)!important;box-shadow:var(--a21-shadow)!important;border-radius:18px!important}
+.stat,.kpi{position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.stat::after,.kpi::after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;inset-inline-end:-34px;top:-42px;background:radial-gradient(circle,rgba(244,123,32,.15),transparent 70%)}
+.stat:hover,.kpi:hover{transform:translateY(-4px);box-shadow:0 28px 64px -35px rgba(7,31,61,.58)!important}
+.btn,.button,button{transition:transform .2s,box-shadow .2s,filter .2s}
+.btn:hover,.button:hover,button:hover{transform:translateY(-1px)}
+.btn.pri,.btn.primary,.button.primary{background:linear-gradient(135deg,var(--a21-orange),#ff9d4e)!important;box-shadow:0 12px 25px -15px rgba(244,123,32,.8)}
+table{border-collapse:separate!important;border-spacing:0 7px!important}
+tbody tr{background:#fff;box-shadow:0 5px 18px -16px rgba(7,31,61,.5);transition:.2s}
+tbody tr:hover{transform:translateY(-1px);box-shadow:0 10px 24px -18px rgba(7,31,61,.65)}
+tbody td{border-block:1px solid var(--a21-line)!important}
+tbody td:first-child{border-inline-start:1px solid var(--a21-line)!important;border-start-start-radius:11px;border-end-start-radius:11px}
+tbody td:last-child{border-inline-end:1px solid var(--a21-line)!important;border-start-end-radius:11px;border-end-end-radius:11px}
+input,select,textarea{background:#fbfdff!important;border-color:rgba(13,44,82,.15)!important;transition:.2s!important}
+input:focus,select:focus,textarea:focus{background:#fff!important;border-color:var(--a21-orange)!important;box-shadow:0 0 0 4px rgba(244,123,32,.1)!important}
+.modal,.dialog{animation:a21Modal .28s cubic-bezier(.22,1,.36,1) both}
+@keyframes a21Modal{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+@media(max-width:820px){
+  .side,.sidebar{box-shadow:0 18px 55px rgba(0,0,0,.35)}
+  .stats,.kpis,.stat-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  table{min-width:780px}
+}
+@media(max-width:520px){.stats,.kpis,.stat-row{grid-template-columns:1fr!important}.panel,.card{border-radius:15px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

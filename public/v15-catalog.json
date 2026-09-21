@@ -429,6 +429,99 @@
         "إثبات القيمة"
       ],
       "cover": "assets/covers/gov.svg"
+    },
+    {
+      "id": "nebosh",
+      "track": "hse",
+      "level": "inter",
+      "code": "NEBOSH IGC",
+      "ar": "الشهادة الدولية العامة في السلامة",
+      "en": "NEBOSH International General Certificate",
+      "edition": "2026",
+      "hours": 80,
+      "questions": 0,
+      "examMin": 0,
+      "modes": [
+        "onsite",
+        "live",
+        "recorded"
+      ],
+      "badge": "جديد",
+      "featured": false,
+      "blurb": "الشهادة الدولية الأشهر في السلامة والصحة المهنية — مطلوبة في الصناعة والمقاولات.",
+      "domains": [
+        {
+          "k": "ig1",
+          "ar": "إدارة السلامة والصحة",
+          "en": "Management of H&S",
+          "w": 50
+        },
+        {
+          "k": "ig2",
+          "ar": "تقييم المخاطر التطبيقي",
+          "en": "Risk Assessment",
+          "w": 50
+        }
+      ],
+      "chapters": [
+        "لماذا تُدار السلامة؟",
+        "أنظمة إدارة السلامة",
+        "ثقافة السلامة",
+        "تقييم المخاطر",
+        "المخاطر الفيزيائية",
+        "المخاطر الكيميائية",
+        "السلامة الإنشائية",
+        "التحقيق في الحوادث"
+      ],
+      "cover": "assets/covers/nebosh.svg"
+    },
+    {
+      "id": "aipro",
+      "track": "ai",
+      "level": "begin",
+      "code": "AI-Pro",
+      "ar": "الذكاء الاصطناعي التطبيقي للمهنيين",
+      "en": "Applied AI for Professionals",
+      "edition": "2026",
+      "hours": 18,
+      "questions": 0,
+      "examMin": 0,
+      "modes": [
+        "live",
+        "recorded",
+        "self"
+      ],
+      "badge": "جديد",
+      "featured": false,
+      "blurb": "كيف تستخدم الذكاء الاصطناعي فعلياً في عملك اليومي — بلا برمجة.",
+      "domains": [
+        {
+          "k": "found",
+          "ar": "الأسس",
+          "en": "Foundations",
+          "w": 25
+        },
+        {
+          "k": "prompt",
+          "ar": "هندسة الأوامر",
+          "en": "Prompt Engineering",
+          "w": 35
+        },
+        {
+          "k": "apply",
+          "ar": "التطبيق المهني",
+          "en": "Application",
+          "w": 40
+        }
+      ],
+      "chapters": [
+        "الذكاء الاصطناعي التوليدي",
+        "هندسة الأوامر",
+        "تحليل البيانات والتقارير",
+        "أتمتة المهام",
+        "الحوكمة وأخلاقيات الاستخدام"
+      ],
+      "cover": "assets/covers/ai.svg"
     }
   ],
   "packages": [
@@ -2074,6 +2167,460 @@
         "التشغيل",
         "إثبات القيمة"
       ]
+    },
+    {
+      "id": "nebosh-full",
+      "schemaVersion": 15,
+      "course": "nebosh",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "الشهادة الدولية العامة في السلامة — الباقة الكاملة",
+      "en": "NEBOSH International General Certificate — Complete Package",
+      "price": 190,
+      "was": 285,
+      "currency": "USD",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 80,
+      "category": "السلامة والصحة المهنية",
+      "questions": 400,
+      "videos": 74,
+      "videoMins": 1900,
+      "quizzes": 4,
+      "shortQuizzes": 22,
+      "lang": "en",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 180,
+      "activities": 22,
+      "games": 1,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم مبادئ إدارة السلامة والصحة المهنية وأنظمتها",
+        "إتقان تقييم المخاطر التطبيقي في بيئات العمل",
+        "التعرّف على المخاطر الفيزيائية والكيميائية وضوابط التحكم",
+        "الجاهزية لاجتياز اختبار NEBOSH IGC الدولي"
+      ],
+      "audience": "مسؤولو ومهندسو السلامة، ومشرفو المواقع، والعاملون في الصناعة والمقاولات والراغبون في اعتماد دولي معترف به",
+      "chapters": [
+        "لماذا تُدار السلامة؟",
+        "أنظمة إدارة السلامة",
+        "ثقافة السلامة",
+        "تقييم المخاطر",
+        "المخاطر الفيزيائية",
+        "المخاطر الكيميائية",
+        "السلامة الإنشائية",
+        "التحقيق في الحوادث"
+      ]
+    },
+    {
+      "id": "nebosh-sim",
+      "schemaVersion": 15,
+      "course": "nebosh",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "الشهادة الدولية العامة في السلامة — باقة الاختبارات",
+      "en": "NEBOSH International General Certificate — Exam Simulator Package",
+      "price": 95,
+      "was": 150,
+      "currency": "USD",
+      "desc": "تدرّب على اختبارات كاملة ومحاكاة واقعية مع تقارير أداء تفصيلية حتى تدخل الاختبار بثقة.",
+      "hours": 80,
+      "category": "السلامة والصحة المهنية",
+      "questions": 400,
+      "videos": 74,
+      "videoMins": 1900,
+      "quizzes": 4,
+      "shortQuizzes": 22,
+      "lang": "en",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 180,
+      "activities": 22,
+      "games": 1,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم مبادئ إدارة السلامة والصحة المهنية وأنظمتها",
+        "إتقان تقييم المخاطر التطبيقي في بيئات العمل",
+        "التعرّف على المخاطر الفيزيائية والكيميائية وضوابط التحكم",
+        "الجاهزية لاجتياز اختبار NEBOSH IGC الدولي"
+      ],
+      "audience": "مسؤولو ومهندسو السلامة، ومشرفو المواقع، والعاملون في الصناعة والمقاولات والراغبون في اعتماد دولي معترف به",
+      "chapters": [
+        "لماذا تُدار السلامة؟",
+        "أنظمة إدارة السلامة",
+        "ثقافة السلامة",
+        "تقييم المخاطر",
+        "المخاطر الفيزيائية",
+        "المخاطر الكيميائية",
+        "السلامة الإنشائية",
+        "التحقيق في الحوادث"
+      ]
+    },
+    {
+      "id": "nebosh-review",
+      "schemaVersion": 15,
+      "course": "nebosh",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "الشهادة الدولية العامة في السلامة — باقة المراجعة النهائية",
+      "en": "NEBOSH International General Certificate — Final Review",
+      "price": 110,
+      "was": 165,
+      "currency": "USD",
+      "desc": "مراجعة مكثّفة قبل موعد اختبارك — ملخّصات وخرائط ذهنية واختبارات.",
+      "hours": 80,
+      "category": "السلامة والصحة المهنية",
+      "questions": 400,
+      "videos": 74,
+      "videoMins": 1900,
+      "quizzes": 4,
+      "shortQuizzes": 22,
+      "lang": "en",
+      "cert": false,
+      "days": 120,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 180,
+      "activities": 22,
+      "games": 1,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم مبادئ إدارة السلامة والصحة المهنية وأنظمتها",
+        "إتقان تقييم المخاطر التطبيقي في بيئات العمل",
+        "التعرّف على المخاطر الفيزيائية والكيميائية وضوابط التحكم",
+        "الجاهزية لاجتياز اختبار NEBOSH IGC الدولي"
+      ],
+      "audience": "مسؤولو ومهندسو السلامة، ومشرفو المواقع، والعاملون في الصناعة والمقاولات والراغبون في اعتماد دولي معترف به",
+      "chapters": [
+        "لماذا تُدار السلامة؟",
+        "أنظمة إدارة السلامة",
+        "ثقافة السلامة",
+        "تقييم المخاطر",
+        "المخاطر الفيزيائية",
+        "المخاطر الكيميائية",
+        "السلامة الإنشائية",
+        "التحقيق في الحوادث"
+      ]
+    },
+    {
+      "id": "nebosh-self",
+      "schemaVersion": 15,
+      "course": "nebosh",
+      "type": "self",
+      "mode": "self",
+      "ar": "الشهادة الدولية العامة في السلامة — باقة الدراسة الذاتية",
+      "en": "NEBOSH International General Certificate — Self-Study",
+      "price": 80,
+      "was": 120,
+      "currency": "USD",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 80,
+      "category": "السلامة والصحة المهنية",
+      "questions": 400,
+      "videos": 74,
+      "videoMins": 1900,
+      "quizzes": 4,
+      "shortQuizzes": 22,
+      "lang": "en",
+      "cert": false,
+      "days": 150,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 180,
+      "activities": 22,
+      "games": 1,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم مبادئ إدارة السلامة والصحة المهنية وأنظمتها",
+        "إتقان تقييم المخاطر التطبيقي في بيئات العمل",
+        "التعرّف على المخاطر الفيزيائية والكيميائية وضوابط التحكم",
+        "الجاهزية لاجتياز اختبار NEBOSH IGC الدولي"
+      ],
+      "audience": "مسؤولو ومهندسو السلامة، ومشرفو المواقع، والعاملون في الصناعة والمقاولات والراغبون في اعتماد دولي معترف به",
+      "chapters": [
+        "لماذا تُدار السلامة؟",
+        "أنظمة إدارة السلامة",
+        "ثقافة السلامة",
+        "تقييم المخاطر",
+        "المخاطر الفيزيائية",
+        "المخاطر الكيميائية",
+        "السلامة الإنشائية",
+        "التحقيق في الحوادث"
+      ]
+    },
+    {
+      "id": "aipro-full",
+      "schemaVersion": 15,
+      "course": "aipro",
+      "type": "full",
+      "mode": "recorded",
+      "ar": "الذكاء الاصطناعي التطبيقي للمهنيين — الباقة الكاملة",
+      "en": "Applied AI for Professionals — Complete Package",
+      "price": 79,
+      "was": 118,
+      "currency": "USD",
+      "desc": "كل ما تحتاجه من الصفر حتى الاجتياز — محتوى وفيديوهات وملفات وأنشطة واختبارات وشهادة.",
+      "hours": 18,
+      "category": "التحول والذكاء الاصطناعي",
+      "questions": 150,
+      "videos": 24,
+      "videoMins": 540,
+      "quizzes": 3,
+      "shortQuizzes": 16,
+      "lang": "both",
+      "cert": true,
+      "days": 180,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "game",
+        "quiz",
+        "exam"
+      ],
+      "flashCards": 100,
+      "activities": 16,
+      "games": 2,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم أساسيات الذكاء الاصطناعي التوليدي واستخداماته المهنية",
+        "إتقان هندسة الأوامر للحصول على نتائج دقيقة",
+        "توظيف الأدوات في تحليل البيانات وكتابة التقارير وأتمتة المهام",
+        "تطبيق ضوابط الحوكمة وأخلاقيات الاستخدام في بيئة العمل"
+      ],
+      "audience": "المهنيون والموظفون والمديرون في جميع القطاعات الراغبون في توظيف الذكاء الاصطناعي عمليًا في أعمالهم اليومية بلا برمجة",
+      "chapters": [
+        "الذكاء الاصطناعي التوليدي",
+        "هندسة الأوامر",
+        "تحليل البيانات والتقارير",
+        "أتمتة المهام",
+        "الحوكمة وأخلاقيات الاستخدام"
+      ]
+    },
+    {
+      "id": "aipro-review",
+      "schemaVersion": 15,
+      "course": "aipro",
+      "type": "review",
+      "mode": "recorded",
+      "ar": "الذكاء الاصطناعي التطبيقي للمهنيين — باقة المراجعة النهائية",
+      "en": "Applied AI for Professionals — Final Review Package",
+      "price": 49,
+      "was": 79,
+      "currency": "USD",
+      "desc": "مراجعة مركّزة قبل الاختبار: ملخصات وفيديوهات مكثّفة وبطاقات ذكية واختبارات.",
+      "hours": 18,
+      "category": "التحول والذكاء الاصطناعي",
+      "questions": 150,
+      "videos": 24,
+      "videoMins": 540,
+      "quizzes": 3,
+      "shortQuizzes": 16,
+      "lang": "both",
+      "cert": false,
+      "days": 60,
+      "kinds": [
+        "video",
+        "material",
+        "download",
+        "flash",
+        "exam"
+      ],
+      "flashCards": 100,
+      "activities": 16,
+      "games": 2,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم أساسيات الذكاء الاصطناعي التوليدي واستخداماته المهنية",
+        "إتقان هندسة الأوامر للحصول على نتائج دقيقة",
+        "توظيف الأدوات في تحليل البيانات وكتابة التقارير وأتمتة المهام",
+        "تطبيق ضوابط الحوكمة وأخلاقيات الاستخدام في بيئة العمل"
+      ],
+      "audience": "المهنيون والموظفون والمديرون في جميع القطاعات الراغبون في توظيف الذكاء الاصطناعي عمليًا في أعمالهم اليومية بلا برمجة",
+      "chapters": [
+        "الذكاء الاصطناعي التوليدي",
+        "هندسة الأوامر",
+        "تحليل البيانات والتقارير",
+        "أتمتة المهام",
+        "الحوكمة وأخلاقيات الاستخدام"
+      ]
+    },
+    {
+      "id": "aipro-sim",
+      "schemaVersion": 15,
+      "course": "aipro",
+      "type": "sim",
+      "mode": "sim",
+      "ar": "الذكاء الاصطناعي التطبيقي للمهنيين — باقة الاختبارات",
+      "en": "Applied AI for Professionals — Exam Simulator Package",
+      "price": 39,
+      "was": 63,
+      "currency": "USD",
+      "desc": "تدرّب على اختبارات كاملة ومحاكاة واقعية مع تقارير أداء تفصيلية حتى تدخل الاختبار بثقة.",
+      "hours": 18,
+      "category": "التحول والذكاء الاصطناعي",
+      "questions": 150,
+      "videos": 24,
+      "videoMins": 540,
+      "quizzes": 3,
+      "shortQuizzes": 16,
+      "lang": "both",
+      "cert": false,
+      "days": 90,
+      "kinds": [
+        "exam",
+        "quiz",
+        "material"
+      ],
+      "flashCards": 100,
+      "activities": 16,
+      "games": 2,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم أساسيات الذكاء الاصطناعي التوليدي واستخداماته المهنية",
+        "إتقان هندسة الأوامر للحصول على نتائج دقيقة",
+        "توظيف الأدوات في تحليل البيانات وكتابة التقارير وأتمتة المهام",
+        "تطبيق ضوابط الحوكمة وأخلاقيات الاستخدام في بيئة العمل"
+      ],
+      "audience": "المهنيون والموظفون والمديرون في جميع القطاعات الراغبون في توظيف الذكاء الاصطناعي عمليًا في أعمالهم اليومية بلا برمجة",
+      "chapters": [
+        "الذكاء الاصطناعي التوليدي",
+        "هندسة الأوامر",
+        "تحليل البيانات والتقارير",
+        "أتمتة المهام",
+        "الحوكمة وأخلاقيات الاستخدام"
+      ]
+    },
+    {
+      "id": "aipro-self",
+      "schemaVersion": 15,
+      "course": "aipro",
+      "type": "self",
+      "mode": "self",
+      "ar": "الذكاء الاصطناعي التطبيقي للمهنيين — باقة الدراسة الذاتية",
+      "en": "Applied AI for Professionals — Self-Study",
+      "price": 49,
+      "was": 74,
+      "currency": "USD",
+      "desc": "حقيبة كاملة وخطة أسبوعية وبطاقات مراجعة — تدرس وحدك بمسار منظّم.",
+      "hours": 18,
+      "category": "التحول والذكاء الاصطناعي",
+      "questions": 150,
+      "videos": 24,
+      "videoMins": 540,
+      "quizzes": 3,
+      "shortQuizzes": 16,
+      "lang": "both",
+      "cert": false,
+      "days": 150,
+      "kinds": [
+        "material",
+        "download",
+        "flash",
+        "activity",
+        "quiz"
+      ],
+      "flashCards": 100,
+      "activities": 16,
+      "games": 2,
+      "questionTypes": [
+        "scenario",
+        "multi",
+        "order",
+        "calc",
+        "match"
+      ],
+      "hasSystem": false,
+      "objectives": [
+        "فهم أساسيات الذكاء الاصطناعي التوليدي واستخداماته المهنية",
+        "إتقان هندسة الأوامر للحصول على نتائج دقيقة",
+        "توظيف الأدوات في تحليل البيانات وكتابة التقارير وأتمتة المهام",
+        "تطبيق ضوابط الحوكمة وأخلاقيات الاستخدام في بيئة العمل"
+      ],
+      "audience": "المهنيون والموظفون والمديرون في جميع القطاعات الراغبون في توظيف الذكاء الاصطناعي عمليًا في أعمالهم اليومية بلا برمجة",
+      "chapters": [
+        "الذكاء الاصطناعي التوليدي",
+        "هندسة الأوامر",
+        "تحليل البيانات والتقارير",
+        "أتمتة المهام",
+        "الحوكمة وأخلاقيات الاستخدام"
+      ]
     }
   ],
   "systems": [
@@ -2098,7 +2645,7 @@
         "تقارير تنفيذية بأربع صيغ",
         "إفادة تطبيق معتمدة برمز تحقّق"
       ],
-      "file": "grc.html",
+      "file": "/grc.html",
       "cta": "افتح النظام",
       "access": "وصول دائم",
       "schemaVersion": 15
@@ -2201,4 +2748,3 @@
     }
   ]
 }
-

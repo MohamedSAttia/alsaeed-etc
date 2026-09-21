@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/unified-exam.css?v=20260905-1">
 <link rel="stylesheet" href="/learning-v20.css?v=20.0">
+<link rel="stylesheet" href="/ui-v21.css?v=21.0">
 <style>/* ============================================================
    منصة السعيد — التصميم
    كحلي عميق · برتقالي السعيد · حركة هادئة
@@ -2123,7 +2124,7 @@ window.DEFAULT_COURSE_COVERS = {
   aipro:'assets/covers/ai.svg'
 };
 /* نطاق الكتالوج المعتمد في V15 — إزالة البرامج التجريبية والقديمة */
-window.ACTIVE_COURSE_IDS = ['pmp','rmp','acp','grcp','p3o','pba','lss'];
+window.ACTIVE_COURSE_IDS = ['pmp','rmp','acp','grcp','p3o','pba','lss','nebosh','aipro'];
 window.COURSES = window.COURSES
   .filter(c => window.ACTIVE_COURSE_IDS.includes(c.id))
   .map(c => ({ ...c, cover: c.cover || window.DEFAULT_COURSE_COVERS[c.id] || 'assets/covers/generic.svg' }));
@@ -2347,7 +2348,7 @@ window.LEARNING_DATA = {
 /* ═══ لغة كل برنامج ═══ */
 window.COURSE_LANG = {
   pmp:'both', rmp:'both', acp:'both', grcp:'both',
-  p3o:'en', pba:'en', lss:'en'
+  p3o:'en', pba:'en', lss:'en', nebosh:'en', aipro:'both'
 };
 window.LANG_LABEL = {
   both:{ ar:'عربي وإنجليزي', en:'Arabic & English', ic:'🌐' },
@@ -4988,7 +4989,7 @@ function bind() {
   $$('[data-cert]').forEach(b => b.onclick = () => issueCert(b.dataset.cert));
   const gl = $('#goLogin'); if (gl) gl.onclick = () => A().openAuth('login');
   const os = $('#openSys'); if (os) os.onclick = () =>
-    A().toast('ضع ملف نظام السعيد GRC بجانب المنصة باسم grc.html ليُفتح من هنا');
+    window.open('/grc.html', '_blank', 'noopener');
   const cs = $('#ctSend'); if (cs) cs.onclick = () => {
     if (!($('#ctName').value || '').trim() || !($('#ctMail').value || '').trim()) {
       A().toast('أكمل الاسم والبريد'); return; }
@@ -5971,5 +5972,6 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v18-interface.js?v=18.0"></script>
 <script src="/hotfix-v18.js?v=18.1"></script>
 <script src="/exam-ai-v19.js?v=20.0"></script>
+<script src="/ui-v21.js?v=21.0"></script>
 </body>
 </html>

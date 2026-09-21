@@ -1,0 +1,456 @@
+<!doctype html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة محتوى المنصة — الأسئلة والفيديوهات | مركز السعيد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/system-v21.css?v=21.0">
+<style>
+:root{
+  --navy:#071f3d;--navy2:#0d2c52;--panel:#ffffff;--ink:#0e2038;
+  --mut:#5f728c;--line:#e6edf5;--bg:#eef3f9;--orange:#f47b20;--orange2:#f8a24b;
+  --blue:#1d5ea8;--ok:#1ba672;--okbg:#e6f7f0;--bad:#e0453f;--badbg:#fdecec;--warn:#c9821a;--warnbg:#fdf4e3;
+  --r:14px;--sh:0 8px 30px rgba(11,35,66,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+.mono{font-family:'IBM Plex Mono',monospace}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:.95rem}
+/* top bar */
+.top{background:linear-gradient(100deg,var(--navy),var(--navy2));color:#fff;padding:16px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:30;box-shadow:0 4px 20px rgba(7,31,61,.25)}
+.top img{height:40px}
+.top h1{font-size:1.12rem;font-weight:700}
+.top .who{font-size:.78rem;color:#a9c3dc}
+.top .sp{flex:1}
+.top .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:999px;padding:7px 14px;font-size:.82rem}
+.top a.btn{background:#fff2;border:1px solid #ffffff33;color:#fff;text-decoration:none;border-radius:10px;padding:8px 14px;font-size:.85rem}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 22px 80px}
+/* tabs */
+.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 20px;font-weight:600;color:var(--mut)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* cards + layout */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:22px;margin-bottom:20px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:820px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.stat b{font-size:1.7rem;color:var(--navy);display:block;font-family:'IBM Plex Mono',monospace}
+.stat span{font-size:.8rem;color:var(--mut)}
+.stat.o b{color:var(--orange)}.stat.b b{color:var(--blue)}
+/* controls */
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--mut);margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fbfdff;color:var(--ink);transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);background:#fff}
+textarea{resize:vertical;line-height:1.9;min-height:70px}
+.btn{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:10px 16px;font-weight:600;font-size:.9rem;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.btn:hover{border-color:var(--orange)}
+.btn.pri{background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;border:none}
+.btn.pri:hover{filter:brightness(1.05)}
+.btn.nav{background:var(--navy);color:#fff;border:none}
+.btn.ok{background:var(--ok);color:#fff;border:none}
+.btn.danger{color:var(--bad);border-color:var(--badbg)}
+.btn.danger:hover{background:var(--badbg)}
+.btn.sm{padding:7px 12px;font-size:.82rem;border-radius:9px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:600;background:#eef3f9;color:var(--mut)}
+.tag.people{background:#e8f0fb;color:#1d5ea8}.tag.process{background:#fff1e3;color:#c9821a}.tag.business{background:#e9f6f0;color:#1ba672}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.off{background:var(--badbg);color:var(--bad)}
+.tag.hard{background:#fdecec;color:#e0453f}.tag.medium{background:#fdf4e3;color:#c9821a}.tag.easy{background:#e9f6f0;color:#1ba672}
+/* question list */
+.q-item{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#fff;transition:.15s}
+.q-item:hover{border-color:#cdd;box-shadow:0 4px 14px rgba(11,35,66,.07)}
+.q-item .qh{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.q-item .qx{color:var(--ink);font-size:.95rem;margin:4px 0}
+.q-item .qid{font-size:.72rem;color:#9aabc0}
+.q-actions{display:flex;gap:6px;margin-inline-start:auto}
+.pager{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.pager b{min-width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:.85rem;cursor:pointer;font-weight:600}
+.pager b.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.empty{text-align:center;padding:50px 20px;color:var(--mut)}
+.empty svg{width:56px;height:56px;opacity:.5;margin-bottom:10px}
+/* videos */
+.v-item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.v-item.drag{opacity:.4}.v-item.over{border-color:var(--orange);border-style:dashed}
+.v-grip{cursor:grab;color:#b8c5d6;font-size:1.3rem;user-select:none;padding:0 4px}
+.v-num{width:30px;height:30px;flex:0 0 30px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.v-body{flex:1;min-width:0}
+.v-body .vt{font-weight:600}.v-body .vm{font-size:.78rem;color:var(--mut)}
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(7,31,61,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:18px;width:min(720px,100%);max-height:92vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.modal-h{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:#fff;z-index:2}
+.modal-b{padding:22px 24px}
+.modal-f{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.opt-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.opt-row input[type=radio],.opt-row input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;accent-color:var(--orange)}
+.opt-row .oi{flex:1}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 22px;border-radius:999px;z-index:99;font-weight:600;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.gate .card{width:min(420px,100%);text-align:center}
+.spin{width:42px;height:42px;border:4px solid var(--line);border-top-color:var(--orange);border-radius:50%;margin:16px auto;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hint{font-size:.8rem;color:var(--mut);margin-top:4px}
+hr{border:none;border-top:1px solid var(--line);margin:16px 0}
+</style></head>
+<body>
+<div id="app"><div class="gate"><div class="card"><div class="spin"></div><p>جارٍ التحقق…</p></div></div></div>
+<script>
+const API='';
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let TOKEN=(()=>{try{return localStorage.getItem('alsaeed_token')||''}catch(e){return''}})();
+function setToken(t){TOKEN=t;try{localStorage.setItem('alsaeed_token',t)}catch(e){}}
+async function api(path,opt={}){
+  const r=await fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})},body:opt.body?JSON.stringify(opt.body):undefined,cache:'no-store'});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||('خطأ '+r.status));return d;
+}
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+const LOGO='/assets/al-ltc-logo.svg';
+
+/* ---------- auth gate ---------- */
+async function boot(){
+  if(!TOKEN)return renderLogin();
+  try{const me=await api('/api/me');if(!me.user||me.user.role!=='admin'){return renderLogin('هذا الحساب ليس مشرفًا. سجّل بحساب المشرف.')}
+    ME=me.user;renderApp();
+  }catch(e){renderLogin()}
+}
+let ME=null;
+function renderLogin(msg){
+  $('#app').innerHTML=`<div class="gate"><div class="card">
+    <img src="${LOGO}" style="height:56px;margin:auto;display:block" alt="AL SAEED">
+    <h2 style="margin:14px 0 6px;color:var(--navy)">لوحة محتوى المنصة</h2>
+    <p class="hint" style="margin-bottom:16px">للمشرفين فقط — الأسئلة والفيديوهات</p>
+    ${msg?`<div class="tag off" style="display:block;padding:9px;margin-bottom:12px">${esc(msg)}</div>`:''}
+    <div class="field" style="text-align:right"><label>البريد الإلكتروني</label><input id="le" type="email" dir="ltr" placeholder="admin@al-ltc.com"></div>
+    <div class="field" style="text-align:right;margin-top:10px"><label>كلمة المرور</label><input id="lp" type="password"></div>
+    <button class="btn pri" id="lb" style="width:100%;margin-top:16px;justify-content:center">دخول</button>
+  </div></div>`;
+  $('#lb').onclick=async()=>{
+    try{const d=await api('/api/auth/login',{method:'POST',body:{email:$('#le').value.trim(),password:$('#lp').value}});
+      if(!d.token)throw new Error('فشل الدخول');setToken(d.token);boot();
+    }catch(e){renderLogin(e.message)}
+  };
+  $('#lp').addEventListener('keydown',e=>{if(e.key==='Enter')$('#lb').click()});
+}
+
+/* ---------- shell ---------- */
+let PACKAGES=[],COURSES=[],PKG='pmp-full',TAB='questions';
+async function renderApp(){
+  $('#app').innerHTML=`
+  <div class="top">
+    <img src="${LOGO}" alt="AL SAEED">
+    <div><h1>لوحة محتوى المنصة</h1><div class="who">${esc(ME.name||'')} · مشرف</div></div>
+    <div class="sp"></div>
+    <select id="pkgSel" style="width:auto;background:#ffffff1a;color:#fff;border-color:#ffffff33"></select>
+    <a class="btn" href="/pmp/" target="_blank">منصة PMP ↗</a>
+    <button class="btn" id="logout" style="background:#ffffff1a;color:#fff;border-color:#ffffff33">خروج</button>
+  </div>
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab" data-t="questions">🗂️ بنك الأسئلة</button>
+      <button class="tab" data-t="videos">🎬 الفيديوهات والترتيب</button>
+      <button class="tab" data-t="enroll">👥 المتدربون والاشتراكات</button>
+    </div>
+    <div id="view"></div>
+  </div>`;
+  $('#logout').onclick=()=>{try{localStorage.removeItem('alsaeed_token')}catch(e){}TOKEN='';renderLogin()};
+  try{PACKAGES=await api('/api/admin-package-summary')}catch(e){PACKAGES=[{id:'pmp-full',ar:'PMP® — الباقة الكاملة',course:'pmp'}]}
+  try{const ct=await api('/api/content');COURSES=(ct&&ct.courses)||[]}catch(e){COURSES=[]}
+  // keep only "-full" packages (one per course) for a clean source picker
+  const fulls=PACKAGES.filter(p=>String(p.id).endsWith('-full'));
+  const list=(fulls.length?fulls:PACKAGES);
+  if(!list.find(p=>p.id===PKG))PKG=list[0].id;
+  $('#pkgSel').innerHTML=list.map(p=>`<option value="${esc(p.id)}" ${p.id===PKG?'selected':''}>${esc(p.ar||p.en||p.id)}</option>`).join('');
+  $('#pkgSel').onchange=e=>{PKG=e.target.value;switchTab(TAB)};
+  $$('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.t));
+  switchTab(TAB);
+}
+function switchTab(t){TAB=t;$$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));const fn=t==='questions'?renderQuestions:t==='videos'?renderVideos:renderEnroll;fn()}
+
+/* ---------- ENROLLMENTS (منح الباقات بالبريد) ---------- */
+let USERS=[],USEARCH='';
+async function renderEnroll(){
+  const V=$('#view');V.innerHTML=`<div class="card"><div class="spin"></div><p style="text-align:center">جارٍ تحميل المتدربين…</p></div>`;
+  try{const u=await api('/api/admin/users');USERS=Array.isArray(u)?u:(u.users||u.items||[])}catch(e){V.innerHTML=`<div class="card empty">تعذّر تحميل المتدربين: ${esc(e.message)}</div>`;return}
+  drawEnroll();
+}
+function pkgOptions(sel){const fulls=PACKAGES.filter(p=>true);return fulls.map(p=>`<option value="${esc(p.id)}" ${p.id===sel?'selected':''}>${esc(p.ar||p.en||p.id)}</option>`).join('')}
+function drawEnroll(){
+  const V=$('#view');
+  const q=USEARCH.trim().toLowerCase();
+  const rows=USERS.filter(u=>u.role!=='admin').filter(u=>!q||(String(u.email||'')+' '+String(u.name||'')).toLowerCase().includes(q));
+  V.innerHTML=`
+  <div class="card">
+    <div class="row" style="margin-bottom:14px;align-items:flex-end;flex-wrap:wrap;gap:12px">
+      <div style="flex:1;min-width:240px"><label class="hint" style="display:block;margin-bottom:6px">منح باقة بالبريد مباشرة</label>
+        <div class="row" style="gap:8px">
+          <input id="gEmail" placeholder="بريد المتدرّب المسجّل" style="max-width:280px">
+          <select id="gPkg" style="width:auto">${pkgOptions()}</select>
+          <select id="gDays" style="width:auto"><option value="365">سنة</option><option value="180">٦ أشهر</option><option value="90">٣ أشهر</option><option value="1095">٣ سنوات</option></select>
+          <button class="btn pri" id="gGrant">＋ منح</button>
+        </div>
+        <div class="hint" id="gMsg" style="margin-top:6px"></div>
+      </div>
+      <div><input id="usearch" placeholder="🔎 بحث في المتدربين…" value="${esc(USEARCH)}" style="max-width:240px"></div>
+    </div>
+    <div class="hint" style="margin-bottom:10px">${rows.length} متدرّب</div>
+    <div id="ulist">${rows.length?rows.map(uCard).join(''):'<div class="empty">لا متدربين مطابقين</div>'}</div>
+  </div>`;
+  $('#gGrant').onclick=grantByEmail;
+  $('#usearch').oninput=e=>{USEARCH=e.target.value;const p=e.target.selectionStart;drawEnroll();const i=$('#usearch');if(i){i.focus();i.setSelectionRange(p,p);}};
+  $$('#ulist [data-revoke]').forEach(b=>b.onclick=()=>revoke(b.dataset.uid,b.dataset.revoke));
+  $$('#ulist [data-grantpkg]').forEach(b=>b.onclick=()=>{const uid=b.dataset.uid;const sel=$('#gp-'+uid);doGrant(uid,sel.value,365)});
+}
+function uCard(u){
+  const pkgs=Array.isArray(u.packages)?u.packages:[];
+  return `<div class="q-item"><div class="qh">
+    <b style="color:var(--navy)">${esc(u.name||'—')}</b>
+    <span class="tag mono">${esc(u.email||'')}</span>
+    ${u.phone?`<span class="tag">${esc(u.phone)}</span>`:''}
+    <div class="sp"></div>
+    <select id="gp-${esc(u.id)}" style="width:auto">${pkgOptions()}</select>
+    <button class="btn sm pri" data-grantpkg data-uid="${esc(u.id)}">منح</button>
+  </div>
+  <div class="qx">${pkgs.length?pkgs.map(p=>{const id=p.id||p.package_id||p;return `<span class="tag ok" style="margin:2px 4px 2px 0">${esc(id)} <a href="#" data-revoke="${esc(id)}" data-uid="${esc(u.id)}" style="color:#c0392b;text-decoration:none">✕</a></span>`}).join(''):'<span class="hint">لا اشتراكات</span>'}</div>
+  </div>`;
+}
+async function grantByEmail(){
+  const email=$('#gEmail').value.trim().toLowerCase(),pkg=$('#gPkg').value,days=Number($('#gDays').value)||365;
+  const m=$('#gMsg');if(!email)return m.textContent='اكتب البريد';
+  const u=USERS.find(x=>String(x.email||'').toLowerCase()===email);
+  if(!u){m.innerHTML='<span style="color:#c0392b">لا يوجد متدرّب بهذا البريد — تأكد أنه أنشأ حساباً أولاً.</span>';return}
+  await doGrant(u.id,pkg,days);
+}
+async function doGrant(userId,packageId,days){
+  const m=$('#gMsg');
+  try{await api('/api/admin/grant',{method:'POST',body:{userId,packageId,days:days||365}});
+    toast('✓ تم منح الباقة');await renderEnroll();
+    if(m)m.innerHTML='<span style="color:#1ba672">✓ تم المنح — ستظهر للمتدرّب داخل المنصة فوراً.</span>';
+  }catch(e){toast('تعذّر المنح: '+e.message);if(m)m.innerHTML='<span style="color:#c0392b">'+esc(e.message)+'</span>';}
+}
+async function revoke(userId,packageId){
+  if(!confirm('سحب هذه الباقة من المتدرّب؟'))return;
+  try{await api('/api/admin/grant',{method:'DELETE',body:{userId,packageId}});toast('تم السحب');renderEnroll();}
+  catch(e){toast('تعذّر السحب: '+e.message)}
+}
+
+/* ---------- QUESTIONS ---------- */
+const PMP_DOMS=[{k:'people',ar:'الأفراد',en:'People'},{k:'process',ar:'العمليات',en:'Process'},{k:'business',ar:'بيئة العمل',en:'Business Environment'}];
+function curCourseId(){const p=PACKAGES.find(x=>x.id===PKG);return p&&(p.course||String(p.id).split('-')[0])||'pmp'}
+function curDomains(){const cid=curCourseId();const c=COURSES.find(x=>x.id===cid);const d=(c&&Array.isArray(c.domains)&&c.domains.length)?c.domains:(cid==='pmp'?PMP_DOMS:[]);return d.map(x=>({k:String(x.k||x.key||'').toLowerCase(),ar:x.ar||x.en||x.k,en:x.en||x.ar||x.k}))}
+function domKey(d){const raw=String(d||'').trim(),k=raw.toLowerCase(),doms=curDomains();
+  let m=doms.find(x=>x.k===k||String(x.ar).toLowerCase()===k||String(x.en).toLowerCase()===k);
+  if(!m&&curCourseId()==='pmp'){const letter=k==='e'?'people':k==='b'?'business':k==='r'?'process':'';if(letter)m=doms.find(x=>x.k===letter)}
+  return m?m.k:(k||'')}
+function domAr(d){const doms=curDomains(),k=domKey(d),m=doms.find(x=>x.k===k);return m?m.ar:(String(d||'')||'—')}
+const STAT_COLORS=['#3f6fd6','#f47b20','#1ba672','#8b5cf6','#e0453f','#0ea5b7','#d97706','#ec4899'];
+let QALL=[],QPAGE=1,QFILT={s:'',dom:'',diff:'',type:'',act:''};
+async function renderQuestions(){
+  const V=$('#view');V.innerHTML=`<div class="card"><div class="spin"></div><p style="text-align:center">جارٍ تحميل بنك الأسئلة…</p></div>`;
+  try{QALL=await api('/api/admin-question-bank/'+encodeURIComponent(PKG))}catch(e){V.innerHTML=`<div class="card empty">تعذّر التحميل: ${esc(e.message)}</div>`;return}
+  QPAGE=1;drawQuestions();
+}
+function qStats(){const doms=curDomains(),s={total:QALL.length,off:0,by:{}};doms.forEach(d=>s.by[d.k]=0);QALL.forEach(q=>{const k=domKey(q.domain);s.by[k]=(s.by[k]||0)+1;if(!q.active)s.off++});return s}
+function drawQuestions(){
+  const V=$('#view'),st=qStats(),doms=curDomains();
+  const f=QFILT, filt=QALL.filter(q=>{
+    if(f.dom&&domKey(q.domain)!==f.dom)return false;
+    if(f.diff&&String(q.difficulty||'').toLowerCase()!==f.diff)return false;
+    if(f.type&&String(q.type||'')!==f.type)return false;
+    if(f.act==='on'&&!q.active)return false;if(f.act==='off'&&q.active)return false;
+    if(f.s){const t=(q.question_ar+' '+q.question_en+' '+q.topic+' '+q.id).toLowerCase();if(!t.includes(f.s.toLowerCase()))return false}
+    return true;
+  });
+  const per=25,pages=Math.max(1,Math.ceil(filt.length/per));if(QPAGE>pages)QPAGE=pages;
+  const rows=filt.slice((QPAGE-1)*per,QPAGE*per);
+  V.innerHTML=`
+  <div class="stat-row">
+    <div class="stat"><b>${st.total}</b><span>إجمالي الأسئلة</span></div>
+    ${doms.map((d,i)=>`<div class="stat"><b style="color:${STAT_COLORS[i%STAT_COLORS.length]}">${st.by[d.k]||0}</b><span>${esc(d.ar)}</span></div>`).join('')}
+    <div class="stat"><b style="color:#e0453f">${st.off}</b><span>غير مُفعّل</span></div>
+  </div>
+  <div class="card">
+    <div class="row" style="margin-bottom:14px">
+      <input id="qs" placeholder="🔎 بحث في النص أو المعرّف أو الفصل…" value="${esc(f.s)}" style="max-width:320px">
+      <select id="fdom" style="width:auto"><option value="">كل المجالات</option>${doms.map(d=>`<option value="${esc(d.k)}" ${f.dom===d.k?'selected':''}>${esc(d.ar)}</option>`).join('')}</select>
+      <select id="fdiff" style="width:auto"><option value="">كل المستويات</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option></select>
+      <select id="fact" style="width:auto"><option value="">الكل</option><option value="on">مُفعّل</option><option value="off">مُعطّل</option></select>
+      <div class="sp"></div>
+      <button class="btn pri" id="qadd">＋ سؤال جديد</button>
+    </div>
+    <div class="hint" style="margin-bottom:10px">عرض ${rows.length} من ${filt.length} نتيجة${filt.length!==QALL.length?` (مفلتر من ${QALL.length})`:''}</div>
+    <div id="qlist">${rows.length?rows.map(qCard).join(''):'<div class="empty">لا نتائج مطابقة</div>'}</div>
+    ${pages>1?`<div class="pager">${pagerHtml(QPAGE,pages)}</div>`:''}
+  </div>`;
+  const deb=(fn)=>{let t;return e=>{clearTimeout(t);t=setTimeout(()=>fn(e),250)}};
+  $('#qs').oninput=deb(e=>{QFILT.s=e.target.value;QPAGE=1;drawQuestions();const i=$('#qs');i.focus();i.setSelectionRange(i.value.length,i.value.length)});
+  $('#fdom').onchange=e=>{QFILT.dom=e.target.value;QPAGE=1;drawQuestions()};
+  $('#fdiff').onchange=e=>{QFILT.diff=e.target.value;QPAGE=1;drawQuestions()};
+  $('#fact').onchange=e=>{QFILT.act=e.target.value;QPAGE=1;drawQuestions()};
+  $('#qadd').onclick=()=>editQuestion(null);
+  $$('#qlist [data-e]').forEach(b=>b.onclick=()=>editQuestion(QALL.find(q=>q.id===b.dataset.e)));
+  $$('#qlist [data-d]').forEach(b=>b.onclick=()=>delQuestion(b.dataset.d));
+  $$('#qlist [data-tg]').forEach(b=>b.onclick=()=>toggleQuestion(QALL.find(q=>q.id===b.dataset.tg)));
+  $$('.pager b[data-p]').forEach(b=>b.onclick=()=>{QPAGE=+b.dataset.p;drawQuestions();scrollTo(0,0)});
+}
+function pagerHtml(cur,pages){let out='';const add=p=>out+=`<b data-p="${p}" class="${p===cur?'on':''}">${p}</b>`;
+  const win=2;add(1);if(cur-win>2)out+='<span style="padding:0 4px">…</span>';
+  for(let p=Math.max(2,cur-win);p<=Math.min(pages-1,cur+win);p++)add(p);
+  if(cur+win<pages-1)out+='<span style="padding:0 4px">…</span>';if(pages>1)add(pages);return out}
+function qCard(q){
+  const opts=(q.options&&q.options.length?q.options:(q.options_ar&&q.options_ar.length?q.options_ar:q.options_en))||[];
+  const correct=String(q.correct||'').toUpperCase();
+  return `<div class="q-item">
+    <div class="qh">
+      <span class="tag ${esc(domKey(q.domain))}">${esc(domAr(q.domain))}</span>
+      ${q.topic?`<span class="tag">${esc(q.topic)}</span>`:''}
+      <span class="tag ${String(q.difficulty||'').toLowerCase()}">${({easy:'سهل',medium:'متوسط',hard:'صعب'})[String(q.difficulty||'').toLowerCase()]||esc(q.difficulty||'')}</span>
+      <span class="tag">${esc(q.type||'mcq')}</span>
+      <span class="tag ${q.active?'ok':'off'}">${q.active?'مُفعّل':'مُعطّل'}</span>
+      <span class="qid mono">${esc(q.id)}</span>
+      <div class="q-actions">
+        <button class="btn sm" data-e="${esc(q.id)}">تعديل</button>
+        <button class="btn sm" data-tg="${esc(q.id)}">${q.active?'تعطيل':'تفعيل'}</button>
+        <button class="btn sm danger" data-d="${esc(q.id)}">حذف</button>
+      </div>
+    </div>
+    <div class="qx">${esc((q.question_ar||q.question_en||'').slice(0,220))}${(q.question_ar||q.question_en||'').length>220?'…':''}</div>
+    ${opts.length?`<div class="hint">الإجابة الصحيحة: <b>${esc(correct||'—')}</b> · ${opts.length} خيارات</div>`:''}
+  </div>`;
+}
+const LETTERS=['A','B','C','D','E'];
+function editQuestion(q){
+  const isNew=!q; q=q||{domain:(curDomains()[0]||{}).k||'',difficulty:'medium',type:'mcq',active:true};
+  const oa=(q.options_ar&&q.options_ar.length?q.options_ar:(q.options||[])).slice(0,5);
+  const oe=(q.options_en&&q.options_en.length?q.options_en:[]).slice(0,5);
+  while(oa.length<4)oa.push('');
+  const correct=new Set(String(q.correct||'A').toUpperCase().split(',').map(s=>s.trim()).filter(Boolean));
+  const multi=String(q.type||'')==='multi';
+  const box=document.createElement('div');box.className='mask';
+  const optRows=()=>oa.map((_,i)=>`<div class="opt-row">
+    <input type="${multi?'checkbox':'radio'}" name="correct" value="${LETTERS[i]}" ${correct.has(LETTERS[i])?'checked':''} title="الإجابة الصحيحة">
+    <span class="tag" style="width:26px;text-align:center">${LETTERS[i]}</span>
+    <input class="oi" data-oa="${i}" placeholder="الخيار بالعربية" value="${esc(oa[i]||'')}">
+    <input class="oi" data-oe="${i}" dir="ltr" placeholder="Option (EN)" value="${esc(oe[i]||'')}">
+  </div>`).join('');
+  box.innerHTML=`<div class="modal">
+    <div class="modal-h"><h3 style="color:var(--navy)">${isNew?'إضافة سؤال':'تعديل سؤال'}</h3><span class="qid mono">${isNew?'':esc(q.id)}</span><div class="sp"></div><button class="btn sm" data-x>✕</button></div>
+    <div class="modal-b">
+      <div class="field"><label>نص السؤال (عربي)</label><textarea id="qa">${esc(q.question_ar||'')}</textarea></div>
+      <div class="field" style="margin-top:12px"><label>Question (English) — اختياري</label><textarea id="qe" dir="ltr">${esc(q.question_en||'')}</textarea></div>
+      <hr>
+      <label style="font-weight:700;color:var(--navy);margin-bottom:8px;display:block">الخيارات — حدّد الصحيح</label>
+      <div id="opts">${optRows()}</div>
+      <button class="btn sm" id="addopt" style="margin-top:4px">＋ خيار</button>
+      <hr>
+      <div class="grid2">
+        <div class="field"><label>المجال (Domain)</label><select id="dom">${curDomains().map(d=>`<option value="${esc(d.k)}" ${domKey(q.domain)===d.k?'selected':''}>${esc(d.ar)}${d.en&&d.en!==d.ar?' '+esc(d.en):''}</option>`).join('')||'<option value="">—</option>'}</select></div>
+        <div class="field"><label>الفصل / المهمة (Topic)</label><input id="topic" value="${esc(q.topic||'')}" placeholder="مثال: Task 1.1"></div>
+        <div class="field"><label>المستوى</label><select id="diff"><option value="easy" ${q.difficulty==='easy'?'selected':''}>سهل</option><option value="medium" ${(q.difficulty||'medium')==='medium'?'selected':''}>متوسط</option><option value="hard" ${q.difficulty==='hard'?'selected':''}>صعب</option></select></div>
+        <div class="field"><label>النوع</label><select id="type"><option value="mcq" ${(q.type||'mcq')==='mcq'?'selected':''}>اختيار واحد</option><option value="multi" ${q.type==='multi'?'selected':''}>اختيار متعدد</option><option value="scenario" ${q.type==='scenario'?'selected':''}>سيناريو</option></select></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>شرح الإجابة (عربي)</label><textarea id="xa">${esc(q.explanation_ar||'')}</textarea></div>
+      <div class="field" style="margin-top:12px"><label>Explanation (EN) — اختياري</label><textarea id="xe" dir="ltr">${esc(q.explanation_en||'')}</textarea></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>المرجع</label><input id="ref" value="${esc(q.reference||'')}" placeholder="PMBOK 7th, p.xx"></div>
+        <div class="field"><label>الحالة</label><select id="active"><option value="1" ${q.active!==false?'selected':''}>مُفعّل</option><option value="0" ${q.active===false?'selected':''}>مُعطّل</option></select></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" data-x>إلغاء</button><button class="btn pri" id="save">${isNew?'إضافة':'حفظ'}</button></div>
+  </div>`;
+  document.body.appendChild(box);
+  box.addEventListener('click',e=>{if(e.target===box||e.target.hasAttribute('data-x'))box.remove()});
+  $('#type',box).onchange=e=>{const m=e.target.value==='multi';$$('#opts input[name=correct]',box).forEach(i=>i.type=m?'checkbox':'radio')};
+  $('#addopt',box).onclick=()=>{if(oa.length>=5)return;oa.push('');oe.push('');const i=oa.length-1;
+    const div=document.createElement('div');div.className='opt-row';div.innerHTML=`<input type="${$('#type',box).value==='multi'?'checkbox':'radio'}" name="correct" value="${LETTERS[i]}"><span class="tag" style="width:26px;text-align:center">${LETTERS[i]}</span><input class="oi" data-oa="${i}" placeholder="الخيار بالعربية"><input class="oi" data-oe="${i}" dir="ltr" placeholder="Option (EN)">`;$('#opts',box).appendChild(div)};
+  $('#save',box).onclick=async()=>{
+    const options_ar=$$('#opts [data-oa]',box).map(i=>i.value.trim());
+    const options_en=$$('#opts [data-oe]',box).map(i=>i.value.trim());
+    const chk=$$('#opts input[name=correct]',box).filter(i=>i.checked).map(i=>i.value);
+    const qa=$('#qa',box).value.trim(),qe=$('#qe',box).value.trim();
+    if(!qa&&!qe)return toast('اكتب نص السؤال');
+    if(!options_ar.filter(Boolean).length&&!options_en.filter(Boolean).length)return toast('أضف خيارات');
+    if(!chk.length)return toast('حدّد الإجابة الصحيحة');
+    const body={package_id:PKG,domain:$('#dom',box).value,topic:$('#topic',box).value.trim(),difficulty:$('#diff',box).value,type:$('#type',box).value,
+      question_ar:qa,question_en:qe,options_ar,options_en,correct:chk.join(','),explanation_ar:$('#xa',box).value.trim(),explanation_en:$('#xe',box).value.trim(),
+      reference:$('#ref',box).value.trim(),active:$('#active',box).value==='1'};
+    try{
+      if(isNew)await api('/api/admin-question-bank',{method:'POST',body});
+      else await api('/api/admin-question-bank/'+encodeURIComponent(q.id),{method:'PUT',body});
+      box.remove();toast(isNew?'أُضيف السؤال ✓':'حُفظ ✓');renderQuestions();
+    }catch(e){toast(e.message)}
+  };
+}
+async function delQuestion(id){if(!confirm('حذف هذا السؤال نهائيًا؟'))return;try{await api('/api/admin-question-bank/'+encodeURIComponent(id),{method:'DELETE'});toast('حُذف');QALL=QALL.filter(q=>q.id!==id);drawQuestions()}catch(e){toast(e.message)}}
+async function toggleQuestion(q){try{await api('/api/admin-question-bank/'+encodeURIComponent(q.id),{method:'PUT',body:{active:!q.active}});q.active=!q.active;drawQuestions()}catch(e){toast(e.message)}}
+
+/* ---------- VIDEOS ---------- */
+let VLIST=[];
+async function renderVideos(){
+  const V=$('#view');V.innerHTML=`<div class="card"><div class="spin"></div><p style="text-align:center">جارٍ تحميل الفيديوهات…</p></div>`;
+  try{VLIST=await api('/api/admin/lessons/'+encodeURIComponent(PKG))}catch(e){VLIST=[]}
+  VLIST=VLIST.map((l,i)=>({idx:i,t:l.title||l.t||'',t_en:l.title_en||l.t_en||'',ch:l.chapter||l.ch||0,dur:l.duration||l.dur||'',vimeo:l.vimeo||'',free:!!l.free,notes:l.notes||'',notes_en:l.notes_en||''}));
+  drawVideos();
+}
+function drawVideos(){
+  const V=$('#view');
+  V.innerHTML=`
+  <div class="card">
+    <div class="row" style="margin-bottom:6px">
+      <h3 style="color:var(--navy);margin:0">🎬 الفيديوهات — اسحب لإعادة الترتيب</h3><div class="sp"></div>
+      <button class="btn" id="vadd">＋ فيديو</button>
+      <button class="btn ok" id="vsave">حفظ الترتيب والتعديلات</button>
+    </div>
+    <div class="hint" style="margin-bottom:14px">الترتيب هنا هو ترتيب ظهور الدروس للطالب. اسحب من المقبض ⠿، وعدّل الحقول مباشرة، ثم احفظ.</div>
+    <div id="vlist">${VLIST.length?VLIST.map((l,i)=>vCard(l,i)).join(''):'<div class="empty">لا فيديوهات بعد — أضف أول درس.</div>'}</div>
+  </div>`;
+  $('#vadd').onclick=()=>{VLIST.push({t:'درس جديد',t_en:'',ch:0,dur:'',vimeo:'',free:false});drawVideos()};
+  $('#vsave').onclick=saveVideos;
+  bindVideoRows();
+}
+function vCard(l,i){
+  return `<div class="v-item" draggable="true" data-i="${i}">
+    <span class="v-grip" title="اسحب">⠿</span>
+    <span class="v-num">${i+1}</span>
+    <div class="v-body">
+      <div class="grid2" style="gap:8px">
+        <input data-f="t" data-i="${i}" value="${esc(l.t)}" placeholder="عنوان الدرس (عربي)">
+        <input data-f="t_en" data-i="${i}" dir="ltr" value="${esc(l.t_en)}" placeholder="Title (EN)">
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <input data-f="ch" data-i="${i}" style="max-width:120px" value="${esc(l.ch)}" placeholder="الفصل">
+        <input data-f="dur" data-i="${i}" style="max-width:120px" value="${esc(l.dur)}" placeholder="المدة 12:30">
+        <input data-f="vimeo" data-i="${i}" dir="ltr" style="max-width:170px" value="${esc(l.vimeo)}" placeholder="رقم Vimeo">
+        <button class="btn sm" data-vl="${i}">جلب من Vimeo</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--mut)"><input type="checkbox" data-f="free" data-i="${i}" ${l.free?'checked':''} style="width:18px;height:18px">مجاني</label>
+      </div>
+    </div>
+    <button class="btn sm danger" data-vd="${i}">حذف</button>
+  </div>`;
+}
+function bindVideoRows(){
+  $$('#vlist [data-f]').forEach(inp=>{const ev=inp.type==='checkbox'?'change':'input';inp.addEventListener(ev,()=>{const i=+inp.dataset.i,f=inp.dataset.f;VLIST[i][f]=inp.type==='checkbox'?inp.checked:inp.value})});
+  $$('#vlist [data-vd]').forEach(b=>b.onclick=()=>{VLIST.splice(+b.dataset.vd,1);drawVideos()});
+  $$('#vlist [data-vl]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.vl,id=String(VLIST[i].vimeo||'').replace(/\D/g,'');if(!id)return toast('اكتب رقم Vimeo أولًا');b.textContent='...';try{const d=await api('/api/admin/vimeo/'+id);VLIST[i].dur=d.duration||VLIST[i].dur;if(!VLIST[i].t||VLIST[i].t==='درس جديد')VLIST[i].t=d.title||VLIST[i].t;toast('تم جلب بيانات الفيديو');drawVideos()}catch(e){toast(e.message);b.textContent='جلب من Vimeo'}});
+  // drag reorder
+  let dragI=null;
+  $$('#vlist .v-item').forEach(el=>{
+    el.addEventListener('dragstart',()=>{dragI=+el.dataset.i;el.classList.add('drag')});
+    el.addEventListener('dragend',()=>{el.classList.remove('drag');$$('#vlist .v-item').forEach(x=>x.classList.remove('over'))});
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+    el.addEventListener('dragleave',()=>el.classList.remove('over'));
+    el.addEventListener('drop',e=>{e.preventDefault();const to=+el.dataset.i;if(dragI===null||dragI===to)return;const it=VLIST.splice(dragI,1)[0];VLIST.splice(to,0,it);drawVideos()});
+  });
+}
+async function saveVideos(){
+  const body=VLIST.map(l=>({t:l.t,t_en:l.t_en,ch:l.ch,dur:l.dur,vimeo:l.vimeo,free:l.free,notes:l.notes,notes_en:l.notes_en}));
+  try{await api('/api/admin/lessons/'+encodeURIComponent(PKG),{method:'PUT',body});toast('حُفظ الترتيب ✓ ('+body.length+' درس)')}catch(e){toast(e.message)}
+}
+boot();
+</script>
+<script src="/ui-v21.js?v=21.0"></script>
+</body></html>
