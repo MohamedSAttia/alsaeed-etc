@@ -68,7 +68,7 @@ function parseJsonReply(text) {
 function rateOkay(id) {
   const now = Date.now(), hour = now - 60 * 60 * 1000;
   const arr = (usage.get(id) || []).filter(t => t > hour);
-  if (arr.length >= 45) { usage.set(id, arr); return false; }
+  if (arr.length >= 220) { usage.set(id, arr); return false; }
   arr.push(now); usage.set(id, arr); return true;
 }
 
@@ -123,7 +123,9 @@ export function createAiAssistant({ dbPath, jwtSecret }) {
 
   function getQuestion(packageId, questionId) {
     if (!questionId) return null;
-    try { return db.prepare('SELECT * FROM questions WHERE package_id=? AND id=?').get(packageId, questionId) || null; }
+    // Question ids are globally unique. Learner packages may reuse a bank
+    // stored under another package in the same course.
+    try { return db.prepare('SELECT * FROM questions WHERE id=?').get(questionId) || null; }
     catch { return null; }
   }
 
@@ -166,8 +168,8 @@ Return JSON only with exactly these keys: question_ar (string), options_ar (arra
     }
     if (row) {
       try {
-        db.prepare('UPDATE questions SET question_ar=?, options_ar=?, explanation_ar=?, updated=? WHERE package_id=? AND id=?')
-          .run(qAr, JSON.stringify(optionsAr), expAr, Date.now(), packageId, row.id);
+        db.prepare('UPDATE questions SET question_ar=?, options_ar=?, explanation_ar=?, updated=? WHERE id=?')
+          .run(qAr, JSON.stringify(optionsAr), expAr, Date.now(), row.id);
       } catch (e) { console.warn('AI translation cache:', e.message); }
     }
     return json(res, 200, { ok: true, cached: false, question_ar: qAr, options_ar: optionsAr, explanation_ar: expAr });
