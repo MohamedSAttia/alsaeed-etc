@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/unified-exam.css?v=20260905-1">
 <link rel="stylesheet" href="/learning-v20.css?v=20.0">
-<link rel="stylesheet" href="/ui-v21.css?v=21.0">
+<link rel="stylesheet" href="/ui-v21.css?v=21.1">
 <style>/* ============================================================
    منصة السعيد — التصميم
    كحلي عميق · برتقالي السعيد · حركة هادئة
@@ -3212,6 +3212,8 @@ let pkTab = 'info';     /* تبويب صفحة الباقة */
 let learnTab = 'plan';  /* تبويب صفحة التعلّم */
 let curLesson = null;
 let admTab = 'overview';
+let adminQuestions = [], adminQuestionPackage = '', adminQuestionLoadedFor = '', adminQuestionBusy = false;
+let adminQuestionSearch = '', adminQuestionStatus = 'all';
 let megaTrack = 'pm';
 let fMode = '', fTrack = '', fLevel = '';
 const CT = () => window.CMS;
@@ -4248,7 +4250,7 @@ function dash() {
 /* ═══════════ لوحة الإدارة ═══════════ */
 function admin(sub) {
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
-  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
+  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
   <div class="wrap" style="padding-bottom:60px">
     <div class="admin-kpis-v8">
@@ -4261,6 +4263,78 @@ function admin(sub) {
     <div class="tabs">${tabs.map(([k,l])=>`<button class="${admTab===k?'on':''}" data-at="${k}">${l}</button>`).join('')}</div>
     <div id="admBody">${adminTab()}</div>
   </div>`;
+}
+
+function questionArray(v){
+  if(Array.isArray(v))return v;
+  try{return JSON.parse(v||'[]')}catch{return[]}
+}
+function questionPackage(){
+  if(adminQuestionPackage)return adminQuestionPackage;
+  const preferred=window.PACKAGES.find(p=>p.id==='pmp-full')||window.PACKAGES.find(p=>String(p.id).includes('pmp'))||window.PACKAGES[0];
+  adminQuestionPackage=preferred?preferred.id:'';
+  return adminQuestionPackage;
+}
+async function loadAdminQuestions(pid){
+  if(!pid)return;
+  adminQuestionBusy=true;adminQuestionPackage=pid;A().render();
+  try{
+    const rows=await A().api('/admin-question-bank/'+encodeURIComponent(pid),{timeoutMs:30000});
+    adminQuestions=Array.isArray(rows)?rows:[];adminQuestionLoadedFor=pid;
+  }catch(e){A().toast(e.message||'تعذر تحميل بنك الأسئلة')}
+  finally{adminQuestionBusy=false;A().render()}
+}
+function adminQuestionsView(){
+  const pid=questionPackage(), all=adminQuestionLoadedFor===pid?adminQuestions:[];
+  const term=adminQuestionSearch.trim().toLowerCase();
+  const list=all.filter(q=>{
+    const hit=!term||[q.question_ar,q.question_en,q.domain,q.topic,q.reference].join(' ').toLowerCase().includes(term);
+    const status=adminQuestionStatus==='all'||(adminQuestionStatus==='active'&&q.active!==false)||(adminQuestionStatus==='inactive'&&q.active===false);
+    return hit&&status;
+  });
+  const active=all.filter(q=>q.active!==false).length, bilingual=all.filter(q=>q.question_ar&&q.question_en).length;
+  return `<div class="question-admin-head">
+    <div><span class="eyebrow">إدارة المحتوى</span><h2>بنك الأسئلة حسب الباقة</h2><p>أضف وعدّل وعاين وفعّل الأسئلة من نفس مركز التحكم.</p></div>
+    <button class="btn p" id="adminQuestionAdd">＋ إضافة سؤال</button>
+  </div>
+  <div class="grid g4 mb question-admin-stats">
+    <div class="stat"><b class="num">${all.length}</b><span>إجمالي الأسئلة</span></div>
+    <div class="stat"><b class="num">${active}</b><span>سؤال نشط</span></div>
+    <div class="stat"><b class="num">${all.length-active}</b><span>غير نشط</span></div>
+    <div class="stat hl"><b class="num">${bilingual}</b><span>ثنائي اللغة</span></div>
+  </div>
+  <div class="apanel question-admin-tools">
+    <label class="f"><span>الباقة</span><select id="adminQuestionPackage">${window.PACKAGES.map(p=>`<option value="${esc(p.id)}" ${p.id===pid?'selected':''}>${esc(p.ar||p.en||p.id)}</option>`).join('')}</select></label>
+    <label class="f"><span>بحث</span><input id="adminQuestionSearch" value="${esc(adminQuestionSearch)}" placeholder="ابحث في السؤال أو المجال أو المرجع"></label>
+    <label class="f"><span>الحالة</span><select id="adminQuestionStatus"><option value="all" ${adminQuestionStatus==='all'?'selected':''}>الكل</option><option value="active" ${adminQuestionStatus==='active'?'selected':''}>نشط</option><option value="inactive" ${adminQuestionStatus==='inactive'?'selected':''}>غير نشط</option></select></label>
+    <button class="btn o" id="adminQuestionReload">↻ تحديث</button>
+  </div>
+  ${adminQuestionBusy||adminQuestionLoadedFor!==pid?`<div class="empty"><div class="spinner"></div><b>جارٍ تحميل أسئلة الباقة…</b></div>`:
+    list.length?`<div class="tbl-w question-admin-table"><table class="t"><thead><tr><th>#</th><th>السؤال</th><th>المجال</th><th>النوع</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>${list.slice(0,500).map((q,i)=>`<tr>
+      <td class="num">${i+1}</td><td><b>${esc(q.question_ar||q.question_en||'—')}</b>${q.question_en?`<div class="en muted">${esc(q.question_en)}</div>`:''}<small class="en">${esc(q.id||'')}</small></td>
+      <td>${esc(q.domain||q.topic||'—')}</td><td><span class="chip">${esc(q.type||'single')}</span></td><td><span class="chip ${q.active===false?'no':'ok'}">${q.active===false?'غير نشط':'نشط'}</span></td>
+      <td><div class="question-row-actions"><button class="btn o sm" data-qedit="${esc(q.id)}">تعديل</button><button class="btn o sm" data-qcopy="${esc(q.id)}">نسخ</button><button class="btn o sm" data-qtoggle="${esc(q.id)}">${q.active===false?'تفعيل':'تعطيل'}</button><button class="btn o sm danger" data-qdelete="${esc(q.id)}">حذف</button></div></td></tr>`).join('')}</tbody></table></div>`:
+    `<div class="empty"><div class="ic">❓</div><b>لا توجد أسئلة مطابقة</b><p class="muted">غيّر البحث أو أضف سؤالاً جديداً لهذه الباقة.</p></div>`}`;
+}
+
+function openAdminQuestionEditor(q){
+  q=q||{};const isEdit=!!q.id, ar=questionArray(q.options_ar), en=questionArray(q.options_en||q.options);
+  const optionText=a=>a.filter(x=>String(x||'').trim()).join('\n');
+  A().modal(`<div class="modal-title"><div><span class="eyebrow">${isEdit?'تعديل السؤال':'سؤال جديد'}</span><h2>${isEdit?'تحديث بيانات السؤال':'إضافة سؤال إلى الباقة'}</h2></div><span class="chip ${isEdit?'ok':'info'}">${isEdit?esc(q.id):'NEW'}</span></div>
+    <div class="row3"><label class="f"><span>الباقة</span><select id="aqPackage">${window.PACKAGES.map(p=>`<option value="${esc(p.id)}" ${(q.package_id||questionPackage())===p.id?'selected':''}>${esc(p.ar||p.en||p.id)}</option>`).join('')}</select></label><label class="f"><span>المجال</span><input id="aqDomain" value="${esc(q.domain||'')}"></label><label class="f"><span>الموضوع</span><input id="aqTopic" value="${esc(q.topic||'')}"></label></div>
+    <div class="row3"><label class="f"><span>النوع</span><select id="aqType">${['single','multiple','scenario','matching','drag_drop','ordering','hotspot','fill_blank'].map(x=>`<option value="${x}" ${(q.type||'single')===x?'selected':''}>${x}</option>`).join('')}</select></label><label class="f"><span>الصعوبة</span><select id="aqDifficulty">${['easy','medium','hard'].map(x=>`<option value="${x}" ${(q.difficulty||'medium')===x?'selected':''}>${x}</option>`).join('')}</select></label><label class="f"><span>الإجابة الصحيحة</span><input id="aqCorrect" class="en" value="${esc(q.correct||'A')}" placeholder="A أو A,C"></label></div>
+    <div class="question-editor-grid"><section><label class="f"><span>السؤال بالعربية</span><textarea id="aqAr" rows="5">${esc(q.question_ar||'')}</textarea></label><label class="f"><span>الاختيارات العربية — اختيار في كل سطر</span><textarea id="aqOptionsAr" rows="6">${esc(optionText(ar))}</textarea></label><label class="f"><span>التفسير بالعربية</span><textarea id="aqExplanationAr" rows="4">${esc(q.explanation_ar||'')}</textarea></label></section>
+    <section dir="ltr"><label class="f"><span>Question in English</span><textarea id="aqEn" rows="5">${esc(q.question_en||'')}</textarea></label><label class="f"><span>English options — one per line</span><textarea id="aqOptionsEn" rows="6">${esc(optionText(en))}</textarea></label><label class="f"><span>Explanation in English</span><textarea id="aqExplanationEn" rows="4">${esc(q.explanation_en||'')}</textarea></label></section></div>
+    <div class="row"><label class="f"><span>المرجع</span><input id="aqReference" value="${esc(q.reference||'')}"></label><label class="f"><span>الحالة</span><select id="aqActive"><option value="1" ${q.active===false?'':'selected'}>نشط</option><option value="0" ${q.active===false?'selected':''}>غير نشط</option></select></label></div>
+    <div class="mdl-act sticky-actions"><button class="btn p" id="aqSave">💾 حفظ السؤال</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+      $('#aqSave').onclick=async()=>{
+        const body={package_id:$('#aqPackage').value,domain:$('#aqDomain').value.trim(),topic:$('#aqTopic').value.trim(),type:$('#aqType').value,difficulty:$('#aqDifficulty').value,correct:$('#aqCorrect').value.trim().toUpperCase(),question_ar:$('#aqAr').value.trim(),question_en:$('#aqEn').value.trim(),options_ar:$('#aqOptionsAr').value.split('\n').map(x=>x.trim()).filter(Boolean),options_en:$('#aqOptionsEn').value.split('\n').map(x=>x.trim()).filter(Boolean),explanation_ar:$('#aqExplanationAr').value.trim(),explanation_en:$('#aqExplanationEn').value.trim(),reference:$('#aqReference').value.trim(),active:$('#aqActive').value==='1'};
+        if(!body.question_ar&&!body.question_en)return A().toast('اكتب نص السؤال أولاً');
+        if(!body.correct)return A().toast('حدد الإجابة الصحيحة');
+        const b=$('#aqSave');b.disabled=true;b.textContent='جارٍ الحفظ…';
+        try{await A().api('/admin-question-bank'+(isEdit?'/'+encodeURIComponent(q.id):''),{method:isEdit?'PUT':'POST',body});A().closeModal();adminQuestionPackage=body.package_id;adminQuestionLoadedFor='';await loadAdminQuestions(body.package_id);A().toast('✅ تم حفظ السؤال');}catch(e){A().toast(e.message);b.disabled=false;b.textContent='💾 حفظ السؤال'}
+      };
+    });
 }
 
 function adminTab() {
@@ -4277,7 +4351,7 @@ function adminTab() {
         <button class="btn n full" data-at="users">إدارة المسجلين</button>
       </div>
       <div class="apanel"><h4>أحدث الطلبات</h4>${orders.length?orders.map(o=>`<div class="student-quick"><div><b>${esc(o.user_name||o.userName||'—')}</b><span>${esc(o.package_name||o.packageName||o.package_id||o.pkg||'—')}</span></div><div style="text-align:end"><b class="num">${money(o.amount||0)} ${esc(o.currency||'')}</b><span>${esc(o.status||'')}</span></div></div>`).join(''):`<div class="empty"><div class="ic">🧾</div><b>لا طلبات بعد</b></div>`}</div>
-      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
+      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><button class="btn o full" data-at="questions">❓ إدارة بنك الأسئلة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
     </div>`;
   }
   if(admTab==='users'){
@@ -4340,6 +4414,7 @@ function adminTab() {
         </td></tr>`).join('')}</tbody></table></div>
       ${!list.length?'<div class="empty"><div class="ic">🔍</div><b>لا نتائج بهذا البحث</b></div>':''}`;
   }
+  if (admTab === 'questions') return adminQuestionsView();
   if(admTab === 'orders') return D.orders.length ? `
     <div class="tbl-w"><table class="t">
       <thead><tr><th>رقم الطلب</th><th>المستخدم</th><th>الباقة</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
@@ -4964,6 +5039,19 @@ function bind() {
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
+  if(admTab==='questions'){
+    const pid=questionPackage();
+    if(!adminQuestionBusy&&adminQuestionLoadedFor!==pid)setTimeout(()=>loadAdminQuestions(pid),0);
+    const qp=$('#adminQuestionPackage');if(qp)qp.onchange=()=>{adminQuestionPackage=qp.value;adminQuestionLoadedFor='';adminQuestions=[];A().render()};
+    const qs=$('#adminQuestionSearch');if(qs)qs.oninput=()=>{adminQuestionSearch=qs.value;clearTimeout(window.__aqSearchTimer);window.__aqSearchTimer=setTimeout(()=>A().render(),240)};
+    const qst=$('#adminQuestionStatus');if(qst)qst.onchange=()=>{adminQuestionStatus=qst.value;A().render()};
+    const qr=$('#adminQuestionReload');if(qr)qr.onclick=()=>{adminQuestionLoadedFor='';loadAdminQuestions(questionPackage())};
+    const qa=$('#adminQuestionAdd');if(qa)qa.onclick=()=>openAdminQuestionEditor({package_id:questionPackage(),active:true,type:'single',difficulty:'medium',correct:'A'});
+    $$('[data-qedit]').forEach(b=>b.onclick=()=>openAdminQuestionEditor(adminQuestions.find(q=>q.id===b.dataset.qedit)));
+    $$('[data-qcopy]').forEach(b=>b.onclick=()=>{const q=adminQuestions.find(x=>x.id===b.dataset.qcopy);if(q)openAdminQuestionEditor({...q,id:'',question_ar:(q.question_ar||'')+' — نسخة',question_en:(q.question_en||'')+' — Copy'})});
+    $$('[data-qtoggle]').forEach(b=>b.onclick=async()=>{const q=adminQuestions.find(x=>x.id===b.dataset.qtoggle);if(!q)return;try{await A().api('/admin-question-bank/'+encodeURIComponent(q.id),{method:'PUT',body:{...q,active:q.active===false}});adminQuestionLoadedFor='';await loadAdminQuestions(questionPackage());A().toast(q.active===false?'تم تفعيل السؤال':'تم تعطيل السؤال')}catch(e){A().toast(e.message)}});
+    $$('[data-qdelete]').forEach(b=>b.onclick=async()=>{const q=adminQuestions.find(x=>x.id===b.dataset.qdelete);if(!q||!confirm('حذف هذا السؤال نهائيًا؟ لا يمكن التراجع عن الحذف.'))return;try{await A().api('/admin-question-bank/'+encodeURIComponent(q.id),{method:'DELETE'});adminQuestions=adminQuestions.filter(x=>x.id!==q.id);A().render();A().toast('تم حذف السؤال')}catch(e){A().toast(e.message)}});
+  }
   $$('[data-lesson]').forEach(el => el.onclick = () => window.InteractiveVideo
     ? window.InteractiveVideo.open(el.dataset.pk, +el.dataset.lesson)
     : playLesson(el.dataset.pk, +el.dataset.lesson));
