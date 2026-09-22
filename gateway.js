@@ -185,23 +185,24 @@ function restoreBundledArabic() {
   try {
     const dataDir=path.join(__dirname,'public','data');
     const files=fs.readdirSync(dataDir).filter(x=>/^qbank-\d+\.json$/i.test(x));
-    const update=db.prepare(`UPDATE questions SET question_ar=?,options_ar=?,explanation_ar=?,updated=?
-      WHERE id=? AND TRIM(COALESCE(question_ar,''))=''`);
-    // Imported banks can rename IDs (for example rmp-1 becomes
-    // EXT-RMP-FULL-0001). Build a unique English-question index so reviewed
-    // Arabic can still be restored without changing answer keys or metadata.
+    const update=db.prepare(`UPDATE questions SET question_ar=?,options_ar=?,explanation_ar=?,updated=? WHERE id=?`);
+    // Imported banks can rename IDs and may also copy English text into the
+    // Arabic fields. Only rows without real Arabic characters are eligible,
+    // so genuine admin-reviewed Arabic is never overwritten.
+    const hasArabic=value=>/[\u0600-\u06FF]/.test(String(value||''));
     const englishKey=value=>String(value||'')
       .replace(/<[^>]*>/g,' ')
       .replace(/&(?:nbsp|amp|quot|apos|#39|#x27);/gi,' ')
       .normalize('NFKC').toLowerCase()
       .replace(/[^a-z0-9]+/g,' ').trim();
-    const byEnglish=new Map();
-    for(const row of db.prepare(`SELECT id,question_en FROM questions
-      WHERE TRIM(COALESCE(question_ar,''))=''`).all()){
+    const eligibleById=new Set(),byEnglish=new Map();
+    for(const row of db.prepare(`SELECT id,question_en,question_ar FROM questions`).all()){
+      if(hasArabic(row.question_ar))continue;
+      const id=String(row.id); eligibleById.add(id);
       const key=englishKey(row.question_en);
       if(!key)continue;
       if(!byEnglish.has(key))byEnglish.set(key,[]);
-      byEnglish.get(key).push(String(row.id));
+      byEnglish.get(key).push(id);
     }
     let restored=0,matchedByText=0,ambiguous=0;
     const tx=db.transaction(()=>{
@@ -209,17 +210,17 @@ function restoreBundledArabic() {
         const rows=JSON.parse(fs.readFileSync(path.join(dataDir,file),'utf8'));
         for(const q of Array.isArray(rows)?rows:[]){
           const questionAr=String(q?.q?.ar||'').trim(),optionsAr=Array.isArray(q?.o?.ar)?q.o.ar:[];
-          if(!questionAr||optionsAr.filter(Boolean).length<2)continue;
-          const args=[questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now()];
-          let changes=update.run(...args,String(q.id||'')).changes;
-          if(!changes){
+          if(!questionAr||!hasArabic(questionAr)||optionsAr.filter(Boolean).length<2)continue;
+          const sourceId=String(q.id||'');
+          let targetId=eligibleById.has(sourceId)?sourceId:'';
+          if(!targetId){
             const matches=byEnglish.get(englishKey(q?.q?.en))||[];
-            if(matches.length===1){
-              changes=update.run(...args,matches[0]).changes;
-              if(changes)matchedByText+=changes;
-            } else if(matches.length>1) ambiguous++;
+            if(matches.length===1){targetId=matches[0];matchedByText++}
+            else if(matches.length>1){ambiguous++;continue}
           }
-          restored+=changes;
+          if(!targetId)continue;
+          restored+=update.run(questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now(),targetId).changes;
+          eligibleById.delete(targetId);
         }
       }
     });
