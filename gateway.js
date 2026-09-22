@@ -195,10 +195,21 @@ function restoreBundledArabic() {
       .replace(/&(?:nbsp|amp|quot|apos|#39|#x27);/gi,' ')
       .normalize('NFKC').toLowerCase()
       .replace(/[^a-z0-9]+/g,' ').trim();
-    const eligibleById=new Set(),byEnglish=new Map();
+    const courseNumber=value=>{
+      const s=String(value||'').toUpperCase();
+      const course=s.match(/(?:^|[-_])(RMP|GRCP)(?:[-_]|$)/)?.[1];
+      const number=s.match(/(\d+)$/)?.[1];
+      return course&&number?`${course}:${Number(number)}`:'';
+    };
+    const eligibleById=new Set(),byCourseNumber=new Map(),byEnglish=new Map();
     for(const row of db.prepare(`SELECT id,question_en,question_ar FROM questions`).all()){
       if(hasArabic(row.question_ar))continue;
       const id=String(row.id); eligibleById.add(id);
+      const numbered=courseNumber(id);
+      if(numbered){
+        if(!byCourseNumber.has(numbered))byCourseNumber.set(numbered,[]);
+        byCourseNumber.get(numbered).push(id);
+      }
       const key=englishKey(row.question_en);
       if(!key)continue;
       if(!byEnglish.has(key))byEnglish.set(key,[]);
@@ -213,6 +224,10 @@ function restoreBundledArabic() {
           if(!questionAr||!hasArabic(questionAr)||optionsAr.filter(Boolean).length<2)continue;
           const sourceId=String(q.id||'');
           let targetId=eligibleById.has(sourceId)?sourceId:'';
+          if(!targetId){
+            const numbered=byCourseNumber.get(courseNumber(sourceId))||[];
+            if(numbered.length===1)targetId=numbered[0];
+          }
           if(!targetId){
             const matches=byEnglish.get(englishKey(q?.q?.en))||[];
             if(matches.length===1){targetId=matches[0];matchedByText++}
