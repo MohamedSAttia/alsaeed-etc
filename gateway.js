@@ -223,19 +223,19 @@ function restoreBundledArabic() {
           const questionAr=String(q?.q?.ar||'').trim(),optionsAr=Array.isArray(q?.o?.ar)?q.o.ar:[];
           if(!questionAr||!hasArabic(questionAr)||optionsAr.filter(Boolean).length<2)continue;
           const sourceId=String(q.id||'');
-          let targetId=eligibleById.has(sourceId)?sourceId:'';
-          if(!targetId){
-            const numbered=byCourseNumber.get(courseNumber(sourceId))||[];
-            if(numbered.length===1)targetId=numbered[0];
+          let targetIds=eligibleById.has(sourceId)?[sourceId]:[];
+          if(!targetIds.length){
+            targetIds=(byCourseNumber.get(courseNumber(sourceId))||[]).filter(id=>eligibleById.has(id));
           }
-          if(!targetId){
-            const matches=byEnglish.get(englishKey(q?.q?.en))||[];
-            if(matches.length===1){targetId=matches[0];matchedByText++}
-            else if(matches.length>1){ambiguous++;continue}
+          if(!targetIds.length){
+            targetIds=(byEnglish.get(englishKey(q?.q?.en))||[]).filter(id=>eligibleById.has(id));
+            matchedByText+=targetIds.length;
           }
-          if(!targetId)continue;
-          restored+=update.run(questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now(),targetId).changes;
-          eligibleById.delete(targetId);
+          if(!targetIds.length)continue;
+          for(const targetId of targetIds){
+            restored+=update.run(questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now(),targetId).changes;
+            eligibleById.delete(targetId);
+          }
         }
       }
     });
