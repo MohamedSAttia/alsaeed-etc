@@ -49,11 +49,15 @@ const indexFile = path.join(publicDir,'index.html');
 inject(indexFile, '/v18-interface.css', '<link rel="stylesheet" href="/v18-interface.css?v=18.0">');
 inject(indexFile, '/v18-interface.js', '<script src="/v18-interface.js?v=18.0"></script>', 'body');
 inject(indexFile, '/hotfix-v18.js', '<script src="/hotfix-v18.js?v=18.1"></script>', 'body');
+inject(indexFile, '/launch-v22.css', '<link rel="stylesheet" href="/launch-v22.css?v=22.0">');
+inject(indexFile, '/launch-v22.js', '<script src="/launch-v22.js?v=22.0"></script>', 'body');
 inject(indexFile, '/exam-ai-v19.js', '<script src="/exam-ai-v19.js?v=20.0"></script>', 'body');
 replaceIn(indexFile, '/exam-ai-v19.js?v=19.0', '/exam-ai-v19.js?v=20.0');
 for (const name of ['panel.html','content-admin.html']) {
   const f = path.join(publicDir,name);
   inject(f, '/admin-v18.css', '<link rel="stylesheet" href="/admin-v18.css?v=18.0">');
+  inject(f, '/admin-v22.css', '<link rel="stylesheet" href="/admin-v22.css?v=22.0">');
+  inject(f, '/admin-v22.js', '<script src="/admin-v22.js?v=22.0"></script>', 'body');
   // V19 owns the admin runtime. Keeping the V18 observer creates an endless
   // V18/V19 mutation loop and makes the upgraded interface appear unchanged.
   replaceIn(f, '<script src="/admin-v18.js?v=18.0"></script>', '');
