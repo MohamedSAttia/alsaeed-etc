@@ -561,6 +561,37 @@ function handleLearnerResources(req,res,url){
   return sendJson(res,200,{packageId,resources:rows});
 }
 
+function handlePlatformHealth(req,res){
+  const user=authenticatedAdmin(req);
+  if(!user)return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});
+  const questions=db.prepare(`SELECT id,package_id,question_ar,question_en,source_id,active FROM questions`).all();
+  const signatures=new Map();
+  let arabicMissing=0,englishMissing=0,inactive=0,duplicates=0;
+  for(const q of questions){
+    if(!String(q.question_ar||'').trim())arabicMissing++;
+    if(!String(q.question_en||'').trim())englishMissing++;
+    if(!q.active)inactive++;
+    const signature=String(q.source_id||q.question_en||q.question_ar||'').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
+    if(!signature)continue;
+    if(signatures.has(signature))duplicates++;else signatures.set(signature,q.id);
+  }
+  const lessons=db.prepare('SELECT duration,vimeo FROM lessons').all();
+  const gateway=String(setting('gateway')||process.env.PAYMENT_GATEWAY||'kashier').toLowerCase();
+  const configured={
+    kashier:!!(process.env.KASHIER_MERCHANT_ID&&process.env.KASHIER_PAYMENT_API_KEY),
+    paymob:!!(process.env.PAYMOB_SECRET_KEY&&process.env.PAYMOB_PUBLIC_KEY&&process.env.PAYMOB_INTEGRATION_IDS),
+    moyasar:!!process.env.MOYASAR_SECRET_KEY,
+    tap:!!process.env.TAP_SECRET_KEY
+  };
+  return sendJson(res,200,{
+    ok:true,gateway,gatewayReady:!!configured[gateway],configured,
+    questions:{total:questions.length,active:questions.length-inactive,inactive,arabicMissing,englishMissing,possibleDuplicates:duplicates},
+    lessons:{total:lessons.length,missingVideo:lessons.filter(x=>!String(x.vimeo||'').trim()).length,missingDuration:lessons.filter(x=>!String(x.duration||'').trim()).length},
+    orders:{pending:db.prepare("SELECT COUNT(*) c FROM orders WHERE status='pending'").get().c,failed:db.prepare("SELECT COUNT(*) c FROM orders WHERE status='failed'").get().c,paid:db.prepare("SELECT COUNT(*) c FROM orders WHERE status='paid'").get().c},
+    checkedAt:Date.now()
+  });
+}
+
 function urlPathIsAdmin(raw) { try { return new URL(raw || '/', 'http://local').pathname.startsWith('/' + PANEL); } catch { return false; } }
 
 function forward(req,res){
@@ -607,6 +638,13 @@ function forward(req,res){
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
   try{
+    if(req.method==='GET'&&url.pathname==='/api/health')return sendJson(res,200,{
+      ok:true,
+      service:'al-saeed-platform',
+      time:new Date().toISOString(),
+      database:db.prepare('SELECT 1 ok').get().ok===1
+    });
+    if(req.method==='GET'&&url.pathname==='/api/admin/platform-health')return handlePlatformHealth(req,res);
     if(url.pathname.startsWith('/api/ai/'))return await aiAssistant.handle(req,res,url);
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);

@@ -77,6 +77,13 @@ const setSetting = (key, value) => {
     ON CONFLICT(k) DO UPDATE SET v=?`).run(key, value, value);
 };
 
+// Admin gateway changes must take effect immediately. The previous proxy used
+// only the environment value captured at boot, which could leave Kashier
+// intercepting checkout after the dashboard had selected another gateway.
+function activePaymentGateway() {
+  return String(setting('gateway') || PAYMENT_GATEWAY || 'kashier').trim().toLowerCase();
+}
+
 function uid() {
   return crypto.randomBytes(9).toString('base64url');
 }
@@ -574,8 +581,8 @@ const server = http.createServer(async (req, res) => {
     }
     if (requestUrl.pathname.startsWith(`/${PANEL}/api/content-admin`)) return await handleContentAdmin(req,res,requestUrl);
     if (requestUrl.pathname.startsWith('/api/admin-question-bank')) { requestUrl.pathname = `/${PANEL}/api/content-admin/questions` + requestUrl.pathname.slice('/api/admin-question-bank'.length); return await handleContentAdmin(req,res,requestUrl); }
-    if (PAYMENT_GATEWAY === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
-    if (PAYMENT_GATEWAY === 'kashier' && req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
+    if (activePaymentGateway() === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
+    if (req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
     return forwardToApp(req,res);
   } catch (err) {
     console.error('Proxy request error:', err);
@@ -584,5 +591,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PUBLIC_PORT,'0.0.0.0',()=>{
-  console.log(`Public proxy listening on ${PUBLIC_PORT}; app on ${INTERNAL_PORT}; payments=${PAYMENT_GATEWAY}; content-admin=/${PANEL}/content`);
+  console.log(`Public proxy listening on ${PUBLIC_PORT}; app on ${INTERNAL_PORT}; payments=${activePaymentGateway()}; content-admin=/${PANEL}/content`);
 });

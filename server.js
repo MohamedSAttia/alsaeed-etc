@@ -348,6 +348,24 @@ function grant(userId, pkgId, days, source) {
     .run(uid(), userId, pkgId, source || 'شراء', exp, Date.now(), exp);
 }
 
+// One idempotent transaction is used by both webhooks and browser returns.
+// This prevents duplicate callbacks from granting access more than once or
+// leaving the order paid while enrollment creation fails.
+function finalizePaidOrder(order, source = 'شراء') {
+  if (!order) return false;
+  const catalog = JSON.parse(setting('catalog') || '[]');
+  const pkg = catalog.find(p => p.id === order.package_id) || {};
+  let changed = false;
+  db.transaction(() => {
+    const update = db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=? AND status!='paid'")
+      .run(Date.now(), order.id);
+    if (!update.changes) return;
+    grant(order.user_id, order.package_id, pkg.days || 90, source);
+    changed = true;
+  })();
+  return changed;
+}
+
 app.post('/api/pay/create', auth, async (req, res) => {
   const { packageId, promoCode } = req.body || {};
   const catalog = JSON.parse(setting('catalog') || '[]');
@@ -361,7 +379,7 @@ app.post('/api/pay/create', auth, async (req, res) => {
     let promos = [];
     try { promos = JSON.parse(setting('content_promos') || '[]'); } catch (e) {}
     const code = String(promoCode).trim().toUpperCase();
-    const promo = promos.find(x => String(x.code).toUpperCase() === code);
+    const promo = promos.find(x => String(x.code).toUpperCase() === code && x.active !== false);
     const validUntil = promo && (!promo.until ||
       new Date(promo.until + 'T23:59:59Z').getTime() >= Date.now());
     if (!promo || !validUntil)
@@ -374,9 +392,9 @@ app.post('/api/pay/create', auth, async (req, res) => {
   db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,created)
     VALUES (?,?,?,?,?,?,?,?)`)
     .run(order.id, order.user_id, order.package_id, order.amount, order.currency,
-         'pending', setting('gateway') || 'moyasar', Date.now());
+         'pending', setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier', Date.now());
 
-  const gw = GATEWAYS[setting('gateway') || 'moyasar'];
+  const gw = GATEWAYS[setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier'];
   if (!gw) return res.status(500).json({ error: 'بوابة الدفع غير مضبوطة' });
   try {
     const { url, gatewayId } = await gw.create(order, pkg);
@@ -392,7 +410,6 @@ app.post('/api/pay/create', auth, async (req, res) => {
 app.post('/api/pay/webhook', express.json(), async (req, res) => {
   try {
     const b = req.body || {};
-    const gwName = setting('gateway') || 'moyasar';
     const gwId = b.id || (b.data && b.data.id);
     const orderId = (b.metadata && b.metadata.order_id) ||
                     (b.reference && b.reference.order) ||
@@ -402,15 +419,15 @@ app.post('/api/pay/webhook', express.json(), async (req, res) => {
     if (!order) return res.status(404).json({ error: 'order not found' });
     if (order.status === 'paid') return res.json({ ok: true, already: true });
 
-    /* التحقّق المستقل من البوابة — لا نثق بمحتوى الإشعار وحده */
-    const { paid } = await GATEWAYS[gwName].verify(gwId || order.gateway_id, order.id);
+    /* Verify with the gateway stored on the order. The active gateway may have
+       changed while the customer still had an older checkout page open. */
+    const gwName = String(order.gateway || '').toLowerCase();
+    const gateway = GATEWAYS[gwName];
+    if (!gateway) return res.status(400).json({ error: 'unsupported gateway' });
+    const { paid } = await gateway.verify(gwId || order.gateway_id, order.id);
     if (!paid) return res.json({ ok: true, paid: false });
-
-    const catalog = JSON.parse(setting('catalog') || '[]');
-    const pkg = catalog.find(p => p.id === order.package_id) || {};
-    db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=?").run(Date.now(), order.id);
-    grant(order.user_id, order.package_id, pkg.days || 90, 'شراء');
-    res.json({ ok: true, paid: true });
+    const changed = finalizePaidOrder(order, `شراء عبر ${gwName}`);
+    res.json({ ok: true, paid: true, already: !changed });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -421,10 +438,7 @@ app.get('/api/pay/return', async (req, res) => {
     try {
       const { paid } = await GATEWAYS[order.gateway].verify(order.gateway_id, order.id);
       if (paid) {
-        const catalog = JSON.parse(setting('catalog') || '[]');
-        const pkg = catalog.find(p => p.id === order.package_id) || {};
-        db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=?").run(Date.now(), order.id);
-        grant(order.user_id, order.package_id, pkg.days || 90, 'شراء');
+        finalizePaidOrder(order, `شراء عبر ${order.gateway}`);
       }
     } catch (e) {}
   }
@@ -702,6 +716,12 @@ app.put('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
 app.get('/api/admin/settings', auth, admin, (req, res) => {
   res.json({
     gateway: setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier',
+    gateways: {
+      kashier: !!(process.env.KASHIER_MERCHANT_ID && process.env.KASHIER_PAYMENT_API_KEY),
+      paymob: !!(process.env.PAYMOB_SECRET_KEY && process.env.PAYMOB_PUBLIC_KEY && process.env.PAYMOB_INTEGRATION_IDS),
+      moyasar: !!process.env.MOYASAR_SECRET_KEY,
+      tap: !!process.env.TAP_SECRET_KEY
+    },
     hasPaymob: !!process.env.PAYMOB_SECRET_KEY,
     hasMoyasar: !!process.env.MOYASAR_SECRET_KEY,
     hasTap: !!process.env.TAP_SECRET_KEY,
@@ -711,7 +731,12 @@ app.get('/api/admin/settings', auth, admin, (req, res) => {
 });
 app.put('/api/admin/settings', auth, admin, (req, res) => {
   const { gateway, publishableKey, catalog } = req.body || {};
-  if (gateway) setSetting('gateway', gateway);
+  if (gateway) {
+    const value = String(gateway).trim().toLowerCase();
+    if (!['kashier','paymob','moyasar','tap'].includes(value))
+      return res.status(400).json({ error: 'بوابة الدفع غير مدعومة' });
+    setSetting('gateway', value);
+  }
   if (publishableKey !== undefined) setSetting('publishable_key', publishableKey);
   if (catalog) setSetting('catalog', JSON.stringify(catalog));
   res.json({ ok: true });
