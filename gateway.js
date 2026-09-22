@@ -607,6 +607,20 @@ function forward(req,res){
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
   try{
+    if(req.method==='GET'&&url.pathname==='/api/qbank-sync-status'){
+      const rows=db.prepare('SELECT id,package_id,question_ar FROM questions').all()
+        .filter(r=>/rmp/i.test(String(r.id||''))||/rmp/i.test(String(r.package_id||'')));
+      const arabic=rows.filter(r=>/[\u0600-\u06FF]/.test(String(r.question_ar||'')));
+      const packages={};
+      for(const r of rows){
+        const k=String(r.package_id||'');
+        if(!packages[k])packages[k]={total:0,arabic:0};
+        packages[k].total++;
+        if(/[\u0600-\u06FF]/.test(String(r.question_ar||'')))packages[k].arabic++;
+      }
+      return sendJson(res,200,{ok:true,total:rows.length,arabic:arabic.length,packages,
+        sample:rows.slice(0,5).map(r=>({id:r.id,package_id:r.package_id,hasArabic:/[\u0600-\u06FF]/.test(String(r.question_ar||''))}))});
+    }
     if(url.pathname.startsWith('/api/ai/'))return await aiAssistant.handle(req,res,url);
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
