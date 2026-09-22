@@ -187,18 +187,45 @@ function restoreBundledArabic() {
     const files=fs.readdirSync(dataDir).filter(x=>/^qbank-\d+\.json$/i.test(x));
     const update=db.prepare(`UPDATE questions SET question_ar=?,options_ar=?,explanation_ar=?,updated=?
       WHERE id=? AND TRIM(COALESCE(question_ar,''))=''`);
-    let restored=0;
+    // Imported banks can rename IDs (for example rmp-1 becomes
+    // EXT-RMP-FULL-0001). Build a unique English-question index so reviewed
+    // Arabic can still be restored without changing answer keys or metadata.
+    const englishKey=value=>String(value||'')
+      .replace(/<[^>]*>/g,' ')
+      .replace(/&(?:nbsp|amp|quot|apos|#39|#x27);/gi,' ')
+      .normalize('NFKC').toLowerCase()
+      .replace(/[^a-z0-9]+/g,' ').trim();
+    const byEnglish=new Map();
+    for(const row of db.prepare(`SELECT id,question_en FROM questions
+      WHERE TRIM(COALESCE(question_ar,''))=''`).all()){
+      const key=englishKey(row.question_en);
+      if(!key)continue;
+      if(!byEnglish.has(key))byEnglish.set(key,[]);
+      byEnglish.get(key).push(String(row.id));
+    }
+    let restored=0,matchedByText=0,ambiguous=0;
     const tx=db.transaction(()=>{
       for(const file of files){
         const rows=JSON.parse(fs.readFileSync(path.join(dataDir,file),'utf8'));
         for(const q of Array.isArray(rows)?rows:[]){
           const questionAr=String(q?.q?.ar||'').trim(),optionsAr=Array.isArray(q?.o?.ar)?q.o.ar:[];
           if(!questionAr||optionsAr.filter(Boolean).length<2)continue;
-          restored+=update.run(questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now(),String(q.id||'')).changes;
+          const args=[questionAr,JSON.stringify(optionsAr),String(q?.x?.ar||'').trim(),Date.now()];
+          let changes=update.run(...args,String(q.id||'')).changes;
+          if(!changes){
+            const matches=byEnglish.get(englishKey(q?.q?.en))||[];
+            if(matches.length===1){
+              changes=update.run(...args,matches[0]).changes;
+              if(changes)matchedByText+=changes;
+            } else if(matches.length>1) ambiguous++;
+          }
+          restored+=changes;
         }
       }
     });
-    tx(); if(restored)console.log(`✅ استُعيدت العربية لـ ${restored} سؤالاً من الحزم المراجعة`);
+    tx();
+    if(restored)console.log(`✅ استُعيدت العربية لـ ${restored} سؤالاً من الحزم المراجعة (${matchedByText} بمطابقة النص)`);
+    if(ambiguous)console.warn(`Bundled Arabic restore skipped ${ambiguous} ambiguous English matches`);
   } catch(e) { console.warn('Bundled Arabic restore:',e.message); }
 }
 restoreBundledArabic();
