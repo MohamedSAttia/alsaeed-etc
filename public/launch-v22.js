@@ -8,7 +8,7 @@
   };
   function showPolicy(key){
     const item=policies[key];if(!item||!window.APP)return;
-    APP.modal('<div class="v22-policy"><span class="eyebrow">AL-SAEED</span><h2>'+item[0]+'</h2><p>'+item[1]+'</p><div class="v22-policy-note">آخر تحديث: سبتمبر 2026 · للاستفسار: info@al-ltc.com</div></div>');
+    APP.modal('<div class="v22-policy"><span class="eyebrow">AL-SAEED</span><h2>'+item[0]+'</h2><p>'+item[1]+'</p><div class="v22-policy-note">آخر تحديث: سبتمبر 2026 · للاستفسار: info@alsaeed-etc.com</div></div>');
   }
   function mountFooter(){
     const footer=document.querySelector('.ftr');if(!footer||footer.querySelector('.v22-legal'))return;
