@@ -227,8 +227,9 @@ app.get('/api/lessons/:pkg', (req, res) => {
   if (h.startsWith('Bearer ')) {
     try {
       const p = jwt.verify(h.slice(7), JWT_SECRET);
-      enrolled = !!db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?')
+      const subscription = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?')
         .get(p.id, req.params.pkg);
+      enrolled = !!subscription && (!subscription.expires || subscription.expires > Date.now());
     } catch (e) {}
   }
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */

@@ -2827,7 +2827,7 @@ function certReady(pid) {
   if (!p.cert) return false;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
-  const lessonsOk = !ls.length || ls.every((_, i) => pr.lessons[i]);
+  const lessonsOk = ls.length > 0 && ls.every((_, i) => pr.lessons[i]);
   const finalOk = pr.exams && pr.exams.full && pr.exams.full.passed;
   return lessonsOk && finalOk;
 }
@@ -3162,7 +3162,11 @@ async function boot() {
   document.documentElement.setAttribute('lang', L0.k);
   document.documentElement.setAttribute('dir', L0.dir);
   await probe();
-  if (API.live) await loadContent();
+  if (API.live) {
+    // بيانات الخادم وحدها تحدد الدروس المنشورة؛ لا تعرض دروس العرض المحلية للمشتركين.
+    window.LESSONS = {};
+    await loadContent();
+  }
   /* تنظيف بيانات V13 التجريبية وإبقاء الكتالوج المطلوب فقط */
   window.COURSES = (window.COURSES || []).filter(c => window.ACTIVE_COURSE_IDS.includes(c.id));
   const hasV15 = (window.PACKAGES || []).length && window.PACKAGES.every(p =>
@@ -3173,7 +3177,6 @@ async function boot() {
   if (!systemsV15) window.SYSTEMS = JSON.parse(JSON.stringify(window.DEFAULT_SYSTEMS_V15));
   const promosV15 = (window.PROMOS || []).length && window.PROMOS.every(x => x.schemaVersion === 15);
   if (!promosV15) window.PROMOS = JSON.parse(JSON.stringify(window.DEFAULT_PROMOS_V15));
-  if (window.ensureLessonSkeletons) window.ensureLessonSkeletons();
   /* بعد الترحيل، يزامن المشرف كتالوج السعر والشهادة الصحيح مع الخادم. */
   if (API.live && API.token && isAdmin()) {
     try { await api('/admin/settings', { method: 'PUT', body: { catalog: window.PACKAGES.map(p => ({
@@ -4145,10 +4148,11 @@ function pkgTab(p, c, has) {
         <div class="ch-h"><b>${esc(window.biTitle ? window.biTitle(c.chapters[ch] || 'مقدّمة') : (c.chapters[ch] || 'مقدّمة'))}</b>
           <span>${byCh[ch].length} درساً</span></div>
         ${byCh[ch].map(l => `<div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
-            ${(has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
-          <div class="ls-ic">${pr.lessons[l.i] ? '✓' : (has || l.free) ? '▶' : '🔒'}</div>
+            ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
+          <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
           <div class="ls-t">${esc(window.biTitle ? window.biTitle(l) : l.t)}</div>
-          ${l.free && !has ? '<span class="ls-free">مجاني</span>' : ''}
+          ${l.free && l.vimeo && !has ? '<span class="ls-free">مجاني</span>' : ''}
+          ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${l.dur}</div>
         </div>`).join('')}
       </div>`).join('')}`;
@@ -4983,7 +4987,7 @@ function decisionGame(pid){ openPractice(pid,'game'); }
 /* ═══════════ مشغّل الفيديو ═══════════ */
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
-  if (!l) return;
+  if (!l || !l.vimeo) return;
   curLesson = idx;
   const pr = A().prog(pid);
   A().modal(`
@@ -5647,7 +5651,6 @@ function editPkg(id) {
         questionTypes:[...new Set(((window.QUESTION_BANK||{})[courseId]||[]).map(x=>x.type))], includes:kinds.map(k=>{const x=(window.CONTENT_KINDS||[]).find(y=>y.k===k);return x?x.ar+' — '+x.desc:k;}) };
       const previous=p?{...p}:null;
       if (p) Object.assign(p, obj); else window.PACKAGES.push(obj);
-      if(window.ensureLessonSkeletons)window.ensureLessonSkeletons();
       try { await saveCatalog();A().closeModal();A().render();A().toast('✅ حُفظت الباقة'); }
       catch(e){if(p)Object.assign(p,previous);else window.PACKAGES=window.PACKAGES.filter(x=>x!==obj);A().toast(e.message);}
     };
