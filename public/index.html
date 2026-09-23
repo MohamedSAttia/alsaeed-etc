@@ -3248,7 +3248,9 @@ function vimeoFrame(v,title){
 function courseCover(c, big){
   const tv=trackVisual(c);
   const gallery={pmp:'/assets/hero/alsaeed-workshop-v26.webp',grcp:'/assets/hero/alsaeed-global-2-v24.webp',rmp:'/assets/hero/alsaeed-global-1-v24.webp',pba:'/assets/hero/alsaeed-global-learning-v22.webp'};
-  const cover=c.cover&&String(c.cover).trim()||gallery[c.id];const has=!!cover;
+  const supplied=c.cover&&String(c.cover).trim();
+  const defaultCover=supplied&&/^(?:\/)?assets\/covers\/[^/]+\.svg$/i.test(supplied);
+  const cover=defaultCover?(gallery[c.id]||supplied):(supplied||gallery[c.id]);const has=!!cover;
   const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.82)),url('${esc(cover)}')`:`background:${tv.grad}`;
   return `<div class="course-cover ${has?'has-img':''}" style="${style};${big?'min-height:360px':''}">
     <div class="course-cover-grid"></div><div class="course-cover-in">
@@ -3428,7 +3430,7 @@ function home() {
 
   <section class="modes-bar"><div class="wrap">
     <div class="v26-modes-heading"><span class="eyebrow">${english?'LEARN YOUR WAY':'تعلّم بطريقتك'}</span><h2>${english?'Choose the format that fits your life':'اختر طريقة التعلّم التي تناسبك'}</h2><p>${english?'Explore published packages or ask us about upcoming instructor-led sessions.':'استكشف الباقات المنشورة، أو استفسر عن المجموعات المباشرة القادمة.'}</p></div>
-    <div class="modes-g">${window.MODES.map(m=>{const n=window.PACKAGES.filter(p=>p.active!==false&&p.mode===m.k).length;const ico={onsite:'people',live:'screen',recorded:'play',sim:'target',self:'book'}[m.k]||'book';const descEn={onsite:'Instructor-led classroom learning and group activities.',live:'Real-time sessions with an instructor from anywhere.',recorded:'Watch lessons at your own pace and replay them.',sim:'Practice with timed questions and performance reports.',self:'Follow a structured path at your own pace.'};return `<button class="mode-c reveal ${n?'':'v26-request-mode'}" data-r="${n?'programs?mode='+m.k:'contact'}" style="border-top:3px solid ${m.col}"><span class="ic">${v26Icon(ico)}</span><b>${esc(english?m.en:m.ar)}</b><p>${esc(english?descEn[m.k]:m.desc)}</p><span class="n">${n?`${n} ${english?'packages':'باقات'} ←`:(english?'Ask about the next group ↗':'استفسر عن الدفعة القادمة ↗')}</span></button>`;}).join('')}</div>
+    <div class="modes-g">${window.MODES.map(m=>{const n=window.PACKAGES.filter(p=>p.active!==false&&p.mode===m.k).length;const ico={onsite:'people',live:'screen',recorded:'play',sim:'target',self:'book'}[m.k]||'book';const descEn={onsite:'Instructor-led classroom learning and group activities.',live:'Real-time sessions with an instructor from anywhere.',recorded:'Watch lessons at your own pace and replay them.',sim:'Practice with timed questions and performance reports.',self:'Follow a structured path at your own pace.'};return `<button class="mode-c reveal ${n?'':'v26-request-mode'}" data-r="${n?'programs?mode='+m.k:'contact'}" style="border-top:3px solid ${m.col}"><span class="ic">${v26Icon(ico)}</span><b>${esc(english?m.en:m.ar)}</b><p>${esc(english?descEn[m.k]:m.desc)}</p><span class="n">${n?`${n} ${english?'packages':'باقة'} ←`:(english?'Ask about the next group ↗':'استفسر عن الدفعة القادمة ↗')}</span></button>`;}).join('')}</div>
   </div></section>
 
   <section class="v26-ecosystem sec"><div class="wrap v26-ecosystem-grid">
