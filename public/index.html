@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="/unified-exam.css?v=20260905-1">
 <link rel="stylesheet" href="/learning-v20.css?v=20.0">
 <link rel="stylesheet" href="/ui-v21.css?v=21.1">
+<link rel="stylesheet" href="/platform-v22.css?v=22.0">
 <style>/* ============================================================
    منصة السعيد — التصميم
    كحلي عميق · برتقالي السعيد · حركة هادئة
@@ -1097,7 +1098,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
       </div>
       <div>
         <h4>تواصل</h4>
-        <a href="mailto:info@al-ltc.com"><span class="en">info@al-ltc.com</span></a>
+        <a href="mailto:info@alsaeed-etc.com"><span class="en">info@alsaeed-etc.com</span></a>
         <a href="tel:+201221732898"><span class="num">+20 122 173 2898</span></a>
         <a href="https://wa.me/201221732898" target="_blank" rel="noopener">واتساب</a>
         <a href="#contact" data-r="contact">اتصل بنا</a>
@@ -1897,7 +1898,7 @@ window.BRAND = {
   tag: 'كفاءة وفاعلية · تطبيق · مسؤولية مجتمعية · نجاح · شمولية',
   founder: 'د. محمد عطية',
   founderRole: 'المؤسس والرئيس التنفيذي · مستشار أول في إدارة المشاريع والتحول الرقمي',
-  email: 'info@al-ltc.com',
+  email: 'info@alsaeed-etc.com',
   phone: '+20 122 173 2898', phoneRaw: '+201221732898', whatsapp: '201221732898',
   address: 'الفيوم · جمهورية مصر العربية',
   linkedin: 'https://www.linkedin.com/in/alsaeed-etc-24b227331/',
@@ -2610,7 +2611,8 @@ window.CMS = {
   ctaBtn: 'احجز استشارة مجانية'
 };
 
-if (!window.CMS.heroPoster) window.CMS.heroPoster = 'assets/hero/hero-learning.svg';
+if (!window.CMS.heroPoster || /hero-learning\.svg(?:\?|$)/.test(window.CMS.heroPoster))
+  window.CMS.heroPoster = 'assets/hero/alsaeed-global-learning-v22.webp';
 window.PAY_CONFIG = { provider:'paymob', currency:'USD' };
 window.VIMEO_CONFIG = { note:'ارفع الفيديو على Vimeo، اضبط الخصوصية على «النطاقات المحدّدة»، وأضف نطاق موقعك، ثم ضع رقم الفيديو هنا.' };
 
@@ -3367,6 +3369,21 @@ function home() {
       </div>
     </div>
   </section>
+
+  <section class="v22-discovery" aria-labelledby="v22-discovery-title"><div class="wrap">
+    <div class="v22-discovery-head">
+      <div><span class="eyebrow">مسارك يبدأ من هدفك</span><h2 id="v22-discovery-title">ماذا تريد أن تحقق الآن؟</h2>
+        <p>اختر هدفك المهني أو ابحث عن الشهادة، وسنوصلك مباشرة إلى المسار المناسب.</p></div>
+      <div class="v22-course-search"><span>⌕</span><input id="v22CourseSearch" type="search" placeholder="ابحث عن PMP أو GRCP أو إدارة المخاطر…" autocomplete="off" aria-label="البحث في البرامج"><div id="v22SearchResults" class="v22-search-results" hidden></div></div>
+    </div>
+    <div class="v22-paths">
+      <button class="v22-path path-pm" data-r="course/pmp"><span class="v22-path-art">01</span><i>📈</i><b>أتقدم في إدارة المشاريع</b><small>PMP · RMP · ACP · PBA</small><em>استكشف المسار ←</em></button>
+      <button class="v22-path path-grc" data-r="course/grcp"><span class="v22-path-art">02</span><i>🛡️</i><b>أقود الحوكمة والمخاطر</b><small>GRC · Compliance · Risk</small><em>استكشف المسار ←</em></button>
+      <button class="v22-path path-quality" data-r="programs"><span class="v22-path-art">03</span><i>⚙️</i><b>أحسّن الجودة والعمليات</b><small>Lean Six Sigma · Improvement</small><em>عرض البرامج ←</em></button>
+      <button class="v22-path path-org" data-r="consulting"><span class="v22-path-art">04</span><i>🏢</i><b>أطوّر مؤسستي وفريقي</b><small>Corporate · Consulting · Systems</small><em>حلول المؤسسات ←</em></button>
+    </div>
+    <div class="v22-confidence"><span><b>محتوى منظم</b> وفق رحلة تعلم واضحة</span><span><b>تدريب تطبيقي</b> واختبارات محاكاة</span><span><b>متابعة مستمرة</b> من البداية للاجتياز</span><span><b>تعلم مرن</b> بالعربية والإنجليزية</span></div>
+  </div></section>
 
   <section class="sec tight alt"><div class="wrap">
     <div class="sec-h"><span class="eyebrow">برامج مختارة</span><h2>ابدأ من برنامج واضح — وليس من قائمة مزدحمة</h2><p>اضغط على أي برنامج لفتح صفحة متكاملة، أو شاهد المعاينة السريعة قبل اختيار الباقة.</p></div>
@@ -6061,5 +6078,6 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/hotfix-v18.js?v=18.1"></script>
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
+<script src="/platform-v22.js?v=22.0"></script>
 </body>
 </html>

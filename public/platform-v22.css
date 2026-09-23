@@ -1,0 +1,129 @@
+/* Alsaeed Platform V22 — cohesive visual system and conversion-focused course pages. */
+:root{
+  --v22-ink:#0a1f3d;--v22-blue:#123c6d;--v22-orange:#f47b20;
+  --v22-mist:#f4f7fb;--v22-line:#dce5f0;--v22-shadow:0 18px 55px -34px rgba(7,27,55,.42);
+}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#f8fafd 0,#f3f7fb 100%);text-rendering:optimizeLegibility}
+button,a,input,select,textarea{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,background .18s ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(244,123,32,.28);outline-offset:3px}
+
+/* Header */
+.header,.nav{box-shadow:0 10px 34px -30px #06162d}
+.nav-in{min-height:76px}
+.nav a,.nav button{border-radius:10px}
+.nav a:hover,.nav button:hover{background:rgba(255,255,255,.07)}
+.nav a.on,.nav button.on{background:rgba(255,255,255,.11);box-shadow:inset 0 -3px var(--v22-orange)}
+
+/* Reusable surfaces */
+.card,.course-vcard,.course-about-card,.course-side-buy,.apanel,.akpi,.pd-hero>.side>.card{
+  border-color:var(--v22-line);box-shadow:var(--v22-shadow)
+}
+.course-vcard{border-radius:26px;isolation:isolate}
+.course-vcard:hover{transform:translateY(-5px);box-shadow:0 28px 70px -36px rgba(7,27,55,.5)}
+.course-cover{min-height:220px}
+.course-vbody{padding:21px}
+.course-vbody>p{font-size:.88rem;line-height:1.85}
+.course-mode-pills span{border:1px solid #ffd9ba;background:#fff7ef}
+.course-vmeta{justify-content:space-between;background:#f7f9fc;border:0;border-radius:12px;padding:11px 12px}
+.course-vactions .btn{min-height:44px}
+.hero.v8 .hero-bg{background:#071b35}
+.hero.v8 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,20,41,.98) 0%,rgba(5,20,41,.88) 37%,rgba(5,20,41,.52) 68%,rgba(5,20,41,.66) 100%)}
+.hero.v8 .hero-bg img{opacity:.78;object-position:center;filter:saturate(.9) contrast(1.03);transform:scale(1.03);animation:v22HeroDrift 18s ease-in-out infinite alternate}
+.hero.v8 .hero-copy-v8{padding-block:18px;text-shadow:0 2px 18px rgba(0,0,0,.22)}
+.hero.v8 .hero-chips span{background:rgba(7,25,49,.56);border-color:rgba(255,255,255,.17)}
+@keyframes v22HeroDrift{0%{transform:scale(1.03) translate3d(0,0,0)}100%{transform:scale(1.09) translate3d(-1.2%,.7%,0)}}
+.hero.v8 .hero-orb.a{animation:v22OrbA 9s ease-in-out infinite alternate}.hero.v8 .hero-orb.b{animation:v22OrbB 11s ease-in-out infinite alternate}
+@keyframes v22OrbA{to{transform:translate3d(-34px,28px,0) scale(1.12)}}@keyframes v22OrbB{to{transform:translate3d(40px,-22px,0) scale(.92)}}
+
+/* Goal-first discovery — inspired by mature certification marketplaces, expressed in Alsaeed's identity. */
+.v22-discovery{position:relative;padding:52px 0 28px;background:#fff;border-bottom:1px solid var(--v22-line)}
+.v22-discovery-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,520px);gap:28px;align-items:end;margin-bottom:24px}
+.v22-discovery-head h2{font:800 clamp(1.65rem,3vw,2.35rem) Tajawal,sans-serif;color:var(--v22-ink);margin:5px 0 7px}
+.v22-discovery-head p{color:#66758a;line-height:1.8}
+.v22-course-search{position:relative;display:grid;grid-template-columns:28px 1fr;align-items:center;min-height:56px;padding:0 15px;border:1px solid #cad7e6;border-radius:17px;background:#fff;box-shadow:0 14px 35px -28px #071b37}
+.v22-course-search:focus-within{border-color:var(--v22-orange);box-shadow:0 0 0 4px rgba(244,123,32,.11)}
+.v22-course-search>span{font-size:1.35rem;color:#75849a}.v22-course-search input{width:100%;border:0;outline:0;background:transparent;font:600 .9rem 'IBM Plex Sans Arabic',sans-serif;color:var(--v22-ink)}
+.v22-search-results{position:absolute;z-index:30;top:calc(100% + 8px);inset-inline:0;background:#fff;border:1px solid var(--v22-line);border-radius:16px;padding:7px;box-shadow:0 24px 60px -28px rgba(7,27,55,.55)}
+.v22-search-item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;width:100%;padding:10px;border:0;border-radius:11px;background:#fff;text-align:start;color:var(--v22-ink)}
+.v22-search-item:hover{background:#fff5ec}.v22-search-item>span{display:grid;place-items:center;height:38px;border-radius:10px;background:#eaf0f7;font:800 .72rem 'IBM Plex Mono',monospace}
+.v22-search-item b{display:block;font-size:.84rem}.v22-search-item small{display:block;color:#718096;font-size:.68rem}.v22-search-item em{font-style:normal;color:var(--v22-orange);font-size:.72rem;font-weight:800}
+.v22-search-empty{padding:15px;text-align:center;color:#718096;font-size:.82rem}
+.v22-paths{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.v22-path{position:relative;min-height:205px;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:5px;padding:20px;border:0;border-radius:23px;color:#fff;text-align:start;isolation:isolate;box-shadow:0 20px 45px -30px rgba(6,24,50,.7)}
+.v22-path::before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(155deg,#123c6d,#081a34)}
+.v22-path::after{content:'';position:absolute;z-index:-1;width:150px;height:150px;border-radius:50%;top:-75px;inset-inline-end:-55px;background:rgba(255,255,255,.12)}
+.v22-path.path-grc::before{background:linear-gradient(155deg,#0f756f,#073f4b)}.v22-path.path-quality::before{background:linear-gradient(155deg,#be5a13,#783408)}.v22-path.path-org::before{background:linear-gradient(155deg,#5b3ca1,#2f225f)}
+.v22-path:hover{transform:translateY(-5px);box-shadow:0 30px 56px -30px rgba(6,24,50,.8)}
+.v22-path i{display:grid;place-items:center;width:45px;height:45px;border-radius:14px;background:rgba(255,255,255,.13);font-style:normal;font-size:1.3rem;margin-bottom:auto}
+.v22-path b{font:800 1rem Tajawal,sans-serif}.v22-path small{color:rgba(255,255,255,.75);font-size:.68rem}.v22-path em{font-style:normal;color:#fff;font-size:.73rem;font-weight:800;margin-top:8px}
+.v22-path-art{position:absolute;top:12px;inset-inline-end:16px;font:800 2.5rem 'IBM Plex Mono',monospace;color:rgba(255,255,255,.12)}
+.v22-confidence{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:22px;border:1px solid var(--v22-line);border-radius:17px;overflow:hidden;background:var(--v22-line)}
+.v22-confidence span{padding:13px 14px;background:#f8fafc;color:#6a798e;font-size:.7rem;line-height:1.5}.v22-confidence b{display:block;color:var(--v22-ink);font-size:.78rem}
+
+/* Course detail */
+.course-hero-v8{padding:72px 0 64px;background:
+  radial-gradient(circle at 83% 15%,rgba(244,123,32,.28),transparent 28%),
+  radial-gradient(circle at 12% 90%,rgba(24,140,154,.18),transparent 30%),
+  linear-gradient(135deg,#081b35,#153e70)}
+.course-hero-v8 .crumb{color:#c8d5e6}
+.course-hero-v8 h1{max-width:760px}
+.course-kpis{gap:8px}
+.course-kpis span{display:inline-flex;align-items:center;gap:5px;padding:9px 13px}
+.course-media-card{border-radius:30px;background:rgba(255,255,255,.1);backdrop-filter:blur(10px)}
+.course-about-shell{grid-template-columns:minmax(0,1fr) 360px;gap:24px}
+.course-about-card{border-radius:26px;padding:clamp(20px,3vw,32px)}
+.course-tabs-v8{position:sticky;top:78px;z-index:10;background:#fff;padding-top:4px}
+
+/* Language / purchase chooser injected by platform-v22.js */
+.v22-enroll{position:sticky;top:96px;background:#fff;border:1px solid var(--v22-line);border-radius:26px;padding:21px;box-shadow:var(--v22-shadow)}
+.v22-enroll-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:15px}
+.v22-enroll-icon{display:grid;place-items:center;flex:0 0 43px;height:43px;border-radius:14px;background:#fff2e7;font-size:1.25rem}
+.v22-enroll h3{font:800 1.08rem Tajawal,sans-serif;color:var(--v22-ink);margin:0 0 3px}
+.v22-enroll-head p{font-size:.76rem;color:#687891;line-height:1.55;margin:0}
+.v22-langs{display:grid;gap:9px}
+.v22-lang{position:relative;display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;width:100%;padding:12px;border:1px solid var(--v22-line);border-radius:15px;background:#fff;text-align:start;color:var(--v22-ink)}
+.v22-lang:hover:not([disabled]){border-color:#f1a56d;background:#fffaf6;transform:translateY(-1px)}
+.v22-lang.active{border:2px solid var(--v22-orange);background:#fff8f2;box-shadow:0 10px 28px -23px #cf5d0c}
+.v22-lang[disabled]{opacity:.58;cursor:not-allowed;background:#f7f9fc}
+.v22-flag{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#edf3fa;font-size:1.1rem}
+.v22-lang b{display:block;font-size:.87rem}.v22-lang small{display:block;color:#718096;font-size:.69rem;margin-top:2px}
+.v22-price{font:800 .88rem 'IBM Plex Mono',monospace;color:#d65f0b;white-space:nowrap}
+.v22-enroll-note{margin:13px 0;padding:10px 11px;border-radius:12px;background:#f4f7fb;color:#5d6d83;font-size:.72rem;line-height:1.65}
+.v22-enroll-cta{width:100%;min-height:48px;border-radius:13px;background:linear-gradient(135deg,#f47b20,#ff994c);color:#fff;font-weight:800;box-shadow:0 13px 28px -18px #b44900}
+.v22-enroll-cta:hover{transform:translateY(-2px);box-shadow:0 18px 34px -18px #a94500}
+.v22-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:13px}
+.v22-trust span{text-align:center;font-size:.64rem;color:#6b7a90;padding:7px 3px;border-radius:9px;background:#f7f9fc}
+
+/* Package page */
+.pd-hero{gap:28px;align-items:start}
+.pd-spec{gap:10px}.pd-s{border-radius:15px;background:#f8fafc}
+.kind{border-radius:15px}.obj{border-radius:14px}
+.side>.card.pad{position:sticky;top:96px;border-radius:24px}
+
+/* Admin and dashboard clarity */
+.admin-kpis-v8{gap:16px}.akpi{border-radius:22px;padding:20px}
+.akpi b{font-size:1.7rem}.apanel{border-radius:24px}
+.tbl-w{border:1px solid var(--v22-line);border-radius:18px;overflow:auto;background:#fff}
+.t thead th{position:sticky;top:0;background:#0b284e;color:#fff;z-index:2}
+.t tbody tr:hover{background:#fff8f2}
+.progress,.mini-progress{background:#e9eff6}
+
+/* Less visual noise and safer motion */
+.reveal{will-change:auto}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}.hero.v8 .hero-bg img{transform:none}}
+
+@media(max-width:1000px){
+  .v22-discovery-head{grid-template-columns:1fr}.v22-paths{grid-template-columns:1fr 1fr}.v22-confidence{grid-template-columns:1fr 1fr}
+  .course-about-shell{grid-template-columns:1fr}.v22-enroll{position:static;order:-1}
+  .course-about-shell>.v22-enroll{grid-row:1}.course-about-shell>div:first-child{grid-row:2}
+}
+@media(max-width:700px){
+  .v22-discovery{padding:38px 0 22px}.v22-paths{grid-template-columns:1fr}.v22-path{min-height:168px}.v22-confidence{grid-template-columns:1fr}.v22-course-search{min-width:0}
+  .course-hero-v8{padding:46px 0 42px}.course-hero-v8 h1{font-size:2rem}
+  .course-kpis{display:grid;grid-template-columns:1fr 1fr}.course-kpis span{justify-content:center}
+  .course-hero-actions{display:grid}.course-hero-actions .btn{width:100%}
+  .course-about-card{padding:17px;border-radius:20px}.course-tabs-v8{top:64px;flex-wrap:nowrap;overflow-x:auto}
+  .course-tabs-v8 button{white-space:nowrap}.v22-enroll{border-radius:20px;padding:17px}
+  .v22-trust{grid-template-columns:1fr}.course-vmeta{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;text-align:center}
+}
