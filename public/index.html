@@ -2718,6 +2718,10 @@ async function loadContent() {
     if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
     if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
     if (d.promos && d.promos.length) window.PROMOS = d.promos;
+    try {
+      const availability = await fetch('/api/catalog-availability');
+      if (availability.ok) window.CATALOG_AVAILABILITY = await availability.json();
+    } catch (e) {}
     /* دروس كل باقة من الخادم */
     await Promise.all((window.PACKAGES || []).map(p =>
       fetch('/api/lessons/' + encodeURIComponent(p.id), { headers: API.token ? { Authorization: 'Bearer ' + API.token } : {} }).then(r => r.ok ? r.json() : null).then(ls => {
@@ -3484,6 +3488,7 @@ function pkgCard(p) {
   const tv = trackVisual(c);
   const hrs = p.videoMins ? Math.floor(p.videoMins / 60) + 'س ' + (p.videoMins % 60) + 'د' : '—';
   const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
+  const liveQuestions = API.live ? (window.CATALOG_AVAILABILITY?.[p.id]?.questions || '—') : (p.questions || '—');
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   return `<div class="card pk reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
     <div style="height:118px;background:${T.col || tv.grad};position:relative;padding:14px;color:#fff;overflow:hidden">
@@ -3505,7 +3510,7 @@ function pkgCard(p) {
       <p style="font-size:.82rem;margin-bottom:12px">${esc(p.desc || '')}</p>
       <div class="pk-facts">
         <div><span>الساعات</span><b class="num">${p.hours || '—'}</b></div>
-        <div><span>الأسئلة</span><b class="num">${p.questions || '—'}</b></div>
+        <div><span>الأسئلة المتاحة</span><b class="num">${liveQuestions}</b></div>
         <div><span>الفيديو</span><b class="num">${hrs}</b></div>
         <div><span>الاختبارات</span><b class="num">${testCount || '—'}</b></div>
       </div>
@@ -3990,6 +3995,9 @@ function pkgView(id) {
   const off = p.was ? Math.round((1 - p.price / p.was) * 100) : 0;
   const hrs = p.videoMins ? Math.floor(p.videoMins/60) + ' ساعة ' + (p.videoMins%60) + ' دقيقة' : '—';
   const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
+  const actual = API.live ? window.CATALOG_AVAILABILITY?.[id] : null;
+  const questionCount = API.live ? (actual?.questions || '—') : (p.questions || '—');
+  const videoCount = API.live ? (actual?.videos || '—') : (p.videos || '—');
   const KINDS = window.CONTENT_KINDS || [];
   const promo = window.__promo;
 
@@ -4011,9 +4019,9 @@ function pkgView(id) {
       <div class="pd-spec">
         <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>ساعة معتمدة</span></div>
         <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(p.category||'—')}</b><span>التصنيف</span></div>
-        <div class="pd-s"><span class="ic">❓</span><b class="num">${p.questions||'—'}</b><span>سؤالاً</span></div>
-        <div class="pd-s"><span class="ic">🎬</span><b style="font-size:.88rem">${hrs}</b><span>الفيديوهات</span></div>
-        <div class="pd-s"><span class="ic">🎯</span><b class="num">${testCount||'—'}</b><span>اختباراً</span></div>
+        <div class="pd-s"><span class="ic">❓</span><b class="num">${questionCount}</b><span>سؤال متاح</span></div>
+        <div class="pd-s"><span class="ic">🎬</span><b class="num">${videoCount}</b><span>فيديو متاح</span></div>
+        <div class="pd-s"><span class="ic">🎯</span><b style="font-size:.88rem">${p.kinds?.includes('exam') || p.kinds?.includes('quiz') ? 'تدريب ومحاكاة' : '—'}</b><span>الاختبارات</span></div>
         <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(L.ar||'')}</b><span>لغة الكورس</span></div>
         <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>يوم وصول</span></div>
         <div class="pd-s"><span class="ic">${p.cert?'🏅':'—'}</span>
@@ -4026,7 +4034,7 @@ function pkgView(id) {
       <div class="kind-g">
         ${(p.kinds||[]).map(k => {
           const K = KINDS.find(x => x.k === k); if (!K) return '';
-          const n = k==='video' ? p.videos : k==='exam' ? p.quizzes : k==='quiz' ? p.shortQuizzes
+          const n = k==='video' ? videoCount : k==='exam' || k==='quiz' ? ''
             : k==='flash' ? p.flashCards : k==='activity' ? p.activities
             : k==='game' ? p.games : '';
           return `<div class="kind"><span class="ic">${K.ic}</span>

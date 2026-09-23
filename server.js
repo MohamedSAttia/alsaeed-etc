@@ -759,6 +759,24 @@ app.get('/api/content', (req, res) => {
   });
   res.json(out);
 });
+/* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
+app.get('/api/catalog-availability', (req, res) => {
+  const packages = JSON.parse(setting('content_packages') || '[]');
+  const videos = Object.fromEntries(db.prepare("SELECT package_id, COUNT(*) AS n FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> '' GROUP BY package_id")
+    .all().map(row => [row.package_id, row.n]));
+  const hasQuestions = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='questions'").get();
+  const questions = hasQuestions ? Object.fromEntries(db.prepare('SELECT package_id, COUNT(*) AS n FROM questions WHERE active=1 GROUP BY package_id')
+    .all().map(row => [row.package_id, row.n])) : {};
+  const result = {};
+  for (const p of packages) {
+    const source = packages.find(x => x.id === p.sourcePackageId && x.course === p.course)?.id || p.id;
+    const candidates = [p.course, ...packages.filter(x => x.course === p.course).map(x => x.id)];
+    const bank = questions[p.id] ? p.id : candidates.reduce((best, id) =>
+      (questions[id] || 0) > (questions[best] || 0) ? id : best, p.id);
+    result[p.id] = { videos: videos[source] || 0, questions: questions[bank] || 0 };
+  }
+  res.json(result);
+});
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
   if (Array.isArray(body.packages)) {
