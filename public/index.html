@@ -2722,15 +2722,25 @@ async function loadContent() {
       const availability = await fetch('/api/catalog-availability');
       if (availability.ok) window.CATALOG_AVAILABILITY = await availability.json();
     } catch (e) {}
-    /* دروس كل باقة من الخادم */
-    await Promise.all((window.PACKAGES || []).map(p =>
-      fetch('/api/lessons/' + encodeURIComponent(p.id), { headers: API.token ? { Authorization: 'Bearer ' + API.token } : {} }).then(r => r.ok ? r.json() : null).then(ls => {
-        if (ls && ls.length) window.LESSONS[p.id] = ls.map(l =>
-          ({ ch: l.chapter || 0, t: l.title || '', t_en: l.title_en || '',
-            dur: l.duration || '', vimeo: l.vimeo || '', free: !!l.free,
-            notes: l.notes || '', notes_en: l.notes_en || '' }));
-      }).catch(() => {})));
   } catch (e) {}
+}
+
+const lessonRequests = new Map();
+function loadLessonsFor(pid) {
+  if (!API.live || !pid || Object.hasOwn(window.LESSONS, pid)) return;
+  if (lessonRequests.has(pid)) return;
+  const requestedToken = API.token;
+  const request = fetch('/api/lessons/' + encodeURIComponent(pid), {
+    headers: API.token ? { Authorization: 'Bearer ' + API.token } : {}
+  }).then(r => { if (!r.ok) throw new Error('تعذّر تحميل الدروس'); return r.json(); })
+    .then(ls => {
+      if (requestedToken !== API.token) return;
+      window.LESSONS[pid] = ls.map(l => ({ ch:l.chapter || 0, t:l.title || '',
+        t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
+        free:!!l.free, notes:l.notes || '', notes_en:l.notes_en || '' }));
+      if (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || ROUTE.startsWith('admin')) render();
+    }).catch(() => {}).finally(() => lessonRequests.delete(pid));
+  lessonRequests.set(pid, request);
 }
 
 async function syncAdminData() {
@@ -2991,6 +3001,8 @@ function go(r) {
 function render() {
   const V = window.VIEWS;
   const [head, arg] = ROUTE.split('/');
+  if (head === 'pkg' || head === 'learn') loadLessonsFor(arg);
+  if (head === 'admin' && isAdmin()) loadLessonsFor(window.__vidPk || 'grcp-full');
   let html = '';
   if (head === 'home') html = V.home();
   else if (head === 'courses' || head === 'programs') html = V.programs();
@@ -3071,7 +3083,7 @@ function openAuth(mode, after) {
         if (API.live) {
           api('/auth/register', { method: 'POST', body: { name, email: mail, password: pass } })
             .then(d => {
-              API.token = d.token; try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
+              API.token = d.token; window.LESSONS = {}; try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
               const u = { ...d.user, packages: [] };
               if (!DB.users.some(x => x.id === u.id)) DB.users.push(u);
               DB.session = u.id; save(); closeModal();
@@ -3084,7 +3096,7 @@ function openAuth(mode, after) {
         if (API.live) {
           api('/auth/login', { method: 'POST', body: { email: mail, password: pass } })
             .then(async d => {
-              API.token = d.token; try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
+              API.token = d.token; window.LESSONS = {}; try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
               let u = DB.users.find(x => x.id === d.user.id);
               if (!u) { u = { ...d.user, packages: [] }; DB.users.push(u); }
               Object.assign(u, d.user);
@@ -3107,7 +3119,7 @@ function bindAll() {
   $$('[data-r]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.r); });
   $$('[data-buy]').forEach(b => b.onclick = () => checkout(b.dataset.buy));
   const lo = $('#logout'); if (lo) lo.onclick = () => {
-    DB.session = null; API.token = null;
+    DB.session = null; API.token = null; window.LESSONS = {};
     try { localStorage.removeItem('alsaeed_token'); } catch (e) {}
     save(); go('home'); toast('خرجت من حسابك');
   };
@@ -3165,6 +3177,13 @@ async function boot() {
   const L0 = window.LANGS.find(x => x.k === window.__lang) || window.LANGS[0];
   document.documentElement.setAttribute('lang', L0.k);
   document.documentElement.setAttribute('dir', L0.dir);
+  window.LESSONS = {};
+  ROUTE = (location.hash || '').replace('#', '') || 'home';
+  render();
+  window.addEventListener('hashchange', () => {
+    const nh = (location.hash || '').replace('#', '') || 'home';
+    if (nh !== ROUTE) { ROUTE = nh; render(); }
+  });
   await probe();
   if (API.live) {
     // بيانات الخادم وحدها تحدد الدروس المنشورة؛ لا تعرض دروس العرض المحلية للمشتركين.
@@ -3188,13 +3207,7 @@ async function boot() {
       hours:p.hours || (course(p.course) || {}).hours, cert:!!p.cert, type:p.type
     })) } }); } catch (e) {}
   }
-  const h = (location.hash || '').replace('#', '');
-  ROUTE = h || 'home';
   render();
-  window.addEventListener('hashchange', () => {
-    const nh = (location.hash || '').replace('#', '') || 'home';
-    if (nh !== ROUTE) { ROUTE = nh; render(); }
-  });
 }
 
 return { boot, go, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
