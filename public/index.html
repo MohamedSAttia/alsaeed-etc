@@ -1049,6 +1049,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 </style>
 <link rel="stylesheet" href="/homepage-v23.css?v=23.0">
 <link rel="stylesheet" href="/experience-v24.css?v=24.0">
+<link rel="stylesheet" href="/course-journey-v25.css?v=25.0">
 <link rel="stylesheet" href="/v16-enhancements.css?v=16.1">
 </head>
 <body>
@@ -3885,6 +3886,37 @@ function courseTabBody(c) {
       <span class="num">${i2+1}</span><span>${esc(window.biTitle ? window.biTitle(ch) : ch)}</span></div>`).join('')}</div>`;
 }
 
+function courseDecision(c, pkgs) {
+  const en=window.__lang==='en';
+  const tr=(ar,english)=>en?english:ar;
+  const dates=(Array.isArray(window.CMS.sessions)?window.CMS.sessions:[])
+    .filter(s=>s.course===c.id&&s.published!==false&&s.date&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&Date.parse(s.date+'T23:59:59')>=Date.now())
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  const langNames=en?{ar:'Arabic',en:'English',both:'Arabic & English'}:{ar:'العربية',en:'الإنجليزية',both:'العربية والإنجليزية'};
+  const rows=pkgs.map(p=>{
+    const type=(window.PKG_TYPES||[]).find(x=>x.k===p.type)||{};
+    const mode=(window.MODES||[]).find(x=>x.k===p.mode)||{};
+    const included=(p.kinds||[]).slice(0,4).map(k=>{
+      const item=(window.CONTENT_KINDS||[]).find(x=>x.k===k);
+      return item?`${item.ic} ${en?(item.en||item.ar):item.ar}`:'';
+    }).filter(Boolean);
+    return `<article class="v25-option" data-v25-lang="${esc(p.lang||'en')}">
+      <div class="v25-option-head"><span class="v25-option-icon" aria-hidden="true">${type.ic||'◈'}</span><div><h3>${esc((en?type.en:type.ar)||p.ar)}</h3><p>${esc(p.desc||'')}</p></div></div>
+      <div class="v25-option-tags"><span>${esc(langNames[p.lang]||p.lang||'')}</span><span>${esc((en?mode.en:mode.ar)||tr('تعلم مرن','Flexible learning'))}</span><span>${esc(p.days||0)} ${tr('يوم وصول','days access')}</span></div>
+      <ul class="v25-includes">${included.map(label=>`<li>${esc(label)}</li>`).join('')}</ul>
+      <div class="v25-option-foot"><strong>${money(p.price)} <small>${esc(p.currency||'USD')}</small></strong><button class="btn p sm" data-r="pkg/${esc(p.id)}">${tr('تفاصيل الباقة والاشتراك','Package details and enrollment')} ←</button></div>
+    </article>`;
+  }).join('');
+  return `<section class="v25-decision sec" id="v25-choose"><div class="wrap">
+    <div class="v25-intro"><span class="eyebrow">${tr('خطوتك التالية','YOUR NEXT STEP')}</span><h2>${tr('اختر طريقك إلى','Choose your path to')} ${esc(c.code||c.ar)}</h2><p>${tr('ابدأ بمراجعة البرنامج، ثم قارن بين الباقات المنشورة بحسب اللغة والمحتوى والسعر قبل الاشتراك.','Explore the program, then compare published packages by language, content, and price before enrolling.')}</p></div>
+    <div class="v25-steps"><div><b>01</b><span>${tr('تعرّف على المحاور والمخرجات','Explore the topics and outcomes')}</span></div><div><b>02</b><span>${tr('شاهد المعاينة المتاحة','Watch the available preview')}</span></div><div><b>03</b><span>${tr('اختر اللغة والباقة المناسبة','Choose your language and package')}</span></div></div>
+    <div class="v25-split"><div class="v25-preview"><h3>${tr('استكشف قبل الاشتراك','Explore before enrolling')}</h3><p>${c.previewVimeo?tr('تعرّف على أسلوب عرض البرنامج في الفيديو التعريفي.','See how the program is presented in the introduction video.'):tr('استعرض محاور البرنامج ومخرجاته قبل اختيار الباقة.','Review the topics and outcomes before choosing a package.')}</p><button class="btn o" ${c.previewVimeo?`data-course-preview="${esc(c.id)}"`:'data-v25-tabs'}>${c.previewVimeo?tr('▶ شاهد معاينة البرنامج','▶ Watch the program preview'):tr('استعرض محاور البرنامج ←','Explore the topics ←')}</button><div class="v25-preview-list"><span>${tr('المحاور','Topics')}: ${esc((c.chapters||[]).length)}</span><span>${tr('الباقات المنشورة','Published packages')}: ${pkgs.length}</span></div></div>
+    <div class="v25-schedule"><h3>${tr('التدريب المباشر والحضوري','Live online and in-person training')}</h3>${dates.length?dates.slice(0,4).map(s=>`<div class="v25-date"><time datetime="${esc(s.date)}">${esc(new Intl.DateTimeFormat(en?'en-US':'ar-EG',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(s.date+'T12:00:00Z')))}</time><span>${s.mode==='onsite'?tr('حضوري','In person'):tr('أونلاين مباشر','Live online')}${s.city?' · '+esc(s.city):''}</span></div>`).join(''):`<p>${tr('لم يُعلن موعد مؤكد لهذا البرنامج بعد. يمكنك الاستفسار عن المجموعة القادمة.','No confirmed dates have been announced yet. Ask about the next group.')}</p>`}<a href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${tr('استفسر عن الدفعة القادمة','Ask about the next group')} ↗</a></div></div>
+    <div class="v25-compare-head"><div><span class="eyebrow">${tr('مقارنة واضحة','COMPARE OPTIONS')}</span><h2>${tr('الباقات المتاحة الآن','Available packages')}</h2><p>${tr('تظهر هنا الباقات المنشورة فقط. النسخ اللغوية التي يجري إعداد محتواها لا تُعرض للاشتراك.','Only published packages appear here. Language versions still in preparation cannot be purchased.')}</p></div><div class="v25-filters" aria-label="${tr('تصفية الباقات حسب اللغة','Filter packages by language')}"><button type="button" class="on" data-v25-filter="all" aria-pressed="true">${tr('الكل','All')}</button><button type="button" data-v25-filter="ar" aria-pressed="false">${tr('عربي فقط','Arabic only')}</button><button type="button" data-v25-filter="en" aria-pressed="false">${tr('إنجليزي فقط','English only')}</button><button type="button" data-v25-filter="both" aria-pressed="false">${tr('اللغتان','Both languages')}</button></div></div>
+    <div class="v25-options">${rows||`<p>${tr('سيتم إعلان خيارات هذا البرنامج عند اعتمادها.','Options will be announced when approved.')}</p>`}</div><p class="v25-empty" hidden>${tr('لا توجد باقة منشورة بهذا الخيار حاليًا.','No published package is available for this option yet.')} <a href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${tr('اسأل عن موعد توفرها','Ask when it will be available')} ↗</a></p>
+  </div></section>`;
+}
+
 function courseView(id) {
   const c=A().course(id); if(!c)return home();
   const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false);
@@ -3899,11 +3931,12 @@ function courseView(id) {
       <div class="course-kpis"><span><b>${c.hours}</b> ساعة تدريبية</span><span><b>${c.questions}</b> سؤالاً</span><span><b>${c.examMin}</b> دقيقة</span><span><b>${pkgs.length}</b> خيارات تدريب</span></div>
       <div class="course-mode-pills" style="margin-top:12px">${modes.map(m=>`<span style="background:${m.col}22;color:#fff;border:1px solid ${m.col}55">${m.icon} ${esc(m.ar)}</span>`).join('')}</div>
       ${(window.CMS.sessions||[]).filter(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,2).map(s=>`<div class="v24-course-date">◷ ${esc(s.date)} · ${s.mode==='onsite'?'حضوري':'أونلاين مباشر'}${s.city?' · '+esc(s.city):''}</div>`).join('')}
-      <div class="course-hero-actions"><button class="btn p lg" data-r="${lead?'pkg/'+lead.id:'programs'}">عرض الباقات المتاحة</button><button class="btn gh lg" data-course-preview="${c.id}">▶ مشاهدة المعاينة</button>${(window.CMS.sessions||[]).some(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now())?`<a class="btn gh lg" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">استفسر عن الموعد المباشر ↗</a>`:''}</div>
+      <div class="course-hero-actions"><button class="btn p lg" data-v25-choose>${window.__lang==='en'?'Compare packages and languages':'قارن الباقات واللغات'} ↓</button>${c.previewVimeo?`<button class="btn gh lg" data-course-preview="${esc(c.id)}">▶ ${window.__lang==='en'?'Watch preview':'مشاهدة المعاينة'}</button>`:''}</div>
     </div>
     <div class="course-media-card reveal d1">${courseCover(c,true)}<div class="course-media-foot"><div><b>${c.hours}</b><span>ساعة</span></div><div><b>${c.domains.length}</b><span>نطاقات</span></div><div><b>${c.chapters.length}</b><span>فصول</span></div></div></div>
   </div></section>
 
+  ${courseDecision(c,pkgs)}
   <section class="sec"><div class="wrap course-about-shell">
     <div>
       <div class="course-about-card reveal">
@@ -4024,7 +4057,7 @@ function pkgView(id) {
 
       <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
         <b style="font-size:.88rem;color:var(--navy);display:block;margin-bottom:9px">باقات أخرى لهذا البرنامج</b>
-        ${window.PACKAGES.filter(x=>x.course===p.course&&x.id!==p.id).map(x=>{
+        ${window.PACKAGES.filter(x=>x.course===p.course&&x.id!==p.id&&x.active!==false).map(x=>{
           const T2=(window.PKG_TYPES||[]).find(y=>y.k===x.type)||{};
           return `<div style="display:flex;align-items:center;gap:9px;padding:9px 0;
             border-bottom:1px solid var(--line);cursor:pointer" data-r="pkg/${x.id}">
@@ -5085,6 +5118,15 @@ function bind() {
   $$('[data-stage]').forEach(b => b.onclick = () => { window.__stage = b.dataset.stage; A().render(); });
   $$('[data-rm]').forEach(b => b.onclick = () => { rmPick = b.dataset.rm; A().render(); });
   $$('[data-course-preview]').forEach(b => b.onclick = e => { e.stopPropagation(); openCoursePreview(b.dataset.coursePreview); });
+  $$('[data-v25-choose]').forEach(b=>b.onclick=()=>$('#v25-choose')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  $$('[data-v25-tabs]').forEach(b=>b.onclick=()=>$('.course-about-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  $$('[data-v25-filter]').forEach(b=>b.onclick=()=>{
+    const choice=b.dataset.v25Filter;
+    $$('[data-v25-filter]').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});
+    const options=$$('.v25-option');let shown=0;
+    options.forEach(x=>{const visible=choice==='all'||x.dataset.v25Lang===choice;x.hidden=!visible;if(visible)shown++;});
+    const empty=$('.v25-empty');if(empty)empty.hidden=shown>0;
+  });
   const hp=$('#heroPlay'), hw=$('#heroWatch'); if(hp)hp.onclick=()=>openCoursePreview('pmp'); if(hw)hw.onclick=()=>{ const C=CT(); if(C.heroVimeo){ A().modal(`<div class="video-shell" style="min-height:420px">${vimeoFrame(C.heroVimeo,'عن منصة السعيد')}</div><div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`); } else openCoursePreview('pmp'); };
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
