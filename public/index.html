@@ -1051,6 +1051,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v24.css?v=24.0">
 <link rel="stylesheet" href="/course-journey-v25.css?v=25.1">
 <link rel="stylesheet" href="/v16-enhancements.css?v=16.1">
+<link rel="stylesheet" href="/visual-refresh-v26.css?v=26.0">
 </head>
 <body>
 
@@ -3245,8 +3246,10 @@ function vimeoFrame(v,title){
   return `<iframe src="https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${esc(title||'Video')}"></iframe>`;
 }
 function courseCover(c, big){
-  const tv=trackVisual(c); const has=!!(c.cover&&String(c.cover).trim());
-  const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.78)),url('${esc(c.cover)}')`:`background:${tv.grad}`;
+  const tv=trackVisual(c);
+  const gallery={pmp:'/assets/hero/alsaeed-workshop-v26.webp',grcp:'/assets/hero/alsaeed-global-2-v24.webp',rmp:'/assets/hero/alsaeed-global-1-v24.webp',pba:'/assets/hero/alsaeed-global-learning-v22.webp'};
+  const cover=c.cover&&String(c.cover).trim()||gallery[c.id];const has=!!cover;
+  const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.82)),url('${esc(cover)}')`:`background:${tv.grad}`;
   return `<div class="course-cover ${has?'has-img':''}" style="${style};${big?'min-height:360px':''}">
     <div class="course-cover-grid"></div><div class="course-cover-in">
       <span class="track-pill">${tv.icon||'🎓'} ${esc(tv.ar||'')}</span>
@@ -3256,7 +3259,7 @@ function courseCover(c, big){
 }
 function courseShowcase(c){
   const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false); const lead=pkgs.find(p=>p.featured||p.badge)||pkgs[0];
-  const modes=(c.modes||[]).map(k=>window.MODES.find(m=>m.k===k)).filter(Boolean).slice(0,3);
+  const modes=(c.modes||[]).map(k=>window.MODES.find(m=>m.k===k)).filter(m=>m&&pkgs.some(p=>p.mode===m.k)).slice(0,3);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   return `<article class="course-vcard reveal">
     ${courseCover(c,false)}
@@ -3343,6 +3346,21 @@ function readinessBar(c, scores, compact) {
 }
 
 /* ═══════════ الرئيسة ═══════════ */
+function v26Icon(name) {
+  const paths={
+    trend:'<path d="M3 17l6-6 4 4 8-9"/><path d="M16 6h5v5"/>',
+    shield:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/>',
+    spark:'<path d="M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z"/><path d="M19 18l.5 1.5L21 20l-1.5.5L19 22l-.5-1.5L17 20l1.5-.5L19 18z"/>',
+    people:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 21v-2a6 6 0 0 1 12 0v2H2zM15 15a5 5 0 0 1 7 4v2h-5"/>',
+    play:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 8l6 4-6 4V8z"/>',
+    screen:'<rect x="2" y="3" width="20" height="15" rx="2"/><path d="M8 22h8M12 18v4M7 8h7M7 12h10"/>',
+    book:'<path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1zM12 5v15"/>',
+    target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    school:'<path d="M2 9l10-5 10 5-10 5L2 9zM6 12v5c4 3 8 3 12 0v-5M22 9v7"/>',
+    briefcase:'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12c5 4 13 4 18 0"/>'
+  };
+  return `<svg class="v26-svg" width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths.spark}</svg>`;
+}
 function home() {
   const C = CT();
   const english = window.__lang === 'en';
@@ -3392,13 +3410,13 @@ function home() {
     <div class="v22-discovery-head">
       <div><span class="eyebrow">${copy.path}</span><h2 id="v22-discovery-title">${copy.pathTitle}</h2>
         <p>${copy.pathLead}</p></div>
-      <div class="v22-course-search"><span>⌕</span><input id="v22CourseSearch" type="search" placeholder="ابحث عن PMP أو GRCP أو إدارة المخاطر…" autocomplete="off" aria-label="البحث في البرامج"><div id="v22SearchResults" class="v22-search-results" hidden></div></div>
+      <div class="v22-course-search"><span>${v26Icon('target')}</span><input id="v22CourseSearch" type="search" placeholder="${english?'Search PMP, GRCP or project management…':'ابحث عن PMP أو GRCP أو إدارة المخاطر…'}" autocomplete="off" aria-label="${english?'Search programs':'البحث في البرامج'}"><div id="v22SearchResults" class="v22-search-results" hidden></div></div>
     </div>
     <div class="v22-paths">
-      <button class="v22-path path-pm" data-r="course/pmp"><span class="v22-path-art">01</span><i>📈</i><b>${copy.pm}</b><small>PMP · RMP · ACP · PBA</small><em>${copy.explore} ↗</em></button>
-      <button class="v22-path path-grc" data-r="course/grcp"><span class="v22-path-art">02</span><i>🛡️</i><b>${copy.grc}</b><small>GRC · Compliance · Risk</small><em>${copy.explore} ↗</em></button>
-      <button class="v22-path path-quality" data-r="programs"><span class="v22-path-art">03</span><i>⚙️</i><b>${copy.quality}</b><small>Lean Six Sigma · Improvement</small><em>${copy.explore} ↗</em></button>
-      <button class="v22-path path-org" data-r="consulting"><span class="v22-path-art">04</span><i>🏢</i><b>${copy.teams}</b><small>Corporate · Consulting · Systems</small><em>${copy.solutions} ↗</em></button>
+      <button class="v22-path path-pm" data-r="course/pmp"><span class="v22-path-art">01</span><i>${v26Icon('trend')}</i><b>${copy.pm}</b><small>PMP · RMP · ACP · PBA</small><em>${copy.explore} ↗</em></button>
+      <button class="v22-path path-grc" data-r="course/grcp"><span class="v22-path-art">02</span><i>${v26Icon('shield')}</i><b>${copy.grc}</b><small>GRC · Compliance · Risk</small><em>${copy.explore} ↗</em></button>
+      <button class="v22-path path-quality" data-r="programs"><span class="v22-path-art">03</span><i>${v26Icon('spark')}</i><b>${copy.quality}</b><small>Lean Six Sigma · Improvement</small><em>${copy.explore} ↗</em></button>
+      <button class="v22-path path-org" data-r="consulting"><span class="v22-path-art">04</span><i>${v26Icon('people')}</i><b>${copy.teams}</b><small>Corporate · Consulting · Systems</small><em>${copy.solutions} ↗</em></button>
     </div>
     <div class="v22-confidence"><span><b>محتوى منظم</b> وفق رحلة تعلم واضحة</span><span><b>تدريب تطبيقي</b> واختبارات محاكاة</span><span><b>متابعة مستمرة</b> من البداية للاجتياز</span><span><b>تعلم مرن</b> بالعربية والإنجليزية</span></div>
   </div></section>
@@ -3409,13 +3427,19 @@ function home() {
   </div></section>
 
   <section class="modes-bar"><div class="wrap">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap"><b style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">اختر طريقة التعلّم</b><span class="muted" style="font-size:.84rem;flex:1">نفس الهدف، لكن بالطريقة التي تناسب وقتك ومكانك.</span></div>
-    <div class="modes-g">${window.MODES.map(m=>{const n=window.PACKAGES.filter(p=>p.mode===m.k).length;return `<button class="mode-c reveal" data-r="programs?mode=${m.k}" style="border-top:3px solid ${m.col}"><span class="ic">${m.icon}</span><b>${esc(m.ar)}</b><em class="en">${esc(m.en)}</em><p>${esc(m.desc)}</p><span class="n">${n} باقة ←</span></button>`;}).join('')}</div>
+    <div class="v26-modes-heading"><span class="eyebrow">${english?'LEARN YOUR WAY':'تعلّم بطريقتك'}</span><h2>${english?'Choose the format that fits your life':'اختر طريقة التعلّم التي تناسبك'}</h2><p>${english?'Explore published packages or ask us about upcoming instructor-led sessions.':'استكشف الباقات المنشورة، أو استفسر عن المجموعات المباشرة القادمة.'}</p></div>
+    <div class="modes-g">${window.MODES.map(m=>{const n=window.PACKAGES.filter(p=>p.active!==false&&p.mode===m.k).length;const ico={onsite:'people',live:'screen',recorded:'play',sim:'target',self:'book'}[m.k]||'book';const descEn={onsite:'Instructor-led classroom learning and group activities.',live:'Real-time sessions with an instructor from anywhere.',recorded:'Watch lessons at your own pace and replay them.',sim:'Practice with timed questions and performance reports.',self:'Follow a structured path at your own pace.'};return `<button class="mode-c reveal ${n?'':'v26-request-mode'}" data-r="${n?'programs?mode='+m.k:'contact'}" style="border-top:3px solid ${m.col}"><span class="ic">${v26Icon(ico)}</span><b>${esc(english?m.en:m.ar)}</b><p>${esc(english?descEn[m.k]:m.desc)}</p><span class="n">${n?`${n} ${english?'packages':'باقات'} ←`:(english?'Ask about the next group ↗':'استفسر عن الدفعة القادمة ↗')}</span></button>`;}).join('')}</div>
   </div></section>
 
-  <section class="sec"><div class="wrap">
-    <div class="sec-h"><span class="eyebrow">منظومة السعيد</span><h2>أكثر من منصة دورات</h2><p>التدريب المهني والتعليم الأكاديمي والاستشارات والأنظمة التطبيقية والذكاء الاصطناعي تحت حساب واحد.</p></div>
-    <div class="sec3">${window.SECTIONS.map(sc=>{const n=sc.k==='pro'?window.COURSES.length:sc.k==='acad'?window.ACADEMIC.length:window.CONSULTING.length;return `<div class="sec-c reveal" data-r="${sc.k==='pro'?'programs':sc.k==='acad'?'academic':'consulting'}" style="cursor:pointer"><span class="ic">${sc.icon}</span><h3>${esc(sc.ar)}</h3><p>${esc(sc.desc)}</p><div class="n"><div><b class="num">${n}</b><span>${sc.k==='pro'?'شهادة ومسار':sc.k==='acad'?'برنامج أكاديمي':'خدمة استشارية'}</span></div></div><button class="btn o sm full">استعرض ←</button></div>`;}).join('')}</div>
+  <section class="v26-ecosystem sec"><div class="wrap v26-ecosystem-grid">
+    <div class="v26-ecosystem-copy"><span class="eyebrow">${english?'FROM LEARNING TO IMPACT':'من التعلّم إلى الأثر'}</span><h2>${english?'One partner for people and organizations':'شريك واحد لتطوير الإنسان والمؤسسة'}</h2><p>${english?'Training builds capability, education opens possibilities, and consulting turns expertise into working solutions.':'التدريب يبني القدرة، والتعليم يفتح الآفاق، والاستشارات تحوّل الخبرة إلى حلول تعمل على أرض الواقع.'}</p>
+      <div class="v26-service-list">
+        <button data-r="programs"><span>${v26Icon('school')}</span><span><b>${english?'Professional training':'التدريب المهني'}</b><small>${english?'Programs and practice for your next milestone':'برامج وتطبيقات لخطوتك المهنية التالية'}</small></span><em>↗</em></button>
+        <button data-r="academic"><span>${v26Icon('book')}</span><span><b>${english?'Education':'التعليم'}</b><small>${english?'Broader knowledge and structured pathways':'معرفة أعمق ومسارات تعليمية منظمة'}</small></span><em>↗</em></button>
+        <button data-r="consulting"><span>${v26Icon('briefcase')}</span><span><b>${english?'Consulting':'الاستشارات'}</b><small>${english?'Practical solutions for teams and institutions':'حلول عملية للفرق والمؤسسات'}</small></span><em>↗</em></button>
+      </div>
+    </div>
+    <div class="v26-ecosystem-visual"><img src="/assets/hero/alsaeed-workshop-v26.webp" alt="${english?'An international team collaborates in a learning and consulting workshop':'فريق دولي يعمل معًا في ورشة للتعليم والاستشارات'}" loading="lazy" width="1440" height="810"><div class="v26-photo-caption"><span>${english?'CAIRO · CONNECTED TO THE WORLD':'من القاهرة إلى العالم'}</span><b>${english?'Knowledge becomes action together':'نحوّل المعرفة إلى عمل مشترك'}</b></div></div>
   </div></section>
 
   <section class="sec tight alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">الأكثر طلباً</span><h2>باقات جاهزة للبدء</h2></div><div class="grid g3">${feat.map(pkgCard).join('')}</div><div class="center mt"><button class="btn o" data-r="programs">كل البرامج والباقات ←</button></div></div></section>
