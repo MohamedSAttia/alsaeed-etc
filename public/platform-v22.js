@@ -20,6 +20,7 @@
   }
 
   function addLanguageChooser() {
+    if ($('.v25-decision')) return;
     const courseId = currentCourseId();
     const shell = $('.course-about-shell');
     if (!courseId || !shell || $('.v22-enroll', shell)) return;

@@ -1049,7 +1049,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 </style>
 <link rel="stylesheet" href="/homepage-v23.css?v=23.0">
 <link rel="stylesheet" href="/experience-v24.css?v=24.0">
-<link rel="stylesheet" href="/course-journey-v25.css?v=25.0">
+<link rel="stylesheet" href="/course-journey-v25.css?v=25.1">
 <link rel="stylesheet" href="/v16-enhancements.css?v=16.1">
 </head>
 <body>
@@ -3901,7 +3901,7 @@ function courseDecision(c, pkgs) {
       return item?`${item.ic} ${en?(item.en||item.ar):item.ar}`:'';
     }).filter(Boolean);
     return `<article class="v25-option" data-v25-lang="${esc(p.lang||'en')}">
-      <div class="v25-option-head"><span class="v25-option-icon" aria-hidden="true">${type.ic||'◈'}</span><div><h3>${esc((en?type.en:type.ar)||p.ar)}</h3><p>${esc(p.desc||'')}</p></div></div>
+      <div class="v25-option-head"><span class="v25-option-icon" aria-hidden="true">${type.ic||'◈'}</span><div><h3>${esc((en?type.en:type.ar)||p.ar)}</h3><p>${esc(en?'Review the included learning materials and format before enrolling.':p.desc||'')}</p></div></div>
       <div class="v25-option-tags"><span>${esc(langNames[p.lang]||p.lang||'')}</span><span>${esc((en?mode.en:mode.ar)||tr('تعلم مرن','Flexible learning'))}</span><span>${esc(p.days||0)} ${tr('يوم وصول','days access')}</span></div>
       <ul class="v25-includes">${included.map(label=>`<li>${esc(label)}</li>`).join('')}</ul>
       <div class="v25-option-foot"><strong>${money(p.price)} <small>${esc(p.currency||'USD')}</small></strong><button class="btn p sm" data-r="pkg/${esc(p.id)}">${tr('تفاصيل الباقة والاشتراك','Package details and enrollment')} ←</button></div>
@@ -6187,7 +6187,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/hotfix-v18.js?v=18.1"></script>
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
-<script src="/platform-v22.js?v=22.0"></script>
+<script src="/platform-v22.js?v=22.1"></script>
 <script src="/experience-v24.js?v=24.0"></script>
 </body>
 </html>

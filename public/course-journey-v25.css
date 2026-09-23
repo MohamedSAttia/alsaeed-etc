@@ -1,4 +1,5 @@
 .v25-decision{background:#f5f8fb;scroll-margin-top:88px}
+.v25-decision + .sec .course-about-shell{display:block;max-width:1050px}.v25-decision + .sec .course-about-card{width:100%}
 .v25-decision h2{font:800 clamp(1.6rem,2.5vw,2.3rem)/1.35 'IBM Plex Sans Arabic',sans-serif;color:#112c4c}
 .v25-intro{max-width:720px}.v25-intro p,.v25-compare-head p{color:#556e84;line-height:1.85;margin:9px 0 0}
 .v25-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0}
