@@ -216,8 +216,12 @@ app.put('/api/progress/:pkg', auth, (req, res) => {
 
 /* ═══════════ الدروس والفيديو — لا تُسلَّم إلا لمشترك ═══════════ */
 app.get('/api/lessons/:pkg', (req, res) => {
+  const publishedPackages = JSON.parse(setting('content_packages') || '[]');
+  const variant = publishedPackages.find(p => p.id === req.params.pkg);
+  const source = variant?.sourcePackageId && publishedPackages.some(p => p.id === variant.sourcePackageId)
+    ? variant.sourcePackageId : req.params.pkg;
   const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en FROM lessons WHERE package_id=? ORDER BY idx')
-    .all(req.params.pkg);
+    .all(source);
   let enrolled = false;
   const h = req.headers.authorization || '';
   if (h.startsWith('Bearer ')) {
@@ -756,6 +760,27 @@ app.get('/api/content', (req, res) => {
 });
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
+  if (Array.isArray(body.packages)) {
+    for (const p of body.packages.filter(x => x.active !== false && x.sourcePackageId)) {
+      const source = body.packages.find(x => x.id === p.sourcePackageId && x.course === p.course);
+      if (!source) return res.status(422).json({ error: 'مصدر محتوى النسخة اللغوية غير موجود: ' + p.id });
+      const lessons = db.prepare('SELECT title,title_en FROM lessons WHERE package_id=?').all(source.id);
+      if ((p.kinds||[]).includes('video') && (!lessons.length || (p.lang === 'en' && lessons.some(l => !String(l.title_en||'').trim()))))
+        return res.status(422).json({ error: 'راجع عناوين الفيديوهات بلغة النسخة قبل نشر: ' + p.id });
+      if ((p.kinds||[]).includes('exam')) {
+        const table = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='questions'").get();
+        if (!table) return res.status(422).json({ error: 'بنك الأسئلة غير مجهز للنسخة: ' + p.id });
+        const rows = db.prepare('SELECT question_ar,question_en,options_ar,options_en FROM questions WHERE package_id=? AND active=1').all(source.id);
+        const valid = row => {
+          const field = p.lang === 'ar' ? 'ar' : 'en';
+          let opts=[]; try { opts=JSON.parse(row['options_'+field]||'[]'); } catch {}
+          return !!String(row['question_'+field]||'').trim() && Array.isArray(opts) && opts.filter(Boolean).length >= 2;
+        };
+        if (!rows.length || rows.some(row => !valid(row)))
+          return res.status(422).json({ error: 'استكمل نصوص الأسئلة والخيارات باللغة المختارة قبل نشر: ' + p.id });
+      }
+    }
+  }
   Object.keys(body).forEach(k => {
     if (['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos'].includes(k))
       setSetting('content_' + k, JSON.stringify(body[k]));

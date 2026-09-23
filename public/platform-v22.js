@@ -23,7 +23,7 @@
     const courseId = currentCourseId();
     const shell = $('.course-about-shell');
     if (!courseId || !shell || $('.v22-enroll', shell)) return;
-    const packages = (window.PACKAGES || []).filter(p => p.course === courseId);
+    const packages = (window.PACKAGES || []).filter(p => p.course === courseId && p.active !== false);
     if (!packages.length) return;
     const bestByLanguage = {};
     Object.keys(languageMeta).forEach(lang => {
@@ -47,7 +47,7 @@
           </button>`;
         }).join('')}
       </div>
-      <div class="v22-enroll-note">يمكنك ترقية باقتك لاحقًا إلى النسخة ثنائية اللغة. تظهر فقط الخيارات التي تم تجهيز محتواها واعتمادها.</div>
+      <div class="v22-enroll-note">تظهر خيارات اللغة المنشورة فقط. راجع اللغة والمحتوى في صفحة الباقة قبل الاشتراك.</div>
       <button class="v22-enroll-cta" data-v22-go="${esc(preferred.id)}">عرض الباقة والاشتراك</button>
       <div class="v22-trust"><span>✓ دفع آمن</span><span>✓ وصول فوري</span><span>✓ دعم مباشر</span></div>`;
     shell.appendChild(panel);
