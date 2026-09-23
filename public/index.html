@@ -1051,7 +1051,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v24.css?v=24.0">
 <link rel="stylesheet" href="/course-journey-v25.css?v=25.1">
 <link rel="stylesheet" href="/v16-enhancements.css?v=16.1">
-<link rel="stylesheet" href="/visual-refresh-v26.css?v=26.0">
+<link rel="stylesheet" href="/visual-refresh-v26.css?v=27.0">
 </head>
 <body>
 
@@ -4844,15 +4844,19 @@ function instructorCard() {
 }
 
 function instructorBlock() {
-  return `<section class="sec tight" style="background:var(--white);border-block:1px solid var(--line)">
-    <div class="wrap"><div class="split">
-      <div>
-        <span class="eyebrow">المدرّب</span>
-        <h2 style="font-family:var(--fd);font-weight:800;font-size:1.9rem;color:var(--ink);margin-bottom:14px">${esc(B.founder)}</h2>
-        <p class="muted mb">${esc(B.bio)}</p>
-        <p class="muted">${esc(B.bio2)}</p>
+  const photo=instructorCard().match(/<img\b[^>]*>/)?.[0]||'';
+  const english=window.__lang==='en';
+  return `<section class="sec v27-instructor-section">
+    <div class="wrap"><div class="v27-instructor">
+      <div class="v27-instructor-photo">${photo}<span>${english?'FOUNDER · TRAINER · CONSULTANT':'المؤسس · المدرّب · المستشار'}</span></div>
+      <div class="v27-instructor-content">
+        <span class="eyebrow">${english?'MEET THE FOUNDER':'تعرّف على المؤسس'}</span>
+        <h2>${esc(B.founder)}</h2>
+        <p class="v27-instructor-role">${esc(B.founderRole)}</p>
+        <p>${esc(B.bio)}</p>
+        <p>${esc(B.bio2)}</p>
+        <div class="v27-instructor-actions"><button class="btn p" data-r="about">${english?'More about us':'المزيد عنا'} ↗</button><a class="btn o" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${english?'Discuss a program':'ناقش برنامجًا تدريبيًا'} ↗</a></div>
       </div>
-      <div class="side">${instructorCard()}</div>
     </div></div>
   </section>`;
 }
