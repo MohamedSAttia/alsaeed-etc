@@ -204,9 +204,10 @@ app.get('/api/progress/:pkg', auth, (req, res) => {
   res.json(r ? JSON.parse(r.data) : { lessons: {}, weeks: {}, exams: {} });
 });
 app.put('/api/progress/:pkg', auth, (req, res) => {
-  const owns = db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?')
+  const owns = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
-  if (!owns) return res.status(403).json({ error: 'لست مشتركاً في هذه الباقة' });
+  if (!owns || (owns.expires && owns.expires <= Date.now()))
+    return res.status(403).json({ error: 'لا يوجد اشتراك فعّال في هذه الباقة' });
   db.prepare(`INSERT INTO progress (user_id,package_id,data,updated) VALUES (?,?,?,?)
     ON CONFLICT(user_id,package_id) DO UPDATE SET data=?, updated=?`)
     .run(req.user.id, req.params.pkg, JSON.stringify(req.body || {}), Date.now(),

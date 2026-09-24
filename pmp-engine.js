@@ -152,9 +152,12 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     if(!u){sendJson(res,401,{error:'يلزم تسجيل الدخول'});return null}
     if(u.active===0){sendJson(res,403,{error:'الحساب معطّل'});return null}
     if(u.role!=='admin'){
-      const en=db.prepare('SELECT id,expires FROM enrollments WHERE user_id=? AND package_id=?').get(u.id,packageId);
-      if(!en){sendJson(res,403,{error:'هذه المحاكاة متاحة للمشتركين في باقة PMP فقط'});return null}
-      if(en.expires && en.expires<Date.now()){sendJson(res,403,{error:'انتهت مدة الوصول إلى باقة PMP'});return null}
+      const enrollments=db.prepare('SELECT package_id,expires FROM enrollments WHERE user_id=?').all(u.id)
+        .filter(en=>en.package_id===packageId || /^pmp-(?:full|sim)(?:-|$)/i.test(en.package_id));
+      if(!enrollments.length){sendJson(res,403,{error:'هذه المحاكاة متاحة للمشتركين في باقة PMP الكاملة أو المحاكاة'});return null}
+      if(!enrollments.some(en=>!en.expires || en.expires>Date.now())){
+        sendJson(res,403,{error:'انتهت مدة الوصول إلى باقة PMP'});return null
+      }
     }
     return u;
   }

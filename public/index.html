@@ -2726,6 +2726,21 @@ async function loadContent() {
 }
 
 const lessonRequests = new Map();
+const progressRequests = new Map();
+function loadProgressFor(pid) {
+  const u=me(), token=API.token;
+  if (!API.live || !token || !u || !owns(pid) || progressRequests.get(pid)===token) return;
+  progressRequests.set(pid, token);
+  api('/progress/' + encodeURIComponent(pid)).then(data => {
+    if (DB.session!==u.id || API.token!==token) return;
+    DB.progress[u.id] = DB.progress[u.id] || {};
+    const local=DB.progress[u.id][pid] || {};
+    if ((local.updatedAt || 0) <= (data.updatedAt || 0)) {
+      DB.progress[u.id][pid] = { ...local, ...data };
+      if (ROUTE==='learn/'+pid || ROUTE==='pkg/'+pid) render();
+    }
+  }).catch(() => progressRequests.delete(pid));
+}
 function loadLessonsFor(pid) {
   if (!API.live || !pid || Object.hasOwn(window.LESSONS, pid)) return;
   if (lessonRequests.has(pid)) return;
@@ -2813,7 +2828,7 @@ const me = () => DB.users.find(u => u.id === DB.session) || null;
 const isAdmin = () => { const u = me(); return u && u.role === 'admin'; };
 const course = id => window.COURSES.find(c => c.id === id);
 const pack = id => window.PACKAGES.find(p => p.id === id);
-const owns = pid => { const u = me(); return !!(u && u.packages.some(p => p.id === pid)); };
+const owns = pid => { const u = me(); return !!(u && u.packages.some(p => p.id === pid && (!p.expires || +p.expires > Date.now()))); };
 
 /* ═══ التقدّم ═══ */
 function prog(pid) {
@@ -3001,7 +3016,7 @@ function go(r) {
 function render() {
   const V = window.VIEWS;
   const [head, arg] = ROUTE.split('/');
-  if (head === 'pkg' || head === 'learn') loadLessonsFor(arg);
+  if (head === 'pkg' || head === 'learn') { loadLessonsFor(arg); loadProgressFor(arg); }
   if (head === 'admin' && isAdmin()) loadLessonsFor(window.__vidPk || 'grcp-full');
   let html = '';
   if (head === 'home') html = V.home();
@@ -3101,7 +3116,7 @@ function openAuth(mode, after) {
               if (!u) { u = { ...d.user, packages: [] }; DB.users.push(u); }
               Object.assign(u, d.user);
               const me2 = await api('/me');
-              u.packages = me2.packages.map(p => ({ id: p.package_id, at: p.created, source: p.source }));
+              u.packages = me2.packages.map(p => ({ id: p.package_id, at: p.created, source: p.source, expires:p.expires }));
               DB.session = u.id; save(); closeModal();
               if (u.role === 'admin') await syncAdminData();
               toast(`أهلاً ${u.name.split(' ')[0]}`); after ? after() : go(u.role === 'admin' ? 'admin' : 'dash');
@@ -4968,6 +4983,10 @@ function downloadResource(pid, kind) {
 
 /* ═══════════ مختبر الأسئلة التفاعلي ═══════════ */
 function openPractice(pid, requested) {
+  if (A().live && window.UnifiedExam) {
+    window.UnifiedExam.open(pid, requested === 'game' ? 'practice' : (requested || 'practice'));
+    return;
+  }
   const p=A().pack(pid), c=p&&A().course(p.course); if(!p||!c)return;
   let bank=((window.QUESTION_BANK||{})[c.id]||[]).slice();
   if(requested==='game') bank=bank.filter(x=>x.type==='scenario');
@@ -5040,7 +5059,7 @@ function playLesson(pid, idx) {
 
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
-  if (/^pmp(?:-|$)/i.test(String(pid || ''))) {
+  if (eid === 'full' && /^pmp-(?:full|sim)(?:-|$)/i.test(String(pid || ''))) {
     window.location.href = '/pmp/';
     return;
   }
