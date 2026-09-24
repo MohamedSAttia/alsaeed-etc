@@ -2882,9 +2882,10 @@ function pct(pid) {
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
   const activityTotal = (p.activities || 0) ? (((window.LEARNING_DATA||{})[p.course]||{}).activities||[]).length : 0;
-  const total = ls.length + (p.quizzes || 0) + activityTotal;
+  const videos = ls.map((l,i) => ({l,i})).filter(x => x.l.vimeo);
+  const total = videos.length || (p.quizzes || 0) + activityTotal;
   if (!total) return 0;
-  const done = Object.values(pr.lessons).filter(Boolean).length +
+  const done = videos.length ? videos.filter(x => !!pr.lessons[x.i]).length :
                Object.values(pr.exams).filter(x => x && x.passed).length +
                Object.values(pr.activities || {}).filter(Boolean).length;
   return Math.min(100, Math.round(done / total * 100));
@@ -2894,9 +2895,8 @@ function certReady(pid) {
   if (!p.cert) return false;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
-  const lessonsOk = ls.length > 0 && ls.every((_, i) => pr.lessons[i]);
-  const finalOk = pr.exams && pr.exams.full && pr.exams.full.passed;
-  return lessonsOk && finalOk;
+  const videos = ls.map((l, i) => ({l,i})).filter(x => x.l.vimeo);
+  return videos.length > 0 && videos.every(x => pr.lessons[x.i]);
 }
 
 /* ═══ مقياس الجاهزية — العنصر المميّز ═══ */
@@ -4249,6 +4249,7 @@ function pkgTab(p, c, has) {
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
             : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
+      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((_, i) => !!pr.lessons[i]).length}/${ls.length} (${Math.round(ls.filter((_, i) => !!pr.lessons[i]).length / ls.length * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((_, i) => !!pr.lessons[i]).length / ls.length * 100)}%"></i></div></div>` : ''}
       ${Object.keys(byCh).map(ch => `<div class="ch-blk">
         <div class="ch-h"><b>${esc(window.biTitle ? window.biTitle(c.chapters[ch] || 'مقدّمة') : (c.chapters[ch] || 'مقدّمة'))}</b>
           <span>${byCh[ch].length} درساً</span></div>
@@ -4258,7 +4259,7 @@ function pkgTab(p, c, has) {
           <div class="ls-t">${esc(window.biTitle ? window.biTitle(l) : l.t)}</div>
           ${l.free && l.vimeo && !has ? '<span class="ls-free">مجاني</span>' : ''}
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
-          <div class="ls-d">${l.dur}</div>
+          <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
         </div>${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
       </div>`).join('')}`;
@@ -4343,15 +4344,13 @@ function pkgTab(p, c, has) {
     const ready = has && A().certReady(p.id);
     return `<div class="cert-prev">
         <div class="cert-seal">CERTIFIED<br>ALSAEED</div>
-        <h3>شهادة إتمام معتمدة</h3>
-        <p>تُصدَر باسمك ورقم تحقّق فريد فور إكمال المحتوى واجتياز الاختبار الشامل.
-          صالحة للإرفاق بملفك المهني وطلب اعتماد ساعات التطوير.</p>
+        <h3>Certificate of Completion</h3>
+        <p>Your certificate is issued in English with a unique verification number after you complete all videos.</p>
         ${ready
           ? '<button class="btn g lg" style="margin-top:18px" data-cert="' + p.id + '">أصدر شهادتي</button>'
-          : `<div class="cert-lock">🔒 تُفتح بعد إكمال الدروس واجتياز الاختبار الشامل</div>`}
+          : `<div class="cert-lock">🔒 تُفتح بعد إكمال مشاهدة جميع الفيديوهات</div>`}
       </div>
-      <div class="note info mt"><b>شروط الإصدار:</b> إكمال جميع الدروس ·
-        اجتياز الاختبار الشامل بـ 65% فأعلى · اكتمال بيانات حسابك.</div>`;
+      <div class="note info mt"><b>شروط الإصدار:</b> إكمال مشاهدة جميع فيديوهات الباقة · كتابة الاسم بالإنجليزية عند الإصدار.</div>`;
   }
   return '';
 }
@@ -4675,6 +4674,7 @@ function adminTab() {
         <button class="btn p" id="addLesson">＋ أضف درساً</button>
         <button class="btn o" id="addChapter">＋ أضف فصلاً</button>
         <button class="btn o" id="bulkVid">📋 لصق دفعة</button>
+        <button class="btn o" id="fillDurations">⏱ استكمال مدد الفيديوهات</button>
       </div>
 
       ${chapters.length ? chapters.map((ch, ci) => {
@@ -4687,6 +4687,7 @@ function adminTab() {
             <b contenteditable="true" data-chname="${ci}" style="outline:0;border-bottom:1px dashed transparent;padding:2px 4px"
               onfocus="this.style.borderBottomColor='var(--orange)'"
               onblur="this.style.borderBottomColor='transparent'">${esc(window.biTitle ? window.biTitle(ch) : ch)}</b>
+            <input data-chname-en="${ci}" dir="ltr" aria-label="Chapter title in English" placeholder="Chapter title in English" value="${esc(typeof ch === 'object' ? ch.en || '' : '')}" style="max-width:185px;padding:6px;border:1px solid var(--line);border-radius:8px">
             <span>${rows.length} درساً · ${rows.filter(r => r.vimeo).length} مرتبط · ${rows.reduce((n,r) => n + (r.quiz || []).length, 0) ? rows.reduce((n,r) => n + (r.quiz || []).length, 0) + ' سؤال تقييم' : 'لا توجد أسئلة تقييم'}</span>
             <button class="btn o sm" data-addto="${ci}">＋ درس هنا</button>
             <button class="btn o sm" data-delch="${ci}" title="حذف الفصل">🗑</button>
@@ -5252,19 +5253,27 @@ function runExam(pid, eid) {
 
 /* ═══════════ الشهادة ═══════════ */
 function issueCert(pid) {
-  const pkg=A().pack(pid); if(!pkg||!pkg.cert){A().toast('شهادة الحضور متاحة للباقة الكاملة فقط');return;}
-  if (A().live) {
-    A().api('/certificate/' + pid, { method: 'POST' })
-      .then(d => drawCert(pid, d.no, d.verify))
-      .catch(e => A().toast(e.message));
-    return;
-  }
-  drawCert(pid, 'AS-' + new Date().getFullYear() + '-' + Date.now().toString(36).toUpperCase().slice(0, 6), null);
+  const pkg=A().pack(pid);if(!pkg||!pkg.cert||!A().certReady(pid)){A().toast('أكمل مشاهدة جميع فيديوهات الباقة أولاً');return;}
+  A().modal(`<h3>Certificate name / الاسم على الشهادة</h3>
+    <p class="muted">اكتب اسمك بالأحرف الإنجليزية كما تريد ظهوره على الشهادة.</p>
+    <label class="f"><span>Full name in English</span><input id="certEnglishName" dir="ltr" autocomplete="name" maxlength="100" placeholder="Mohamed Ahmed"></label>
+    <div class="mdl-act"><button class="btn p" id="confirmCert">Issue certificate</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+    $('#confirmCert').onclick=async()=>{
+      const name=$('#certEnglishName').value.trim().replace(/\s+/g,' ');
+      if(!/^[A-Za-z][A-Za-z .'-]{2,99}$/.test(name)){A().toast('اكتب الاسم بالإنجليزية فقط');return;}
+      try{
+        if(A().live) await A().api('/progress/'+encodeURIComponent(pid),{method:'PUT',body:A().prog(pid)});
+        const result=A().live?await A().api('/certificate/'+pid,{method:'POST',body:{englishName:name}}):
+          {no:'AS-'+new Date().getFullYear()+'-'+Date.now().toString(36).toUpperCase().slice(0,6),verify:null,name};
+        A().closeModal();drawCert(pid,result.no,result.verify,result.name||name);
+      }catch(e){A().toast(e.message)}
+    };
+  });
 }
-function drawCert(pid, no, verify) {
+function drawCert(pid, no, verify, englishName) {
   const u = A().me(), p = A().pack(pid), c = A().course(p.course);
   const w = window.open('', '_blank');
-  w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>شهادة ${esc(u.name)}</title>
+  w.document.write(`<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Certificate ${esc(englishName)}</title>
     <style>@page{size:A4 landscape;margin:0}
     body{margin:0;font-family:'Tajawal','IBM Plex Sans Arabic',Tahoma,sans-serif;
       display:flex;align-items:center;justify-content:center;min-height:100vh;background:#EEE}
@@ -5290,19 +5299,18 @@ function drawCert(pid, no, verify) {
     </style><link rel="stylesheet" href="/v18-interface.css?v=18.0">
 </head><body><div class="c">
       <div class="seal">CERTIFIED<br>ALSAEED</div>
-      <h1>شهادة إتمام</h1>
-      <div class="sub">Certificate of Completion</div>
-      <div class="nm">${esc(u.name)}</div>
-      <div class="for">أتمّ بنجاح البرنامج التدريبي <b>${esc(p.ar)}</b><br>
-        (${code(c)} — ${esc(c.edition)}) بواقع <b>${c.hours} ساعة تدريبية</b>،
-        واجتاز الاختبار الشامل بنجاح.</div>
+      <h1>Certificate of Completion</h1>
+      <div class="sub">Alsaeed Education and Training</div>
+      <div class="nm">${esc(englishName)}</div>
+      <div class="for">Has successfully completed the training program <b>${esc(p.en || c.en || p.ar)}</b><br>
+        (${code(c)} — ${esc(c.edition)}) with <b>${c.hours} training hours</b>.</div>
       <div class="ft">
-        <div class="sig"><div class="l"></div><b>${esc(siteEnglish()?'Dr Mohamed Attia':B.founder)}</b><br><span>المؤسس والمدرّب المعتمد</span></div>
-        <div style="text-align:center"><b style="color:#14142B">رقم الشهادة</b><br>
+        <div class="sig"><div class="l"></div><b>${esc(siteEnglish()?'Dr Mohamed Attia':B.founder)}</b><br><span>Founder and Certified Trainer</span></div>
+        <div style="text-align:center"><b style="color:#14142B">Certificate number</b><br>
           <span style="font-family:monospace">${no}</span><br>
-          <span>${new Date().toLocaleDateString('ar-SA')}</span>
-          ${verify ? `<br><span style="font-size:.7rem">للتحقّق: ${esc(verify)}</span>` : ''}</div>
-        <div class="sig"><div class="l"></div><b>${esc(B.ar)}</b><br><span>للتعليم والتدريب والاستشارات</span></div>
+          <span>${new Date().toLocaleDateString('en-GB')}</span>
+          ${verify ? `<br><span style="font-size:.7rem">Verify: ${esc(verify)}</span>` : ''}</div>
+        <div class="sig"><div class="l"></div><b>${esc(B.en || 'Alsaeed')}</b><br><span>Education, Training & Consulting</span></div>
       </div>
     </div></body></html>`);
   w.document.close();
@@ -5631,7 +5639,8 @@ function bind() {
     $$('[data-lfree]').forEach(x => { if (ls[+x.dataset.lfree]) ls[+x.dataset.lfree].free = x.checked; });
     const chs = curCh();
     $$('[data-chname]').forEach(x => { const n = +x.dataset.chname;
-      if (chs[n] !== undefined) chs[n] = x.textContent.trim(); });
+      if (chs[n] !== undefined) chs[n] = { ar:x.textContent.trim(), en:typeof chs[n] === 'object' ? chs[n].en || '' : '' }; });
+    $$('[data-chname-en]').forEach(x => { const n=+x.dataset.chnameEn; if (chs[n] !== undefined) chs[n].en=x.value.trim(); });
   }
 
   $$('[data-vid],[data-ld]').forEach(x => x.onchange = harvest);
@@ -5652,7 +5661,16 @@ function bind() {
     if (durationInput) fillVimeoDuration(input, durationInput);
   }));
   $$('[data-lfree]').forEach(x => x.onchange = () => { harvest(); A().render(); });
-  $$('[data-chname]').forEach(x => x.onblur = harvest);
+  $$('[data-chname],[data-chname-en]').forEach(x => x.onchange = () => { harvest(); saveLessons(true); });
+  $$('[data-chname]').forEach(x => x.onblur = () => { harvest(); saveLessons(true); });
+  const fillDur=$('#fillDurations'); if(fillDur) fillDur.onclick=async()=>{
+    harvest(); fillDur.disabled=true; fillDur.textContent='جارٍ استكمال المدد…';
+    try { await saveLessons(false); const result=await A().api('/admin/lessons/'+encodeURIComponent(curPk())+'/fill-durations',{method:'POST'});
+      const rows=await A().api('/admin/lessons/'+encodeURIComponent(curPk()));
+      window.LESSONS[curPk()]=rows.map(l=>({ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||''}));
+      A().render(); A().toast('استُكملت '+result.updated+' مدة؛ تعذّر جلب '+result.unavailable+' من Vimeo');
+    } catch(e) { A().toast('تعذّر تحديث المدد: '+e.message); fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات'; }
+  };
   $$('[data-attach]').forEach(input => input.onchange = async () => {
     harvest(); input.disabled = true;
     try {
@@ -6183,7 +6201,7 @@ function saveLessons(notify) {
   if (A().live) {
     const snapshot = JSON.parse(JSON.stringify(ls));
     const chapters = (A().course(pk?.course)?.chapters || []).map(ch =>
-      typeof ch === 'string' ? ch : (window.biTitle ? window.biTitle(ch) : String(ch.ar || ch.en || '')));
+      typeof ch === 'string' ? ch : { ar:ch.ar || '', en:ch.en || '' });
     const pending = (lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
       await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
       if (pk?.course) await A().api('/admin/course-chapters/' + encodeURIComponent(pk.course), {

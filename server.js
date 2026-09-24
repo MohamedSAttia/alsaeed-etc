@@ -556,17 +556,23 @@ app.post('/api/certificate/:pkg', auth, (req, res) => {
   const pr = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
   const p = pr ? JSON.parse(pr.data) : {};
-  if (!(p.exams && p.exams.full && p.exams.full.passed))
-    return res.status(400).json({ error: 'يلزم اجتياز الاختبار الشامل أولاً' });
+  const total = db.prepare('SELECT COUNT(*) c FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').get(req.params.pkg).c;
+  const watched = db.prepare('SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').all(req.params.pkg);
+  if (!total || !watched.every(l => p.lessons?.[l.idx]))
+    return res.status(400).json({ error: 'يلزم إكمال مشاهدة جميع الفيديوهات أولاً' });
 
-  const ex = db.prepare('SELECT no FROM certificates WHERE user_id=? AND package_id=?')
+  const ex = db.prepare('SELECT no,name FROM certificates WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
-  if (ex) return res.json({ no: ex.no, verify: `${SITE}/verify/${ex.no}` });
+  if (ex) return res.json({ no: ex.no, name: ex.name, verify: `${SITE}/verify/${ex.no}` });
+
+  const englishName = String(req.body?.englishName || '').trim().replace(/\s+/g, ' ');
+  if (!/^[A-Za-z][A-Za-z .'-]{2,99}$/.test(englishName))
+    return res.status(400).json({ error: 'اكتب اسمك بالإنجليزية كما تريد ظهوره في الشهادة' });
 
   const no = 'AS-' + new Date().getFullYear() + '-' + uid().toUpperCase().slice(0, 6);
   db.prepare('INSERT INTO certificates (no,user_id,package_id,name,course,hours,issued) VALUES (?,?,?,?,?,?,?)')
-    .run(no, req.user.id, req.params.pkg, req.user.name, pkg.ar || '', pkg.hours || 0, Date.now());
-  res.json({ no, verify: `${SITE}/verify/${no}` });
+    .run(no, req.user.id, req.params.pkg, englishName, pkg.en || pkg.ar || '', pkg.hours || 0, Date.now());
+  res.json({ no, name:englishName, verify: `${SITE}/verify/${no}` });
 });
 
 /* التحقّق العام — يجعل الشهادة ذات قيمة حقيقية */
@@ -596,13 +602,14 @@ function progressSummary(userId, packageId, enrollmentCreated) {
   const row = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
   let data = { lessons:{}, weeks:{}, exams:{} };
   if (row) { try { data = JSON.parse(row.data); } catch (e) {} }
-  const lessonTotal = db.prepare('SELECT COUNT(*) c FROM lessons WHERE package_id=?').get(packageId).c || 0;
-  const lessonDone = Object.values(data.lessons || {}).filter(Boolean).length;
+  const videoRows = db.prepare("SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
+  const lessonTotal = videoRows.length;
+  const lessonDone = videoRows.filter(l => data.lessons?.[l.idx]).length;
   const exams = Object.values(data.exams || {}).filter(Boolean);
   const scores = exams.map(x => Number(x.score)).filter(Number.isFinite);
   const avgExam = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
   const weeksDone = Object.values(data.weeks || {}).filter(Boolean).length;
-  let progress = lessonTotal ? Math.round(Math.min(1, lessonDone/lessonTotal)*85 + Math.min(15, exams.filter(x=>x.passed).length*5)) : Math.min(100, weeksDone*10 + exams.filter(x=>x.passed).length*10);
+  let progress = lessonTotal ? Math.round(Math.min(1, lessonDone/lessonTotal)*100) : Math.min(100, weeksDone*10 + exams.filter(x=>x.passed).length*10);
   return { progress, avgExam:Math.round(avgExam*10)/10, lessonDone, lessonTotal, examsAttempted:exams.length, lastActivity:(row&&row.updated)||enrollmentCreated||0 };
 }
 
@@ -841,6 +848,22 @@ async function vimeoDuration(id) {
       ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : '';
   } catch { return ''; } finally { clearTimeout(timer); }
 }
+app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res) => {
+  const missing = db.prepare("SELECT idx,vimeo FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>'' AND (TRIM(COALESCE(duration,''))='' OR duration='00:00')")
+    .all(req.params.pkg);
+  let updated = 0;
+  for (const row of missing) {
+    const id = String(row.vimeo).match(/^\d{6,12}$/)?.[0];
+    if (!id) continue;
+    const duration = await vimeoDuration(id);
+    if (duration) {
+      db.prepare("UPDATE lessons SET duration=? WHERE package_id=? AND idx=? AND (TRIM(COALESCE(duration,''))='' OR duration='00:00')")
+        .run(duration, req.params.pkg, row.idx);
+      updated++;
+    }
+  }
+  res.json({ updated, unavailable:missing.length-updated });
+});
 app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
   const list = req.body || [];
   if (!Array.isArray(list)) return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
@@ -856,7 +879,8 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
     if (!id) continue;
     lesson.vimeo = id;
     const previous = existing.find(row => row.idx === i && row.vimeo === id);
-    if (!previous && (!lesson.dur || lesson.dur === '00:00')) lesson.dur = await vimeoDuration(id) || lesson.dur || '';
+    if ((!lesson.dur || lesson.dur === '00:00') && previous?.duration) lesson.dur = previous.duration;
+    if (!lesson.dur || lesson.dur === '00:00') lesson.dur = await vimeoDuration(id) || '';
   }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
   const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz)
@@ -953,7 +977,9 @@ app.get('/api/catalog-availability', (req, res) => {
 app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
   const chapters = req.body?.chapters;
   if (!Array.isArray(chapters) || chapters.length > 100 || chapters.some(ch =>
-    typeof ch !== 'string' || !ch.trim() || ch.length > 200))
+    !(typeof ch === 'string' && ch.trim() && ch.length <= 200 ||
+      ch && typeof ch === 'object' && typeof ch.ar === 'string' && ch.ar.trim() && ch.ar.length <= 200 &&
+      typeof ch.en === 'string' && ch.en.length <= 200)))
     return res.status(400).json({ error: 'أسماء الفصول غير صحيحة' });
   const courses = JSON.parse(setting('content_courses') || '[]');
   const course = courses.find(c => c.id === req.params.course);

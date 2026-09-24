@@ -87,6 +87,54 @@ window.buildCover = function (opts) {
    ② المشغّل التفاعلي
    ═══════════════════════════════════════════ */
 let V = null;
+let player = null;
+let playerLoader = null;
+function loadPlayer() {
+  if (window.Vimeo?.Player) return Promise.resolve(window.Vimeo.Player);
+  if (!playerLoader) playerLoader = new Promise((resolve, reject) => {
+    const script=document.createElement('script'); script.src='https://player.vimeo.com/api/player.js';
+    script.onload=()=>resolve(window.Vimeo.Player); script.onerror=()=>reject(Error('Vimeo unavailable'));
+    document.head.appendChild(script);
+  }).catch(e=>{playerLoader=null;throw e});
+  return playerLoader;
+}
+function nextVideo() {
+  if (!V) return;
+  const lessons=window.LESSONS[V.pkgId]||[];
+  const index=lessons.findIndex((item,i)=>i>V.lessonIdx && item.vimeo && (window.APP.owns(V.pkgId)||item.free));
+  if(index>=0) selectVideo(index);
+}
+function selectVideo(index) {
+  if (!V) return;
+  if(player){player.destroy().catch(()=>{});player=null;}
+  V.lessonIdx=index;V.lesson=(window.LESSONS[V.pkgId]||[])[index];V.startNext=true;
+  V.cues=buildCues(V.lesson,index);V.done={};V.answered=0;V.correct=0;V.cue=null;
+  V.dur=durSec(V.lesson.dur||V.lesson.duration);V.t=0;
+  V.discussion=[];V.discussionStatus='loading';V.discussionError='';V.replying=null;
+  render();loadDiscussion();
+}
+function connectPlayer(){
+  if(!V?.lesson?.vimeo)return;
+  const frame=$('#ivFrame'),target=V,index=V.lessonIdx;
+  loadPlayer().then(Player=>{
+    if(!frame.isConnected||V!==target||V.lessonIdx!==index)return;
+    const instance=new Player(frame);player=instance;
+    instance.getDuration().then(seconds=>{
+      if(V!==target||V.lessonIdx!==index||player!==instance||!seconds)return;
+      V.dur=seconds;const display=fmtT(Math.floor(seconds));
+      const label=$('#ivDuration');if(label)label.textContent=' · '+display;
+      const listing=$(`[data-go="${index}"] .d`);if(listing)listing.textContent=display;
+    }).catch(()=>{});
+    instance.on('timeupdate',e=>{if(V===target&&V.lessonIdx===index)V.t=e.seconds});
+    instance.on('ended',()=>{
+      if(V!==target||V.lessonIdx!==index)return;
+      const pr=window.APP.prog(V.pkgId);pr.lessons[index]=true;window.APP.save();window.APP.render();
+      if(V.autoNext)nextVideo();
+      else window.APP.toast(T('اكتمل الفيديو. شغّل التالي عندما تريد.','Video completed. Play the next when ready.'));
+    });
+  }).catch(()=>{});
+}
+
 
 /* نقاط التفاعل الافتراضية داخل الفيديو */
 function buildCues(lesson, idx) {
@@ -130,6 +178,7 @@ window.InteractiveVideo = {
       cues: buildCues(lesson, lessonIdx),
       done: {}, t: 0, dur: durSec(lesson.dur || lesson.duration),
       answered: 0, correct: 0, paused: false, cue: null,
+      autoNext: localStorage.getItem('alsaeed_auto_next') !== 'false',
       discussion: [], discussionStatus: 'loading', discussionError: '', canReply: false, replying: null
     };
     document.body.classList.add('iv-lock');
@@ -141,6 +190,7 @@ window.InteractiveVideo = {
 };
 
 function close() {
+  if(player){player.destroy().catch(()=>{});player=null;}
   V = null;
   document.body.classList.remove('iv-lock');
   const e = $('#iv'); if (e) e.remove();
@@ -153,8 +203,8 @@ function render() {
   const pct = V.dur ? Math.min(100, V.t / V.dur * 100) : 0;
   $('#iv').innerHTML = `
     <div class="iv-bar">
-      <div class="iv-t"><b>${esc(l.t || l.title || '')}</b>
-        <span>${T('درس', 'Lesson')} ${V.lessonIdx + 1}${l.dur ? ' · ' + esc(l.dur) : ''}</span></div>
+      <div class="iv-t"><b>${esc(window.biTitle ? window.biTitle(l) : (l.t || l.title || ''))}</b>
+        <span>${T('درس', 'Lesson')} ${V.lessonIdx + 1}<span id="ivDuration">${l.dur ? ' · ' + esc(l.dur) : ''}</span></span></div>
       <div class="iv-stat">
         ${V.cues.length ? `<span>${T('أسئلة الفاصل', 'Checkpoints')}:
           <b>${V.answered}</b>/${V.cues.length}</span>` : ''}
@@ -166,7 +216,7 @@ function render() {
       <div class="iv-stage">
         <div class="iv-player">
           ${vid
-            ? `<iframe id="ivFrame" src="https://player.vimeo.com/video/${esc(vid)}?title=0&byline=0&portrait=0"
+            ? `<iframe id="ivFrame" src="https://player.vimeo.com/video/${esc(vid)}?title=0&byline=0&portrait=0${V.startNext?'&autoplay=1':''}"
                  allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
             : `<div class="iv-ph"><b>🎬 ${T('الفيديو لم يُربط بعد', 'Video not linked yet')}</b>
                  <p>${T('ارفعه على Vimeo وأضف رقمه من لوحة الإدارة.',
@@ -188,6 +238,9 @@ function render() {
 
       <aside class="iv-side">
         <h4>${T('محتوى الدرس', 'Lesson content')}</h4>
+        <label style="display:block;margin-bottom:10px"><input type="checkbox" id="ivAutoNext" ${V.autoNext?'checked':''}> ${T('تشغيل الفيديو التالي تلقائياً','Automatically play next video')}</label>
+        <button class="btn o" id="ivPause" type="button">${T('إيقاف الفيديو مؤقتاً','Pause video')}</button>
+        <button class="btn o" id="ivNext" type="button">${T('الفيديو التالي','Next video')} →</button>
         ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
         <div class="iv-notes">
           ${l.notes ? esc(l.notes).replace(/\n/g, '<br>')
@@ -201,13 +254,14 @@ function render() {
             .filter(o => (o.x.ch || 0) === (l.ch || 0))
             .map(o => `<button class="iv-li${o.i === V.lessonIdx ? ' cur' : ''}" data-go="${o.i}">
               <span class="n">${o.i + 1}</span>
-              <span class="t">${esc(o.x.t || o.x.title || '')}</span>
+              <span class="t">${window.APP.prog(V.pkgId).lessons[o.i]?'✓ ':'○ '}${esc(window.biTitle ? window.biTitle(o.x) : (o.x.t || o.x.title || ''))}</span>
               <span class="d">${esc(o.x.dur || '')}</span></button>`).join('')}
         </div>
         <div class="iv-discussion" id="ivDiscussion"></div>
       </aside>
     </div>`;
   bind();
+  connectPlayer();
   renderDiscussion();
 }
 
@@ -293,20 +347,14 @@ function openCue(i) {
 
 function bind() {
   const c = $('#ivClose'); if (c) c.onclick = close;
+  const auto=$('#ivAutoNext');if(auto)auto.onchange=()=>{V.autoNext=auto.checked;localStorage.setItem('alsaeed_auto_next',String(auto.checked));};
+  const pause=$('#ivPause');if(pause)pause.onclick=async()=>{if(!player)return;try{const stopped=await player.getPaused();if(stopped){await player.play();pause.textContent=T('إيقاف الفيديو مؤقتاً','Pause video');}else{await player.pause();pause.textContent=T('استئناف الفيديو','Resume video');}}catch(e){}};
+  const next=$('#ivNext');if(next)next.onclick=nextVideo;
   const quiz = $('#ivLessonQuiz'); if (quiz) quiz.onclick = () => {
     const pkg = V.pkgId, idx = V.lessonIdx;
     close(); if (window.runLessonQuiz) window.runLessonQuiz(pkg, 'lesson' + idx);
   };
-  $$('[data-go]').forEach(b => b.onclick = () => {
-    V.lessonIdx = +b.dataset.go;
-    V.lesson = (window.LESSONS[V.pkgId] || [])[V.lessonIdx];
-    V.cues = buildCues(V.lesson, V.lessonIdx);
-    V.done = {}; V.answered = 0; V.correct = 0; V.cue = null;
-    V.dur = durSec(V.lesson.dur || V.lesson.duration); V.t = 0;
-    V.discussion=[];V.discussionStatus='loading';V.discussionError='';V.replying=null;
-    render();
-    loadDiscussion();
-  });
+  $$('[data-go]').forEach(b => b.onclick = () => selectVideo(+b.dataset.go));
   $$('[data-cue]').forEach(b => b.onclick = () => openCue(+b.dataset.cue));
   $$('[data-cueo]').forEach(b => b.onclick = () => {
     if (V.cue.revealed) return;
