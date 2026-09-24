@@ -835,14 +835,14 @@ app.get('/api/content', (req, res) => {
 /* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
 app.get('/api/catalog-availability', (req, res) => {
   const packages = JSON.parse(setting('content_packages') || '[]');
-  const videos = Object.fromEntries(db.prepare("SELECT package_id, duration FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> ''")
+  const videos = db.prepare("SELECT package_id, duration FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> ''")
     .all().reduce((map, row) => {
       const entry = map[row.package_id] ||= { count: 0, minutes: 0 };
       entry.count++;
       const parts = String(row.duration || '').split(':').map(Number);
       if (parts.length === 2 && parts.every(Number.isFinite)) entry.minutes += parts[0] + parts[1] / 60;
       return map;
-    }, {}));
+    }, {});
   const hasQuestions = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='questions'").get();
   const questions = hasQuestions ? Object.fromEntries(db.prepare('SELECT package_id, COUNT(*) AS n FROM questions WHERE active=1 GROUP BY package_id')
     .all().map(row => [row.package_id, row.n])) : {};
