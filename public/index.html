@@ -2756,7 +2756,7 @@ function loadAdminLessons(pid) {
     if (API.token !== token) return;
     window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
       t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-      free:!!l.free, notes:l.notes || '', notes_en:l.notes_en || '' }));
+      free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
     adminLessonsReady.add(pid);
     if (ROUTE.startsWith('admin')) render();
   }).catch(e => toast('تعذر تحميل روابط الفيديو: ' + e.message))
@@ -2789,7 +2789,7 @@ function loadLessonsFor(pid) {
       if (requestedToken !== API.token) return;
       window.LESSONS[pid] = ls.map(l => ({ ch:l.chapter || 0, t:l.title || '',
         t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-        free:!!l.free, notes:l.notes || '', notes_en:l.notes_en || '' }));
+        free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
       if (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || ROUTE.startsWith('admin')) render();
     }).catch(() => {}).finally(() => lessonRequests.delete(pid));
   lessonRequests.set(pid, request);
@@ -3264,6 +3264,7 @@ async function boot() {
 
 return { boot, go, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
   loadAdminLessons, adminLessonsReady: pid => adminLessonsReady.has(pid),
+  get token() { return API.token; },
   me, isAdmin, owns, course, pack, prog, pct, certReady, studyPlan, examSet,
   readiness, BAND, overallBand, esc, money, save, syncAdminData,
   get adminOverview() { return API.adminOverview; },
@@ -4255,7 +4256,8 @@ function pkgTab(p, c, has) {
           ${l.free && l.vimeo && !has ? '<span class="ls-free">مجاني</span>' : ''}
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${l.dur}</div>
-        </div>`).join('')}
+          ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
+        </div>${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
       </div>`).join('')}`;
   }
 
@@ -4714,6 +4716,10 @@ function adminTab() {
                 <button class="btn o sm" data-lup="${l.i}" title="لأعلى">▲</button>
                 <button class="btn o sm" data-ldown="${l.i}" title="لأسفل">▼</button>
                 <button class="btn o sm" data-ldel="${l.i}" title="حذف">🗑</button>
+              </td></tr><tr><td></td><td colspan="5">
+                <label class="btn o sm">📎 أرفق PDF أو Word أو Excel
+                  <input type="file" data-attach="${l.i}" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple hidden></label>
+                ${(l.files || []).map(f => `<span class="chip">${esc(f.name)} <button type="button" data-remove-file="${l.i}" data-file-id="${esc(f.id)}" title="إزالة المرفق">×</button></span>`).join('')}
               </td></tr>`).join('')}
             </tbody></table></div>`
           : `<div style="padding:20px;text-align:center;color:var(--dim);font-size:.85rem">
@@ -5351,6 +5357,17 @@ function bind() {
   $$('[data-lesson]').forEach(el => el.onclick = () => window.InteractiveVideo
     ? window.InteractiveVideo.open(el.dataset.pk, +el.dataset.lesson)
     : playLesson(el.dataset.pk, +el.dataset.lesson));
+  $$('[data-lesson-file]').forEach(button => button.onclick = async e => {
+    e.stopPropagation();
+    try {
+      const response = await fetch('/api/lesson-files/' + encodeURIComponent(button.dataset.lessonFile), {
+        headers: { Authorization:'Bearer ' + A().token } });
+      if (!response.ok) throw new Error('تعذر تنزيل الملف؛ تحقق من الاشتراك');
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a'); link.href = url; link.download = button.dataset.fileName;
+      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) { A().toast(err.message); }
+  });
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
   $$('[data-unified-exam]').forEach(b => b.onclick = () => runExam(b.dataset.unifiedExam, b.dataset.examCode || 'full'));
   $$('[data-pmp-hub]').forEach(b => b.onclick = () => { window.location.href = '/pmp/'; });
@@ -5448,6 +5465,20 @@ function bind() {
 
   const curPk = () => window.__vidPk || 'grcp-full';
   const curLs = () => (window.LESSONS[curPk()] = window.LESSONS[curPk()] || []);
+  async function uploadFiles(fileList) {
+    const uploaded = [];
+    for (const file of fileList) {
+      if (!/\.(pdf|doc|docx|xls|xlsx)$/i.test(file.name) || file.size > 10 * 1024 * 1024)
+        throw new Error('اختر ملف PDF أو Word أو Excel بحجم لا يتجاوز 10 ميجابايت');
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = '';
+      for (let i = 0; i < bytes.length; i += 8192)
+        binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+      uploaded.push(await A().api('/admin/lesson-files/' + encodeURIComponent(curPk()), {
+        method:'POST', body:{ name:file.name, data:btoa(binary) } }));
+    }
+    return uploaded;
+  }
   const curCh = () => { const p = A().pack(curPk()); const c = p && A().course(p.course);
     if (c) { c.chapters = c.chapters || []; return c.chapters; } return []; };
   function videoId(value) {
@@ -5497,6 +5528,20 @@ function bind() {
   }));
   $$('[data-lfree]').forEach(x => x.onchange = () => { harvest(); A().render(); });
   $$('[data-chname]').forEach(x => x.onblur = harvest);
+  $$('[data-attach]').forEach(input => input.onchange = async () => {
+    harvest(); input.disabled = true;
+    try {
+      const files = await uploadFiles(input.files);
+      const lesson = curLs()[+input.dataset.attach];
+      lesson.files = [...(lesson.files || []), ...files];
+      await saveLessons(true); A().render();
+    } catch (e) { A().toast('تعذر إرفاق الملف: ' + e.message); input.disabled = false; }
+  });
+  $$('[data-remove-file]').forEach(button => button.onclick = () => {
+    harvest(); const lesson = curLs()[+button.dataset.removeFile];
+    lesson.files = (lesson.files || []).filter(f => f.id !== button.dataset.fileId);
+    saveLessons(true); A().render();
+  });
 
   /* إضافة درس */
   const addL = () => addLessonAt(0);
@@ -5522,24 +5567,33 @@ function bind() {
       </div>
       <label class="f"><span>رقم فيديو Vimeo <small>اختياري — يمكن إضافته لاحقاً</small></span>
         <input class="en" id="nlV" placeholder="912345678 أو الصق الرابط كاملاً"></label>
+      <label class="f"><span>مرفقات الدرس (PDF أو Word أو Excel، حتى 10 ميجابايت لكل ملف)</span>
+        <input type="file" id="nlFiles" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple></label>
       <label style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
         <input type="checkbox" id="nlF"><span style="font-size:.88rem">درس مجاني (يُشاهده غير المشترك)</span></label>
       <div class="mdl-act">
         <button class="btn p" id="nlSave">أضف الدرس</button>
         <button class="btn o" id="nlSaveMore">أضف واستمر</button>
         <button class="btn o" data-close>إلغاء</button></div>`, () => {
-      const doAdd = keep => {
+      const doAdd = async keep => {
         const t = $('#nlT').value.trim();
         if (!t) { A().toast('اكتب عنوان الدرس'); return; }
         if (videoId($('#nlV').value) === null) { A().toast('رابط Vimeo غير صحيح'); return; }
+        const button = $('#nlSave'); button.disabled = true;
+        if ($('#nlSaveMore')) $('#nlSaveMore').disabled = true;
+        let files;
+        try { files = await uploadFiles($('#nlFiles').files); }
+        catch (e) { A().toast('تعذر رفع المرفق: ' + e.message); button.disabled = false; $('#nlSaveMore').disabled = false; return; }
         curLs().push({ ch: +$('#nlCh').value, t,
           t_en: (($('#nlTen') || {}).value || '').trim(),
           dur: $('#nlD').value.trim(),
           vimeo: videoId($('#nlV').value),
-          free: $('#nlF').checked });
-        saveLessons();
+          free: $('#nlF').checked, files });
+        const saved = await saveLessons(true);
+        if (saved === false) { button.disabled = false; $('#nlSaveMore').disabled = false; return; }
         if (keep) { $('#nlT').value = ''; if ($('#nlTen')) $('#nlTen').value = '';
-          $('#nlD').value = ''; $('#nlV').value = '';
+          $('#nlD').value = ''; $('#nlV').value = ''; $('#nlFiles').value = '';
+          button.disabled = false; $('#nlSaveMore').disabled = false;
           $('#nlT').focus(); A().toast('✅ أُضيف — أكمل التالي'); }
         else { A().closeModal(); A().render(); A().toast('✅ أُضيف الدرس'); }
       };
@@ -5898,7 +5952,7 @@ function editPromo(codeValue) {
 const lessonSaveQueues = new Map();
 function saveLessons(notify) {
   const pid = window.__vidPk || 'grcp-full';
-  if (A().live && !adminLessonsReady.has(pid)) {
+  if (A().live && !A().adminLessonsReady(pid)) {
     A().toast('انتظر تحميل الدروس وروابط الفيديو من الخادم قبل الحفظ');
     return;
   }
@@ -5916,12 +5970,14 @@ function saveLessons(notify) {
       if (window.LESSONS[pid] === ls && lessonSaveQueues.get(pid) === pending) {
         const rows = await A().api('/admin/lessons/' + encodeURIComponent(pid));
         window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
-          dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, notes:l.notes || '', notes_en:l.notes_en || '' }));
+          dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
         A().render();
       }
         if (notify) A().toast('✅ حُفظ على الخادم — ' + ls.length + ' درساً');
-    }).catch(e => A().toast('تعذّر الحفظ: ' + e.message));
+      return true;
+    }).catch(e => { A().toast('تعذّر الحفظ: ' + e.message); return false; });
     lessonSaveQueues.set(pid, pending);
+    return pending;
   } else if (notify) {
     A().toast('✅ حُفظ محلياً — اربط الخادم ليُحفظ للجميع');
   }

@@ -55,6 +55,10 @@ CREATE TABLE IF NOT EXISTS lessons (
   notes TEXT, notes_en TEXT,
   PRIMARY KEY (package_id, idx)
 );
+CREATE TABLE IF NOT EXISTS lesson_files (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL, name TEXT NOT NULL,
+  mime TEXT NOT NULL, bytes BLOB NOT NULL, created INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS certificates (
   no TEXT PRIMARY KEY, user_id TEXT NOT NULL, package_id TEXT NOT NULL,
   name TEXT NOT NULL, course TEXT, hours INTEGER, issued INTEGER NOT NULL
@@ -64,6 +68,8 @@ CREATE TABLE IF NOT EXISTS messages (
   id TEXT PRIMARY KEY, name TEXT, email TEXT, subject TEXT, body TEXT, created INTEGER
 );
 `);
+if (!db.pragma('table_info(lessons)').some(col => col.name === 'files'))
+  db.exec("ALTER TABLE lessons ADD COLUMN files TEXT DEFAULT '[]'");
 
 /* مشرف أول — لا توجد كلمة مرور افتراضية داخل الكود */
 const admins = db.prepare("SELECT COUNT(*) c FROM users WHERE role='admin'").get();
@@ -86,7 +92,7 @@ function uid() { return crypto.randomBytes(9).toString('base64url'); }
 /* ═══════════ الحماية ═══════════ */
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || true, credentials: true }));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '16mb' }));
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 30,
   message: { error: 'محاولات كثيرة — انتظر قليلاً' } }));
 app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 120 }));
@@ -221,7 +227,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
   const variant = publishedPackages.find(p => p.id === req.params.pkg);
   const source = variant?.sourcePackageId && publishedPackages.some(p => p.id === variant.sourcePackageId)
     ? variant.sourcePackageId : req.params.pkg;
-  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en FROM lessons WHERE package_id=? ORDER BY idx')
+  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files FROM lessons WHERE package_id=? ORDER BY idx')
     .all(source);
   let enrolled = false;
   const h = req.headers.authorization || '';
@@ -234,7 +240,26 @@ app.get('/api/lessons/:pkg', (req, res) => {
     } catch (e) {}
   }
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */
-  res.json(rows.map(r => ({ ...r, vimeo: (enrolled || r.free) ? r.vimeo : null })));
+  res.json(rows.map(r => ({ ...r, files: (enrolled || r.free) ? JSON.parse(r.files || '[]') : [],
+    vimeo: (enrolled || r.free) ? r.vimeo : null })));
+});
+app.get('/api/lesson-files/:id', auth, (req, res) => {
+  const file = db.prepare('SELECT * FROM lesson_files WHERE id=?').get(req.params.id);
+  if (!file) return res.status(404).json({ error: 'الملف غير موجود' });
+  const published = JSON.parse(setting('content_packages') || '[]');
+  const allowed = db.prepare('SELECT package_id,free FROM lessons WHERE package_id=? AND files LIKE ?')
+    .all(file.package_id, '%' + file.id + '%').some(lesson => {
+      if (req.user.role === 'admin' || lesson.free) return true;
+      const ids = [lesson.package_id, ...published.filter(p => p.sourcePackageId === lesson.package_id).map(p => p.id)];
+      return ids.some(id => {
+        const sub = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(req.user.id, id);
+        return sub && (!sub.expires || sub.expires > Date.now());
+      });
+    });
+  if (!allowed) return res.status(403).json({ error: 'لا يوجد اشتراك فعّال لهذا الملف' });
+  res.set({ 'Content-Type': file.mime, 'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,
+    'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' });
+  res.send(file.bytes);
 });
 
 /* ═══════════ الدفع — التحقّق يتمّ هنا لا في المتصفح ═══════════ */
@@ -684,9 +709,30 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
     FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 500`).all());
 });
 app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
-  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en
+  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
-  res.json(rows.map(row => ({ ...row, free: !!row.free })));
+  res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), free: !!row.free })));
+});
+app.post('/api/admin/lesson-files/:pkg', auth, admin, (req, res) => {
+  const { name, data } = req.body || {};
+  const ext = String(name || '').toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/)?.[1];
+  if (!ext || !/^[A-Za-z0-9+/]+={0,2}$/.test(String(data || '')))
+    return res.status(400).json({ error: 'يُسمح فقط بملفات PDF وWord وExcel' });
+  const bytes = Buffer.from(data, 'base64');
+  if (!bytes.length || bytes.length > 10 * 1024 * 1024)
+    return res.status(400).json({ error: 'الحد الأقصى للملف 10 ميجابايت' });
+  if (ext === 'pdf' && bytes.subarray(0, 5).toString() !== '%PDF-')
+    return res.status(400).json({ error: 'محتوى PDF غير صحيح' });
+  if (['docx', 'xlsx'].includes(ext) && bytes.subarray(0, 2).toString() !== 'PK')
+    return res.status(400).json({ error: 'محتوى الملف غير صحيح' });
+  if (['doc', 'xls'].includes(ext) && bytes.subarray(0, 8).toString('hex') !== 'd0cf11e0a1b11ae1')
+    return res.status(400).json({ error: 'محتوى الملف غير صحيح' });
+  const mime = { pdf:'application/pdf', doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls:'application/vnd.ms-excel', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }[ext];
+  const id = uid();
+  db.prepare('INSERT INTO lesson_files (id,package_id,name,mime,bytes,created) VALUES (?,?,?,?,?,?)')
+    .run(id, req.params.pkg, path.basename(name).slice(0, 180), mime, bytes, Date.now());
+  res.json({ id, name: path.basename(name).slice(0, 180) });
 });
 app.get('/api/admin/vimeo/:id', auth, admin, async (req, res) => {
   const id = String(req.params.id || '').replace(/\D/g, '');
@@ -733,14 +779,15 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
     if (!previous && (!lesson.dur || lesson.dur === '00:00')) lesson.dur = await vimeoDuration(id) || lesson.dur || '';
   }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en)
-    VALUES (?,?,?,?,?,?,?,?,?,?)`);
+  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)`);
   db.transaction(() => {
     del.run(req.params.pkg);
     list.forEach((l, i) => ins.run(req.params.pkg, i,
       l.t || l.title || '', l.t_en || l.title_en || '',
       l.ch || 0, l.dur || l.duration || '', l.vimeo || '', l.free ? 1 : 0,
-      l.notes || '', l.notes_en || ''));
+      l.notes || '', l.notes_en || '', JSON.stringify((l.files || []).filter(f =>
+        f && db.prepare('SELECT 1 FROM lesson_files WHERE id=? AND package_id=?').get(f.id, req.params.pkg)))));
   })();
   res.json({ ok: true, count: list.length });
 });
