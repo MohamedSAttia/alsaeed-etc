@@ -2230,14 +2230,14 @@ window.PKG_TYPES = [
 
 /* ═══ مكوّنات المحتوى — تظهر في كل باقة ═══ */
 window.CONTENT_KINDS = [
-  { k:'video',    ar:'فيديوهات شرح',        ic:'🎬', desc:'محتوى مصوّر بجودة عالية مقسّم على الفصول' },
-  { k:'material', ar:'محتوى تعليمي',        ic:'📖', desc:'شرح نصّي مفصّل بالعربية والإنجليزية' },
-  { k:'download', ar:'ملفات قابلة للتحميل', ic:'⬇️', desc:'حقائب PDF وقوالب تُحمَّل وتبقى معك' },
-  { k:'flash',    ar:'بطاقات مراجعة',       ic:'🃏', desc:'Flash Cards للمصطلحات والصيغ بالوجهين' },
-  { k:'activity', ar:'أنشطة تطبيقية',       ic:'✍️', desc:'تمارين على حالات واقعية بتغذية راجعة' },
-  { k:'game',     ar:'ألعاب إدارية',        ic:'🎲', desc:'محاكاة قرارات إدارية تفاعلية' },
-  { k:'quiz',     ar:'اختبارات قصيرة',      ic:'✅', desc:'أسئلة بعد كل مجموعة فيديوهات' },
-  { k:'exam',     ar:'اختبارات محاكاة',     ic:'🎯', desc:'اختبارات كاملة بمؤقّت الاختبار الرسمي' }
+  { k:'video',    ar:'فيديوهات شرح', en:'Video lessons', ic:'🎬', desc:'محتوى مصوّر بجودة عالية مقسّم على الفصول', desc_en:'Video lessons organized by chapter' },
+  { k:'material', ar:'محتوى تعليمي', en:'Learning materials', ic:'📖', desc:'شرح نصّي مفصّل بالعربية والإنجليزية', desc_en:'Structured written learning materials' },
+  { k:'download', ar:'ملفات قابلة للتحميل', en:'Downloads', ic:'⬇️', desc:'حقائب PDF وقوالب تُحمَّل وتبقى معك', desc_en:'Downloadable guides and templates' },
+  { k:'flash',    ar:'بطاقات مراجعة', en:'Flashcards', ic:'🃏', desc:'Flash Cards للمصطلحات والصيغ بالوجهين', desc_en:'Cards to review terms and formulas' },
+  { k:'activity', ar:'أنشطة تطبيقية', en:'Practical activities', ic:'✍️', desc:'تمارين على حالات واقعية بتغذية راجعة', desc_en:'Exercises based on realistic situations' },
+  { k:'game',     ar:'ألعاب إدارية', en:'Decision games', ic:'🎲', desc:'محاكاة قرارات إدارية تفاعلية', desc_en:'Interactive decision scenarios' },
+  { k:'quiz',     ar:'اختبارات قصيرة', en:'Short quizzes', ic:'✅', desc:'أسئلة بعد كل مجموعة فيديوهات', desc_en:'Short quizzes throughout the course' },
+  { k:'exam',     ar:'اختبارات محاكاة', en:'Exam simulations', ic:'🎯', desc:'اختبارات كاملة بمؤقّت الاختبار الرسمي', desc_en:'Timed exam simulations' }
 ];
 
 /* ═══ أنماط الأسئلة ═══ */
@@ -2594,8 +2594,11 @@ window.CMS = {
   heroVimeo: '', heroPoster: '',
   sessions: [],
   identityVision: 'عالمٌ يستطيع فيه كل شخص وكل مؤسسة تحويل المعرفة إلى فرص حقيقية، مهما كانت اللغة أو الحدود أو نقطة البداية.',
+  identityVision_en: 'A world where every person and organization can turn knowledge into real opportunity, across languages and borders.',
   identityMission: 'نصل بين التدريب الذي يطوّر المهارة، والتعليم الذي يوسّع الأفق، والاستشارات التي تحوّل المعرفة إلى قرار ونظام ونتيجة قابلة للقياس.',
+  identityMission_en: 'We connect training that builds skills, education that broadens horizons, and consulting that turns knowledge into measurable results.',
   identityValues: 'الفضول الذي يفتح الأسئلة، والوضوح الذي يبسّط الطريق، والنزاهة التي تبني الثقة، والشراكة التي تصنع أثرًا يدوم، والشمول الذي يفتح الفرص للجميع.',
+  identityValues_en: 'Curiosity, clarity, integrity, lasting partnership, and access to opportunity for everyone.',
   whyTitle: 'لماذا السعيد؟',
   whySub: 'أربعة أشياء لا تجدها مجتمعة في مكان آخر',
   why: [
@@ -2607,6 +2610,12 @@ window.CMS = {
      'مسار متصل: تبدأ بشهادة احترافية، وتُعفى بها من مقررات في الماجستير والدكتوراه لدى شركائنا الأكاديميين.'],
     ['💼','استشارات تُطبّق ما نُدرّسه',
      'نبني لك مكتب مشاريع أو منظومة حوكمة فعلية — لا نكتفي بشرح كيف تُبنى.']
+  ],
+  why_en: [
+    ['Performance by domain','See your progress across exam domains so you can focus on the areas that matter most.'],
+    ['Practical systems you can use','Apply what you learn through useful tools and governance activities.'],
+    ['Professional and academic pathways','Explore professional certification alongside opportunities for further study.'],
+    ['Consulting grounded in practice','We help teams put project management and governance systems to work.']
   ],
   ctaTitle: 'لم تحدّد المسار المناسب بعد؟',
   ctaText: 'تحدّث مع مستشار يساعدك في اختيار الشهادة ونمط التعلّم الأنسب لظروفك وأهدافك — بلا مقابل.',
@@ -3266,6 +3275,14 @@ const NAV_I18N = {
   ur:{home:'ہوم',about:'ہمارے بارے میں',training:'ٹریننگ پروگرامز',education:'تعلیمی پروگرامز',consulting:'مشاورت',systems:'سسٹمز اور AI',library:'ڈیجیٹل لائبریری',blog:'بلاگ',contact:'رابطہ',dash:'میری لرننگ',admin:'ایڈمن',login:'لاگ اِن',register:'اکاؤنٹ بنائیں',logout:'لاگ آؤٹ'}
 };
 const navText = k => (NAV_I18N[window.__lang || 'ar'] || NAV_I18N.ar)[k] || NAV_I18N.ar[k] || k;
+const siteEnglish = () => window.__lang === 'en';
+const publicTitle = (item, fallback='') => siteEnglish() ? (item?.en || item?.title_en || fallback || item?.ar || '') : (item?.ar || item?.title || fallback || '');
+const packageName = (p,c,T) => siteEnglish()
+  ? (p.en || `${c.en || c.code || ''} — ${T.en || 'Learning Package'}`)
+  : (p.ar || '');
+const packageDescription = (p,T) => siteEnglish()
+  ? (p.desc_en || ({full:'Lessons, learning materials, activities and exam practice in one pathway.',sim:'Practice with timed questions and performance feedback.',review:'Focused review and practice before your exam.',self:'A structured self-study pathway with resources and practice.'}[p.type] || T.en || 'Explore the learning package.'))
+  : (p.desc || '');
 const trackVisual = c => {
   const t = window.TRACKS.find(x=>x.k===(c&&c.track)) || {ar:'برنامج مهني',icon:'🎓'};
   const grad = ({pm:'linear-gradient(145deg,#173763,#0E2444 62%,#F0741A 160%)',grc:'linear-gradient(145deg,#0D3A47,#0E2444 65%,#0E7C7B 140%)',qual:'linear-gradient(145deg,#6B3B0B,#F0741A 125%)',gov:'linear-gradient(145deg,#15234b,#3f4d86 70%,#C9A227 150%)',hse:'linear-gradient(145deg,#5e1e11,#d45c20 110%)',ai:'linear-gradient(145deg,#07172e,#184d80 70%,#0E7C7B 140%)'})[c&&c.track] || 'linear-gradient(145deg,#173763,#0E2444)';
@@ -3289,9 +3306,9 @@ function courseCover(c, big){
   const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.82)),url('${esc(cover)}')`:`background:${tv.grad}`;
   return `<div class="course-cover ${has?'has-img':''}" style="${style};${big?'min-height:360px':''}">
     <div class="course-cover-grid"></div><div class="course-cover-in">
-      <span class="track-pill">${tv.icon||'🎓'} ${esc(tv.ar||'')}</span>
-      <div><span class="course-code-xl"><bdi dir="ltr">${esc(c.code||'')}</bdi></span><h3>${esc(c.ar||'')}</h3></div>
-    </div>${c.previewVimeo?`<button class="cover-play" data-course-preview="${c.id}" title="فيديو تعريفي">▶</button>`:''}
+      <span class="track-pill">${tv.icon||'🎓'} ${esc(publicTitle(tv))}</span>
+      <div><span class="course-code-xl"><bdi dir="ltr">${esc(c.code||'')}</bdi></span><h3>${esc(publicTitle(c))}</h3></div>
+    </div>${c.previewVimeo?`<button class="cover-play" data-course-preview="${c.id}" title="${siteEnglish()?'Introduction video':'فيديو تعريفي'}">▶</button>`:''}
   </div>`;
 }
 function courseShowcase(c){
@@ -3489,7 +3506,7 @@ function home() {
       ${window.VMV.map((v, i2) => `<div class="vmv-c reveal d${i2 + 1}">
         <div class="vmv-ic" style="background:${v.col}18;color:${v.col}">${v.ic}</div>
         <h3>${esc(english?v.en:v.ar)}</h3>
-        <p>${esc(english?v.txt_en:(C['identity'+v.k[0].toUpperCase()+v.k.slice(1)]||v.txt))}</p>
+        <p>${esc(english?(C['identity'+v.k[0].toUpperCase()+v.k.slice(1)+'_en']||v.txt_en):(C['identity'+v.k[0].toUpperCase()+v.k.slice(1)]||v.txt))}</p>
       </div>`).join('')}
     </div>
   </div></section>
@@ -3501,9 +3518,9 @@ function home() {
     <div class="card pad reveal d3"><div class="cr-ic">🏅</div><h3>Digital Credentials</h3><p class="muted">شهادة برقم تحقق ومسار واضح لمتطلبات الإتمام.</p></div>
   </div></div></section>
 
-  <section class="sec alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">${esc(C.whyTitle)}</span><h2>${esc(C.whySub)}</h2></div><div class="grid g2">${C.why.map((w,i)=>`<div class="card pad reveal d${(i%4)+1}"><div class="cr-ic" style="margin-bottom:14px">${w[0]}</div><h3 style="font-family:var(--fd);font-weight:700;font-size:1.08rem;color:var(--ink);margin-bottom:8px">${esc(w[1])}</h3><p class="muted">${esc(w[2])}</p></div>`).join('')}</div></div></section>
+  <section class="sec alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">${esc(english?(C.whyTitle_en||'Why Al Saeed?'):C.whyTitle)}</span><h2>${esc(english?(C.whySub_en||'What makes our approach different'):C.whySub)}</h2></div><div class="grid g2">${C.why.map((w,i)=>`<div class="card pad reveal d${(i%4)+1}"><div class="cr-ic" style="margin-bottom:14px">${w[0]}</div><h3 style="font-family:var(--fd);font-weight:700;font-size:1.08rem;color:var(--ink);margin-bottom:8px">${esc(english?(C.why_en?.[i]?.[0]||window.I18?.t(w[1])):w[1])}</h3><p class="muted">${esc(english?(C.why_en?.[i]?.[1]||window.I18?.t(w[2])):w[2])}</p></div>`).join('')}</div></div></section>
 
-  <section class="sec tight"><div class="wrap"><div class="card pad" style="background:linear-gradient(150deg,var(--navy),var(--navy3));color:#fff;border:0;text-align:center;padding:50px 32px"><h2 style="font-family:var(--fd);font-weight:800;font-size:1.8rem;margin-bottom:10px">${esc(C.ctaTitle)}</h2><p style="color:#BFCCE0;max-width:620px;margin:0 auto 22px;line-height:1.9">${esc(C.ctaText)}</p><a class="btn p lg" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener">${esc(C.ctaBtn)}</a></div></div></section>
+  <section class="sec tight"><div class="wrap"><div class="card pad" style="background:linear-gradient(150deg,var(--navy),var(--navy3));color:#fff;border:0;text-align:center;padding:50px 32px"><h2 style="font-family:var(--fd);font-weight:800;font-size:1.8rem;margin-bottom:10px">${esc(english?(C.ctaTitle_en||'Need help choosing a pathway?'):C.ctaTitle)}</h2><p style="color:#BFCCE0;max-width:620px;margin:0 auto 22px;line-height:1.9">${esc(english?(C.ctaText_en||'Speak with an advisor about the program and format that fit your goals, at no cost.'):C.ctaText)}</p><a class="btn p lg" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener">${esc(english?(C.ctaBtn_en||'Book a free consultation'):C.ctaBtn)}</a></div></div></section>
   ${instructorBlock()}`;
 }
 
@@ -3529,13 +3546,13 @@ function pkgCard(p) {
         </div>
         <div style="display:flex;align-items:center;gap:9px">
           <span style="font-size:1.7rem">${T.ic || '📦'}</span>
-          <b style="font-family:var(--fd);font-size:1.05rem;font-weight:700">${esc(T.ar || '')}</b>
+          <b style="font-family:var(--fd);font-size:1.05rem;font-weight:700">${esc(publicTitle(T))}</b>
         </div>
       </div>
     </div>
     <div class="pk-body">
-      <h3 style="font-size:.98rem;margin-bottom:6px">${esc(c.ar || '')}</h3>
-      <p style="font-size:.82rem;margin-bottom:12px">${esc(p.desc || '')}</p>
+      <h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
+      <p style="font-size:.82rem;margin-bottom:12px">${esc(packageDescription(p,T))}</p>
       <div class="pk-facts">
         <div><span>الساعات</span><b class="num">${p.hours || '—'}</b></div>
         <div><span>الأسئلة المتاحة</span><b class="num">${liveQuestions}</b></div>
@@ -3543,10 +3560,10 @@ function pkgCard(p) {
         <div><span>الاختبارات</span><b class="num">${testCount || '—'}</b></div>
       </div>
       <div class="pk-tags">
-        <span class="tg">${L.ic || ''} ${esc(L.ar || '')}</span>
-        ${next&&['onsite','live'].includes(p.mode)?`<span class="tg">◷ ${esc(next.date)} · ${next.mode==='onsite'?'حضوري':'مباشر'}</span>`:''}
-        <span class="tg">⏱ ${p.days} يوم</span>
-        ${p.cert ? '<span class="tg ok">🏅 شهادة حضور</span>' : ''}
+        <span class="tg">${L.ic || ''} ${esc(publicTitle(L))}</span>
+        ${next&&['onsite','live'].includes(p.mode)?`<span class="tg">◷ ${esc(next.date)} · ${next.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'مباشر')}</span>`:''}
+        <span class="tg">⏱ ${p.days} ${siteEnglish()?'days':'يوم'}</span>
+        ${p.cert ? `<span class="tg ok">🏅 ${siteEnglish()?'Certificate of attendance':'شهادة حضور'}</span>` : ''}
       </div>
       <div class="pk-price">
         <b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>
@@ -3565,7 +3582,7 @@ function programs() {
   if (fLang) pk = pk.filter(p => p.lang === fLang);
 
   return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← البرامج</div>
+    <div class="crumb"><a href="#home" data-r="home">${siteEnglish()?'Home':'الرئيسية'}</a> ← ${siteEnglish()?'Programs':'البرامج'}</div>
     <h1>البرامج التدريبية</h1>
     <p>كل شهادة متاحة بعدة أنماط. فلتِر بما يناسبك واختر باقتك.</p>
   </div></section>
@@ -3575,25 +3592,25 @@ function programs() {
       <div class="frow"><b>نمط التعلّم</b>
         <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">الكل</button>
         ${window.MODES.map(m => `<button class="fchip ${fMode === m.k ? 'on' : ''}" data-fm="${m.k}">
-          <span class="ic">${m.icon}</span>${esc(m.ar)}</button>`).join('')}
+          <span class="ic">${m.icon}</span>${esc(publicTitle(m))}</button>`).join('')}
       </div>
       <div class="frow"><b>المجال</b>
         <button class="fchip ${!fTrack ? 'on' : ''}" data-ft="">الكل</button>
         ${window.TRACKS.map(t => `<button class="fchip ${fTrack === t.k ? 'on' : ''}" data-ft="${t.k}">
-          <span class="ic">${t.icon}</span>${esc(t.ar)}</button>`).join('')}
+          <span class="ic">${t.icon}</span>${esc(publicTitle(t))}</button>`).join('')}
       </div>
       <div class="frow"><b>المستوى</b>
         <button class="fchip ${!fLevel ? 'on' : ''}" data-fl="">الكل</button>
-        ${window.LEVELS.map(l => `<button class="fchip ${fLevel === l.k ? 'on' : ''}" data-fl="${l.k}">${esc(l.ar)}</button>`).join('')}
+        ${window.LEVELS.map(l => `<button class="fchip ${fLevel === l.k ? 'on' : ''}" data-fl="${l.k}">${esc(publicTitle(l))}</button>`).join('')}
       </div>
       <div class="frow"><b>لغة الباقة</b>
         <button class="fchip ${!fLang ? 'on' : ''}" data-fpl="">الكل</button>
-        ${Object.entries(window.LANG_LABEL).map(([k,v]) => `<button class="fchip ${fLang===k?'on':''}" data-fpl="${k}">${esc(v.ar)}</button>`).join('')}
+        ${Object.entries(window.LANG_LABEL).map(([k,v]) => `<button class="fchip ${fLang===k?'on':''}" data-fpl="${k}">${esc(publicTitle(v))}</button>`).join('')}
       </div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <b style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} باقة</b>
+      <b style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
       ${(fMode || fTrack || fLevel || fLang) ? '<button class="btn o sm" id="clearF">امسح الفلاتر</button>' : ''}
     </div>
 
@@ -4031,13 +4048,13 @@ function pkgView(id) {
 
   return `<section class="pg-hero" style="background:${T.col || 'var(--navy)'}"><div class="wrap">
     <div class="crumb"><a href="#programs" data-r="programs">البرامج</a> ←
-      <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(T.ar||'')}</div>
+      <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
       <span style="font-size:2.2rem">${T.ic||''}</span>
-      <div><h1 style="margin:0">${esc(c.ar||'')}</h1>
-        <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(T.ar||'')}</span></div>
+      <div><h1 style="margin:0">${esc(publicTitle(c))}</h1>
+        <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(publicTitle(T))}</span></div>
     </div>
-    <p>${esc(p.desc||'')}</p>
+    <p>${esc(packageDescription(p,T))}</p>
   </div></section>
 
   <section class="sec"><div class="wrap"><div class="pd-hero">
@@ -4046,11 +4063,11 @@ function pkgView(id) {
         مواصفات الباقة</h3>
       <div class="pd-spec">
         <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>ساعة معتمدة</span></div>
-        <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(p.category||'—')}</b><span>التصنيف</span></div>
+        <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(siteEnglish()?(window.TRACKS.find(t=>t.k===c.track)?.en||c.code||'—'):(p.category||'—'))}</b><span>التصنيف</span></div>
         <div class="pd-s"><span class="ic">❓</span><b class="num">${questionCount}</b><span>سؤال متاح</span></div>
         <div class="pd-s"><span class="ic">🎬</span><b class="num">${videoCount}</b><span>فيديو متاح</span></div>
         <div class="pd-s"><span class="ic">🎯</span><b style="font-size:.88rem">${p.kinds?.includes('exam') || p.kinds?.includes('quiz') ? 'تدريب ومحاكاة' : '—'}</b><span>الاختبارات</span></div>
-        <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(L.ar||'')}</b><span>لغة الكورس</span></div>
+        <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(publicTitle(L))}</b><span>لغة الكورس</span></div>
         <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>يوم وصول</span></div>
         <div class="pd-s"><span class="ic">${p.cert?'🏅':'—'}</span>
           <b style="font-size:.9rem;color:${p.cert?'var(--ok)':'var(--dim)'}">${p.cert?'نعم':'لا'}</b>
@@ -4066,7 +4083,7 @@ function pkgView(id) {
             : k==='flash' ? p.flashCards : k==='activity' ? p.activities
             : k==='game' ? p.games : '';
           return `<div class="kind"><span class="ic">${K.ic}</span>
-            <div style="flex:1;min-width:0"><b>${esc(K.ar)}</b><span>${esc(K.desc)}</span></div>
+            <div style="flex:1;min-width:0"><b>${esc(publicTitle(K))}</b><span>${esc(siteEnglish()?K.desc_en:K.desc)}</span></div>
             ${n ? `<span class="n">${n}</span>` : ''}</div>`;
         }).join('')}
       </div>
@@ -4127,7 +4144,7 @@ function pkgView(id) {
           return `<div style="display:flex;align-items:center;gap:9px;padding:9px 0;
             border-bottom:1px solid var(--line);cursor:pointer" data-r="pkg/${x.id}">
             <span style="font-size:1.1rem">${T2.ic||''}</span>
-            <div style="flex:1;min-width:0"><b style="font-size:.83rem;display:block">${esc(T2.ar||'')}</b></div>
+            <div style="flex:1;min-width:0"><b style="font-size:.83rem;display:block">${esc(publicTitle(T2))}</b></div>
             <span class="num" style="font-size:.85rem;font-weight:700;color:var(--orange)">$${x.price}</span>
           </div>`;
         }).join('')}
@@ -4138,17 +4155,19 @@ function pkgView(id) {
 
 function pkgTab(p, c, has) {
   const kindDefs = window.CONTENT_KINDS || [];
-  const includes = (p.includes && p.includes.length) ? p.includes : (p.kinds || []).map(k => {
+  const includes = (siteEnglish() ? (p.kinds||[]).map(k=>{
+    const x=kindDefs.find(y=>y.k===k); return x ? x.en+' — '+x.desc_en : k;
+  }) : (p.includes && p.includes.length) ? p.includes : (p.kinds || []).map(k => {
     const x = kindDefs.find(y => y.k === k); return x ? x.ar + ' — ' + x.desc : k;
-  });
+  }));
   if (pkTab === 'info') return `
     <h3 style="font-family:var(--fd);font-weight:800;font-size:1.3rem;color:var(--ink);margin-bottom:12px">ماذا ستتعلّم؟</h3>
-    <p class="muted mb">${esc(c.blurb)}</p>
+    <p class="muted mb">${esc(siteEnglish()?(c.blurb_en||c.en||'Explore the topics and outcomes of this program.'):c.blurb)}</p>
     <div class="note info"><b>بنية الاختبار:</b> ${c.questions} سؤالاً في ${c.examMin} دقيقة،
       موزّعة على ${c.domains.length} نطاقات بأوزان رسمية — والدورة مبنية على هذا التوزيع بالضبط.</div>
     ${readinessBar(c, {}, true)}
     <div class="rm-legend" style="color:var(--dim);margin-bottom:24px">
-      ${c.domains.map(d => `<span class="k">${esc(d.ar)} <b class="num">${d.w}%</b></span>`).join('')}
+      ${c.domains.map(d => `<span class="k">${esc(publicTitle(d))} <b class="num">${d.w}%</b></span>`).join('')}
     </div>
     <h4 style="font-family:var(--fd);font-weight:700;font-size:1.1rem;color:var(--ink);margin-bottom:12px">تشمل الباقة</h4>
     <ul class="pk-inc">${includes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
@@ -4684,8 +4703,11 @@ function adminTab() {
         <div class="cms-item">
           <h5>الهوية والاتجاه <span class="tag">identity</span></h5>
           ${F('identityVision','الرؤية العالمية',3)}
+          ${F('identityVision_en','Vision — English',3)}
           ${F('identityMission','رسالة التدريب والتعليم والاستشارات',3)}
+          ${F('identityMission_en','Mission — English',3)}
           ${F('identityValues','القيم',3)}
+          ${F('identityValues_en','Values — English',3)}
         </div>
         <div class="cms-item">
           <h5>مواعيد الدورات <span class="tag">sessions</span></h5>
@@ -4696,20 +4718,27 @@ function adminTab() {
         <div class="cms-item">
           <h5>قسم لماذا السعيد <span class="tag">why</span></h5>
           ${F('whyTitle', 'السطر العلوي')}
+          ${F('whyTitle_en', 'Eyebrow — English')}
           ${F('whySub', 'العنوان')}
+          ${F('whySub_en', 'Heading — English')}
           ${(C.why || []).map((w, i) => `
             <div style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
               <label class="f"><span>ميزة ${i + 1} — الأيقونة</span>
                 <input data-why="${i}|0" value="${esc(w[0])}" style="max-width:90px"></label>
               <label class="f"><span>العنوان</span><input data-why="${i}|1" value="${esc(w[1])}"></label>
               <label class="f"><span>الوصف</span><textarea data-why="${i}|2" rows="2">${esc(w[2])}</textarea></label>
+              <label class="f"><span>Title — English</span><input data-why-en="${i}|0" value="${esc(C.why_en?.[i]?.[0]||'')}"></label>
+              <label class="f"><span>Description — English</span><textarea data-why-en="${i}|1" rows="2">${esc(C.why_en?.[i]?.[1]||'')}</textarea></label>
             </div>`).join('')}
         </div>
         <div class="cms-item">
           <h5>دعوة الإجراء <span class="tag">cta</span></h5>
           ${F('ctaTitle', 'العنوان')}
+          ${F('ctaTitle_en', 'Heading — English')}
           ${F('ctaText', 'النص', 3)}
+          ${F('ctaText_en', 'Text — English', 3)}
           ${F('ctaBtn', 'نص الزر')}
+          ${F('ctaBtn_en', 'Button — English')}
         </div>
         <div class="cms-item">
           <h5>بيانات المؤسسة <span class="tag">brand</span></h5>
@@ -5511,6 +5540,10 @@ function bind() {
     }));
     $$('[data-why]').forEach(i => { const [n, j] = i.dataset.why.split('|');
       if (window.CMS.why[+n]) window.CMS.why[+n][+j] = i.value; });
+    window.CMS.why_en = window.CMS.why_en || [];
+    $$('[data-why-en]').forEach(i => { const [n,j]=i.dataset.whyEn.split('|');
+      window.CMS.why_en[+n] = window.CMS.why_en[+n] || ['', ''];
+      window.CMS.why_en[+n][+j] = i.value; });
     $$('[data-brand]').forEach(i => { B[i.dataset.brand] = i.value; });
     if (A().live) A().api('/admin/content', { method: 'PUT',
       body: { cms: window.CMS, courses: window.COURSES, packages: window.PACKAGES,
@@ -6250,6 +6283,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/qtranslate.js"></script>
 <script src="/v17-interactive.js?v=20.0"></script>
 <script src="/dict-v17.js"></script>
+<script src="/english-copy-v27.js?v=27.0"></script>
 <script>
   document.getElementById('logoLink').innerHTML = window.LOGO_FULL();
   document.getElementById('ftrLogo').innerHTML = window.LOGO_FULL();
