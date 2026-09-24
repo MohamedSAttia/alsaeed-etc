@@ -705,8 +705,33 @@ app.get('/api/admin/vimeo/:id', auth, admin, async (req, res) => {
     res.status(error?.name === 'AbortError' ? 504 : 502).json({ error: 'تعذر الاتصال بـ Vimeo الآن' });
   } finally { clearTimeout(timer); }
 });
-app.put('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
+async function vimeoDuration(id) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent('https://vimeo.com/' + id), { signal: controller.signal });
+    if (!response.ok) return '';
+    const seconds = Number((await response.json()).duration);
+    return Number.isFinite(seconds) && seconds > 0
+      ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : '';
+  } catch { return ''; } finally { clearTimeout(timer); }
+}
+app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
   const list = req.body || [];
+  if (!Array.isArray(list)) return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
+  // Only look up newly linked videos; keep existing durations when Vimeo is unavailable.
+  const existing = db.prepare('SELECT idx,title,vimeo,duration FROM lessons WHERE package_id=?').all(req.params.pkg);
+  for (let i = 0; i < list.length; i++) {
+    const lesson = list[i];
+    const old = existing.find(row => row.idx === i && row.title === (lesson.t || lesson.title)) ||
+      existing.find(row => row.title === (lesson.t || lesson.title));
+    if (!lesson.vimeo && old?.vimeo && !lesson.clearVimeo) lesson.vimeo = old.vimeo;
+    const id = String(lesson.vimeo || '').match(/^(?:https?:\/\/(?:www\.)?vimeo\.com\/(?:video\/)?|)(\d{6,12})(?:\?.*)?$/)?.[1];
+    if (!id) continue;
+    lesson.vimeo = id;
+    const previous = existing.find(row => row.idx === i && row.vimeo === id);
+    if (!previous && (!lesson.dur || lesson.dur === '00:00')) lesson.dur = await vimeoDuration(id) || lesson.dur || '';
+  }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
   const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en)
     VALUES (?,?,?,?,?,?,?,?,?,?)`);
@@ -763,8 +788,14 @@ app.get('/api/content', (req, res) => {
 /* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
 app.get('/api/catalog-availability', (req, res) => {
   const packages = JSON.parse(setting('content_packages') || '[]');
-  const videos = Object.fromEntries(db.prepare("SELECT package_id, COUNT(*) AS n FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> '' GROUP BY package_id")
-    .all().map(row => [row.package_id, row.n]));
+  const videos = Object.fromEntries(db.prepare("SELECT package_id, duration FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> ''")
+    .all().reduce((map, row) => {
+      const entry = map[row.package_id] ||= { count: 0, minutes: 0 };
+      entry.count++;
+      const parts = String(row.duration || '').split(':').map(Number);
+      if (parts.length === 2 && parts.every(Number.isFinite)) entry.minutes += parts[0] + parts[1] / 60;
+      return map;
+    }, {}));
   const hasQuestions = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='questions'").get();
   const questions = hasQuestions ? Object.fromEntries(db.prepare('SELECT package_id, COUNT(*) AS n FROM questions WHERE active=1 GROUP BY package_id')
     .all().map(row => [row.package_id, row.n])) : {};
@@ -774,7 +805,7 @@ app.get('/api/catalog-availability', (req, res) => {
     const candidates = [p.course, ...packages.filter(x => x.course === p.course).map(x => x.id)];
     const bank = questions[p.id] ? p.id : candidates.reduce((best, id) =>
       (questions[id] || 0) > (questions[best] || 0) ? id : best, p.id);
-    result[p.id] = { videos: videos[source] || 0, questions: questions[bank] || 0 };
+    result[p.id] = { videos: videos[source]?.count || 0, videoMins: Math.round(videos[source]?.minutes || 0), questions: questions[bank] || 0 };
   }
   res.json(result);
 });
