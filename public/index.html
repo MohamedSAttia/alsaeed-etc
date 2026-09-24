@@ -2779,6 +2779,7 @@ function loadProgressFor(pid) {
   }).catch(() => progressRequests.delete(pid));
 }
 function loadLessonsFor(pid) {
+  if (API.live && isAdmin()) { loadAdminLessons(pid); return; }
   if (!API.live || !pid || Object.hasOwn(window.LESSONS, pid)) return;
   if (lessonRequests.has(pid)) return;
   const requestedToken = API.token;
@@ -2786,7 +2787,7 @@ function loadLessonsFor(pid) {
     headers: API.token ? { Authorization: 'Bearer ' + API.token } : {}
   }).then(r => { if (!r.ok) throw new Error('تعذّر تحميل الدروس'); return r.json(); })
     .then(ls => {
-      if (requestedToken !== API.token) return;
+      if (requestedToken !== API.token || adminLessonsReady.has(pid) || adminLessonRequests.has(pid)) return;
       window.LESSONS[pid] = ls.map(l => ({ ch:l.chapter || 0, t:l.title || '',
         t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
         free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
@@ -4498,7 +4499,8 @@ function adminQuestionsView(){
   const active=all.filter(q=>q.active!==false).length, bilingual=all.filter(q=>q.question_ar&&q.question_en).length;
   return `<div class="question-admin-head">
     <div><span class="eyebrow">إدارة المحتوى</span><h2>بنك الأسئلة حسب الباقة</h2><p>أضف وعدّل وعاين وفعّل الأسئلة من نفس مركز التحكم.</p></div>
-    <button class="btn p" id="adminQuestionAdd">＋ إضافة سؤال</button>
+    <div><button class="btn o" id="adminEssayReview">📝 مراجعة الإجابات المقالية</button>
+    <button class="btn p" id="adminQuestionAdd">＋ إضافة سؤال</button></div>
   </div>
   <div class="grid g4 mb question-admin-stats">
     <div class="stat"><b class="num">${all.length}</b><span>إجمالي الأسئلة</span></div>
@@ -5138,7 +5140,7 @@ function playLesson(pid, idx) {
       const completed = !pr.lessons[idx]; pr.lessons[idx] = completed; A().save();
       A().toast(pr.lessons[idx] ? '✓ سُجّل إتمام الدرس' : 'أُلغي التعليم');
       A().closeModal(); A().render();
-      if (completed && (l.quiz || (idx + 1) % 3 === 0)) setTimeout(() => openPractice(pid, 'ch' + (l.ch || 0)), 180);
+      if (completed && (l.quiz || []).length) setTimeout(() => runLessonQuiz(pid, 'lesson' + idx), 180);
     };
     const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); runLessonQuiz(pid, 'lesson' + idx); };
     const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, idx + 1); };
@@ -5153,31 +5155,78 @@ function runLessonQuiz(pid, key) {
     : lessons.filter(l => (l.ch || 0) === Number(key.slice(2)));
   const questions = selected.flatMap(l => l.quiz || []);
   if (!questions.length) { A().toast('لم تُضف أسئلة لهذا الفصل بعد'); return; }
-  let index = 0, score = 0;
+  let index = 0, score = 0, scored = 0, pending = 0;
   function show() {
     if (index === questions.length) {
-      const percent = Math.round(score / questions.length * 100);
+      const percent = scored ? Math.round(score / scored * 100) : null;
       const progress = A().prog(pid); progress.exams = progress.exams || {};
-      progress.exams[key] = { score:percent, passed:percent >= 65, at:Date.now() };
+      progress.exams[key] = { score:percent, autoCount:scored, autoCorrect:score,
+        passed:percent != null && percent >= 65 && !pending, pendingReview:pending, at:Date.now() };
       A().save();
-      A().modal(`<h3>نتيجة التقييم: ${percent}%</h3><p>${score} من ${questions.length} إجابة صحيحة</p>
+      A().modal(`<h3>${scored ? 'نتيجة الأسئلة المصححة: ' + percent + '%' : 'تم إرسال الإجابة'}</h3>
+        <p>${score} من ${scored} إجابة صحيحة آليًا${pending ? ' · ' + pending + ' إجابة مقالية تنتظر مراجعة المدرب' : ''}</p>
         <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`);
       return;
     }
     const question = questions[index], en = window.__lang === 'en';
-    const options = en && question.options_en?.length === 4 ? question.options_en : question.options;
+    const kind = question.type || 'single';
+    const options = kind === 'truefalse' ? (en ? ['True','False'] : ['صح','خطأ'])
+      : en && question.options_en?.length === 4 ? question.options_en : question.options;
+    const pairs = question.pairs || [], targets = pairs.map(p => p[1]);
+    if (targets.length > 1) targets.push(targets.shift());
     A().modal(`<h3>سؤال ${index + 1} من ${questions.length}</h3>
       <p>${esc(en && question.q_en || question.q)}</p>
-      ${(options || []).map((option, n) => `<label class="practice-opt"><input type="radio" name="lessonAnswer" value="${n}"><span>${esc(option)}</span></label>`).join('')}
+      ${['single','truefalse'].includes(kind) ? (options || []).map((option, n) => `<label class="practice-opt"><input type="radio" name="lessonAnswer" value="${n}"><span>${esc(option)}</span></label>`).join('') : ''}
+      ${kind === 'essay' ? '<textarea id="essayAnswer" rows="6" maxlength="4000" placeholder="اكتب إجابتك هنا"></textarea><p class="muted">تُرسل الإجابة للمدرب للمراجعة، ولا تُحتسب ضمن الدرجة الآلية.</p>' : ''}
+      ${kind === 'matching' ? pairs.map((pair,i) => `<label class="f"><span>${esc(pair[0])}</span><select data-match="${i}"><option value="">اختر ما يقابله</option>${targets.map((target,n) => `<option value="${n}">${esc(target)}</option>`).join('')}</select></label>`).join('') : ''}
+      ${kind === 'hotspot' ? '<div id="hotspotImage" style="position:relative;max-width:680px;cursor:crosshair"><p>جارٍ تحميل الصورة…</p></div><p class="muted">اضغط على الموضع الصحيح داخل الصورة.</p>' : ''}
       <div id="lessonFeedback"></div><div class="mdl-act"><button class="btn p" id="lessonCheck">تحقق من الإجابة</button><button class="btn o" data-close>إغلاق</button></div>`, () => {
-      let checked = false;
+      let checked = false, point = null;
+      if (kind === 'hotspot') {
+        fetch('/api/quiz-images/' + encodeURIComponent(question.imageId), {
+          headers:{ Authorization:'Bearer ' + A().token } }).then(r => {
+            if (!r.ok) throw new Error('تعذر تحميل صورة السؤال'); return r.blob();
+          }).then(blob => {
+            const holder = $('#hotspotImage'); if (!holder) return;
+            const url = URL.createObjectURL(blob);
+            holder.innerHTML = `<img alt="صورة السؤال" src="${url}" style="width:100%;display:block;border-radius:10px"><span id="hotspotMarker" style="position:absolute;display:none;color:#f00;font-size:28px;transform:translate(-50%,-50%)">✚</span>`;
+            holder.querySelector('img').onload = () => URL.revokeObjectURL(url);
+            holder.onclick = e => {
+              if (checked) return;
+              const rect = holder.querySelector('img').getBoundingClientRect();
+              point = { x:(e.clientX - rect.left) / rect.width * 100,
+                y:(e.clientY - rect.top) / rect.height * 100 };
+              const marker = $('#hotspotMarker'); marker.style.display = 'block';
+              marker.style.left = point.x + '%'; marker.style.top = point.y + '%';
+            };
+          }).catch(e => { const holder = $('#hotspotImage'); if (holder) holder.textContent = e.message; });
+      }
       $('#lessonCheck').onclick = () => {
         if (checked) { index++; show(); return; }
-        const answer = document.querySelector('[name="lessonAnswer"]:checked');
-        if (!answer) { A().toast('اختر إجابة أولاً'); return; }
-        checked = true; const correct = +answer.value === question.correct;
-        if (correct) score++;
-        $('#lessonFeedback').textContent = correct ? '✅ إجابة صحيحة' : '❌ الإجابة الصحيحة: ' + options[question.correct];
+        let correct = false, feedback = '';
+        if (kind === 'essay') {
+          const answer = $('#essayAnswer').value.trim();
+          if (!answer) { A().toast('اكتب إجابتك أولاً'); return; }
+          const progress = A().prog(pid); progress.essayAnswers = progress.essayAnswers || {};
+          progress.essayAnswers[key + ':' + index] = { question:question.q, answer, status:'pending', at:Date.now() };
+          A().save(); pending++; feedback = '📨 أُرسلت للمراجعة'; $('#essayAnswer').disabled = true;
+        } else if (kind === 'matching') {
+          const chosen = $$('[data-match]').map(s => s.value);
+          if (chosen.some(v => v === '')) { A().toast('أكمل جميع أزواج التوصيل'); return; }
+          correct = chosen.every((v,i) => targets[+v] === pairs[i][1]);
+          $$('[data-match]').forEach(s => s.disabled = true);
+        } else if (kind === 'hotspot') {
+          if (!point) { A().toast('اضغط على موضع داخل الصورة أولاً'); return; }
+          correct = Math.hypot(point.x - question.x, point.y - question.y) <= question.radius;
+        } else {
+          const answer = document.querySelector('[name="lessonAnswer"]:checked');
+          if (!answer) { A().toast('اختر إجابة أولاً'); return; }
+          correct = +answer.value === question.correct;
+          feedback = correct ? '' : ' · الإجابة الصحيحة: ' + options[question.correct];
+        }
+        checked = true;
+        if (kind !== 'essay') { scored++; if (correct) score++; feedback = (correct ? '✅ إجابة صحيحة' : '❌ راجع الإجابة') + feedback; }
+        $('#lessonFeedback').textContent = feedback;
         $$('[name="lessonAnswer"]').forEach(input => input.disabled = true);
         $('#lessonCheck').textContent = index + 1 === questions.length ? 'عرض النتيجة' : 'السؤال التالي';
       };
@@ -5393,6 +5442,30 @@ function bind() {
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
   if(admTab==='questions'){
+    const review=$('#adminEssayReview');if(review)review.onclick=async()=>{
+      try {
+        const rows=await A().api('/admin/essay-answers');
+        const pending=rows.filter(x=>x.status==='pending');
+        A().modal(`<h3>الإجابات المقالية للمراجعة (${pending.length})</h3>
+          ${pending.length?pending.map((a,i)=>`<div class="note info"><b>${esc(a.name)} · ${esc(a.packageId)}</b>
+            <p><b>${esc(a.question)}</b></p><p style="white-space:pre-wrap">${esc(a.answer)}</p>
+            <label class="f"><span>الدرجة من 100</span><input type="number" min="0" max="100" data-essay-score="${i}"></label>
+            <label class="f"><span>تعليق المدرب</span><textarea data-essay-feedback="${i}"></textarea></label>
+            <button class="btn p sm" data-essay-grade="${i}">حفظ التقييم</button></div>`).join(''):'<p>لا توجد إجابات تنتظر المراجعة.</p>'}
+          <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`,()=>{
+          $$('[data-essay-grade]').forEach(btn=>btn.onclick=async()=>{
+            const i=+btn.dataset.essayGrade,a=pending[i],score=+($(`[data-essay-score="${i}"]`)?.value);
+            if(!Number.isInteger(score)||score<0||score>100||$(`[data-essay-score="${i}"]`).value===''){
+              A().toast('أدخل درجة صحيحة من 0 إلى 100');return;
+            }
+            try{await A().api('/admin/essay-answers/'+encodeURIComponent(a.userId)+'/'+encodeURIComponent(a.packageId),{
+              method:'PUT',body:{key:a.key,score,feedback:$(`[data-essay-feedback="${i}"]`).value}});
+              A().closeModal();review.click();A().toast('حُفظ تقييم الإجابة');
+            }catch(e){A().toast(e.message)}
+          });
+        });
+      }catch(e){A().toast(e.message)}
+    };
     const pid=questionPackage();
     if(!adminQuestionBusy&&adminQuestionLoadedFor!==pid)setTimeout(()=>loadAdminQuestions(pid),0);
     const qp=$('#adminQuestionPackage');if(qp)qp.onchange=()=>{adminQuestionPackage=qp.value;adminQuestionLoadedFor='';adminQuestions=[];A().render()};
@@ -5561,7 +5634,8 @@ function bind() {
       if (chs[n] !== undefined) chs[n] = x.textContent.trim(); });
   }
 
-  $$('[data-vid],[data-lt],[data-lten],[data-ld]').forEach(x => x.onchange = harvest);
+  $$('[data-vid],[data-ld]').forEach(x => x.onchange = harvest);
+  $$('[data-lt],[data-lten]').forEach(x => x.onchange = () => { harvest(); saveLessons(true); });
   async function fillVimeoDuration(input, durationInput) {
     const id = input.value.trim().match(/(?:^|\/)(\d{6,12})(?:\?.*)?$/)?.[1];
     if (!id || durationInput.value.trim()) return;
@@ -5600,27 +5674,88 @@ function bind() {
     lesson.quiz = lesson.quiz || [];
     const current = lesson.quiz[editIndex] || {};
     A().modal(`<h3>أسئلة تقييم بعد الفيديو: ${esc(lesson.t)}</h3>
-      <p class="muted">أضف سؤالاً أو عدة أسئلة لهذا الدرس. اختر الإجابة الصحيحة من 1 إلى 4.</p>
+      <p class="muted">اختر نوع السؤال، ثم أدخل بياناته. الإجابة المقالية تُرسل للمراجعة ولا تدخل في الدرجة الآلية.</p>
       ${(lesson.quiz || []).map((q, n) => `<div class="note info" style="display:flex;gap:8px;align-items:center"><b style="flex:1">${n + 1}. ${esc(q.q)}</b><button class="btn o sm" data-quiz-edit="${n}">تعديل</button><button class="btn o sm" data-quiz-remove="${n}">حذف</button></div>`).join('')}
       <label class="f"><span>السؤال بالعربية</span><input id="quizQuestion" value="${esc(current.q || '')}"></label>
       <label class="f"><span>Question in English (اختياري)</span><input id="quizQuestionEn" dir="ltr" value="${esc(current.q_en || '')}"></label>
-      <label class="f"><span>الخيارات الأربعة بالعربية، كل خيار في سطر</span><textarea id="quizOptions" rows="4">${esc((current.options || []).join('\n'))}</textarea></label>
+      <label class="f"><span>نوع السؤال</span><select id="quizType">
+        ${[['single','اختيار من متعدد'],['truefalse','صح أو خطأ'],['essay','مقالي'],['matching','توصيل'],['hotspot','اضغط على المكان الصحيح داخل الصورة']].map(([v,t])=>`<option value="${v}" ${(current.type || 'single') === v ? 'selected' : ''}>${t}</option>`).join('')}
+      </select></label>
+      <div data-quiz-fields="single"><label class="f"><span>الخيارات الأربعة بالعربية، كل خيار في سطر</span><textarea id="quizOptions" rows="4">${esc((current.options || []).join('\n'))}</textarea></label>
       <label class="f"><span>English options (اختياري، كل خيار في سطر)</span><textarea id="quizOptionsEn" rows="4">${esc((current.options_en || []).join('\n'))}</textarea></label>
-      <label class="f"><span>رقم الإجابة الصحيحة</span><select id="quizCorrect">${[0,1,2,3].map(n=>`<option value="${n}" ${current.correct === n ? 'selected' : ''}>${n+1}</option>`).join('')}</select></label>
+      <label class="f"><span>رقم الإجابة الصحيحة</span><select id="quizCorrect">${[0,1,2,3].map(n=>`<option value="${n}" ${current.correct === n ? 'selected' : ''}>${n+1}</option>`).join('')}</select></label></div>
+      <div data-quiz-fields="truefalse"><label class="f"><span>الإجابة الصحيحة</span><select id="quizTF"><option value="0" ${current.correct !== 1 ? 'selected' : ''}>صح</option><option value="1" ${current.correct === 1 ? 'selected' : ''}>خطأ</option></select></label></div>
+      <div data-quiz-fields="matching"><label class="f"><span>أزواج التوصيل، كل سطر: العنصر | ما يقابله</span><textarea id="quizPairs" rows="5" placeholder="المخاطر | سجل المخاطر\nالنطاق | هيكل تقسيم العمل">${esc((current.pairs || []).map(p=>p.join(' | ')).join('\n'))}</textarea></label></div>
+      <div data-quiz-fields="hotspot"><label class="f"><span>ارفع صورة PNG أو JPG أو WebP (حتى 4 ميجابايت)</span><input type="file" id="quizImage" accept=".png,.jpg,.jpeg,.webp"></label>
+        <p class="muted">اضغط على الموضع الصحيح داخل الصورة، ثم اضبط نطاق القبول إذا احتجت.</p>
+        <div id="quizImagePreview" style="position:relative;max-width:600px;cursor:crosshair"></div>
+        <label class="f"><span>نطاق القبول حول النقطة (%)</span><input id="quizRadius" type="number" min="2" max="30" value="${esc(current.radius || 8)}"></label></div>
       <div class="mdl-act"><button class="btn p" id="quizSave">${editIndex < 0 ? 'إضافة السؤال' : 'حفظ السؤال'}</button><button class="btn o" data-close>إغلاق</button></div>`, () => {
+      const type = $('#quizType'), preview = $('#quizImagePreview');
+      let imageId = current.imageId || '', point = current.x != null ? { x:current.x,y:current.y } : null;
+      const fields = () => $$('[data-quiz-fields]').forEach(el => el.hidden = el.dataset.quizFields !== type.value);
+      type.onchange = fields; fields();
+      const imagePreview = async () => {
+        if (!imageId) return;
+        try {
+          const response = await fetch('/api/quiz-images/' + encodeURIComponent(imageId), { headers:{ Authorization:'Bearer ' + A().token } });
+          if (!response.ok) throw new Error('تعذر عرض الصورة');
+          const url = URL.createObjectURL(await response.blob());
+          preview.innerHTML = `<img alt="صورة السؤال" style="width:100%;display:block;border-radius:10px" src="${url}"><span id="quizMarker" style="position:absolute;color:#f00;font-size:28px;transform:translate(-50%,-50%)">✚</span>`;
+          const marker = $('#quizMarker');
+          const mark = () => { marker.style.display = point ? 'block' : 'none'; if (point) { marker.style.left = point.x + '%'; marker.style.top = point.y + '%'; } };
+          mark(); preview.onclick = e => {
+            const rect = preview.querySelector('img').getBoundingClientRect();
+            point = { x:Math.round((e.clientX - rect.left) / rect.width * 1000) / 10,
+              y:Math.round((e.clientY - rect.top) / rect.height * 1000) / 10 };
+            point.x = Math.max(0,Math.min(100,point.x)); point.y = Math.max(0,Math.min(100,point.y)); mark();
+          };
+          preview.querySelector('img').onload = () => URL.revokeObjectURL(url);
+        } catch(e) { A().toast(e.message); }
+      };
+      imagePreview();
+      $('#quizImage').onchange = async e => {
+        const file = e.target.files[0]; if (!file) return;
+        if (file.size > 4 * 1024 * 1024) { A().toast('الصورة أكبر من 4 ميجابايت'); return; }
+        try {
+          const bytes = new Uint8Array(await file.arrayBuffer()); let binary = '';
+          for(let i=0;i<bytes.length;i+=8192) binary += String.fromCharCode(...bytes.subarray(i,i+8192));
+          const result = await A().api('/admin/quiz-images/' + encodeURIComponent(curPk()), {
+            method:'POST', body:{ name:file.name, data:btoa(binary) } });
+          imageId = result.id; point = null; await imagePreview();
+        } catch(e) { A().toast('تعذر رفع الصورة: ' + e.message); }
+      };
       $$('[data-quiz-edit]').forEach(b => b.onclick = () => editLessonQuiz(index, +b.dataset.quizEdit));
       $$('[data-quiz-remove]').forEach(b => b.onclick = async () => {
         lesson.quiz.splice(+b.dataset.quizRemove, 1);
         if (await saveLessons(true) !== false) editLessonQuiz(index);
       });
       $('#quizSave').onclick = async () => {
-        const q = $('#quizQuestion').value.trim(), options = $('#quizOptions').value.split('\n').map(s=>s.trim()).filter(Boolean);
+        const q = $('#quizQuestion').value.trim(), kind = type.value;
+        const options = $('#quizOptions').value.split('\n').map(s=>s.trim()).filter(Boolean);
         const optionsEn = $('#quizOptionsEn').value.split('\n').map(s=>s.trim()).filter(Boolean);
-        if (!q || options.length !== 4 || (optionsEn.length && optionsEn.length !== 4)) {
-          A().toast('اكتب السؤال وأربعة خيارات؛ والترجمة الإنجليزية أربعة خيارات أو اتركها فارغة'); return;
+        if (!q) { A().toast('اكتب نص السؤال'); return; }
+        const item = { type:kind, q, q_en:$('#quizQuestionEn').value.trim() };
+        if (kind === 'single') {
+          if (options.length !== 4 || (optionsEn.length && optionsEn.length !== 4)) {
+            A().toast('أدخل أربعة خيارات بالعربية، وأربعة بالإنجليزية أو اترك الترجمة فارغة'); return;
+          }
+          Object.assign(item,{ options, options_en:optionsEn, correct:+$('#quizCorrect').value });
+        } else if (kind === 'truefalse') item.correct = +$('#quizTF').value;
+        else if (kind === 'matching') {
+          const lines = $('#quizPairs').value.split('\n').map(s=>s.trim()).filter(Boolean);
+          const pairs = lines.map(line => line.split('|').map(s=>s.trim()));
+          if (pairs.length < 2 || pairs.length > 8 || pairs.some(p => p.length !== 2 || !p[0] || !p[1])) {
+            A().toast('أدخل من زوجين إلى ثمانية أزواج بهذا الشكل: عنصر | ما يقابله'); return;
+          }
+          item.pairs = pairs;
+        } else if (kind === 'hotspot') {
+          const radius = +$('#quizRadius').value;
+          if (!imageId || !point || radius < 2 || radius > 30) {
+            A().toast('ارفع الصورة، واضغط على الموقع الصحيح، وحدد نطاق قبول من 2 إلى 30%'); return;
+          }
+          Object.assign(item,{ imageId, x:point.x, y:point.y, radius });
         }
-        const item = { q, q_en:$('#quizQuestionEn').value.trim(), options,
-          options_en:optionsEn, correct:+$('#quizCorrect').value };
         if (editIndex >= 0) lesson.quiz[editIndex] = item; else lesson.quiz.push(item);
         if (await saveLessons(true) !== false) editLessonQuiz(index);
       };

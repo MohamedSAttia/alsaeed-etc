@@ -59,6 +59,10 @@ CREATE TABLE IF NOT EXISTS lesson_files (
   id TEXT PRIMARY KEY, package_id TEXT NOT NULL, name TEXT NOT NULL,
   mime TEXT NOT NULL, bytes BLOB NOT NULL, created INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS quiz_images (
+  id TEXT PRIMARY KEY, package_id TEXT NOT NULL, mime TEXT NOT NULL,
+  bytes BLOB NOT NULL, created INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS certificates (
   no TEXT PRIMARY KEY, user_id TEXT NOT NULL, package_id TEXT NOT NULL,
   name TEXT NOT NULL, course TEXT, hours INTEGER, issued INTEGER NOT NULL
@@ -216,11 +220,50 @@ app.put('/api/progress/:pkg', auth, (req, res) => {
     .get(req.user.id, req.params.pkg);
   if (!owns || (owns.expires && owns.expires <= Date.now()))
     return res.status(403).json({ error: 'لا يوجد اشتراك فعّال في هذه الباقة' });
+  const incoming = req.body || {};
+  const old = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?').get(req.user.id, req.params.pkg);
+  if (old) {
+    const saved = JSON.parse(old.data);
+    for (const [key, answer] of Object.entries(saved.essayAnswers || {})) {
+      if (answer.status === 'graded' && incoming.essayAnswers?.[key]) incoming.essayAnswers[key] = answer;
+    }
+  }
   db.prepare(`INSERT INTO progress (user_id,package_id,data,updated) VALUES (?,?,?,?)
     ON CONFLICT(user_id,package_id) DO UPDATE SET data=?, updated=?`)
-    .run(req.user.id, req.params.pkg, JSON.stringify(req.body || {}), Date.now(),
-         JSON.stringify(req.body || {}), Date.now());
+    .run(req.user.id, req.params.pkg, JSON.stringify(incoming), Date.now(),
+         JSON.stringify(incoming), Date.now());
   res.json({ ok: true });
+});
+app.get('/api/admin/essay-answers', auth, admin, (req, res) => {
+  const rows = db.prepare('SELECT p.user_id,p.package_id,p.data,u.name FROM progress p JOIN users u ON u.id=p.user_id').all();
+  res.json(rows.flatMap(row => Object.entries(JSON.parse(row.data).essayAnswers || {}).map(([key,answer]) => ({
+    userId:row.user_id, packageId:row.package_id, name:row.name, key, ...answer
+  }))));
+});
+app.put('/api/admin/essay-answers/:user/:pkg', auth, admin, (req, res) => {
+  const { key, score, feedback } = req.body || {};
+  if (typeof key !== 'string' || !Number.isInteger(score) || score < 0 || score > 100)
+    return res.status(400).json({ error:'درجة التقييم غير صحيحة' });
+  const row = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?').get(req.params.user, req.params.pkg);
+  if (!row) return res.status(404).json({ error:'الإجابة غير موجودة' });
+  const data = JSON.parse(row.data), answer = data.essayAnswers?.[key];
+  if (!answer) return res.status(404).json({ error:'الإجابة غير موجودة' });
+  Object.assign(answer,{ status:'graded', score, feedback:String(feedback || '').slice(0,2000), gradedAt:Date.now() });
+  const examKey = key.slice(0, key.lastIndexOf(':'));
+  if (data.exams?.[examKey]) {
+    const pending = Object.entries(data.essayAnswers).filter(([k,a]) => k.startsWith(examKey + ':') && a.status !== 'graded');
+    data.exams[examKey].pendingReview = pending.length;
+    if (!pending.length) {
+      const grades = Object.entries(data.essayAnswers).filter(([k]) => k.startsWith(examKey + ':')).map(([,a]) => a.score);
+      const exam = data.exams[examKey];
+      data.exams[examKey].score = Math.round(((exam.autoCorrect || 0)*100 + grades.reduce((a,b)=>a+b,0)) /
+        ((exam.autoCount || 0) + grades.length));
+      data.exams[examKey].passed = data.exams[examKey].score >= 65;
+    }
+  }
+  db.prepare('UPDATE progress SET data=?,updated=? WHERE user_id=? AND package_id=?')
+    .run(JSON.stringify(data),Date.now(),req.params.user,req.params.pkg);
+  res.json({ ok:true });
 });
 
 /* ═══════════ الدروس والفيديو — لا تُسلَّم إلا لمشترك ═══════════ */
@@ -263,6 +306,22 @@ app.get('/api/lesson-files/:id', auth, (req, res) => {
   res.set({ 'Content-Type': file.mime, 'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,
     'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' });
   res.send(file.bytes);
+});
+app.get('/api/quiz-images/:id', auth, (req, res) => {
+  const image = db.prepare('SELECT * FROM quiz_images WHERE id=?').get(req.params.id);
+  if (!image) return res.status(404).end();
+  const lessons = db.prepare('SELECT free,quiz FROM lessons WHERE package_id=?').all(image.package_id);
+  const referenced = lessons.filter(l => (JSON.parse(l.quiz || '[]')).some(q => q.imageId === image.id));
+  if (!referenced.length && req.user.role !== 'admin') return res.status(404).end();
+  const published = JSON.parse(setting('content_packages') || '[]');
+  const packages = [image.package_id, ...published.filter(p => p.sourcePackageId === image.package_id).map(p => p.id)];
+  const enrolled = packages.some(id => {
+    const row = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(req.user.id, id);
+    return row && (!row.expires || row.expires > Date.now());
+  });
+  if (req.user.role !== 'admin' && !enrolled && !referenced.some(l => l.free)) return res.status(403).end();
+  res.set({ 'Content-Type': image.mime, 'Cache-Control':'private, no-store', 'X-Content-Type-Options':'nosniff' });
+  res.send(image.bytes);
 });
 
 /* ═══════════ الدفع — التحقّق يتمّ هنا لا في المتصفح ═══════════ */
@@ -716,6 +775,23 @@ app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
   res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), quiz: JSON.parse(row.quiz || '[]'), free: !!row.free })));
 });
+app.post('/api/admin/quiz-images/:pkg', auth, admin, (req, res) => {
+  const { name, data } = req.body || {};
+  const ext = String(name || '').toLowerCase().match(/\.(png|jpe?g|webp)$/)?.[1];
+  if (!ext || !/^[A-Za-z0-9+/]+={0,2}$/.test(String(data || '')))
+    return res.status(400).json({ error:'اختر صورة PNG أو JPG أو WebP' });
+  const bytes = Buffer.from(data, 'base64');
+  if (!bytes.length || bytes.length > 4 * 1024 * 1024)
+    return res.status(400).json({ error:'حجم الصورة يجب ألا يتجاوز 4 ميجابايت' });
+  const valid = ext === 'png' ? bytes.subarray(0,8).toString('hex') === '89504e470d0a1a0a'
+    : ['jpg','jpeg'].includes(ext) ? bytes.subarray(0,3).toString('hex') === 'ffd8ff'
+    : bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP';
+  if (!valid) return res.status(400).json({ error:'محتوى الصورة غير صحيح' });
+  const id = uid(), mime = ext === 'png' ? 'image/png' : ['jpg','jpeg'].includes(ext) ? 'image/jpeg' : 'image/webp';
+  db.prepare('INSERT INTO quiz_images (id,package_id,mime,bytes,created) VALUES (?,?,?,?,?)')
+    .run(id,req.params.pkg,mime,bytes,Date.now());
+  res.json({ id });
+});
 app.post('/api/admin/lesson-files/:pkg', auth, admin, (req, res) => {
   const { name, data } = req.body || {};
   const ext = String(name || '').toLowerCase().match(/\.(pdf|doc|docx|xls|xlsx)$/)?.[1];
@@ -792,9 +868,20 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
       l.ch || 0, l.dur || l.duration || '', l.vimeo || '', l.free ? 1 : 0,
       l.notes || '', l.notes_en || '', JSON.stringify((l.files || []).filter(f =>
         f && db.prepare('SELECT 1 FROM lesson_files WHERE id=? AND package_id=?').get(f.id, req.params.pkg))),
-      JSON.stringify(Array.isArray(l.quiz) ? l.quiz.filter(q =>
-        q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.options) && q.options.length === 4 &&
-        q.options.every(o => typeof o === 'string' && o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4).slice(0, 20) : [])));
+      JSON.stringify(Array.isArray(l.quiz) ? l.quiz.filter(q => {
+        if (!q || typeof q.q !== 'string' || !q.q.trim() || q.q.length > 2000) return false;
+        const type = q.type || 'single';
+        if (type === 'essay') return true;
+        if (type === 'truefalse') return q.correct === 0 || q.correct === 1;
+        if (type === 'hotspot') return typeof q.imageId === 'string' &&
+          !!db.prepare('SELECT 1 FROM quiz_images WHERE id=? AND package_id=?').get(q.imageId, req.params.pkg) &&
+          [q.x,q.y].every(n => typeof n === 'number' && n >= 0 && n <= 100) &&
+          typeof q.radius === 'number' && q.radius >= 2 && q.radius <= 30;
+        if (type === 'matching') return Array.isArray(q.pairs) && q.pairs.length >= 2 && q.pairs.length <= 8 &&
+          q.pairs.every(p => Array.isArray(p) && p.length === 2 && p.every(s => typeof s === 'string' && !!s.trim()));
+        return type === 'single' && Array.isArray(q.options) && q.options.length === 4 &&
+          q.options.every(o => typeof o === 'string' && !!o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4;
+      }).slice(0, 20) : [])));
   })();
   res.json({ ok: true, count: list.length });
 });
