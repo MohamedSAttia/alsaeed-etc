@@ -91,13 +91,7 @@ let V = null;
 /* نقاط التفاعل الافتراضية داخل الفيديو */
 function buildCues(lesson, idx) {
   if (lesson && Array.isArray(lesson.cues) && lesson.cues.length) return lesson.cues;
-  const secs = durSec(lesson && (lesson.dur || lesson.duration));
-  if (!secs || secs < 180) return [];
-  /* سؤالان: عند 45% و85% من الدرس */
-  return [
-    { at: Math.round(secs * 0.45), kind: 'check' },
-    { at: Math.round(secs * 0.85), kind: 'check' }
-  ];
+  return [];
 }
 function durSec(d) {
   if (!d) return 0;
@@ -194,6 +188,7 @@ function render() {
 
       <aside class="iv-side">
         <h4>${T('محتوى الدرس', 'Lesson content')}</h4>
+        ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
         <div class="iv-notes">
           ${l.notes ? esc(l.notes).replace(/\n/g, '<br>')
             : `<p class="muted">${T('ملاحظات هذا الدرس تُضاف من لوحة الإدارة.',
@@ -298,6 +293,10 @@ function openCue(i) {
 
 function bind() {
   const c = $('#ivClose'); if (c) c.onclick = close;
+  const quiz = $('#ivLessonQuiz'); if (quiz) quiz.onclick = () => {
+    const pkg = V.pkgId, idx = V.lessonIdx;
+    close(); if (window.runLessonQuiz) window.runLessonQuiz(pkg, 'lesson' + idx);
+  };
   $$('[data-go]').forEach(b => b.onclick = () => {
     V.lessonIdx = +b.dataset.go;
     V.lesson = (window.LESSONS[V.pkgId] || [])[V.lessonIdx];

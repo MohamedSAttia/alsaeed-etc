@@ -2756,7 +2756,7 @@ function loadAdminLessons(pid) {
     if (API.token !== token) return;
     window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
       t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-      free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+      free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
     adminLessonsReady.add(pid);
     if (ROUTE.startsWith('admin')) render();
   }).catch(e => toast('تعذر تحميل روابط الفيديو: ' + e.message))
@@ -2789,7 +2789,7 @@ function loadLessonsFor(pid) {
       if (requestedToken !== API.token) return;
       window.LESSONS[pid] = ls.map(l => ({ ch:l.chapter || 0, t:l.title || '',
         t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-        free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+        free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
       if (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || ROUTE.startsWith('admin')) render();
     }).catch(() => {}).finally(() => lessonRequests.delete(pid));
   lessonRequests.set(pid, request);
@@ -2953,9 +2953,11 @@ function studyPlan(pid) {
 function examSet(pid) {
   const p = pack(pid), c = course(p.course);
   const out = [];
-  c.chapters.forEach((ch, i) => out.push({
-    id: 'ch' + i, kind: 'فصل', title: ch, q: 15, min: 18
-  }));
+  c.chapters.forEach((ch, i) => {
+    const count = (window.LESSONS[pid] || []).filter(l => (l.ch || 0) === i)
+      .reduce((n, l) => n + (l.quiz || []).length, 0);
+    if (count) out.push({ id: 'ch' + i, kind: 'فصل', title: ch, q: count, min: Math.max(2, count * 2) });
+  });
   c.domains.forEach(d => out.push({
     id: 'dom_' + d.k, kind: 'نطاق', title: d.ar,
     q: Math.max(10, Math.round(c.questions * d.w / 100 / 2)),
@@ -4683,7 +4685,7 @@ function adminTab() {
             <b contenteditable="true" data-chname="${ci}" style="outline:0;border-bottom:1px dashed transparent;padding:2px 4px"
               onfocus="this.style.borderBottomColor='var(--orange)'"
               onblur="this.style.borderBottomColor='transparent'">${esc(window.biTitle ? window.biTitle(ch) : ch)}</b>
-            <span>${rows.length} درساً · ${rows.filter(r => r.vimeo).length} مرتبط</span>
+            <span>${rows.length} درساً · ${rows.filter(r => r.vimeo).length} مرتبط · ${rows.reduce((n,r) => n + (r.quiz || []).length, 0) ? rows.reduce((n,r) => n + (r.quiz || []).length, 0) + ' سؤال تقييم' : 'لا توجد أسئلة تقييم'}</span>
             <button class="btn o sm" data-addto="${ci}">＋ درس هنا</button>
             <button class="btn o sm" data-delch="${ci}" title="حذف الفصل">🗑</button>
           </div>
@@ -4720,6 +4722,7 @@ function adminTab() {
                 <label class="btn o sm">📎 أرفق PDF أو Word أو Excel
                   <input type="file" data-attach="${l.i}" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple hidden></label>
                 ${(l.files || []).map(f => `<span class="chip">${esc(f.name)} <button type="button" data-remove-file="${l.i}" data-file-id="${esc(f.id)}" title="إزالة المرفق">×</button></span>`).join('')}
+                <button class="btn o sm" data-lesson-quiz="${l.i}">❓ أسئلة بعد الفيديو (${(l.quiz || []).length})</button>
               </td></tr>`).join('')}
             </tbody></table></div>`
           : `<div style="padding:20px;text-align:center;color:var(--dim);font-size:.85rem">
@@ -5127,6 +5130,7 @@ function playLesson(pid, idx) {
     <div class="mdl-act">
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
         ${pr.lessons[idx] ? '✓ مكتمل — إلغاء' : 'علّم كمكتمل'}</button>
+      ${(l.quiz || []).length ? `<button class="btn o" id="lessonQuiz">اختبار الفيديو (${l.quiz.length})</button>` : ''}
       ${idx + 1 < ls.length ? '<button class="btn o" id="lsNext">الدرس التالي ←</button>' : ''}
       <button class="btn o" data-close>إغلاق</button>
     </div>`, () => {
@@ -5136,12 +5140,59 @@ function playLesson(pid, idx) {
       A().closeModal(); A().render();
       if (completed && (l.quiz || (idx + 1) % 3 === 0)) setTimeout(() => openPractice(pid, 'ch' + (l.ch || 0)), 180);
     };
+    const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); runLessonQuiz(pid, 'lesson' + idx); };
     const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, idx + 1); };
   });
 }
 
+/* ═══════════ تقييم الدرس أو الفصل من الأسئلة المنشورة فعلاً ═══════════ */
+function runLessonQuiz(pid, key) {
+  const lessons = window.LESSONS[pid] || [];
+  const selected = key.startsWith('lesson')
+    ? lessons.slice(Number(key.slice(6)), Number(key.slice(6)) + 1)
+    : lessons.filter(l => (l.ch || 0) === Number(key.slice(2)));
+  const questions = selected.flatMap(l => l.quiz || []);
+  if (!questions.length) { A().toast('لم تُضف أسئلة لهذا الفصل بعد'); return; }
+  let index = 0, score = 0;
+  function show() {
+    if (index === questions.length) {
+      const percent = Math.round(score / questions.length * 100);
+      const progress = A().prog(pid); progress.exams = progress.exams || {};
+      progress.exams[key] = { score:percent, passed:percent >= 65, at:Date.now() };
+      A().save();
+      A().modal(`<h3>نتيجة التقييم: ${percent}%</h3><p>${score} من ${questions.length} إجابة صحيحة</p>
+        <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`);
+      return;
+    }
+    const question = questions[index], en = window.__lang === 'en';
+    const options = en && question.options_en?.length === 4 ? question.options_en : question.options;
+    A().modal(`<h3>سؤال ${index + 1} من ${questions.length}</h3>
+      <p>${esc(en && question.q_en || question.q)}</p>
+      ${(options || []).map((option, n) => `<label class="practice-opt"><input type="radio" name="lessonAnswer" value="${n}"><span>${esc(option)}</span></label>`).join('')}
+      <div id="lessonFeedback"></div><div class="mdl-act"><button class="btn p" id="lessonCheck">تحقق من الإجابة</button><button class="btn o" data-close>إغلاق</button></div>`, () => {
+      let checked = false;
+      $('#lessonCheck').onclick = () => {
+        if (checked) { index++; show(); return; }
+        const answer = document.querySelector('[name="lessonAnswer"]:checked');
+        if (!answer) { A().toast('اختر إجابة أولاً'); return; }
+        checked = true; const correct = +answer.value === question.correct;
+        if (correct) score++;
+        $('#lessonFeedback').textContent = correct ? '✅ إجابة صحيحة' : '❌ الإجابة الصحيحة: ' + options[question.correct];
+        $$('[name="lessonAnswer"]').forEach(input => input.disabled = true);
+        $('#lessonCheck').textContent = index + 1 === questions.length ? 'عرض النتيجة' : 'السؤال التالي';
+      };
+    });
+  }
+  show();
+}
+window.runLessonQuiz = runLessonQuiz;
+
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
+  if (/^ch\d+$/.test(eid) && (window.LESSONS[pid] || []).some(l =>
+    (l.ch || 0) === Number(eid.slice(2)) && (l.quiz || []).length)) {
+    runLessonQuiz(pid, eid); return;
+  }
   if (eid === 'full' && /^pmp-(?:full|sim)(?:-|$)/i.test(String(pid || ''))) {
     window.location.href = '/pmp/';
     return;
@@ -5542,6 +5593,39 @@ function bind() {
     lesson.files = (lesson.files || []).filter(f => f.id !== button.dataset.fileId);
     saveLessons(true); A().render();
   });
+  $$('[data-lesson-quiz]').forEach(button => button.onclick = () => editLessonQuiz(+button.dataset.lessonQuiz));
+  function editLessonQuiz(index, editIndex = -1) {
+    harvest();
+    const lesson = curLs()[index];
+    lesson.quiz = lesson.quiz || [];
+    const current = lesson.quiz[editIndex] || {};
+    A().modal(`<h3>أسئلة تقييم بعد الفيديو: ${esc(lesson.t)}</h3>
+      <p class="muted">أضف سؤالاً أو عدة أسئلة لهذا الدرس. اختر الإجابة الصحيحة من 1 إلى 4.</p>
+      ${(lesson.quiz || []).map((q, n) => `<div class="note info" style="display:flex;gap:8px;align-items:center"><b style="flex:1">${n + 1}. ${esc(q.q)}</b><button class="btn o sm" data-quiz-edit="${n}">تعديل</button><button class="btn o sm" data-quiz-remove="${n}">حذف</button></div>`).join('')}
+      <label class="f"><span>السؤال بالعربية</span><input id="quizQuestion" value="${esc(current.q || '')}"></label>
+      <label class="f"><span>Question in English (اختياري)</span><input id="quizQuestionEn" dir="ltr" value="${esc(current.q_en || '')}"></label>
+      <label class="f"><span>الخيارات الأربعة بالعربية، كل خيار في سطر</span><textarea id="quizOptions" rows="4">${esc((current.options || []).join('\n'))}</textarea></label>
+      <label class="f"><span>English options (اختياري، كل خيار في سطر)</span><textarea id="quizOptionsEn" rows="4">${esc((current.options_en || []).join('\n'))}</textarea></label>
+      <label class="f"><span>رقم الإجابة الصحيحة</span><select id="quizCorrect">${[0,1,2,3].map(n=>`<option value="${n}" ${current.correct === n ? 'selected' : ''}>${n+1}</option>`).join('')}</select></label>
+      <div class="mdl-act"><button class="btn p" id="quizSave">${editIndex < 0 ? 'إضافة السؤال' : 'حفظ السؤال'}</button><button class="btn o" data-close>إغلاق</button></div>`, () => {
+      $$('[data-quiz-edit]').forEach(b => b.onclick = () => editLessonQuiz(index, +b.dataset.quizEdit));
+      $$('[data-quiz-remove]').forEach(b => b.onclick = async () => {
+        lesson.quiz.splice(+b.dataset.quizRemove, 1);
+        if (await saveLessons(true) !== false) editLessonQuiz(index);
+      });
+      $('#quizSave').onclick = async () => {
+        const q = $('#quizQuestion').value.trim(), options = $('#quizOptions').value.split('\n').map(s=>s.trim()).filter(Boolean);
+        const optionsEn = $('#quizOptionsEn').value.split('\n').map(s=>s.trim()).filter(Boolean);
+        if (!q || options.length !== 4 || (optionsEn.length && optionsEn.length !== 4)) {
+          A().toast('اكتب السؤال وأربعة خيارات؛ والترجمة الإنجليزية أربعة خيارات أو اتركها فارغة'); return;
+        }
+        const item = { q, q_en:$('#quizQuestionEn').value.trim(), options,
+          options_en:optionsEn, correct:+$('#quizCorrect').value };
+        if (editIndex >= 0) lesson.quiz[editIndex] = item; else lesson.quiz.push(item);
+        if (await saveLessons(true) !== false) editLessonQuiz(index);
+      };
+    });
+  }
 
   /* إضافة درس */
   const addL = () => addLessonAt(0);
@@ -5963,14 +6047,18 @@ function saveLessons(notify) {
   try { localStorage.setItem('alsaeed_lessons', JSON.stringify(window.LESSONS)); } catch (e) {}
   if (A().live) {
     const snapshot = JSON.parse(JSON.stringify(ls));
+    const chapters = (A().course(pk?.course)?.chapters || []).map(ch =>
+      typeof ch === 'string' ? ch : (window.biTitle ? window.biTitle(ch) : String(ch.ar || ch.en || '')));
     const pending = (lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
       await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
+      if (pk?.course) await A().api('/admin/course-chapters/' + encodeURIComponent(pk.course), {
+        method: 'PUT', body: { chapters } });
       const response = await fetch('/api/catalog-availability', { cache: 'no-store' });
       if (response.ok) window.CATALOG_AVAILABILITY = await response.json();
       if (window.LESSONS[pid] === ls && lessonSaveQueues.get(pid) === pending) {
         const rows = await A().api('/admin/lessons/' + encodeURIComponent(pid));
         window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
-          dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+          dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
         A().render();
       }
         if (notify) A().toast('✅ حُفظ على الخادم — ' + ls.length + ' درساً');

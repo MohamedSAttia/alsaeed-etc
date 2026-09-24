@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS messages (
 `);
 if (!db.pragma('table_info(lessons)').some(col => col.name === 'files'))
   db.exec("ALTER TABLE lessons ADD COLUMN files TEXT DEFAULT '[]'");
+if (!db.pragma('table_info(lessons)').some(col => col.name === 'quiz'))
+  db.exec("ALTER TABLE lessons ADD COLUMN quiz TEXT DEFAULT '[]'");
 
 /* مشرف أول — لا توجد كلمة مرور افتراضية داخل الكود */
 const admins = db.prepare("SELECT COUNT(*) c FROM users WHERE role='admin'").get();
@@ -227,7 +229,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
   const variant = publishedPackages.find(p => p.id === req.params.pkg);
   const source = variant?.sourcePackageId && publishedPackages.some(p => p.id === variant.sourcePackageId)
     ? variant.sourcePackageId : req.params.pkg;
-  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files FROM lessons WHERE package_id=? ORDER BY idx')
+  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz FROM lessons WHERE package_id=? ORDER BY idx')
     .all(source);
   let enrolled = false;
   const h = req.headers.authorization || '';
@@ -241,6 +243,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
   }
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */
   res.json(rows.map(r => ({ ...r, files: (enrolled || r.free) ? JSON.parse(r.files || '[]') : [],
+    quiz: (enrolled || r.free) ? JSON.parse(r.quiz || '[]') : [],
     vimeo: (enrolled || r.free) ? r.vimeo : null })));
 });
 app.get('/api/lesson-files/:id', auth, (req, res) => {
@@ -709,9 +712,9 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
     FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 500`).all());
 });
 app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
-  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files
+  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
-  res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), free: !!row.free })));
+  res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), quiz: JSON.parse(row.quiz || '[]'), free: !!row.free })));
 });
 app.post('/api/admin/lesson-files/:pkg', auth, admin, (req, res) => {
   const { name, data } = req.body || {};
@@ -766,11 +769,12 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
   const list = req.body || [];
   if (!Array.isArray(list)) return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
   // Only look up newly linked videos; keep existing durations when Vimeo is unavailable.
-  const existing = db.prepare('SELECT idx,title,vimeo,duration FROM lessons WHERE package_id=?').all(req.params.pkg);
+  const existing = db.prepare('SELECT idx,title,vimeo,duration,quiz FROM lessons WHERE package_id=?').all(req.params.pkg);
   for (let i = 0; i < list.length; i++) {
     const lesson = list[i];
     const old = existing.find(row => row.idx === i && row.title === (lesson.t || lesson.title)) ||
       existing.find(row => row.title === (lesson.t || lesson.title));
+    if (!Array.isArray(lesson.quiz) && old?.quiz) lesson.quiz = JSON.parse(old.quiz);
     if (!lesson.vimeo && old?.vimeo && !lesson.clearVimeo) lesson.vimeo = old.vimeo;
     const id = String(lesson.vimeo || '').match(/^(?:https?:\/\/(?:www\.)?vimeo\.com\/(?:video\/)?|)(\d{6,12})(?:\?.*)?$/)?.[1];
     if (!id) continue;
@@ -779,15 +783,18 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
     if (!previous && (!lesson.dur || lesson.dur === '00:00')) lesson.dur = await vimeoDuration(id) || lesson.dur || '';
   }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)`);
+  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`);
   db.transaction(() => {
     del.run(req.params.pkg);
     list.forEach((l, i) => ins.run(req.params.pkg, i,
       l.t || l.title || '', l.t_en || l.title_en || '',
       l.ch || 0, l.dur || l.duration || '', l.vimeo || '', l.free ? 1 : 0,
       l.notes || '', l.notes_en || '', JSON.stringify((l.files || []).filter(f =>
-        f && db.prepare('SELECT 1 FROM lesson_files WHERE id=? AND package_id=?').get(f.id, req.params.pkg)))));
+        f && db.prepare('SELECT 1 FROM lesson_files WHERE id=? AND package_id=?').get(f.id, req.params.pkg))),
+      JSON.stringify(Array.isArray(l.quiz) ? l.quiz.filter(q =>
+        q && typeof q.q === 'string' && q.q.trim() && Array.isArray(q.options) && q.options.length === 4 &&
+        q.options.every(o => typeof o === 'string' && o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4).slice(0, 20) : [])));
   })();
   res.json({ ok: true, count: list.length });
 });
@@ -855,6 +862,19 @@ app.get('/api/catalog-availability', (req, res) => {
     result[p.id] = { videos: videos[source]?.count || 0, videoMins: Math.round(videos[source]?.minutes || 0), questions: questions[bank] || 0 };
   }
   res.json(result);
+});
+app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
+  const chapters = req.body?.chapters;
+  if (!Array.isArray(chapters) || chapters.length > 100 || chapters.some(ch =>
+    typeof ch !== 'string' || !ch.trim() || ch.length > 200))
+    return res.status(400).json({ error: 'أسماء الفصول غير صحيحة' });
+  const courses = JSON.parse(setting('content_courses') || '[]');
+  const course = courses.find(c => c.id === req.params.course);
+  if (!course) return res.status(404).json({ error: 'الدورة غير موجودة' });
+  course.chapters = chapters;
+  db.prepare("INSERT INTO settings (k,v) VALUES ('content_courses',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v")
+    .run(JSON.stringify(courses));
+  res.json({ ok: true, chapters });
 });
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
