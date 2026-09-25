@@ -33,7 +33,7 @@
     if(id&&!cart.includes(id))cart.push(id);
     if(!APP.me()){save();APP.openAuth('login');APP.toast('سجّل الدخول ثم افتح السلة لإتمام الدفع');return}
     cart=cart.filter(x=>APP.pack(x)&&!APP.owns(x));save();
-    const packages=cart.map(x=>APP.pack(x));if(!packages.length){APP.toast('السلة فارغة');return}
+    const packages=cart.map(x=>APP.pack(x));if(!packages.length){APP.closeModal();APP.toast('السلة فارغة');return}
     APP.modal('<h3>سلة الباقات والفواتير</h3><div class="v23-lines">'+packages.map(p=>
       '<div><span>'+esc(p.ar||p.en||p.id)+'</span><b>'+money(p.price,p.currency)+'</b><button type="button" data-remove="'+esc(p.id)+'" aria-label="إزالة">×</button></div>').join('')+'</div>'+ 
       '<div class="v16-checkout-total">إجمالي الدفع <b id="v23Due"></b></div><div class="grid g2">'+
