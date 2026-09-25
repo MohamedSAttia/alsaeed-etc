@@ -848,8 +848,42 @@ async function vimeoDuration(id) {
       ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : '';
   } catch { return ''; } finally { clearTimeout(timer); }
 }
+const missingDurationSql = "TRIM(COALESCE(duration,'')) IN ('','0:00','00:00','0')";
+const saveObservedDuration = db.prepare(`UPDATE lessons SET duration=? WHERE package_id=? AND idx=? AND vimeo=? AND ${missingDurationSql}`);
+
+// Vimeo may withhold oEmbed metadata for restricted videos. The player can report
+// their duration after an authorized viewer opens them.
+app.patch('/api/lessons/:pkg/:idx/duration', auth, (req, res) => {
+  const pkg = req.params.pkg, idx = Number(req.params.idx);
+  const seconds = Number(req.body?.seconds), id = String(req.body?.vimeo || '');
+  if (!Number.isSafeInteger(idx) || idx < 0 || !Number.isFinite(seconds) || seconds < 1 || seconds > 86400 || !/^\d{6,12}$/.test(id))
+    return res.status(400).json({ error:'مدة الفيديو غير صحيحة' });
+  const catalog = JSON.parse(setting('content_packages') || '[]');
+  const variant = catalog.find(p => p.id === pkg);
+  const source = variant?.sourcePackageId && catalog.some(p => p.id === variant.sourcePackageId)
+    ? variant.sourcePackageId : pkg;
+  const lesson = db.prepare('SELECT vimeo,duration,free FROM lessons WHERE package_id=? AND idx=?').get(source, idx);
+  if (!lesson || lesson.vimeo !== id) return res.status(404).json({ error:'الفيديو غير موجود' });
+  const enrollment = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(req.user.id, pkg);
+  if (req.user.role !== 'admin' && !lesson.free && (!enrollment || enrollment.expires && enrollment.expires <= Date.now()))
+    return res.status(403).json({ error:'لا يمكنك تعديل هذا الفيديو' });
+  const duration = Math.floor(seconds / 60) + ':' + String(Math.floor(seconds) % 60).padStart(2, '0');
+  saveObservedDuration.run(duration, source, idx, id);
+  res.json({ duration:db.prepare('SELECT duration FROM lessons WHERE package_id=? AND idx=?').get(source,idx).duration });
+});
+
+async function fillMissingDurations() {
+  const missing = db.prepare(`SELECT package_id,idx,vimeo FROM lessons WHERE ${missingDurationSql} AND vimeo GLOB '[0-9]*'`).all();
+  for (const lesson of missing) {
+    if (!/^\d{6,12}$/.test(lesson.vimeo)) continue;
+    const duration = await vimeoDuration(lesson.vimeo);
+    if (duration) saveObservedDuration.run(duration, lesson.package_id, lesson.idx, lesson.vimeo);
+  }
+}
+setTimeout(() => fillMissingDurations().catch(error => console.error('Vimeo duration refresh:', error)), 5000);
+setInterval(() => fillMissingDurations().catch(error => console.error('Vimeo duration refresh:', error)), 6 * 60 * 60 * 1000);
 app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res) => {
-  const missing = db.prepare("SELECT idx,vimeo FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>'' AND (TRIM(COALESCE(duration,''))='' OR duration='00:00')")
+  const missing = db.prepare(`SELECT idx,vimeo FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>'' AND ${missingDurationSql}`)
     .all(req.params.pkg);
   let updated = 0;
   for (const row of missing) {
@@ -857,8 +891,7 @@ app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res)
     if (!id) continue;
     const duration = await vimeoDuration(id);
     if (duration) {
-      db.prepare("UPDATE lessons SET duration=? WHERE package_id=? AND idx=? AND (TRIM(COALESCE(duration,''))='' OR duration='00:00')")
-        .run(duration, req.params.pkg, row.idx);
+      saveObservedDuration.run(duration, req.params.pkg, row.idx, row.vimeo);
       updated++;
     }
   }

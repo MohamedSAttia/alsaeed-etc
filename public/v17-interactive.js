@@ -135,6 +135,17 @@ function connectPlayer(){
       V.dur=seconds;const display=fmtT(Math.floor(seconds));
       const label=$('#ivDuration');if(label)label.textContent=' · '+display;
       const listing=$(`[data-go="${index}"] .d`);if(listing)listing.textContent=display;
+      if(!target.lesson.dur || /^0+:00$/.test(target.lesson.dur)) {
+        target.lesson.dur=display;
+        if(window.APP?.token) window.APP.api('/lessons/'+encodeURIComponent(target.pkgId)+'/'+index+'/duration',{
+          method:'PATCH',body:{vimeo:String(target.lesson.vimeo),seconds:Math.floor(seconds)}
+        }).then(result=>{
+          target.lesson.dur=result.duration;
+          return fetch('/api/catalog-availability',{cache:'no-store'});
+        }).then(response=>response?.ok?response.json():null)
+          .then(availability=>{if(availability)window.CATALOG_AVAILABILITY=availability;})
+          .catch(()=>{});
+      }
     }).catch(()=>{});
     instance.on('timeupdate',e=>{if(V===target&&V.lessonIdx===index)V.t=e.seconds});
     instance.on('ended',()=>{
