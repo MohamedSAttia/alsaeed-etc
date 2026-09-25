@@ -89,6 +89,17 @@ window.buildCover = function (opts) {
 let V = null;
 let player = null;
 let playerLoader = null;
+function visibleVideoOrder(pkgId) {
+  return ((window.LESSONS && window.LESSONS[pkgId]) || [])
+    .map((lesson, index) => ({ lesson, index }))
+    .filter(item => item.lesson.vimeo && (window.APP.owns(pkgId) || window.APP.isAdmin() || item.lesson.free))
+    .sort((a, b) => (Number(a.lesson.ch) || 0) - (Number(b.lesson.ch) || 0) || a.index - b.index)
+    .map(item => item.index);
+}
+function videoNumber(pkgId, index) {
+  const position = visibleVideoOrder(pkgId).indexOf(index);
+  return position < 0 ? index + 1 : position + 1;
+}
 function loadPlayer() {
   if (window.Vimeo?.Player) return Promise.resolve(window.Vimeo.Player);
   if (!playerLoader) playerLoader = new Promise((resolve, reject) => {
@@ -100,9 +111,9 @@ function loadPlayer() {
 }
 function nextVideo() {
   if (!V) return;
-  const lessons=window.LESSONS[V.pkgId]||[];
-  const index=lessons.findIndex((item,i)=>i>V.lessonIdx && item.vimeo && (window.APP.owns(V.pkgId)||item.free));
-  if(index>=0) selectVideo(index);
+  const order=visibleVideoOrder(V.pkgId);
+  const index=order[order.indexOf(V.lessonIdx)+1];
+  if(index!==undefined) selectVideo(index);
 }
 function selectVideo(index) {
   if (!V) return;
@@ -204,7 +215,7 @@ function render() {
   $('#iv').innerHTML = `
     <div class="iv-bar">
       <div class="iv-t"><b>${esc(window.biTitle ? window.biTitle(l) : (l.t || l.title || ''))}</b>
-        <span>${T('درس', 'Lesson')} ${V.lessonIdx + 1}<span id="ivDuration">${l.dur ? ' · ' + esc(l.dur) : ''}</span></span></div>
+        <span>${T('درس', 'Lesson')} ${videoNumber(V.pkgId, V.lessonIdx)}<span id="ivDuration">${l.dur ? ' · ' + esc(l.dur) : ''}</span></span></div>
       <div class="iv-stat">
         ${V.cues.length ? `<span>${T('أسئلة الفاصل', 'Checkpoints')}:
           <b>${V.answered}</b>/${V.cues.length}</span>` : ''}
@@ -253,7 +264,7 @@ function render() {
             .map((x, i) => ({ x, i }))
             .filter(o => (o.x.ch || 0) === (l.ch || 0))
             .map(o => `<button class="iv-li${o.i === V.lessonIdx ? ' cur' : ''}" data-go="${o.i}">
-              <span class="n">${o.i + 1}</span>
+              <span class="n">${videoNumber(V.pkgId, o.i)}</span>
               <span class="t">${window.APP.prog(V.pkgId).lessons[o.i]?'✓ ':'○ '}${esc(window.biTitle ? window.biTitle(o.x) : (o.x.t || o.x.title || ''))}</span>
               <span class="d">${esc(o.x.dur || '')}</span></button>`).join('')}
         </div>

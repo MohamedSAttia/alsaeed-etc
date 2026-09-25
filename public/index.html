@@ -4244,6 +4244,9 @@ function pkgTab(p, c, has) {
     if (!ls.length) return `<div class="empty"><div class="ic">🎬</div>
       <b>المحتوى قيد الرفع</b><p class="muted">سيظهر هنا فور رفعه من لوحة الإدارة.</p></div>`;
     const pr = has ? A().prog(p.id) : { lessons: {} };
+    const videoNumbers = new Map(ls.map((l, i) => ({ l, i }))
+      .filter(x => x.l.vimeo).sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i)
+      .map((x, n) => [x.i, n + 1]));
     const byCh = {};
     ls.forEach((l, i) => { (byCh[l.ch] = byCh[l.ch] || []).push({ ...l, i }); });
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
@@ -4256,6 +4259,7 @@ function pkgTab(p, c, has) {
         ${byCh[ch].map(l => `<div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
+          ${l.vimeo ? `<span class="num" aria-label="${siteEnglish()?'Video':'فيديو'} ${videoNumbers.get(l.i)}">${videoNumbers.get(l.i)}</span>` : ''}
           <div class="ls-t">${esc(window.biTitle ? window.biTitle(l) : l.t)}</div>
           ${l.free && l.vimeo && !has ? '<span class="ls-free">مجاني</span>' : ''}
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
@@ -4646,6 +4650,9 @@ function adminTab() {
     const ls = window.LESSONS[pid] || (window.LESSONS[pid] = []);
     const byCh = {};
     ls.forEach((l, i2) => { (byCh[l.ch || 0] = byCh[l.ch || 0] || []).push({ ...l, i: i2 }); });
+    const videoNumbers = new Map(ls.map((l, i) => ({ l, i }))
+      .filter(x => x.l.vimeo).sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i)
+      .map((x, n) => [x.i, n + 1]));
     const chapters = c.chapters || [];
     const totalMin = ls.reduce((a, l) => {
       const p = String(l.dur || '0:0').split(':'); return a + (+p[0] || 0) + (+p[1] || 0) / 60; }, 0);
@@ -4698,7 +4705,7 @@ function adminTab() {
               <th style="width:170px">رقم Vimeo</th><th style="width:80px">مجاني</th><th style="width:120px"></th>
             </tr></thead><tbody>
             ${rows.map(l => `<tr>
-              <td class="num">${l.i + 1}</td>
+              <td class="num">${videoNumbers.get(l.i) || '—'}</td>
               <td>
                 <div class="bi-f sm"><span class="bi-flag">🇸🇦</span>
                   <input data-lt="${l.i}" dir="rtl" value="${esc(l.t || '')}"
