@@ -24,7 +24,6 @@ function installBlog(){
   var original=VIEWS.bind;
   VIEWS.bind=function(){
     if(original)original();
-    mountDemo();
     mountInvoiceButton();
   };
 }
