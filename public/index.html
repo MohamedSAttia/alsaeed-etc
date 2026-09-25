@@ -1080,6 +1080,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/v16-enhancements.css?v=23.1">
 <link rel="stylesheet" href="/visual-refresh-v26.css?v=27.0">
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
+<link rel="stylesheet" href="/experience-v32.css?v=32.0">
 </head>
 <body>
 
@@ -3226,6 +3227,7 @@ function openAuth(mode, after) {
 /* ═══ الربط العام ═══ */
 function bindAll() {
   $$('[data-r]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.r); });
+  const invoices=$('#dashInvoices');if(invoices)invoices.onclick=()=>window.V23_CART?.showInvoices();
   $$('[data-buy]').forEach(b => b.onclick = () => checkout(b.dataset.buy));
   const lo = $('#logout'); if (lo) lo.onclick = () => {
     DB.session = null; API.token = null; window.LESSONS = {}; adminLessonsReady.clear();
@@ -4166,6 +4168,9 @@ function pkgView(id) {
   const videoCount = A().live ? (actual?.videos || '—') : (p.videos || '—');
   const KINDS = window.CONTENT_KINDS || [];
   const promo = window.__promo;
+  const siblings=window.PACKAGES.filter(x=>x.course===p.course&&x.active!==false);
+  const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
+  const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
   return `<section class="pg-hero" style="background:${T.col || 'var(--navy)'}"><div class="wrap">
     <div class="crumb"><a href="#programs" data-r="programs">البرامج</a> ←
@@ -4257,7 +4262,7 @@ function pkgView(id) {
              </div>
            </div>
            <button class="btn p full lg mb" data-buy="${p.id}">اشترك الآن</button>
-           <p class="muted center" style="font-size:.79rem">وصول ${p.days} يوماً · ضمان استرداد خلال 7 أيام</p>`}
+           <p class="muted center" style="font-size:.85rem">${siteEnglish()?`Access for ${p.days} days`:`وصول لمدة ${p.days} يومًا`} · <a href="/policies.html#refund" target="_blank" rel="noopener">${siteEnglish()?'Cancellation and refunds':'سياسة الإلغاء والاسترداد'}</a></p>`}
 
       <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
         <b style="font-size:.88rem;color:var(--navy);display:block;margin-bottom:9px">باقات أخرى لهذا البرنامج</b>
@@ -4272,7 +4277,7 @@ function pkgView(id) {
         }).join('')}
       </div>
     </div></div>
-  </div></div></section>`;
+  </div>${compare}</div></section>`;
 }
 
 function pkgTab(p, c, has) {
@@ -4521,11 +4526,12 @@ function dash() {
   const reminder=window.__reminderSettings || {};
   const mine = u.packages.map(x => ({ ...x, p: A().pack(x.id) })).filter(x => x.p);
   return `<section class="dash-hd"><div class="wrap">
-    <h1>أهلاً ${esc(u.name.split(' ')[0])}</h1>
-    <p>${mine.length ? `لديك ${mine.length} ${mine.length === 1 ? 'باقة' : 'باقات'} — واصل من حيث توقّفت.`
-      : 'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.'}</p>
+    <h1>${siteEnglish()?'Welcome':'أهلاً'} ${esc(u.name.split(' ')[0])}</h1>
+    <p>${mine.length ? (siteEnglish()?`You have ${mine.length} packages. Pick up where you left off.`:`لديك ${mine.length} ${mine.length === 1 ? 'باقة' : 'باقات'} — واصل من حيث توقّفت.`)
+      : (siteEnglish()?'You have no packages yet. Choose your next program.':'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.')}</p>
   </div></section>
   <div class="wrap" style="padding-bottom:60px">
+    <div class="v32-dash-actions"><button class="btn o" id="dashInvoices" type="button">${siteEnglish()?'My invoices':'فواتيري'} ↗</button><a class="btn o" href="#programs">${siteEnglish()?'Explore programs':'استكشف البرامج'} ↗</a></div>
     <div class="readiness-explain mb"><span aria-hidden="true">🔔</span><div style="flex:1">
       <b>${siteEnglish()?'Study reminders':'تذكيرات الدراسة'}</b>
       <p>${siteEnglish()?'Receive an email when your video lessons are unfinished and you have not studied for several days. You can stop reminders at any time.':'تصل رسالة إلى بريدك عند عدم إكمال الفيديوهات والتوقف عن الدراسة عدة أيام. يمكنك إيقافها في أي وقت.'}</p>
@@ -4540,13 +4546,13 @@ function dash() {
       const left = Math.max(0, x.p.days - Math.floor((Date.now() - x.at) / 86400000));
       return `<div class="card pad">
         <div class="pk-code">${code(c)}</div>
-        <h3 style="font-family:var(--fd);font-weight:700;font-size:1.1rem;color:var(--ink);margin:5px 0 12px">${esc(x.p.ar)}</h3>
+        <h3 style="font-family:var(--fd);font-weight:700;font-size:1.1rem;color:var(--ink);margin:5px 0 12px">${esc(siteEnglish()?(x.p.en||x.p.ar):x.p.ar)}</h3>
         <div class="prog"><i style="width:${pc}%"></i></div>
         <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--dim);margin-bottom:14px">
-          <span><b class="num" style="color:var(--ink)">${pc}%</b> مكتمل</span>
-          <span>يتبقّى <b class="num" style="color:var(--ink)">${left}</b> يوماً</span>
+          <span><b class="num" style="color:var(--ink)">${pc}%</b> ${siteEnglish()?'complete':'مكتمل'}</span>
+          <span>${siteEnglish()?'Days remaining':'يتبقّى'} <b class="num" style="color:var(--ink)">${left}</b> ${siteEnglish()?'':'يومًا'}</span>
         </div>
-        <button class="btn p full" data-r="learn/${x.id}">${pc ? 'أكمل الدراسة' : 'ابدأ الآن'} ←</button>
+        <button class="btn p full" data-r="learn/${x.id}">${siteEnglish()?(pc?'Continue learning':'Start learning'):(pc?'أكمل الدراسة':'ابدأ الآن')} ←</button>
       </div>`;
     }).join('')}</div>`
     : `<div class="empty"><div class="ic">📚</div><b>لا باقات بعد</b>
@@ -6958,7 +6964,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
-<script src="/v23-cart-invoices.js?v=30.1"></script>
+<script src="/v23-cart-invoices.js?v=32.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
 <script src="/unified-exam.js?v=20260922-1"></script>
 <script src="/bilingual-admin.js"></script>

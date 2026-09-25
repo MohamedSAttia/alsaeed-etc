@@ -14,7 +14,7 @@
   if(location.hash.includes('paid=1')){cart=[];sessionStorage.removeItem('alsaeed_cart')}
   let payment={currencies:['USD'],rates:{USD:1},vatRate:0,taxExemptCountries:[]};
   let approvedCountries=[];
-  fetch('/api/payment-config').then(r=>r.ok?r.json():null).then(x=>{if(x)payment=x}).catch(()=>{});
+  const configReady=fetch('/api/payment-config').then(r=>{if(!r.ok)throw Error('payment configuration');return r.json()}).then(x=>{payment=x;return true}).catch(()=>false);
 
   function save(){sessionStorage.setItem('alsaeed_cart',JSON.stringify(cart));mount()}
   function mount(){
@@ -39,14 +39,14 @@
       '<div class="v16-checkout-total">إجمالي الدفع <b id="v23Due"></b></div><div class="grid g2">'+
       '<label class="f">عملة الدفع والفواتير<select id="v23Currency">'+payment.currencies.map(c=>'<option value="'+esc(c)+'" '+(c===packages[0].currency?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label>'+
       '<label class="f">اسم العميل<input id="v23Name" value="'+esc(APP.me().name||'')+'"></label>'+
-      '<label class="f">بلد الفوترة<select id="v23Country">'+Object.entries(countries).map(([code,name])=>'<option value="'+code+'">'+name+'</option>').join('')+'<option value="OTHER">دولة أخرى / Other country</option></select></label>'+
+      '<label class="f">بلد الفوترة<select id="v23Country"><option value="">اختر بلد المشتري / Select billing country</option>'+Object.entries(countries).map(([code,name])=>'<option value="'+code+'">'+name+'</option>').join('')+'<option value="OTHER">دولة أخرى / Other country</option></select></label>'+
       '<label class="f">لغة الفاتورة<select id="v23Language">'+Object.keys(languages).map(l=>'<option value="'+l+'" '+(l===window.__lang?'selected':'')+'>'+l.toUpperCase()+'</option>').join('')+'</select></label></div>'+
       '<label class="f" id="v23OtherWrap" hidden>رمز الدولة ISO من حرفين<input id="v23OtherCountry" maxlength="2" placeholder="CA"></label>'+
       '<label class="f">العنوان<input id="v23Address"></label><label class="f">الرقم الضريبي للعميل (إن وجد)<input id="v23BuyerTax"></label>'+
       '<label class="f">كود الخصم<input id="v23Promo"></label><label class="f">المعاملة الضريبية<select id="v23Tax"><option value="standard">الضريبة المقررة</option><option value="exempt">بدون ضريبة وفق قاعدة يضبطها البائع</option></select></label>'+
       '<p class="note info" id="v23TaxInfo"></p><p class="note info" id="v23GatewayInfo" role="status">جارٍ التحقق من بوابة الدفع…</p><div class="mdl-act"><button class="btn p" id="v23Pay" disabled>الانتقال للدفع</button><button class="btn o" data-close>إغلاق</button></div>',()=>{
       const $=s=>document.querySelector(s),currency=$('#v23Currency'),country=$('#v23Country'),tax=$('#v23Tax');
-      let gatewayReady=false;
+      let gatewayReady=false,policyReady=false,policyFailed=false;
       const billingCountry=()=>country.value==='OTHER'?$('#v23OtherCountry').value.trim().toUpperCase():country.value;
       function update(){const code=billingCountry(),rates=payment.countryTaxRates||{},configured=code==='EG'||Object.prototype.hasOwnProperty.call(rates,code);
         const rate=code==='EG'?Number(payment.vatRate||0):Number(rates[code]||0);
@@ -56,11 +56,12 @@
         if(!eligible)tax.value='standard';
         const due=packages.reduce((sum,p)=>sum+Math.round((convert(p.price,p.currency,currency.value)/(tax.value==='exempt'&&configured?1+rate/100:1))*100)/100,0);
         $('#v23Due').textContent=money(due,currency.value);
-        $('#v23TaxInfo').textContent=!configured?'لم تُهيأ المعاملة الضريبية لهذا البلد بعد؛ اطلب من الإدارة اعتمادها قبل الدفع.':
+        $('#v23TaxInfo').textContent=policyFailed?'تعذر تحميل إعدادات الضريبة. أعد فتح السلة لاحقًا.':!code?'اختر بلد المشتري لعرض المعاملة الضريبية قبل الدفع.':!policyReady?'جارٍ تحميل سياسة الضرائب والعملات…':!configured?'لم تُهيأ المعاملة الضريبية لهذا البلد بعد؛ اطلب من الإدارة اعتمادها قبل الدفع.':
           'النسبة المهيأة لهذا البلد: '+rate+'%'+(eligible?' · يمكنك اختيار المعاملة الصفرية المعتمدة.':' · السعر المعروض شامل الضريبة المهيأة.');
-        $('#v23Pay').disabled=!gatewayReady||!configured;
+        $('#v23Pay').disabled=!gatewayReady||!policyReady||!configured||!code;
       }
       currency.onchange=update;country.onchange=update;tax.onchange=update;$('#v23OtherCountry').oninput=update;update();
+      configReady.then(ok=>{policyReady=ok;policyFailed=!ok;update()});
       APP.api('/my-tax-options').then(result=>{approvedCountries=result.taxExemptCountries||[];update()}).catch(()=>{});
       fetch('/api/pay/readiness').then(r=>r.json()).then(state=>{
         const button=$('#v23Pay'),note=$('#v23GatewayInfo');if(!button||!note)return;

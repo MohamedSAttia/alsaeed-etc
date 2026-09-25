@@ -77,6 +77,8 @@ CREATE TABLE IF NOT EXISTS messages (
   id TEXT PRIMARY KEY, name TEXT, email TEXT, subject TEXT, body TEXT, created INTEGER
 );
 `);
+if (!db.pragma('table_info(messages)').some(col => col.name === 'status'))
+  db.exec("ALTER TABLE messages ADD COLUMN status TEXT NOT NULL DEFAULT 'new'");
 if (!db.pragma('table_info(lessons)').some(col => col.name === 'files'))
   db.exec("ALTER TABLE lessons ADD COLUMN files TEXT DEFAULT '[]'");
 if (!db.pragma('table_info(lessons)').some(col => col.name === 'quiz'))
@@ -1038,6 +1040,14 @@ app.put('/api/admin/settings', auth, admin, (req, res) => {
 });
 app.get('/api/admin/messages', auth, admin, (req, res) => {
   res.json(db.prepare('SELECT * FROM messages ORDER BY created DESC LIMIT 200').all());
+});
+app.patch('/api/admin/messages/:id', auth, admin, (req, res) => {
+  const status = String(req.body?.status || '');
+  if (!['new','reviewing','replied','closed'].includes(status))
+    return res.status(400).json({ error: 'حالة الرسالة غير صالحة' });
+  const result = db.prepare('UPDATE messages SET status=? WHERE id=?').run(status, req.params.id);
+  if (!result.changes) return res.status(404).json({ error: 'الرسالة غير موجودة' });
+  res.json({ ok: true, status });
 });
 
 /* ═══════════ المحتوى القابل للتحرير (CMS) ═══════════ */
