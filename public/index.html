@@ -2975,8 +2975,8 @@ function studyPlan(pid) {
         (slice.length > 1 ? `${slice[0]} + ${slice.length - 1} ${window.__lang === 'en' ? 'chapters' : 'فصول'}` : slice[0]),
       items: (window.__lang === 'en' ? override.items_en?.length && override.items_en : override.items_ar?.length && override.items_ar) || actual.length && actual || slice,
       tags: (window.__lang === 'en' ? override.tags_en?.length && override.tags_en : override.tags_ar?.length && override.tags_ar) ||
-        [actual.length ? `${actual.length} ${window.__lang === 'en' ? 'videos' : 'فيديو'}` :
-          `${slice.length} ${window.__lang === 'en' ? 'chapters' : 'فصول'}`]
+        [actual.length ? `${actual.length} ${window.__lang === 'en' ? (actual.length === 1 ? 'video' : 'videos') : (actual.length === 1 ? 'فيديو' : 'فيديوهات')}` :
+          `${slice.length} ${window.__lang === 'en' ? (slice.length === 1 ? 'chapter' : 'chapters') : (slice.length === 1 ? 'فصل' : 'فصول')}`]
     });
     i += perWeek; w++;
   }
