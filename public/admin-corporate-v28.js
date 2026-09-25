@@ -3,8 +3,16 @@
   const priorView=window.vOverview,priorBind=window.bindOverview;
   if(typeof priorView!=='function'||typeof priorBind!=='function')return;
   const labels={new:'جديد',reviewing:'قيد المراجعة',proposal_sent:'أُرسل العرض',approved:'مقبول',authorization_requested:'طلب تفويض',closed:'مغلق'};
-  window.vOverview=function(){return priorView()+'<section class="card" style="margin-top:20px;padding:24px"><h3>طلبات عروض الشركات والمؤسسات</h3><p class="muted">طلبات محفوظة بمرجع مستقل؛ راجع المتطلبات وأرسل العرض النهائي بعد اعتماد السعر.</p><div id="corporateReadiness" role="status" style="margin:15px 0"></div><div id="corporateRequests">جارٍ التحميل…</div></section>'};
+  window.vOverview=function(){return priorView()+'<section class="card" style="margin-top:20px;padding:24px"><h3>طلبات عروض الشركات والمؤسسات</h3><p class="muted">طلبات محفوظة بمرجع مستقل؛ راجع المتطلبات وأرسل العرض النهائي بعد اعتماد السعر.</p><div id="corporateReadiness" role="status" style="margin:15px 0"></div><div id="corporateRequests">جارٍ التحميل…</div></section><section class="card" style="margin-top:20px;padding:24px"><h3>الرسائل والانضمام والشراكات</h3><p class="muted">رسائل نموذج التواصل وطلبات المدربين والشركاء. استخدم البريد للرد؛ لا تُرسل استجابة تلقائية من هذه القائمة.</p><div id="adminContactMessages" role="status">جارٍ التحميل…</div></section>'};
   window.bindOverview=function(){priorBind();
+    const inbox=document.getElementById('adminContactMessages');
+    if(inbox)request('/api/admin/messages').then(rows=>{
+      if(!inbox.isConnected)return;
+      const trainer=rows.filter(r=>r.subject==='trainer_application').length;
+      const partner=rows.filter(r=>r.subject==='strategic_partnership').length;
+      inbox.innerHTML='<div class="badges" style="margin:15px 0"><span class="chip">إجمالي الرسائل · '+rows.length+'</span><span class="chip">طلبات المدربين · '+trainer+'</span><span class="chip">الشراكات · '+partner+'</span></div>'+
+        (rows.length?'<div class="tbl"><table><thead><tr><th>التاريخ</th><th>المرسل</th><th>الموضوع والرسالة</th><th>الرد</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(new Date(r.created).toLocaleDateString('ar-EG'))+'</td><td><b>'+esc(r.name)+'</b><br>'+esc(r.email)+'</td><td><b>'+esc(r.subject==='trainer_application'?'انضمام مدرب':r.subject==='strategic_partnership'?'شراكة استراتيجية':r.subject)+'</b><details><summary>اقرأ الرسالة</summary><p style="white-space:pre-wrap;max-width:55ch">'+esc(r.body||'')+'</p></details></td><td><a href="mailto:'+encodeURIComponent(r.email)+'?subject='+encodeURIComponent('AL SAEED: '+r.subject)+'">رد بالبريد</a></td></tr>').join('')+'</tbody></table></div>':'<p class="muted">لا توجد رسائل محفوظة حتى الآن.</p>');
+    }).catch(e=>{if(inbox.isConnected)inbox.textContent='تعذر تحميل الرسائل: '+e.message});
     const host=document.getElementById('corporateRequests');if(!host)return;
     request('/api/admin/corporate-readiness').then(x=>{const el=document.getElementById('corporateReadiness');if(el)el.innerHTML='<div class="badges"><span class="chip '+(x.emailReady?'ok':'warn')+'">البريد: '+(x.emailReady?'جاهز':'يحتاج إعداد')+'</span><span class="chip '+(x.ownerReady?'ok':'warn')+'">إشعار الإدارة: '+(x.ownerReady?'جاهز':'يحتاج بريد الإدارة')+'</span><span class="chip '+(x.aiReady?'ok':'warn')+'">ملخص AI: '+(x.aiReady?'جاهز':'يحتاج مفتاح API')+'</span></div>'}).catch(()=>{});
     request('/api/admin/corporate-requests').then(rows=>{

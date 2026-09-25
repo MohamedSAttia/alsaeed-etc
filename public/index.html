@@ -1079,6 +1079,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/course-journey-v25.css?v=25.1">
 <link rel="stylesheet" href="/v16-enhancements.css?v=23.1">
 <link rel="stylesheet" href="/visual-refresh-v26.css?v=27.0">
+<link rel="stylesheet" href="/experience-v31.css?v=31.0">
 </head>
 <body>
 
@@ -3559,7 +3560,12 @@ function home() {
       <button class="v22-path path-quality" data-r="programs"><span class="v22-path-art">03</span><i>${v26Icon('spark')}</i><b>${copy.quality}</b><small>Lean Six Sigma · Improvement</small><em>${copy.explore} ↗</em></button>
       <button class="v22-path path-org" data-r="consulting"><span class="v22-path-art">04</span><i>${v26Icon('people')}</i><b>${copy.teams}</b><small>Corporate · Consulting · Systems</small><em>${copy.solutions} ↗</em></button>
     </div>
-    <div class="v22-confidence"><span><b>محتوى منظم</b> وفق رحلة تعلم واضحة</span><span><b>تدريب تطبيقي</b> واختبارات محاكاة</span><span><b>متابعة مستمرة</b> من البداية للاجتياز</span><span><b>تعلم مرن</b> بالعربية والإنجليزية</span></div>
+    <div class="v22-confidence"><span><b>${english?'Structured content':'محتوى منظم'}</b> ${english?'with a clear learning path':'وفق رحلة تعلم واضحة'}</span><span><b>${english?'Hands-on training':'تدريب تطبيقي'}</b> ${english?'and practice exams':'واختبارات محاكاة'}</span><span><b>${english?'Ongoing support':'متابعة مستمرة'}</b> ${english?'through your journey':'من البداية للاجتياز'}</span><span><b>${english?'Flexible learning':'تعلم مرن'}</b> ${english?'in Arabic and English':'بالعربية والإنجليزية'}</span></div>
+  </div></section>
+
+  <section class="v31-finder sec" aria-labelledby="v31-finder-title"><div class="wrap v31-finder-grid">
+    <div><span class="eyebrow">${english?'YOUR LEARNING PATH':'مسارك المناسب'}</span><h2 id="v31-finder-title">${english?'Find a package that fits your goal':'اعثر على الباقة المناسبة لهدفك'}</h2><p>${english?'Select a program and format to see packages currently published.':'اختر البرنامج وطريقة التعلّم لعرض الباقات المنشورة حاليًا.'}</p><a href="#contact">${english?'Need a team plan? Request a proposal':'تحتاج خطة لفريقك؟ اطلب عرضًا'} ↗</a></div>
+    <div class="v31-finder-panel"><div class="v31-finder-inputs"><label>${english?'Program':'البرنامج'}<select id="v31Course"><option value="">${english?'All programs':'جميع البرامج'}</option>${window.COURSES.filter(c=>window.PACKAGES.some(p=>p.active!==false&&p.course===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(english?(c.en||c.ar):c.ar)}</option>`).join('')}</select></label><label>${english?'Learning format':'طريقة التعلّم'}<select id="v31Mode"><option value="">${english?'All formats':'جميع الأنماط'}</option>${window.MODES.filter(m=>window.PACKAGES.some(p=>p.active!==false&&p.mode===m.k)).map(m=>`<option value="${esc(m.k)}">${esc(english?m.en:m.ar)}</option>`).join('')}</select></label></div><div id="v31Results" role="status" aria-live="polite"></div></div>
   </div></section>
 
   <section class="sec tight alt"><div class="wrap">
@@ -3674,8 +3680,8 @@ function programs() {
 
   return `<section class="pg-hero"><div class="wrap">
     <div class="crumb"><a href="#home" data-r="home">${siteEnglish()?'Home':'الرئيسية'}</a> ← ${siteEnglish()?'Programs':'البرامج'}</div>
-    <h1>البرامج التدريبية</h1>
-    <p>كل شهادة متاحة بعدة أنماط. فلتِر بما يناسبك واختر باقتك.</p>
+    <h1>${siteEnglish()?'Professional training programs':'البرامج التدريبية'}</h1>
+    <p>${siteEnglish()?'Explore published packages and filter by format, subject, level and language.':'استكشف الباقات المنشورة وصَفِّها حسب النمط والمجال والمستوى واللغة.'}</p>
   </div></section>
 
   <section class="sec"><div class="wrap">
@@ -3835,6 +3841,8 @@ function consulting() {
     <h1>${siteEnglish()?'Consulting services':'الخدمات الاستشارية'}</h1>
     <p>${siteEnglish()?'We help your team design, implement and improve working systems.':'نساعد فريقك على تصميم المنظومات وتطبيقها وتحسينها.'}</p>
   </div></section>
+
+  <section class="v31-corporate sec"><div class="wrap"><div class="v31-corporate-head"><div><span class="eyebrow">${siteEnglish()?'FOR ORGANIZATIONS':'للمؤسسات والفرق'}</span><h2>${siteEnglish()?'A learning plan built around your team':'خطة تعلّم تناسب فريقك'}</h2><p>${siteEnglish()?'Tell us the roles, number of participants, goals, country and preferred format. Our team reviews the request and prepares a priced offer.':'حدد الأدوار وعدد المشاركين والأهداف والدولة وطريقة التنفيذ. يراجع فريقنا طلبك ويُعد عرضًا محدد السعر.'}</p></div><a class="btn p" href="#contact">${siteEnglish()?'Request a team offer':'اطلب عرضًا لفريقك'} ↗</a></div><div class="v31-corporate-steps"><div><span>01</span><b>${siteEnglish()?'Share your needs':'صف احتياجك'}</b><p>${siteEnglish()?'Goals, team size and format.':'الأهداف وحجم الفريق والنمط.'}</p></div><div><span>02</span><b>${siteEnglish()?'Review the proposal':'راجع العرض'}</b><p>${siteEnglish()?'Scope, schedule, trainer and price.':'النطاق والموعد والمدرب والسعر.'}</p></div><div><span>03</span><b>${siteEnglish()?'Track your request':'تابع طلبك'}</b><p>${siteEnglish()?'Accept, request authorization or ask for changes.':'اقبل العرض أو اطلب التفويض أو التعديل.'}</p></div></div></div></section>
 
   <section class="sec"><div class="wrap">
     <div class="grid g2">
@@ -4069,7 +4077,7 @@ function courseDecision(c, pkgs) {
     .filter(s=>s.course===c.id&&s.published!==false&&s.date&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&Date.parse(s.date+'T23:59:59')>=Date.now())
     .sort((a,b)=>a.date.localeCompare(b.date));
   const planTypes=['full','review','sim','self'];
-  const modeChoices=[['onsite',tr('حضوري · 5 أيام','In person · 5 days')],['live',tr('أونلاين مباشر · 10 أيام','Live online · 10 days')],['recorded',tr('مسجل · ابدأ في أي وقت','Recorded · Start anytime')]];
+  const modeChoices=[['onsite',tr('حضوري','In person')],['live',tr('أونلاين مباشر','Live online')],['recorded',tr('مسجل · ابدأ في أي وقت','Recorded · Start anytime')]];
   const choiceHtml=`<div class="course-choice" data-choice-course="${esc(c.id)}">
     <div class="course-choice-head"><span class="eyebrow">${tr('رتّب خطتك','BUILD YOUR PLAN')}</span><h2>${tr('اختر طريقة دراستك','Choose how you will study')}</h2><p>${tr('اختر النمط، الموعد، نوع الباقة واللغة. تظهر المواعيد والنسخ المتاحة فعليًا فقط.','Choose a format, date, package and language. Only confirmed dates and published packages can be selected.')}</p></div>
     <div class="course-choice-grid">
@@ -5732,13 +5740,13 @@ function bind() {
   const os = $('#openSys'); if (os) os.onclick = () =>
     window.open('/grc.html', '_blank', 'noopener');
   const cs = $('#ctSend'); if (cs) cs.onclick = async () => {
-    if (!($('#ctName').value || '').trim() || !($('#ctMail').value || '').trim()) {
-      A().toast('أكمل الاسم والبريد'); return; }
+    if (!($('#ctName').value || '').trim() || !($('#ctMail').value || '').trim() || !($('#ctMsg').value || '').trim()) {
+      $('#ctFeedback').textContent=siteEnglish()?'Enter your name, email and message.':'أكمل الاسم والبريد والرسالة.'; return; }
     const body = { name: $('#ctName').value.trim(), email: $('#ctMail').value.trim(),
       subject: $('#ctSubj').value, body: ($('#ctMsg') || {}).value || '' };
-    cs.disabled=true;
+    cs.disabled=true;$('#ctFeedback').textContent='';
     try { await A().api('/contact', { method: 'POST', body });
-      A().toast('✅ وصلت رسالتك');
+      $('#ctFeedback').textContent=siteEnglish()?'Your message was received.':'وصلت رسالتك بنجاح.';
       ['ctName', 'ctMail', 'ctMsg'].forEach(k => { const el = $('#' + k); if (el) el.value = ''; });
     } catch(e) { $('#ctFeedback').textContent=e.message||'تعذر إرسال الرسالة'; }
     finally {cs.disabled=false}
@@ -6976,5 +6984,6 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
 <script src="/experience-v24.js?v=24.0"></script>
+<script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>
