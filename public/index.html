@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=34.0">
+<link rel="stylesheet" href="/media-v34.css?v=35.0">
 </head>
 <body>
 
@@ -3414,8 +3414,8 @@ function courseShowcase(c){
       ${next?`<div class="v24-date-pill">◷ ${esc(new Intl.DateTimeFormat(siteEnglish()?'en-US':'ar-EG',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(next.date+'T12:00:00Z')))} · ${next.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر')}</div>`:''}
       <p>${esc(siteEnglish()?(c.blurb_en||c.desc_en||'Explore the course, learning outcomes and available study options.'):c.blurb||'')}</p>
       <div class="course-vmeta"><span><b>${c.hours}</b> ${siteEnglish()?'hours':'ساعة'}</span><span><b>${c.questions}</b> ${siteEnglish()?'questions':'سؤال'}</span><span><b>${pkgs.length}</b> ${siteEnglish()?'packages':'باقة'}</span></div>
-      <div class="course-vactions"><button class="btn n sm" data-r="course/${c.id}">التفاصيل</button><button class="btn o sm" data-course-preview="${c.id}">معاينة</button></div>
-      ${lead?`<div style="font-size:.72rem;color:var(--dim)">تبدأ من <b class="num" style="color:var(--orange)">${money(lead.price)}</b> ${esc(lead.currency)}</div>`:''}
+      <div class="course-vactions"><button class="btn n sm" data-r="course/${c.id}">${siteEnglish()?'Details':'التفاصيل'}</button>${c.previewVimeo?`<button class="btn o sm" data-course-preview="${c.id}">${siteEnglish()?'Watch preview':'شاهد المعاينة'}</button>`:''}</div>
+      ${lead?`<div style="font-size:.72rem;color:var(--dim)">${siteEnglish()?'From':'تبدأ من'} <b class="num" style="color:var(--orange)">${money(lead.price)}</b> ${esc(lead.currency)}</div>`:''}
     </div>
   </article>`;
 }
@@ -3533,7 +3533,7 @@ function home() {
         <span class="v23-kicker">${copy.kicker}</span>
         <h1>${copy.title}</h1>
         <p class="hero-p">${copy.lead}</p>
-        <div class="hero-cta"><button class="btn p lg" data-r="programs">${copy.programs} <span aria-hidden="true">↗</span></button><button class="btn v23-outline lg" data-v24-video>${english?'Watch our introduction':'شاهد الفيديو التعريفي'} ▶</button></div>
+        <div class="hero-cta"><button class="btn p lg" data-r="programs">${copy.programs} <span aria-hidden="true">↗</span></button><a class="btn v23-outline lg" href="#intro-film">${english?'Watch our introduction':'شاهد الفيديو التعريفي'} ▶</a></div>
         <a class="v24-consult-link" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${copy.advise} ↗</a>
         <div class="v23-hero-note"><span>01 / 03</span><span>PMP® · GRCP™ · Lean Six Sigma</span></div>
       </div>
@@ -3595,16 +3595,16 @@ function home() {
 
   <section class="v34-media sec" aria-labelledby="v34-media-title"><div class="wrap">
     <div class="v34-media-head"><div><span class="eyebrow">${english?'SEE THE EXPERIENCE':'شاهد التجربة'}</span><h2 id="v34-media-title">${english?'Learning and consulting in motion':'التعلّم والاستشارات بصورة أقرب'}</h2><p>${english?'Short visual introductions to our learning paths and organization services. Explore the published programs for full details.':'مشاهد تعريفية قصيرة لمسارات التعلّم وخدمات المؤسسات. تجد التفاصيل الكاملة في صفحات البرامج.'}</p></div><button class="btn o" data-r="programs">${english?'Explore programs':'استكشف البرامج'} ↗</button></div>
-    <div class="v34-media-grid">
-      <article class="v34-media-card"><div class="v34-media-visual"><video controls playsinline preload="none" poster="/assets/hero/alsaeed-global-learning-v22.webp" aria-label="${english?'Visual introduction to learning at Alsaeed':'مقدمة مرئية عن التعلم في السعيد'}"><source src="/assets/hero/alsaeed-learning-film-v34.mp4" type="video/mp4"></video></div><div class="v34-media-copy"><span>01 / ${english?'LEARNING':'التعلّم'}</span><h3>${english?'Choose how you learn':'تعلّم بالطريقة التي تناسبك'}</h3><p>${english?'Explore professional programs, practice and flexible formats.':'استكشف البرامج المهنية والتطبيقات وأنماط التعلّم المرنة.'}</p><a href="#programs">${english?'View programs':'عرض البرامج'} ↗</a></div></article>
-      <article class="v34-media-card"><div class="v34-media-visual"><video controls playsinline preload="none" poster="/assets/hero/alsaeed-workshop-v26.webp" aria-label="${english?'Visual introduction to organization services':'مقدمة مرئية عن خدمات المؤسسات'}"><source src="/assets/hero/alsaeed-consulting-film-v34.mp4" type="video/mp4"></video></div><div class="v34-media-copy"><span>02 / ${english?'ORGANIZATIONS':'المؤسسات'}</span><h3>${english?'Develop your team together':'طوّر مهارات فريقك'}</h3><p>${english?'Plan a live or in-person course, or request a tailored consulting offer.':'خطط لدورة مباشرة أو حضورية، أو اطلب عرضًا استشاريًا مخصصًا.'}</p><a href="#consulting">${english?'Explore team solutions':'حلول الفرق والمؤسسات'} ↗</a></div></article>
+    <div class="v35-story" id="intro-film">
+      <div class="v35-film"><button type="button" data-v35-play aria-label="${english?'Play the original Alsaeed introduction':'تشغيل فيديو السعيد الأصلي'}"><img src="/assets/al-ltc-logo.svg" alt="ALSAEED" loading="lazy"><span class="v35-play-icon">▶</span><strong>${english?'Meet Alsaeed':'تعرّف على السعيد'}</strong><small>${english?'Play the original introduction':'شغّل الفيديو التعريفي الأصلي'}</small></button></div>
+      <div class="v35-story-copy"><span class="eyebrow">${english?'ONE JOURNEY · MANY WAYS TO LEARN':'رحلة واحدة · طرق متعددة للتعلّم'}</span><h3>${english?'Learn with us. Build with us.':'تعلّم معنا، واصنع أثرًا في مؤسستك.'}</h3><p>${english?'See our introduction, then choose a program for yourself or a tailored plan for your team. The moving image gallery above showcases our learning community separately from the film.':'شاهد الفيديو التعريفي، ثم اختر برنامجك أو خطة مصممة لفريقك. معرض الصور المتحركة بالأعلى مستقل عن الفيديو.'}</p><div class="v35-story-links"><a href="#programs">${english?'Explore programs':'استكشف البرامج'} ↗</a><a href="#consulting">${english?'Solutions for organizations':'حلول المؤسسات'} ↗</a></div></div>
     </div>
   </div></section>
 
   <section class="sec tight alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">${english?'POPULAR OPTIONS':'الأكثر طلباً'}</span><h2>${english?'Packages ready to explore':'باقات جاهزة للبدء'}</h2></div><div class="grid g3">${feat.map(pkgCard).join('')}</div><div class="center mt"><button class="btn o" data-r="programs">${english?'All programs and packages':'كل البرامج والباقات'} ←</button></div></div></section>
 
   <section class="sec alt"><div class="wrap">
-    <div class="sec-h mid"><span class="eyebrow">هويّتنا</span>
+    <div class="sec-h mid"><span class="eyebrow">${english?'OUR PRINCIPLES':'هويّتنا'}</span>
       <h2>${english?'What guides our work?':'ما الذي يوجّه عملنا؟'}</h2>
       <p>${english?'Three distinct commitments across training, education, and consulting.':'رؤية للمستقبل، ورسالة لعملنا اليوم، وقيم تحكم طريقة العمل.'}</p></div>
     <div class="vmv">
@@ -3616,8 +3616,8 @@ function home() {
     </div>
   </div></section>
 
-  <section class="sec"><div class="wrap"><div class="sec-h"><span class="eyebrow">تجربة تعليمية متكاملة</span><h2>ليس مجرد فيديو واختبار</h2></div><div class="grid g4">
-    <div class="card pad reveal"><div class="cr-ic">🤖</div><h3>AI Learning Coach</h3><p class="muted">يربط أسئلتك بمحتوى البرنامج ويساعدك على فهم المفاهيم والخطة.</p></div>
+  <section class="sec"><div class="wrap"><div class="sec-h"><span class="eyebrow">${english?'A COMPLETE LEARNING EXPERIENCE':'تجربة تعليمية متكاملة'}</span><h2>${english?'More than lessons and quizzes':'أكثر من دروس واختبارات'}</h2></div><div class="grid g4">
+    <div class="card pad reveal"><div class="cr-ic">🤖</div><h3>AI Learning Coach</h3><p class="muted">${english?'Connects your questions with the program content and helps you work through concepts and your study plan.':'يربط أسئلتك بمحتوى البرنامج ويساعدك على فهم المفاهيم والخطة.'}</p></div>
     <div class="card pad reveal d1"><div class="cr-ic">📊</div><h3>Readiness Analytics</h3><p class="muted">يقيس الجاهزية حسب النطاقات وليس بالدرجة الإجمالية فقط.</p></div>
     <div class="card pad reveal d2"><div class="cr-ic">🧩</div><h3>Professional Labs</h3><p class="muted">تطبيقات عملية وسجلات وقوالب وأنظمة تفاعلية داخل المسار.</p></div>
     <div class="card pad reveal d3"><div class="cr-ic">🏅</div><h3>Digital Credentials</h3><p class="muted">شهادة برقم تحقق ومسار واضح لمتطلبات الإتمام.</p></div>
@@ -3639,7 +3639,7 @@ function pkgCard(p) {
   const L = (window.LANG_LABEL || {})[p.lang] || {};
   const tv = trackVisual(c);
   const publishedMinutes = A().live ? window.CATALOG_AVAILABILITY?.[p.id]?.videoMins : p.videoMins;
-  const hrs = publishedMinutes ? Math.floor(publishedMinutes / 60) + 'س ' + (publishedMinutes % 60) + 'د' : '—';
+  const hrs = publishedMinutes ? (siteEnglish()?Math.floor(publishedMinutes / 60)+'h '+(publishedMinutes % 60)+'m':Math.floor(publishedMinutes / 60)+'س '+(publishedMinutes % 60)+'د') : '—';
   const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
   const liveQuestions = A().live ? (window.CATALOG_AVAILABILITY?.[p.id]?.questions || '—') : (p.questions || '—');
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
@@ -3662,10 +3662,10 @@ function pkgCard(p) {
       <h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
       <p style="font-size:.82rem;margin-bottom:12px">${esc(packageDescription(p,T))}</p>
       <div class="pk-facts">
-        <div><span>الساعات</span><b class="num">${p.hours || '—'}</b></div>
-        <div><span>الأسئلة المتاحة</span><b class="num">${liveQuestions}</b></div>
-        <div><span>الفيديو</span><b class="num">${hrs}</b></div>
-        <div><span>الاختبارات</span><b class="num">${testCount || '—'}</b></div>
+        <div><span>${siteEnglish()?'Hours':'الساعات'}</span><b class="num">${p.hours || '—'}</b></div>
+        <div><span>${siteEnglish()?'Available questions':'الأسئلة المتاحة'}</span><b class="num">${liveQuestions}</b></div>
+        <div><span>${siteEnglish()?'Published video':'الفيديو'}</span><b class="num">${hrs}</b></div>
+        <div><span>${siteEnglish()?'Quizzes':'الاختبارات'}</span><b class="num">${testCount || '—'}</b></div>
       </div>
       <div class="pk-tags">
         <span class="tg">${L.ic || ''} ${esc(publicTitle(L))}</span>
@@ -3677,7 +3677,7 @@ function pkgCard(p) {
         <b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>
         ${p.was ? `<s class="num">${money(p.was)}</s><span class="off">−${off}%</span>` : ''}
       </div>
-      <button class="btn p full" data-r="pkg/${p.id}">التفاصيل والاشتراك</button>
+      <button class="btn p full" data-r="pkg/${p.id}">${siteEnglish()?'Details and enrollment':'التفاصيل والاشتراك'}</button>
     </div>
   </div>`;
 }
@@ -3700,35 +3700,35 @@ function programs() {
 
   <section class="sec"><div class="wrap">
     <div class="filters">
-      <div class="frow"><b>نمط التعلّم</b>
-        <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">الكل</button>
+      <div class="frow"><b>${siteEnglish()?'Learning format':'نمط التعلّم'}</b>
+        <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">${siteEnglish()?'All':'الكل'}</button>
         ${window.MODES.map(m => `<button class="fchip ${fMode === m.k ? 'on' : ''}" data-fm="${m.k}">
           <span class="ic">${m.icon}</span>${esc(publicTitle(m))}</button>`).join('')}
       </div>
-      <div class="frow"><b>المجال</b>
-        <button class="fchip ${!fTrack ? 'on' : ''}" data-ft="">الكل</button>
+      <div class="frow"><b>${siteEnglish()?'Subject':'المجال'}</b>
+        <button class="fchip ${!fTrack ? 'on' : ''}" data-ft="">${siteEnglish()?'All':'الكل'}</button>
         ${window.TRACKS.map(t => `<button class="fchip ${fTrack === t.k ? 'on' : ''}" data-ft="${t.k}">
           <span class="ic">${t.icon}</span>${esc(publicTitle(t))}</button>`).join('')}
       </div>
-      <div class="frow"><b>المستوى</b>
-        <button class="fchip ${!fLevel ? 'on' : ''}" data-fl="">الكل</button>
+      <div class="frow"><b>${siteEnglish()?'Level':'المستوى'}</b>
+        <button class="fchip ${!fLevel ? 'on' : ''}" data-fl="">${siteEnglish()?'All':'الكل'}</button>
         ${window.LEVELS.map(l => `<button class="fchip ${fLevel === l.k ? 'on' : ''}" data-fl="${l.k}">${esc(publicTitle(l))}</button>`).join('')}
       </div>
-      <div class="frow"><b>لغة الباقة</b>
-        <button class="fchip ${!fLang ? 'on' : ''}" data-fpl="">الكل</button>
+      <div class="frow"><b>${siteEnglish()?'Package language':'لغة الباقة'}</b>
+        <button class="fchip ${!fLang ? 'on' : ''}" data-fpl="">${siteEnglish()?'All':'الكل'}</button>
         ${Object.entries(window.LANG_LABEL).map(([k,v]) => `<button class="fchip ${fLang===k?'on':''}" data-fpl="${k}">${esc(publicTitle(v))}</button>`).join('')}
       </div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
       <b style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
-      ${(fMode || fTrack || fLevel || fLang) ? '<button class="btn o sm" id="clearF">امسح الفلاتر</button>' : ''}
+      ${(fMode || fTrack || fLevel || fLang) ? `<button class="btn o sm" id="clearF">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button>` : ''}
     </div>
 
     ${pk.length ? `<div class="grid g3">${pk.map(pkgCard).join('')}</div>`
-      : `<div class="empty"><div class="ic">🔍</div><b>لا نتائج بهذه الفلاتر</b>
-          <p class="muted">جرّب توسيع البحث أو امسح الفلاتر.</p>
-          <button class="btn p mt" id="clearF2">امسح الفلاتر</button></div>`}
+      : `<div class="empty"><div class="ic">🔍</div><b>${siteEnglish()?'No matching results':'لا نتائج بهذه الفلاتر'}</b>
+          <p class="muted">${siteEnglish()?'Try another option or clear the filters.':'جرّب توسيع البحث أو امسح الفلاتر.'}</p>
+          <button class="btn p mt" id="clearF2">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button></div>`}
     <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
       <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
@@ -3776,8 +3776,7 @@ function academic() {
       </div>`
     :`
       <div class="note info mb"><b>مسار متصل:</b>
-        شهاداتك المهنية (PMP · GRCP · لين سيكس سيجما) تُحتسب <b>إعفاءات</b> من مقررات
-        في برامجنا الأكاديمية — فلا تدرس الشيء مرتين.</div>
+        يمكن دراسة معادلة خبراتك وشهاداتك السابقة عند التقديم، وفق شروط الجهة الأكاديمية المانحة لكل برنامج.</div>
       <div class="grid g3">
         ${window.ACADEMIC.map((a,i2)=>`<div class="acad-c reveal d${i2+1}">
           <div class="acad-top">
@@ -6975,7 +6974,7 @@ function mount() {
 return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
-<script src="/v16-enhancements.js?v=34.0"></script>
+<script src="/v16-enhancements.js?v=35.0"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
 <script src="/unified-exam.js?v=20260922-1"></script>
@@ -7001,7 +7000,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=34.0"></script>
+<script src="/experience-v24.js?v=35.0"></script>
 <script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>

@@ -42,11 +42,11 @@
     const source=String(window.CMS?.heroVimeo||'');
     const match=source.match(/(?:vimeo\.com\/(?:video\/)?|^)(\d{6,12})(?:\D|$)/);
     const title=document.documentElement.lang==='en'?'Meet Alsaeed':'تعرف على السعيد';
-    const media=match?`<iframe src="https://player.vimeo.com/video/${match[1]}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${title}"></iframe>`:
-      `<video controls playsinline preload="none" poster="/assets/hero/alsaeed-global-learning-v22.webp" aria-label="${title}"><source src="/assets/hero/alsaeed-learning-film-v34.mp4" type="video/mp4"></video>`;
+    if(!match)return;
+    const media=`<iframe src="https://player.vimeo.com/video/${match[1]}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${title}"></iframe>`;
     window.APP?.modal?.(`<div class="v24-video-modal"><h2>${title}</h2><div class="v24-video-frame">${media}</div><button class="btn o" data-close>${document.documentElement.lang==='en'?'Close':'إغلاق'}</button></div>`);
   }
-  document.addEventListener('click',event=>{if(event.target.closest('[data-v24-video]'))openVideo()});
+  document.addEventListener('click',event=>{if(event.target.closest('[data-v24-video]'))openVideo();const play=event.target.closest('[data-v35-play]');if(play){const source=String(window.CMS?.heroVimeo||'');const match=source.match(/(?:vimeo\.com\/(?:video\/)?|^)(\d{6,12})(?:\D|$)/);if(!match)return;const box=play.parentElement;const frame=document.createElement('iframe');frame.src='https://player.vimeo.com/video/'+match[1]+'?autoplay=1&title=0&byline=0&portrait=0&dnt=1';frame.title=document.documentElement.lang==='en'?'Alsaeed introduction':'فيديو السعيد التعريفي';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;box.replaceChildren(frame)}});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else start(currentCarousel)});
   reduceMotion.addEventListener?.('change',()=>start(currentCarousel));
   function init(){
