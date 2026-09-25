@@ -5128,6 +5128,7 @@ function contact() {
         </select></label>
       <label class="f"><span>الرسالة</span><textarea id="ctMsg" rows="5" placeholder="اكتب استفسارك…"></textarea></label>
       <button class="btn p" id="ctSend">أرسل</button>
+      <p class="muted" id="ctFeedback" role="status"></p>
     </div>
     <div class="side"><div class="card pad">
       <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:14px">معلومات التواصل</h4>
@@ -5146,7 +5147,15 @@ function contact() {
         <a href="${B.x}" target="_blank" rel="noopener" style="background:var(--violet-soft);color:var(--violet)">𝕏</a>
       </div>
     </div></div>
-  </div></div></section>`;
+    <div class="card pad v28-corporate"><span class="eyebrow">للشركات والمؤسسات · FOR TEAMS</span><h2>اطلب مقترح برنامج لفريقك</h2><p>حدد احتياجك وطريقة التنفيذ. ستحصل فورًا على ملخص قابل للتنزيل برقم مرجعي، ويراجع فريق السعيد الطلب لإعداد العرض النهائي.</p>
+      <div class="grid g2"><label class="f"><span>المؤسسة *</span><input id="coOrg" maxlength="160"></label><label class="f"><span>جهة التواصل *</span><input id="coName" maxlength="120"></label>
+      <label class="f"><span>البريد المهني *</span><input id="coEmail" type="email"></label><label class="f"><span>رقم الهاتف</span><input id="coPhone" type="tel"></label>
+      <label class="f"><span>البلد</span><input id="coCountry"></label><label class="f"><span>البرنامج أو المجال *</span><input id="coTopic" maxlength="160" placeholder="إدارة المشاريع، GRC، القيادة..."></label>
+      <label class="f"><span>عدد المشاركين *</span><input id="coCount" type="number" min="1" max="100000"></label><label class="f"><span>طريقة التنفيذ</span><select id="coDelivery"><option value="online">أونلاين مباشر</option><option value="onsite">حضوري</option><option value="hybrid">مختلط</option></select></label></div>
+      <label class="f"><span>الأهداف والمواعيد والتفاصيل</span><textarea id="coDetails" maxlength="4000" rows="4"></textarea></label>
+      <button class="btn p" id="coSubmit" type="button">إرسال الطلب وتنزيل الملخص</button><p role="status" id="coStatus"></p>
+    </div>
+  </div></section>`;
 }
 
 function locked(id) {
@@ -5704,14 +5713,31 @@ function bind() {
   const gl = $('#goLogin'); if (gl) gl.onclick = () => A().openAuth('login');
   const os = $('#openSys'); if (os) os.onclick = () =>
     window.open('/grc.html', '_blank', 'noopener');
-  const cs = $('#ctSend'); if (cs) cs.onclick = () => {
+  const cs = $('#ctSend'); if (cs) cs.onclick = async () => {
     if (!($('#ctName').value || '').trim() || !($('#ctMail').value || '').trim()) {
       A().toast('أكمل الاسم والبريد'); return; }
     const body = { name: $('#ctName').value.trim(), email: $('#ctMail').value.trim(),
       subject: $('#ctSubj').value, body: ($('#ctMsg') || {}).value || '' };
-    if (A().live) A().api('/contact', { method: 'POST', body }).catch(() => {});
-    A().toast('✅ وصلت رسالتك — سنتواصل خلال يوم عمل');
-    ['ctName', 'ctMail', 'ctMsg'].forEach(k => { const el = $('#' + k); if (el) el.value = ''; });
+    cs.disabled=true;
+    try { await A().api('/contact', { method: 'POST', body });
+      A().toast('✅ وصلت رسالتك');
+      ['ctName', 'ctMail', 'ctMsg'].forEach(k => { const el = $('#' + k); if (el) el.value = ''; });
+    } catch(e) { $('#ctFeedback').textContent=e.message||'تعذر إرسال الرسالة'; }
+    finally {cs.disabled=false}
+  };
+  const corporate=$('#coSubmit'); if(corporate) corporate.onclick=async()=>{
+    const val=id=>($('#'+id)?.value||'').trim();
+    const body={organization:val('coOrg'),contactName:val('coName'),email:val('coEmail'),phone:val('coPhone'),
+      country:val('coCountry'),topic:val('coTopic'),participants:Number(val('coCount')),delivery:val('coDelivery'),details:val('coDetails')};
+    const status=$('#coStatus');corporate.disabled=true;status.textContent='جارٍ تسجيل الطلب…';
+    try {const response=await A().api('/corporate-requests',{method:'POST',body});
+      status.textContent='تم تسجيل الطلب برقم '+response.reference+'. يُراجع فريق السعيد التفاصيل قبل إرسال عرض السعر.';
+      const escapeText=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const content='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>ملخص طلب '+escapeText(response.reference)+'</title><style>body{font:18px Arial;max-width:760px;margin:40px auto;color:#17334c;line-height:1.8}h1{border-bottom:3px solid #dc7e36}section{background:#f3f7fb;padding:24px;border-radius:12px}dt{font-weight:bold}dd{margin:0 0 12px}@media print{body{margin:0}}</style><h1>السعيد · ملخص طلب تدريب مؤسسي</h1><p>رقم المرجع: '+escapeText(response.reference)+'</p><section>'+Object.entries({'المؤسسة':body.organization,'جهة التواصل':body.contactName,'البريد':body.email,'الهاتف':body.phone,'الدولة':body.country,'البرنامج':body.topic,'عدد المشاركين':body.participants,'التنفيذ':body.delivery,'التفاصيل':body.details}).map(([k,v])=>'<dt>'+k+'</dt><dd>'+escapeText(v)+'</dd>').join('')+'</section><p>هذا ملخص للطلب، ويصدر العرض النهائي بعد مراجعة نطاق العمل والسعر والمواعيد.</p></html>';
+      const url=URL.createObjectURL(new Blob([content],{type:'text/html;charset=utf-8'}));
+      const a=document.createElement('a');a.href=url;a.download='Alsaeed-Request-'+response.reference+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    }catch(e){status.textContent=e.message||'تعذر تسجيل الطلب';}
+    finally{corporate.disabled=false}
   };
   /* الإدارة */
   /* ═══ إدارة الحسابات ═══ */
@@ -6904,7 +6930,8 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
-<script src="/v23-cart-invoices.js?v=23.2"></script>
+<script src="/v23-cart-invoices.js?v=28.0"></script>
+<link rel="stylesheet" href="/v28-invoice.css?v=28.0">
 <script src="/unified-exam.js?v=20260922-1"></script>
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>

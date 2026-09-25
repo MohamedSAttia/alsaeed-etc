@@ -22,7 +22,7 @@ export function installV16(ctx) {
     'CREATE INDEX IF NOT EXISTS idx_invoices_user ON invoices(user_id, created);'
   );
   for (const [name, type] of [['purchase_id','TEXT'], ['package_id','TEXT'], ['buyer_country','TEXT'],
-    ['invoice_language','TEXT'], ['tax_reason','TEXT'], ['item_name','TEXT']]) {
+    ['invoice_language','TEXT'], ['tax_reason','TEXT'], ['item_name','TEXT'], ['seller_tax_card','TEXT']]) {
     if (!db.pragma('table_info(invoices)').some(column => column.name === name))
       db.exec(`ALTER TABLE invoices ADD COLUMN ${name} ${type}`);
   }
@@ -30,7 +30,8 @@ export function installV16(ctx) {
   const defaults = {
     sellerName: 'السعيد للتدريب والاستشارات والتعليم عن بعد',
     sellerTaxId: '',
-    sellerAddress: 'مصر',
+    sellerTaxCard: '4203296760802177',
+    sellerAddress: 'سوهاج، جمهورية مصر العربية',
     vatRate: 14,
     baseCurrency: 'USD',
     currencies: { USD: 1, EGP: 48, SAR: 3.75, AED: 3.67, EUR: 0.92 },
@@ -91,8 +92,8 @@ export function installV16(ctx) {
     db.prepare(
       'INSERT INTO invoices (id,order_id,invoice_no,user_id,buyer_name,buyer_tax_id,buyer_address,' +
       'seller_name,seller_tax_id,seller_address,subtotal,tax_rate,tax_amount,total,currency,status,created,' +
-      'purchase_id,package_id,buyer_country,invoice_language,tax_reason,item_name) ' +
-      'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+      'purchase_id,package_id,buyer_country,invoice_language,tax_reason,item_name,seller_tax_card) ' +
+      'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     ).run(
       uid(), orderId, invoiceNo(), user.id,
       String((billing && billing.name) || user.name || ''),
@@ -101,7 +102,7 @@ export function installV16(ctx) {
       String(value.sellerName || ''), String(value.sellerTaxId || ''), String(value.sellerAddress || ''),
       subtotal, taxRate, taxAmount, Number(total), String(currency), 'pending', Date.now(),
       String(billing.purchaseId || orderId), String(billing.packageId || ''), country,
-      String(billing.language || 'ar'), reason, String(billing.itemName || '')
+      String(billing.language || 'ar'), reason, String(billing.itemName || ''), String(value.sellerTaxCard || '')
     );
   }
 
@@ -324,6 +325,7 @@ export function installV16(ctx) {
         const value = {
           sellerName: String(b.sellerName || ''),
           sellerTaxId: String(b.sellerTaxId || ''),
+          sellerTaxCard: String(b.sellerTaxCard || '').replace(/\s/g, '').slice(0, 32),
           sellerAddress: String(b.sellerAddress || ''),
           vatRate: Math.max(0, Number(b.vatRate) || 0),
           baseCurrency: String(b.baseCurrency || 'USD').toUpperCase(),

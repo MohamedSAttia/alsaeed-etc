@@ -606,6 +606,11 @@ function forwardToApp(req, res) {
 const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
+    if (req.method === 'GET' && requestUrl.pathname === '/api/pay/readiness') {
+      const cfg=kashierConfig(),gateway=activePaymentGateway();
+      return sendJson(res,200,{gateway,configured:gateway==='kashier'?!!(cfg.mid&&cfg.paymentKey):false,
+        mode:gateway==='kashier'?cfg.mode:'unknown',multiPackage:gateway==='kashier'});
+    }
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
     if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/my-tax-options' || requestUrl.pathname === '/api/question-bank-status' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/') || requestUrl.pathname.startsWith('/api/invoice-groups/')) {
       const v16Result = await v16.handlePublic(req, res, requestUrl, authenticatedUser);
