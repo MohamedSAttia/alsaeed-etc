@@ -3664,6 +3664,9 @@ function pkgCard(p) {
 
 function programs() {
   let pk = window.PACKAGES.filter(p=>p.active!==false);
+  const scheduled=(Array.isArray(window.CMS.sessions)?window.CMS.sessions:[])
+    .filter(s=>s.published!==false&&s.date&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&Date.parse(s.date+'T23:59:59Z')>=Date.now())
+    .sort((a,b)=>a.date.localeCompare(b.date));
   if (fMode) pk = pk.filter(p => p.mode === fMode);
   if (fTrack) pk = pk.filter(p => { const c = A().course(p.course); return c && c.track === fTrack; });
   if (fLevel) pk = pk.filter(p => { const c = A().course(p.course); return c && c.level === fLevel; });
@@ -3706,6 +3709,12 @@ function programs() {
       : `<div class="empty"><div class="ic">🔍</div><b>لا نتائج بهذه الفلاتر</b>
           <p class="muted">جرّب توسيع البحث أو امسح الفلاتر.</p>
           <button class="btn p mt" id="clearF2">امسح الفلاتر</button></div>`}
+    <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
+      <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
+      <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
+      ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Format','Location','Details']:['البرنامج','التاريخ','النمط','المدينة / المنطقة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(siteEnglish()?(c.en||c.ar):c.ar):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
+      <button class="btn p" data-r="contact" style="margin-top:22px">${siteEnglish()?'Request a proposed date or team offer':'اطلب موعدًا مقترحًا أو عرضًا لفريقك'} ↗</button>
+    </section>
   </div></section>`;
 }
 
@@ -3822,23 +3831,23 @@ function degree(id) {
 
 function consulting() {
   return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← الاستشارات</div>
-    <h1>الخدمات الاستشارية</h1>
-    <p>لا نشرح كيف تُبنى المنظومات — نبنيها معك ونسلّمها تعمل.</p>
+    <div class="crumb"><a href="#home" data-r="home">${siteEnglish()?'Home':'الرئيسة'}</a> ← ${siteEnglish()?'Consulting':'الاستشارات'}</div>
+    <h1>${siteEnglish()?'Consulting services':'الخدمات الاستشارية'}</h1>
+    <p>${siteEnglish()?'We help your team design, implement and improve working systems.':'نساعد فريقك على تصميم المنظومات وتطبيقها وتحسينها.'}</p>
   </div></section>
 
   <section class="sec"><div class="wrap">
     <div class="grid g2">
       ${window.CONSULTING.map(c => `<div class="cons-c ${c.featured ? 'feat' : ''}">
-        <div class="cons-top ${c.cover?'has-img':''}" style="${c.cover?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.72)),url('${esc(c.cover)}')`:``}"><div class="course-cover-grid"></div><span class="mini">${c.icon} خدمة استشارية</span><h3>${esc(c.ar)}</h3><p>${esc(c.blurb)}</p></div>
-        <div style="font-size:.78rem;color:var(--dim);margin-bottom:7px">مراحل التنفيذ</div>
+        <div class="cons-top ${c.cover?'has-img':''}" style="${c.cover?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.72)),url('${esc(c.cover)}')`:``}"><div class="course-cover-grid"></div><span class="mini">${c.icon} ${siteEnglish()?'Consulting':'خدمة استشارية'}</span><h3>${esc(siteEnglish()?(c.en||c.ar):c.ar)}</h3><p>${esc(siteEnglish()?(c.blurb_en||c.blurb):c.blurb)}</p></div>
+        <div style="font-size:.78rem;color:var(--dim);margin-bottom:7px">${siteEnglish()?'Delivery phases':'مراحل التنفيذ'}</div>
         <div class="phases">${c.phases.map((p, i) => `<span class="ph"><i>${i + 1}</i>${esc(p)}</span>`).join('')}</div>
-        <div style="font-size:.78rem;color:var(--dim);margin-bottom:7px">المخرجات</div>
+        <div style="font-size:.78rem;color:var(--dim);margin-bottom:7px">${siteEnglish()?'Deliverables':'المخرجات'}</div>
         <ul class="pk-inc" style="margin-bottom:14px">${c.deliverables.map(d => `<li>${esc(d)}</li>`).join('')}</ul>
         <div style="display:flex;justify-content:space-between;align-items:center;
           padding-top:14px;border-top:1px solid var(--line)">
-          <span class="muted" style="font-size:.83rem">المدة: <b style="color:var(--ink)">${esc(c.duration)}</b></span>
-          <a class="btn p sm" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener">اطلب عرضاً</a>
+          <span class="muted" style="font-size:.83rem">${siteEnglish()?'Duration':'المدة'}: <b style="color:var(--ink)">${esc(c.duration)}</b></span>
+          <button class="btn p sm" data-r="contact">${siteEnglish()?'Request a proposal':'اطلب عرضاً'}</button>
         </div>
       </div>`).join('')}
     </div>
@@ -5109,29 +5118,30 @@ function instructorBlock() {
 function contact() {
   const tr=(ar,en)=>siteEnglish()?en:ar;
   return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← تواصل</div>
-    <h1>نسعد بتواصلك</h1>
-    <p>استشارة مجانية لاختيار المسار المناسب لك أو لفريقك.</p>
+    <div class="crumb"><a href="#home" data-r="home">${tr('الرئيسة','Home')}</a> ← ${tr('تواصل','Contact')}</div>
+    <h1>${tr('نسعد بتواصلك','Let us talk')}</h1>
+    <p>${tr('استشارة مجانية لاختيار المسار المناسب لك أو لفريقك.','Ask us about a learning path for you or your team.')}</p>
   </div></section>
   <section class="sec"><div class="wrap"><div class="split">
     <div class="card pad">
-      <h3 style="font-family:var(--fd);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:16px">أرسل رسالتك</h3>
+      <h3 style="font-family:var(--fd);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:16px">${tr('أرسل رسالتك','Send your message')}</h3>
       <div class="f-row">
-        <label class="f"><span>الاسم</span><input id="ctName" placeholder="اسمك الكامل"></label>
-        <label class="f"><span>البريد</span><input id="ctMail" type="email" placeholder="name@example.com"></label>
+        <label class="f"><span>${tr('الاسم','Name')}</span><input id="ctName" placeholder="${tr('اسمك الكامل','Your full name')}"></label>
+        <label class="f"><span>${tr('البريد','Email')}</span><input id="ctMail" type="email" placeholder="name@example.com"></label>
       </div>
-      <label class="f"><span>الموضوع</span>
+      <label class="f"><span>${tr('الموضوع','Subject')}</span>
         <select id="ctSubj">
-          <option>استشارة اختيار المسار</option>
-          <option>تدريب مؤسسي لفريق</option>
-          <option>استفسار عن باقة</option>
+          <option>${tr('استشارة اختيار المسار','Learning path consultation')}</option>
+          <option>${tr('تدريب مؤسسي لفريق','Corporate team training')}</option>
+          <option>${tr('استفسار عن باقة','Package inquiry')}</option>
           <option value="trainer_application">${tr('انضمام مدرب أو محاضر','Join as a trainer or lecturer')}</option>
           <option value="strategic_partnership">${tr('شراكة أو تعاون استراتيجي','Strategic partnership')}</option>
-          <option>دعم فني</option>
+          <option>${tr('دعم فني','Technical support')}</option>
         </select></label>
-      <label class="f"><span>الرسالة</span><textarea id="ctMsg" rows="5" placeholder="اكتب استفسارك…"></textarea></label>
-      <button class="btn p" id="ctSend">أرسل</button>
+      <label class="f"><span>${tr('الرسالة','Message')}</span><textarea id="ctMsg" rows="5" placeholder="${tr('اكتب استفسارك…','Write your inquiry…')}"></textarea></label>
+      <button class="btn p" id="ctSend">${tr('أرسل','Send')}</button>
       <p class="muted" id="ctFeedback" role="status"></p>
+      <p class="muted" style="margin:18px 0 8px;line-height:1.8">${tr('قبل إرسال بياناتك، راجع','Before sending your information, read our')} <a href="/policies.html#privacy">${tr('سياسة الخصوصية','privacy policy')}</a> · <a href="/policies.html#terms">${tr('الشروط والأحكام','terms and conditions')}</a>.</p>
       <div class="grid g2" style="margin-top:18px">
         <div class="card pad"><b>${tr('انضم إلى شبكة المدربين','Join our instructor network')}</b><p class="muted">${tr('اكتب مجال تخصصك، خبرتك، بلدك، ونوع التدريب الذي تقدمه، وأضف رابط ملفك المهني في الرسالة.','Share your subject expertise, experience, location, delivery format and a link to your professional profile in the message.')}</p></div>
         <div class="card pad"><b>${tr('شراكات استراتيجية','Strategic partnerships')}</b><p class="muted">${tr('اذكر اسم الجهة ونوع التعاون المقترح والفئة المستفيدة والبلدان المستهدفة.','Describe your organization, proposed cooperation, audience and target countries.')}</p></div>
@@ -5161,6 +5171,7 @@ function contact() {
       <label class="f"><span>${tr('عدد المشاركين *','Participants *')}</span><input id="coCount" type="number" min="1" max="100000" required></label><label class="f"><span>${tr('طريقة التنفيذ','Delivery format')}</span><select id="coDelivery"><option value="online">${tr('أونلاين مباشر','Live online')}</option><option value="onsite">${tr('حضوري','In person')}</option><option value="hybrid">${tr('مختلط','Hybrid')}</option></select></label></div>
       <label class="f"><span>${tr('الأهداف والمواعيد والتفاصيل','Objectives, dates and requirements')}</span><textarea id="coDetails" maxlength="4000" rows="4"></textarea></label>
       <button class="btn p" id="coSubmit" type="button">${tr('إرسال الطلب وتنزيل الملخص','Submit and download summary')}</button><p role="status" id="coStatus" aria-live="polite"></p>
+      <p class="muted" style="margin:16px 0 0;line-height:1.8">${tr('تُستخدم بيانات الطلب لإعداد العرض والتواصل معك.','Your request details are used to prepare and discuss your proposal.')} <a href="/policies.html#privacy">${tr('الخصوصية','Privacy')}</a> · <a href="/policies.html#terms">${tr('الشروط','Terms')}</a></p>
     </div>
   </div></section>`;
 }
@@ -5735,11 +5746,12 @@ function bind() {
   const corporate=$('#coSubmit'); if(corporate) corporate.onclick=async()=>{
     const val=id=>($('#'+id)?.value||'').trim();
     const body={organization:val('coOrg'),contactName:val('coName'),email:val('coEmail'),phone:val('coPhone'),
-      country:val('coCountry'),topic:val('coTopic'),participants:Number(val('coCount')),delivery:val('coDelivery'),details:val('coDetails')};
+      country:val('coCountry'),topic:val('coTopic'),participants:Number(val('coCount')),delivery:val('coDelivery'),details:val('coDetails'),language:siteEnglish()?'en':'ar'};
     const english=siteEnglish(),tx=(ar,en)=>english?en:ar;
     const status=$('#coStatus');corporate.disabled=true;status.textContent=tx('جارٍ تسجيل الطلب…','Submitting your request…');
     try {const response=await A().api('/corporate-requests',{method:'POST',body});
       status.textContent=tx('تم تسجيل الطلب برقم ','Request submitted: ')+response.reference+tx('. يُراجع فريق السعيد التفاصيل قبل إرسال عرض السعر.','. Our team will review the details before preparing a priced proposal.');
+      if(response.accessToken){const link=document.createElement('a');link.href='/corporate.html#'+encodeURIComponent(response.reference)+'/'+encodeURIComponent(response.accessToken);link.textContent=tx(' · تابع حالة الطلب',' · Track request status');link.rel='noreferrer';status.append(link)}
       const escapeText=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const content='<!doctype html><html lang="'+(english?'en':'ar')+'" dir="'+(english?'ltr':'rtl')+'"><meta charset="utf-8"><title>'+tx('ملخص طلب ','Request summary ')+escapeText(response.reference)+'</title><style>body{font:18px Arial;max-width:760px;margin:40px auto;color:#17334c;line-height:1.8}h1{border-bottom:3px solid #dc7e36}section{background:#f3f7fb;padding:24px;border-radius:12px}dt{font-weight:bold}dd{margin:0 0 12px}@media print{body{margin:0}}</style><h1>AL SAEED · '+tx('ملخص طلب تدريب مؤسسي','Corporate training request summary')+'</h1><p>'+tx('رقم المرجع: ','Reference: ')+escapeText(response.reference)+'</p><section>'+Object.entries({[tx('المؤسسة','Organization')]:body.organization,[tx('جهة التواصل','Contact')]:body.contactName,[tx('البريد','Email')]:body.email,[tx('الهاتف','Phone')]:body.phone,[tx('الدولة','Country')]:body.country,[tx('البرنامج','Program')]:body.topic,[tx('عدد المشاركين','Participants')]:body.participants,[tx('التنفيذ','Delivery')]:body.delivery,[tx('التفاصيل','Requirements')]:body.details}).map(([k,v])=>'<dt>'+k+'</dt><dd>'+escapeText(v)+'</dd>').join('')+'</section><p>'+tx('هذا ملخص للطلب، ويصدر العرض النهائي بعد مراجعة نطاق العمل والسعر والمواعيد.','This records your request. The final offer follows review of scope, pricing and dates.')+'</p></html>';
       const url=URL.createObjectURL(new Blob([content],{type:'text/html;charset=utf-8'}));

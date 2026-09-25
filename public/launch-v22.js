@@ -12,9 +12,11 @@
     privacy:{ar:['سياسة الخصوصية',[
       ['ما نجمعه ولماذا','نجمع بيانات الحساب والتواصل والفوترة والطلبات وتقدم التعلم ونتائج الاختبارات والرسائل والطلبات المؤسسية لتقديم الخدمة والدعم وحمايتها وتحسينها.'],
       ['الدفع ومزودو الخدمة','يدخل العميل بيانات البطاقة لدى مزود الدفع؛ لا نحتفظ برقم البطاقة الكامل. قد نعالج البيانات اللازمة مع مزود الدفع والاستضافة والرسائل لتشغيل الخدمة.'],
+      ['العروض المؤسسية والذكاء الاصطناعي','يمكن استخدام خدمة ذكاء اصطناعي لتلخيص الطلب المؤسسي وردود العميل لفريق السعيد. لا يحدد الملخص السعر أو الضريبة تلقائيًا، ويعتمد الفريق العرض قبل إرساله. يُرسل نص الطلب والردود اللازمة فقط إلى مزود الخدمة عند تفعيل هذه الميزة.'],
       ['الحفظ وحقوقك','نحتفظ بسجلات الطلبات والفواتير بحسب متطلبات الخدمة والالتزامات المعمول بها. يمكنك طلب الاطلاع على بياناتك أو تصحيحها أو الاستفسار عن حذفها عبر البريد أدناه، مع مراعاة السجلات المطلوب حفظها. رسائل التسويق تتبع تفضيلاتك.']]],en:['Privacy policy',[
       ['Information and purposes','We collect account, contact, billing, order, learning progress, assessment and submitted message or corporate inquiry data to provide, support, secure and improve the service.'],
       ['Payments and providers','Card details are entered with the payment provider; we do not retain the full card number. Payment, hosting and messaging providers may process the information needed to operate the service.'],
+      ['Corporate requests and AI','If enabled, an AI provider summarizes corporate requests and buyer responses for our team. It does not automatically set prices or tax, and our team approves the proposal before delivery. Only the request and response text needed for the summary are sent to the provider.'],
       ['Retention and your requests','We retain order and invoice records as required for service delivery and applicable obligations. Email us to request access or correction, or ask about deletion subject to required retention. Marketing messages follow your preferences.']]]},
     refund:{ar:['الإلغاء والاسترداد',[
       ['تقديم الطلب','أرسل رقم الطلب وسبب الإلغاء إلى info@alsaeed-etc.com من البريد المرتبط بحسابك.'],
@@ -24,6 +26,7 @@
       ['Assessment','We review the product type, whether digital access or live delivery has started, the terms shown at purchase and applicable rules. We contact enrolled learners about suitable options if a live session cannot be delivered or is rescheduled.'],
       ['Refund timing','For approved refunds, the time until funds appear depends on the payment method, bank and provider.']]]}
   };
+  window.AL_SAEED_POLICIES=policies;
   const english=()=>document.documentElement.lang?.startsWith('en') || window.APP?.state?.lang==='en';
   const label=(ar,en)=>english()?en:ar;
   function showPolicy(key){
@@ -36,14 +39,13 @@
     let nav=footer.querySelector('.v22-legal');if(!nav){nav=document.createElement('nav');nav.className='v22-legal';footer.append(nav)}
     const lang=english()?'en':'ar';if(nav.dataset.lang===lang)return;nav.dataset.lang=lang;
     nav.setAttribute('aria-label',label('السياسات','Policies'));
-    nav.innerHTML=['terms','privacy','refund'].map(k=>'<button type="button" data-policy="'+k+'">'+policies[k][lang][0]+'</button>').join('');
-    nav.querySelectorAll('[data-policy]').forEach(b=>b.onclick=()=>showPolicy(b.dataset.policy));
+    nav.innerHTML=['terms','privacy','refund'].map(k=>'<a href="/policies.html#'+k+'">'+policies[k][lang][0]+'</a>').join('');
   }
   function decorateCheckout(){
     const promo=document.getElementById('checkoutPromo');if(!promo)return;
     const box=promo.closest('.modal,.modal-box,.dialog')||promo.parentElement?.parentElement;if(!box||box.querySelector('.v22-checkout-trust'))return;
     box.insertAdjacentHTML('beforeend','<div class="v22-checkout-trust"><span>'+label('🔒 الدفع عبر مزود الخدمة','🔒 Provider hosted payment')+'</span><span>'+label('⚡ تفعيل الاشتراك بعد تأكيد الدفع','⚡ Access after payment confirmation')+'</span><button type="button" data-checkout-policy>'+label('راجع سياسة الاسترداد','Read the refund policy')+'</button></div>');
-    box.querySelector('[data-checkout-policy]').onclick=()=>showPolicy('refund');
+    box.querySelector('[data-checkout-policy]').onclick=()=>window.open('/policies.html#refund','_blank','noopener');
   }
   let frame=0;const refresh=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{mountFooter();decorateCheckout()})};
   const boot=()=>{refresh();new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true})};

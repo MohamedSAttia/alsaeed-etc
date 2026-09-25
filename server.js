@@ -14,6 +14,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { mountCorporateWorkflow } from './corporate-workflow.js';
 
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1162,44 +1163,7 @@ app.post('/api/contact', (req, res) => {
     .run(uid(), String(name).slice(0,120), String(email).slice(0,254), String(subject || '').slice(0,160), body || '', Date.now());
   res.json({ ok: true });
 });
-db.exec(`CREATE TABLE IF NOT EXISTS corporate_requests (
-  id TEXT PRIMARY KEY, organization TEXT NOT NULL, contact_name TEXT NOT NULL,
-  email TEXT NOT NULL, phone TEXT, country TEXT, topic TEXT NOT NULL,
-  delivery TEXT, participants INTEGER, details TEXT, status TEXT NOT NULL DEFAULT 'new',
-  created INTEGER NOT NULL, updated INTEGER NOT NULL);
-CREATE INDEX IF NOT EXISTS idx_corporate_requests_created ON corporate_requests(created);`);
-app.post('/api/corporate-requests', rateLimit({ windowMs: 60 * 60 * 1000, max: 8,
-  message: { error: 'طلبات كثيرة من هذا الاتصال؛ حاول لاحقًا' } }), (req, res) => {
-  const b = req.body || {};
-  const email = String(b.email || '').trim();
-  const organization = String(b.organization || '').trim();
-  const name = String(b.contactName || '').trim();
-  const topic = String(b.topic || '').trim();
-  const participants = Number(b.participants || 0);
-  if (!organization || !name || !topic || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-      organization.length > 160 || name.length > 120 || topic.length > 160 ||
-      !Number.isInteger(participants) || participants < 1 || participants > 100000 ||
-      String(b.details || '').length > 4000)
-    return res.status(400).json({ error: 'أكمل بيانات المؤسسة والبريد والبرنامج وعدد المشاركين بشكل صحيح' });
-  const id = 'COR-' + uid().toUpperCase(), now = Date.now();
-  db.prepare(`INSERT INTO corporate_requests
-    (id,organization,contact_name,email,phone,country,topic,delivery,participants,details,status,created,updated)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,organization,name,email.slice(0,254),
-      String(b.phone||'').slice(0,40),String(b.country||'').slice(0,80),topic,
-      ['online','onsite','hybrid'].includes(b.delivery)?b.delivery:'online',participants,
-      String(b.details||''),'new',now,now);
-  res.status(201).json({ ok:true, reference:id });
-});
-app.get('/api/admin/corporate-requests', auth, admin, (req,res) => {
-  res.json(db.prepare('SELECT * FROM corporate_requests ORDER BY created DESC LIMIT 300').all());
-});
-app.patch('/api/admin/corporate-requests/:id', auth, admin, (req,res) => {
-  const status = String(req.body?.status || '');
-  if (!['new','reviewing','proposal_sent','approved','authorization_requested','closed'].includes(status))
-    return res.status(400).json({ error:'حالة الطلب غير صحيحة' });
-  const result=db.prepare('UPDATE corporate_requests SET status=?,updated=? WHERE id=?').run(status,Date.now(),req.params.id);
-  res.status(result.changes?200:404).json(result.changes?{ok:true}:{error:'الطلب غير موجود'});
-});
+mountCorporateWorkflow({ app, db, auth, admin, rateLimit, site: SITE });
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain').send(`User-agent: *\nDisallow: /${PANEL}\nDisallow: /api/\nAllow: /\n`);
 });

@@ -38,7 +38,7 @@
   };
   if(typeof previousSettings==='function'&&typeof previousBindSettings==='function'){
     window.vSettings=function(){
-      return previousSettings()+'<section class="card v22-gateway"><h3>اختيار بوابة الدفع</h3><p class="muted">لن يُفعّل الاختيار إلا إذا كانت مفاتيح البوابة موجودة في Railway. الطلبات المفتوحة تستمر على بوابتها الأصلية.</p><div id="gatewayChoices" class="v22-gateway-grid"><div class="v22-health-loading">جارٍ قراءة إعدادات الدفع…</div></div><button class="btn p" id="saveGateway" disabled>حفظ بوابة الدفع</button></section>';
+      return previousSettings()+'<section class="card v22-gateway"><h3>اختيار بوابة الدفع</h3><p class="muted">تشغيل Kashier الحقيقي يتطلب تفعيل حساب التاجر ومفاتيح الإنتاج وKASHIER_MODE=live. أضف KASHIER_SECRET_KEY لإنشاء جلسات الدفع الرسمية من API. سجّل webhook حيًا لأحداث pay على الرابط أدناه؛ وجود المفاتيح وحده لا يؤكد نجاح دفعة فعلية.</p><p class="en" style="overflow-wrap:anywhere;padding:14px;border-radius:10px;background:#f1f6fc">'+esc(location.origin+'/api/pay/kashier/webhook')+'</p><div id="gatewayChoices" class="v22-gateway-grid"><div class="v22-health-loading">جارٍ قراءة إعدادات الدفع…</div></div><button class="btn p" id="saveGateway" disabled>حفظ بوابة الدفع</button></section>';
     };
     window.bindSettings=function(){
       previousBindSettings();

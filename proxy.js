@@ -232,6 +232,7 @@ function kashierConfig() {
   return {
     mid: String(process.env.KASHIER_MERCHANT_ID || '').trim(),
     paymentKey: String(process.env.KASHIER_PAYMENT_API_KEY || '').trim(),
+    secretKey: String(process.env.KASHIER_SECRET_KEY || '').trim(),
     mode: String(process.env.KASHIER_MODE || 'live').trim().toLowerCase() === 'test' ? 'test' : 'live',
     allowedMethods: String(process.env.KASHIER_ALLOWED_METHODS || 'card,wallet,applepay,mada,valu,tabby,tamara,bank_installments').trim(),
     baseUrl: 'https://checkout.kashier.io/'
@@ -289,6 +290,35 @@ function validKashierSignature(q, paymentKey) {
   try {
     return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(supplied, 'hex'));
   } catch { return false; }
+}
+
+function validKashierWebhook(data, signature, paymentKey) {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.signatureKeys) ||
+      data.signatureKeys.length < 5 || data.signatureKeys.length > 30 || !paymentKey ||
+      !/^[a-f\d]{64}$/i.test(String(signature || ''))) return false;
+  const keys=data.signatureKeys;
+  if(new Set(keys).size!==keys.length || keys.some(k=>typeof k!=='string'||!/^[A-Za-z][\w]{0,60}$/.test(k)||
+      !Object.hasOwn(data,k)||!['string','number'].includes(typeof data[k])))return false;
+  const payload=[...keys].sort().map(k=>`${k}=${encodeURIComponent(String(data[k]))}`).join('&');
+  const digest=crypto.createHmac('sha256',paymentKey).update(payload).digest();
+  return crypto.timingSafeEqual(digest,Buffer.from(signature,'hex'));
+}
+
+async function handleKashierWebhook(req,res) {
+  const cfg=kashierConfig();
+  if(cfg.mode!=='live'||!cfg.paymentKey)return sendJson(res,503,{error:'بوابة الإنتاج غير مهيأة'});
+  let body;try{body=await readJson(req)}catch{return sendJson(res,400,{error:'طلب غير صالح'})}
+  const data=body?.data,signature=req.headers['x-kashier-signature'];
+  if(!validKashierWebhook(data,signature,cfg.paymentKey))return sendJson(res,401,{error:'توقيع الدفع غير صالح'});
+  if(body.event!=='pay' || data.status!=='SUCCESS') {res.writeHead(200);return res.end()}
+  const order=db.prepare('SELECT * FROM orders WHERE id=?').get(String(data.merchantOrderId||''));
+  if(!order || order.gateway!=='kashier' || String(data.currency).toUpperCase()!==String(order.currency).toUpperCase() ||
+      !Number.isFinite(Number(data.amount)) || Math.abs(Number(data.amount)-Number(order.amount))>0.001) {
+    console.warn('Kashier webhook order mismatch',String(data.merchantOrderId||''));
+    return sendJson(res,409,{error:'عدم تطابق الطلب'});
+  }
+  if(order.status!=='paid')markOrderPaid(order);
+  res.writeHead(200);res.end();
 }
 
 function grant(userId, pkgId, days, source) {
@@ -378,6 +408,26 @@ async function handleKashierCreate(req, res) {
   const numericAmount = Math.round(lines.reduce((sum,line) => sum + line.amount,0) * 100) / 100;
   const amount = numericAmount.toFixed(2);
   const orderId = 'ORD-' + uid().toUpperCase();
+  let sessionUrl='';
+  if(cfg.secretKey) {
+    try {
+      const response=await fetch('https://api.kashier.io/v3/payment/sessions',{
+        method:'POST',headers:{Authorization:cfg.secretKey,'api-key':cfg.paymentKey,'Content-Type':'application/json'},
+        body:JSON.stringify({expireAt:new Date(Date.now()+30*60000).toISOString(),maxFailureAttempts:3,
+          paymentType:'credit',amount,currency,order:orderId,merchantId:cfg.mid,
+          merchantRedirect:`${SITE}/api/pay/kashier/return/${encodeURIComponent(orderId)}`,
+          serverWebhook:`${SITE}/api/pay/kashier/webhook`,display:language==='en'?'en':'ar',
+          type:'one-time',...(process.env.KASHIER_ALLOWED_METHODS?{allowedMethods:cfg.allowedMethods}:{}),
+          customer:{email:user.email,reference:String(user.id)}}),
+        signal:AbortSignal.timeout(15000)
+      });
+      const result=await response.json();
+      if(!response.ok||!result.sessionUrl)throw Error('Kashier session '+response.status);
+      const checkout=new URL(result.sessionUrl);
+      if(checkout.protocol!=='https:'||checkout.hostname!=='payments.kashier.io')throw Error('Kashier returned an unexpected checkout host');
+      sessionUrl=checkout.toString();
+    }catch(error){console.error('Kashier payment session failed:',error.message);return sendJson(res,503,{error:'تعذر إنشاء جلسة دفع حقيقية الآن. حاول لاحقًا أو تواصل مع الدعم.'})}
+  }
   db.transaction(() => {
     db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,gateway_id,created)
       VALUES (?,?,?,?,?,?,?,?,?)`).run(orderId, user.id, packageIds[0], numericAmount, currency, 'pending', 'kashier', orderId, Date.now());
@@ -390,6 +440,7 @@ async function handleKashierCreate(req, res) {
       });
     });
   })();
+  if(sessionUrl)return sendJson(res,200,{orderId,paymentUrl:sessionUrl,gateway:'kashier',mode:cfg.mode});
   const hash = kashierOrderHash(cfg.mid, orderId, amount, currency, cfg.paymentKey);
   const params = new URLSearchParams({
     merchantId: cfg.mid, orderId, amount, currency, hash,
@@ -632,6 +683,7 @@ const server = http.createServer(async (req, res) => {
       return await handleKashierCreate(req,res);
     }
     if (req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
+    if (req.method === 'POST' && requestUrl.pathname === '/api/pay/kashier/webhook') return await handleKashierWebhook(req,res);
     return forwardToApp(req,res);
   } catch (err) {
     console.error('Proxy request error:', err);
