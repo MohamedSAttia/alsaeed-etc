@@ -386,6 +386,8 @@ async function handleKashierCreate(req, res) {
     return sendJson(res, 400, { error: 'خيار عدم تطبيق الضريبة غير متاح لبلد الفوترة المختار' });
   const currency = String(body.currency || packages[0].currency || 'USD').toUpperCase();
   if (!v16.publicConfig().currencies.includes(currency)) return sendJson(res, 400, { error: 'العملة غير مفعلة' });
+  if(cfg.secretKey&&!['EGP','USD','GBP','EUR'].includes(currency))
+    return sendJson(res,400,{error:'جلسات Kashier المباشرة تقبل حاليًا EGP وUSD وGBP وEUR. اختر عملة مدعومة.'});
   const promoCode = String(body.promoCode || '').trim().toUpperCase();
   if (promoCode) {
     let promos = [];
@@ -668,7 +670,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && requestUrl.pathname === '/api/pay/readiness') {
       const cfg=kashierConfig(),gateway=activePaymentGateway();
       return sendJson(res,200,{gateway,configured:gateway==='kashier'?!!(cfg.mid&&cfg.paymentKey):false,
-        mode:gateway==='kashier'?cfg.mode:'unknown',multiPackage:gateway==='kashier'});
+        mode:gateway==='kashier'?cfg.mode:'unknown',multiPackage:gateway==='kashier',
+        sessionPayments:gateway==='kashier'&&!!cfg.secretKey,
+        supportedCurrencies:cfg.secretKey?['EGP','USD','GBP','EUR']:[]});
     }
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
     if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/my-tax-options' || requestUrl.pathname === '/api/question-bank-status' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/') || requestUrl.pathname.startsWith('/api/invoice-groups/')) {

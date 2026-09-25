@@ -64,6 +64,12 @@
       APP.api('/my-tax-options').then(result=>{approvedCountries=result.taxExemptCountries||[];update()}).catch(()=>{});
       fetch('/api/pay/readiness').then(r=>r.json()).then(state=>{
         const button=$('#v23Pay'),note=$('#v23GatewayInfo');if(!button||!note)return;
+        if(state.sessionPayments&&Array.isArray(state.supportedCurrencies)) {
+          currency.querySelectorAll('option').forEach(option=>{
+            option.disabled=!state.supportedCurrencies.includes(option.value);
+          });
+          if(currency.selectedOptions[0]?.disabled)currency.value=state.supportedCurrencies.includes('USD')?'USD':state.supportedCurrencies[0];
+        }
         const ready=state.gateway==='kashier'&&state.configured&&state.mode==='live';
         gatewayReady=ready;update();
         note.textContent=ready?'الدفع المباشر متاح عبر Kashier. تُصدر الفواتير بعد تأكيد العملية.':
