@@ -5107,6 +5107,7 @@ function instructorBlock() {
 }
 
 function contact() {
+  const tr=(ar,en)=>siteEnglish()?en:ar;
   return `<section class="pg-hero"><div class="wrap">
     <div class="crumb"><a href="#home" data-r="home">الرئيسة</a> ← تواصل</div>
     <h1>نسعد بتواصلك</h1>
@@ -5124,11 +5125,17 @@ function contact() {
           <option>استشارة اختيار المسار</option>
           <option>تدريب مؤسسي لفريق</option>
           <option>استفسار عن باقة</option>
+          <option value="trainer_application">${tr('انضمام مدرب أو محاضر','Join as a trainer or lecturer')}</option>
+          <option value="strategic_partnership">${tr('شراكة أو تعاون استراتيجي','Strategic partnership')}</option>
           <option>دعم فني</option>
         </select></label>
       <label class="f"><span>الرسالة</span><textarea id="ctMsg" rows="5" placeholder="اكتب استفسارك…"></textarea></label>
       <button class="btn p" id="ctSend">أرسل</button>
       <p class="muted" id="ctFeedback" role="status"></p>
+      <div class="grid g2" style="margin-top:18px">
+        <div class="card pad"><b>${tr('انضم إلى شبكة المدربين','Join our instructor network')}</b><p class="muted">${tr('اكتب مجال تخصصك، خبرتك، بلدك، ونوع التدريب الذي تقدمه، وأضف رابط ملفك المهني في الرسالة.','Share your subject expertise, experience, location, delivery format and a link to your professional profile in the message.')}</p></div>
+        <div class="card pad"><b>${tr('شراكات استراتيجية','Strategic partnerships')}</b><p class="muted">${tr('اذكر اسم الجهة ونوع التعاون المقترح والفئة المستفيدة والبلدان المستهدفة.','Describe your organization, proposed cooperation, audience and target countries.')}</p></div>
+      </div>
     </div>
     <div class="side"><div class="card pad">
       <h4 style="font-family:var(--fd);font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:14px">معلومات التواصل</h4>
@@ -5147,13 +5154,13 @@ function contact() {
         <a href="${B.x}" target="_blank" rel="noopener" style="background:var(--violet-soft);color:var(--violet)">𝕏</a>
       </div>
     </div></div>
-    <div class="card pad v28-corporate"><span class="eyebrow">للشركات والمؤسسات · FOR TEAMS</span><h2>اطلب مقترح برنامج لفريقك</h2><p>حدد احتياجك وطريقة التنفيذ. ستحصل فورًا على ملخص قابل للتنزيل برقم مرجعي، ويراجع فريق السعيد الطلب لإعداد العرض النهائي.</p>
-      <div class="grid g2"><label class="f"><span>المؤسسة *</span><input id="coOrg" maxlength="160"></label><label class="f"><span>جهة التواصل *</span><input id="coName" maxlength="120"></label>
-      <label class="f"><span>البريد المهني *</span><input id="coEmail" type="email"></label><label class="f"><span>رقم الهاتف</span><input id="coPhone" type="tel"></label>
-      <label class="f"><span>البلد</span><input id="coCountry"></label><label class="f"><span>البرنامج أو المجال *</span><input id="coTopic" maxlength="160" placeholder="إدارة المشاريع، GRC، القيادة..."></label>
-      <label class="f"><span>عدد المشاركين *</span><input id="coCount" type="number" min="1" max="100000"></label><label class="f"><span>طريقة التنفيذ</span><select id="coDelivery"><option value="online">أونلاين مباشر</option><option value="onsite">حضوري</option><option value="hybrid">مختلط</option></select></label></div>
-      <label class="f"><span>الأهداف والمواعيد والتفاصيل</span><textarea id="coDetails" maxlength="4000" rows="4"></textarea></label>
-      <button class="btn p" id="coSubmit" type="button">إرسال الطلب وتنزيل الملخص</button><p role="status" id="coStatus"></p>
+    <div class="card pad v28-corporate"><span class="eyebrow">${siteEnglish()?'FOR TEAMS · AL SAEED':'للشركات والمؤسسات · FOR TEAMS'}</span><h2>${tr('اطلب مقترح برنامج لفريقك','Request a program proposal for your team')}</h2><p>${tr('حدد احتياجك وطريقة التنفيذ. ستحصل فورًا على ملخص قابل للتنزيل برقم مرجعي، ويراجع فريق السعيد الطلب لإعداد العرض النهائي.','Describe your needs and delivery format. Download a referenced request summary instantly; our team will review your requirements before a final priced proposal.')}</p>
+      <div class="grid g2"><label class="f"><span>${tr('المؤسسة *','Organization *')}</span><input id="coOrg" maxlength="160" required></label><label class="f"><span>${tr('جهة التواصل *','Contact name *')}</span><input id="coName" maxlength="120" required></label>
+      <label class="f"><span>${tr('البريد المهني *','Work email *')}</span><input id="coEmail" type="email" required></label><label class="f"><span>${tr('رقم الهاتف','Phone')}</span><input id="coPhone" type="tel"></label>
+      <label class="f"><span>${tr('البلد','Country')}</span><input id="coCountry" maxlength="80"></label><label class="f"><span>${tr('البرنامج أو المجال *','Program or topic *')}</span><input id="coTopic" maxlength="160" required placeholder="${tr('إدارة المشاريع، GRC، القيادة...','Project management, GRC, leadership...')}"></label>
+      <label class="f"><span>${tr('عدد المشاركين *','Participants *')}</span><input id="coCount" type="number" min="1" max="100000" required></label><label class="f"><span>${tr('طريقة التنفيذ','Delivery format')}</span><select id="coDelivery"><option value="online">${tr('أونلاين مباشر','Live online')}</option><option value="onsite">${tr('حضوري','In person')}</option><option value="hybrid">${tr('مختلط','Hybrid')}</option></select></label></div>
+      <label class="f"><span>${tr('الأهداف والمواعيد والتفاصيل','Objectives, dates and requirements')}</span><textarea id="coDetails" maxlength="4000" rows="4"></textarea></label>
+      <button class="btn p" id="coSubmit" type="button">${tr('إرسال الطلب وتنزيل الملخص','Submit and download summary')}</button><p role="status" id="coStatus" aria-live="polite"></p>
     </div>
   </div></section>`;
 }
@@ -5729,11 +5736,12 @@ function bind() {
     const val=id=>($('#'+id)?.value||'').trim();
     const body={organization:val('coOrg'),contactName:val('coName'),email:val('coEmail'),phone:val('coPhone'),
       country:val('coCountry'),topic:val('coTopic'),participants:Number(val('coCount')),delivery:val('coDelivery'),details:val('coDetails')};
-    const status=$('#coStatus');corporate.disabled=true;status.textContent='جارٍ تسجيل الطلب…';
+    const english=siteEnglish(),tx=(ar,en)=>english?en:ar;
+    const status=$('#coStatus');corporate.disabled=true;status.textContent=tx('جارٍ تسجيل الطلب…','Submitting your request…');
     try {const response=await A().api('/corporate-requests',{method:'POST',body});
-      status.textContent='تم تسجيل الطلب برقم '+response.reference+'. يُراجع فريق السعيد التفاصيل قبل إرسال عرض السعر.';
+      status.textContent=tx('تم تسجيل الطلب برقم ','Request submitted: ')+response.reference+tx('. يُراجع فريق السعيد التفاصيل قبل إرسال عرض السعر.','. Our team will review the details before preparing a priced proposal.');
       const escapeText=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      const content='<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>ملخص طلب '+escapeText(response.reference)+'</title><style>body{font:18px Arial;max-width:760px;margin:40px auto;color:#17334c;line-height:1.8}h1{border-bottom:3px solid #dc7e36}section{background:#f3f7fb;padding:24px;border-radius:12px}dt{font-weight:bold}dd{margin:0 0 12px}@media print{body{margin:0}}</style><h1>السعيد · ملخص طلب تدريب مؤسسي</h1><p>رقم المرجع: '+escapeText(response.reference)+'</p><section>'+Object.entries({'المؤسسة':body.organization,'جهة التواصل':body.contactName,'البريد':body.email,'الهاتف':body.phone,'الدولة':body.country,'البرنامج':body.topic,'عدد المشاركين':body.participants,'التنفيذ':body.delivery,'التفاصيل':body.details}).map(([k,v])=>'<dt>'+k+'</dt><dd>'+escapeText(v)+'</dd>').join('')+'</section><p>هذا ملخص للطلب، ويصدر العرض النهائي بعد مراجعة نطاق العمل والسعر والمواعيد.</p></html>';
+      const content='<!doctype html><html lang="'+(english?'en':'ar')+'" dir="'+(english?'ltr':'rtl')+'"><meta charset="utf-8"><title>'+tx('ملخص طلب ','Request summary ')+escapeText(response.reference)+'</title><style>body{font:18px Arial;max-width:760px;margin:40px auto;color:#17334c;line-height:1.8}h1{border-bottom:3px solid #dc7e36}section{background:#f3f7fb;padding:24px;border-radius:12px}dt{font-weight:bold}dd{margin:0 0 12px}@media print{body{margin:0}}</style><h1>AL SAEED · '+tx('ملخص طلب تدريب مؤسسي','Corporate training request summary')+'</h1><p>'+tx('رقم المرجع: ','Reference: ')+escapeText(response.reference)+'</p><section>'+Object.entries({[tx('المؤسسة','Organization')]:body.organization,[tx('جهة التواصل','Contact')]:body.contactName,[tx('البريد','Email')]:body.email,[tx('الهاتف','Phone')]:body.phone,[tx('الدولة','Country')]:body.country,[tx('البرنامج','Program')]:body.topic,[tx('عدد المشاركين','Participants')]:body.participants,[tx('التنفيذ','Delivery')]:body.delivery,[tx('التفاصيل','Requirements')]:body.details}).map(([k,v])=>'<dt>'+k+'</dt><dd>'+escapeText(v)+'</dd>').join('')+'</section><p>'+tx('هذا ملخص للطلب، ويصدر العرض النهائي بعد مراجعة نطاق العمل والسعر والمواعيد.','This records your request. The final offer follows review of scope, pricing and dates.')+'</p></html>';
       const url=URL.createObjectURL(new Blob([content],{type:'text/html;charset=utf-8'}));
       const a=document.createElement('a');a.href=url;a.download='Alsaeed-Request-'+response.reference+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);
     }catch(e){status.textContent=e.message||'تعذر تسجيل الطلب';}

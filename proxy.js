@@ -321,6 +321,9 @@ function markOrderPaid(order) {
 
 async function handleKashierCreate(req, res) {
   const cfg = kashierConfig();
+  if (cfg.mode !== 'live') {
+    return sendJson(res, 503, { error: 'بوابة الدفع في الوضع التجريبي. فعّل مفاتيح Kashier الحية قبل استقبال أي طلب شراء.' });
+  }
   if (!cfg.mid || !cfg.paymentKey) {
     return sendJson(res, 503, { error: 'بوابة Kashier لم تكتمل بعد. أضف مفاتيح Kashier في Railway.' });
   }

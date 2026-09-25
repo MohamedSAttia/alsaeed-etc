@@ -49,8 +49,10 @@ const indexFile = path.join(publicDir,'index.html');
 inject(indexFile, '/v18-interface.css', '<link rel="stylesheet" href="/v18-interface.css?v=18.0">');
 inject(indexFile, '/v18-interface.js', '<script src="/v18-interface.js?v=18.0"></script>', 'body');
 inject(indexFile, '/hotfix-v18.js', '<script src="/hotfix-v18.js?v=18.1"></script>', 'body');
-inject(indexFile, '/launch-v22.css', '<link rel="stylesheet" href="/launch-v22.css?v=22.0">');
-inject(indexFile, '/launch-v22.js', '<script src="/launch-v22.js?v=28.0"></script>', 'body');
+inject(indexFile, '/launch-v22.css', '<link rel="stylesheet" href="/launch-v22.css?v=29.0">');
+inject(indexFile, '/launch-v22.js', '<script src="/launch-v22.js?v=29.0"></script>', 'body');
+replaceIn(indexFile, '/launch-v22.css?v=22.0', '/launch-v22.css?v=29.0');
+replaceIn(indexFile, '/launch-v22.js?v=28.0', '/launch-v22.js?v=29.0');
 inject(indexFile, '/exam-ai-v19.js', '<script src="/exam-ai-v19.js?v=20.0"></script>', 'body');
 replaceIn(indexFile, '/exam-ai-v19.js?v=19.0', '/exam-ai-v19.js?v=20.0');
 for (const name of ['panel.html','content-admin.html']) {

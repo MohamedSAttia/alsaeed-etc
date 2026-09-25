@@ -2,23 +2,47 @@
 (() => {
   'use strict';
   const policies={
-    terms:['الشروط والأحكام','تظهر محتويات الباقة وسعرها ومدة الوصول قبل الشراء. يبدأ الاشتراك عند تأكيد مزود الدفع للعملية ويخص الحساب المسجل فقط. لا يجوز مشاركة الحساب أو نسخ المحتوى أو إعادة بيعه. تختلف شروط الشهادة والأنشطة المطلوبة بحسب صفحة البرنامج. إذا تغير موعد التدريب المباشر نُخطر المسجلين ونوضح الخيارات المتاحة. للاستفسار اذكر رقم الطلب عند التواصل معنا.'],
-    privacy:['سياسة الخصوصية','نجمع بيانات الحساب والاتصال والفوترة، وسجل الطلبات، وتقدم التعلم ونتائج الاختبارات، والرسائل التي ترسلها لنا. نستخدمها لتقديم الخدمة والفواتير والدعم وتحسين تجربة التعلم والرد على الاستفسارات. تعتمد رسائل التذكير على الاشتراك الاختياري. تُدخل بيانات البطاقة لدى مزود الدفع ولا تحتفظ المنصة برقم البطاقة الكامل. يمكنك طلب الاطلاع على بياناتك أو تصحيحها عبر البريد المبين أدناه؛ وقد نحتفظ بسجلات الفواتير بحسب المتطلبات المعمول بها.'],
-    refund:['سياسة الإلغاء والاسترداد','لتقديم طلب مراجعة أرسل رقم الطلب وسبب الطلب إلى info@alsaeed-etc.com. نراجع الحالة بحسب نوع الباقة، بدء تقديم الخدمة، والشروط المعلنة وقت الشراء. عند تغيير موعد دورة مباشرة أو تعذر تقديمها نتواصل مع المسجلين بشأن بديل أو تسوية مناسبة. إذا اعتُمد الاسترداد، يختلف وقت وصول المبلغ بحسب وسيلة الدفع ومزود الخدمة.']
+    terms:{ar:['الشروط والأحكام',[
+      ['البرنامج والطلب','تعرض صفحة البرنامج نوع التدريب والمحتوى والسعر والعملة ومدة الوصول قبل الدفع. يبدأ الوصول الرقمي عند تأكيد مزود الدفع ويخص الحساب الذي أتم الشراء.'],
+      ['استخدام المحتوى','الحساب شخصي. لا يجوز مشاركة بيانات الدخول أو نسخ المحتوى أو إعادة بيعه. تعتمد متطلبات شهادة الإتمام على وصف البرنامج؛ ولا تشمل الباقة رسوم اختبارات الجهات الخارجية إلا إذا ذُكر ذلك صراحة.'],
+      ['المواعيد والفوترة','عند تغيير موعد برنامج مباشر نتواصل مع المسجلين ونوضح البدائل. تظهر ضريبة الطلب وبلد الفوترة قبل تأكيد الدفع وفق الإعدادات المعتمدة؛ احتفظ برقم الطلب لأي استفسار.']]],en:['Terms and conditions',[
+      ['Program and order','The program page shows the delivery format, content, price, currency and access period before payment. Digital access starts after payment confirmation and belongs to the purchasing account.'],
+      ['Content use','Accounts are personal. Sharing credentials, copying or reselling content is prohibited. Completion certificates follow the program description; external examination fees are excluded unless expressly included.'],
+      ['Dates and billing','We contact learners when a live program date changes and explain the available options. Applicable tax and billing country are displayed before payment according to approved settings. Keep your order number for support.']]]},
+    privacy:{ar:['سياسة الخصوصية',[
+      ['ما نجمعه ولماذا','نجمع بيانات الحساب والتواصل والفوترة والطلبات وتقدم التعلم ونتائج الاختبارات والرسائل والطلبات المؤسسية لتقديم الخدمة والدعم وحمايتها وتحسينها.'],
+      ['الدفع ومزودو الخدمة','يدخل العميل بيانات البطاقة لدى مزود الدفع؛ لا نحتفظ برقم البطاقة الكامل. قد نعالج البيانات اللازمة مع مزود الدفع والاستضافة والرسائل لتشغيل الخدمة.'],
+      ['الحفظ وحقوقك','نحتفظ بسجلات الطلبات والفواتير بحسب متطلبات الخدمة والالتزامات المعمول بها. يمكنك طلب الاطلاع على بياناتك أو تصحيحها أو الاستفسار عن حذفها عبر البريد أدناه، مع مراعاة السجلات المطلوب حفظها. رسائل التسويق تتبع تفضيلاتك.']]],en:['Privacy policy',[
+      ['Information and purposes','We collect account, contact, billing, order, learning progress, assessment and submitted message or corporate inquiry data to provide, support, secure and improve the service.'],
+      ['Payments and providers','Card details are entered with the payment provider; we do not retain the full card number. Payment, hosting and messaging providers may process the information needed to operate the service.'],
+      ['Retention and your requests','We retain order and invoice records as required for service delivery and applicable obligations. Email us to request access or correction, or ask about deletion subject to required retention. Marketing messages follow your preferences.']]]},
+    refund:{ar:['الإلغاء والاسترداد',[
+      ['تقديم الطلب','أرسل رقم الطلب وسبب الإلغاء إلى info@alsaeed-etc.com من البريد المرتبط بحسابك.'],
+      ['مراجعة الحالة','نراجع نوع الباقة وبدء الوصول إلى المحتوى أو تقديم الجلسات والشروط المعلنة وقت الشراء والقواعد الواجبة التطبيق. عند تعذر تقديم جلسة مباشرة أو تغيير موعدها نتواصل بشأن البدائل المناسبة.'],
+      ['إعادة المبلغ','عند اعتماد الاسترداد تعتمد مدة وصول المبلغ على وسيلة الدفع والبنك ومزود الخدمة.']]],en:['Cancellation and refunds',[
+      ['Request a review','Send your order number and reason to info@alsaeed-etc.com from the email associated with your account.'],
+      ['Assessment','We review the product type, whether digital access or live delivery has started, the terms shown at purchase and applicable rules. We contact enrolled learners about suitable options if a live session cannot be delivered or is rescheduled.'],
+      ['Refund timing','For approved refunds, the time until funds appear depends on the payment method, bank and provider.']]]}
   };
+  const english=()=>document.documentElement.lang?.startsWith('en') || window.APP?.state?.lang==='en';
+  const label=(ar,en)=>english()?en:ar;
   function showPolicy(key){
     const item=policies[key];if(!item||!window.APP)return;
-    APP.modal('<div class="v22-policy"><span class="eyebrow">AL-SAEED</span><h2>'+item[0]+'</h2><p>'+item[1]+'</p><div class="v22-policy-note">آخر تحديث: سبتمبر 2026 · للاستفسار: info@alsaeed-etc.com</div></div>');
+    const [title,sections]=item[english()?'en':'ar'];
+    APP.modal('<article class="v22-policy" dir="'+(english()?'ltr':'rtl')+'"><span class="eyebrow">AL SAEED</span><h2>'+title+'</h2>'+sections.map(([heading,body])=>'<section><h3>'+heading+'</h3><p>'+body+'</p></section>').join('')+'<div class="v22-policy-note">'+label('آخر تحديث: 25 سبتمبر 2026 · للاستفسار: ','Updated 25 September 2026 · Questions: ')+'<a href="mailto:info@alsaeed-etc.com">info@alsaeed-etc.com</a></div></article>');
   }
   function mountFooter(){
-    const footer=document.querySelector('.ftr');if(!footer||footer.querySelector('.v22-legal'))return;
-    footer.insertAdjacentHTML('beforeend','<nav class="v22-legal" aria-label="السياسات"><button data-policy="terms">الشروط والأحكام</button><button data-policy="privacy">الخصوصية</button><button data-policy="refund">الاسترداد</button></nav>');
-    footer.querySelectorAll('[data-policy]').forEach(b=>b.onclick=()=>showPolicy(b.dataset.policy));
+    const footer=document.querySelector('.ftr');if(!footer)return;
+    let nav=footer.querySelector('.v22-legal');if(!nav){nav=document.createElement('nav');nav.className='v22-legal';footer.append(nav)}
+    const lang=english()?'en':'ar';if(nav.dataset.lang===lang)return;nav.dataset.lang=lang;
+    nav.setAttribute('aria-label',label('السياسات','Policies'));
+    nav.innerHTML=['terms','privacy','refund'].map(k=>'<button type="button" data-policy="'+k+'">'+policies[k][lang][0]+'</button>').join('');
+    nav.querySelectorAll('[data-policy]').forEach(b=>b.onclick=()=>showPolicy(b.dataset.policy));
   }
   function decorateCheckout(){
     const promo=document.getElementById('checkoutPromo');if(!promo)return;
     const box=promo.closest('.modal,.modal-box,.dialog')||promo.parentElement?.parentElement;if(!box||box.querySelector('.v22-checkout-trust'))return;
-    box.insertAdjacentHTML('beforeend','<div class="v22-checkout-trust"><span>🔒 الدفع عبر مزود الخدمة</span><span>⚡ تفعيل الاشتراك بعد تأكيد الدفع</span><button type="button" data-checkout-policy>راجع سياسة الاسترداد</button></div>');
+    box.insertAdjacentHTML('beforeend','<div class="v22-checkout-trust"><span>'+label('🔒 الدفع عبر مزود الخدمة','🔒 Provider hosted payment')+'</span><span>'+label('⚡ تفعيل الاشتراك بعد تأكيد الدفع','⚡ Access after payment confirmation')+'</span><button type="button" data-checkout-policy>'+label('راجع سياسة الاسترداد','Read the refund policy')+'</button></div>');
     box.querySelector('[data-checkout-policy]').onclick=()=>showPolicy('refund');
   }
   let frame=0;const refresh=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{mountFooter();decorateCheckout()})};
