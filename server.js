@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS progress (
   user_id TEXT NOT NULL, package_id TEXT NOT NULL, data TEXT NOT NULL,
   updated INTEGER NOT NULL, PRIMARY KEY (user_id, package_id)
 );
+CREATE TABLE IF NOT EXISTS reminder_preferences (
+  user_id TEXT PRIMARY KEY, enabled INTEGER DEFAULT 0, days INTEGER DEFAULT 3,
+  last_sent INTEGER DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS lessons (
   package_id TEXT NOT NULL, idx INTEGER NOT NULL,
   title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER DEFAULT 0,
@@ -234,6 +238,67 @@ app.put('/api/progress/:pkg', auth, (req, res) => {
          JSON.stringify(incoming), Date.now());
   res.json({ ok: true });
 });
+const reminderReady = () => !!(process.env.RESEND_API_KEY && process.env.REMINDER_FROM);
+app.get('/api/reminders', auth, (req,res) => {
+  const row=db.prepare('SELECT enabled,days FROM reminder_preferences WHERE user_id=?').get(req.user.id);
+  res.json({ enabled:!!row?.enabled, days:row?.days || 3, emailReady:reminderReady() });
+});
+app.put('/api/reminders', auth, (req,res) => {
+  const enabled=req.body?.enabled === true, days=Number(req.body?.days);
+  if (![1,3,7].includes(days)) return res.status(400).json({ error:'اختر تكرار التذكير' });
+  if (enabled && !reminderReady()) return res.status(503).json({ error:'التذكير بالبريد لم يُفعّل بعد؛ يجب ربط خدمة البريد أولاً' });
+  db.prepare(`INSERT INTO reminder_preferences (user_id,enabled,days) VALUES (?,?,?)
+    ON CONFLICT(user_id) DO UPDATE SET enabled=excluded.enabled,days=excluded.days`)
+    .run(req.user.id, enabled?1:0, days);
+  res.json({ enabled,days,emailReady:reminderReady() });
+});
+let reminderRunning = false;
+async function deliverStudyReminders() {
+  if (!reminderReady() || reminderRunning) return;
+  reminderRunning = true;
+  try {
+    const now=Date.now();
+    const packages=JSON.parse(setting('content_packages') || '[]');
+    const users=db.prepare(`SELECT r.user_id,r.days,r.last_sent,u.email,u.name
+      FROM reminder_preferences r JOIN users u ON u.id=r.user_id
+      WHERE r.enabled=1 AND u.active=1 AND r.last_sent<? LIMIT 100`).all(now-7*86400000);
+    for (const user of users) {
+      const courses=db.prepare(`SELECT e.package_id,e.created,p.data,p.updated
+        FROM enrollments e LEFT JOIN progress p ON p.user_id=e.user_id AND p.package_id=e.package_id
+        WHERE e.user_id=? AND (e.expires IS NULL OR e.expires>?)`).all(user.user_id,now);
+      const pending=courses.find(c=>{
+        if (now-(c.updated || c.created) < user.days*86400000) return false;
+        const variant=packages.find(p=>p.id===c.package_id);
+        const source=variant?.sourcePackageId && packages.some(p=>p.id===variant.sourcePackageId)
+          ? variant.sourcePackageId : c.package_id;
+        const videos=db.prepare("SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(source);
+        if(!videos.length) return false;
+        let progress={};try{progress=JSON.parse(c.data||'{}')}catch{}
+        return videos.some(l=>!progress.lessons?.[l.idx]);
+      });
+      if(!pending)continue;
+      const claimed=db.prepare('UPDATE reminder_preferences SET last_sent=? WHERE user_id=? AND enabled=1 AND last_sent=?')
+        .run(now,user.user_id,user.last_sent).changes;
+      if(!claimed)continue;
+      try {
+        const response=await fetch('https://api.resend.com/emails',{
+          method:'POST',headers:{Authorization:'Bearer '+process.env.RESEND_API_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({from:process.env.REMINDER_FROM,to:[user.email],
+            subject:'تذكير بخطة دراستك — منصة السعيد',
+            text:`مرحباً ${user.name}، لديك فيديوهات لم تُكملها بعد. عد إلى خطتك وتابع من آخر درس: ${SITE}/#learn/${encodeURIComponent(pending.package_id)}\nيمكنك إيقاف هذه الرسائل من لوحة المتدرب.`}),
+          signal:AbortSignal.timeout(12000)
+        });
+        if(!response.ok)throw Error('Email service returned '+response.status);
+      }catch(error){
+        db.prepare('UPDATE reminder_preferences SET last_sent=? WHERE user_id=? AND last_sent=?')
+          .run(user.last_sent,user.user_id,now);
+        console.warn('Study reminder delivery failed:',error.message);
+      }
+    }
+  }finally{reminderRunning=false}
+}
+setTimeout(()=>deliverStudyReminders().catch(console.error),30000);
+setInterval(()=>deliverStudyReminders().catch(console.error),60*60*1000);
 app.get('/api/admin/essay-answers', auth, admin, (req, res) => {
   const rows = db.prepare('SELECT p.user_id,p.package_id,p.data,u.name FROM progress p JOIN users u ON u.id=p.user_id').all();
   res.json(rows.flatMap(row => Object.entries(JSON.parse(row.data).essayAnswers || {}).map(([key,answer]) => ({
@@ -977,11 +1042,41 @@ app.get('/api/admin/messages', auth, admin, (req, res) => {
 /* ═══════════ المحتوى القابل للتحرير (CMS) ═══════════ */
 app.get('/api/content', (req, res) => {
   const out = {};
-  ['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos'].forEach(k => {
+  ['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos', 'learning'].forEach(k => {
     const v = setting('content_' + k);
     if (v) { try { out[k] = JSON.parse(v); } catch (e) {} }
   });
   res.json(out);
+});
+app.put('/api/admin/package-plan/:pkg', auth, admin, (req, res) => {
+  const cards = req.body?.planCards;
+  if (!cards || typeof cards !== 'object' || Array.isArray(cards) || Object.keys(cards).length > 110 ||
+      Object.entries(cards).some(([key, card]) => !/^(?:\d{1,3}|domains|final)$/.test(key) ||
+        !card || typeof card !== 'object' || ['title_ar','title_en'].some(k =>
+          card[k] !== undefined && (typeof card[k] !== 'string' || card[k].length > 200)) ||
+        ['items_ar','items_en','tags_ar','tags_en'].some(k => card[k] !== undefined &&
+          (!Array.isArray(card[k]) || card[k].length > 30 || card[k].some(v => typeof v !== 'string' || v.length > 350)))))
+    return res.status(400).json({ error:'بيانات بطاقات الخطة غير صحيحة' });
+  const packages = JSON.parse(setting('content_packages') || '[]');
+  const pkg = packages.find(p => p.id === req.params.pkg);
+  if (!pkg) return res.status(404).json({ error:'الباقة غير موجودة' });
+  pkg.planCards = cards;
+  setSetting('content_packages', JSON.stringify(packages));
+  res.json({ ok:true, planCards:cards });
+});
+app.put('/api/admin/learning/:course', auth, admin, (req, res) => {
+  const cards = req.body?.cards;
+  if (!Array.isArray(cards) || cards.length > 200 || cards.some(c => !c ||
+      typeof c.en !== 'string' || !c.en.trim() || c.en.length > 250 ||
+      typeof c.ar !== 'string' || c.ar.length > 250))
+    return res.status(400).json({ error:'البطاقات التعليمية غير صحيحة' });
+  const courses = JSON.parse(setting('content_courses') || '[]');
+  if (!courses.some(c => c.id === req.params.course))
+    return res.status(404).json({ error:'الدورة غير موجودة' });
+  const data = JSON.parse(setting('content_learning') || '{}');
+  data[req.params.course] = { ...(data[req.params.course] || {}), cards };
+  setSetting('content_learning', JSON.stringify(data));
+  res.json({ ok:true, cards });
 });
 /* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
 app.get('/api/catalog-availability', (req, res) => {

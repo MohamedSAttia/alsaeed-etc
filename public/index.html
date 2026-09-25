@@ -448,7 +448,7 @@ body{padding-top:var(--hdr)}
 .stat:hover{transform:translateY(-3px);box-shadow:var(--sh)}
 .stat b{display:block;font-family:var(--fm);font-size:1.85rem;font-weight:600;color:var(--navy);line-height:1.2}
 .stat span{font-size:.79rem;color:var(--dim)}
-.stat.hl{background:linear-gradient(140deg,var(--orange),#DC6512);border:0;color:#fff}
+.stat.hl{background:linear-gradient(140deg,var(--navy),var(--navy3));border:0;color:#fff}
 .stat.hl b,.stat.hl span{color:#fff}
 .prog{height:8px;background:var(--line);border-radius:5px;overflow:hidden;margin:9px 0 5px}
 .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));
@@ -607,6 +607,21 @@ textarea{resize:vertical;line-height:1.8}
   flex-shrink:0;display:flex;align-items:center;justify-content:center;
   font-size:.82rem;color:transparent;transition:.18s}
 .wk.done .wk-chk{background:var(--ok);border-color:var(--ok);color:#fff}
+.readiness-explain{display:flex;gap:16px;align-items:flex-start;padding:20px 24px;border:1px solid var(--line);
+  border-inline-start:5px solid var(--orange);border-radius:20px;background:linear-gradient(110deg,var(--white),var(--orange3));box-shadow:var(--sh)}
+.readiness-explain>span{font-size:1.8rem}.readiness-explain b{font-family:var(--fd);color:var(--navy);font-size:1.06rem}
+.readiness-explain p{margin-top:7px;color:var(--dim);line-height:1.8;font-size:.85rem}
+.plan-w .wk{padding:17px 20px;border-radius:18px;box-shadow:0 6px 20px rgba(12,38,74,.045)}
+.plan-w .wk:hover{border-color:var(--orange);box-shadow:0 12px 30px rgba(12,38,74,.1)}
+.plan-w .wk:focus-within{outline:2px solid var(--orange);outline-offset:2px}
+.tabs button:focus-visible,.flash-card:focus-visible,.btn:focus-visible,.wk-chk:focus-visible{
+  outline:3px solid var(--orange);outline-offset:3px}
+.flash-card{transition:transform .2s ease,box-shadow .2s ease}
+.flash-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(12,38,74,.18)}
+.stat{transition:border-color .2s ease,box-shadow .2s ease}
+.stat:hover{border-color:var(--orange);box-shadow:0 10px 28px rgba(12,38,74,.08)}
+@media(max-width:620px){.readiness-explain{padding:16px;gap:10px}.plan-w .wk{padding:14px;gap:12px}}
+@media(prefers-reduced-motion:reduce){.flash-card,.stat,.wk{transition:none!important}}
 .ex-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
 .ex-c{background:var(--white);border:1px solid var(--line);border-radius:var(--r);
   padding:22px;transition:.24s var(--ease)}
@@ -2633,6 +2648,17 @@ window.CMS = {
   ctaText: 'تحدّث مع مستشار يساعدك في اختيار الشهادة ونمط التعلّم الأنسب لظروفك وأهدافك — بلا مقابل.',
   ctaBtn: 'احجز استشارة مجانية'
 };
+window.applyLearningTheme = function () {
+  const themes = {
+    orange:['#F0741A','#FBA43C','#FFF1E3'],
+    blue:['#1769AA','#4C9DD4','#E9F4FC'],
+    teal:['#087D72','#2BA99B','#E5F7F3'],
+    plum:['#7042A0','#A679CF','#F4ECFA']
+  };
+  const colors = themes[window.CMS.accentTheme] || themes.orange;
+  ['--orange','--orange2','--orange3'].forEach((key,i) =>
+    document.documentElement.style.setProperty(key,colors[i]));
+};
 
 if (!window.CMS.heroPoster || /hero-learning\.svg(?:\?|$)/.test(window.CMS.heroPoster))
   window.CMS.heroPoster = 'assets/hero/alsaeed-global-learning-v22.webp';
@@ -2733,12 +2759,15 @@ async function loadContent() {
     if (!r.ok) return;
     const d = await r.json();
     if (d.cms) Object.assign(window.CMS, d.cms);
+    window.applyLearningTheme?.();
     if (d.courses && d.courses.length) window.COURSES = d.courses;
     if (d.packages && d.packages.length) window.PACKAGES = d.packages;
     if (d.academic && d.academic.length) window.ACADEMIC = d.academic;
     if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
     if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
     if (d.promos && d.promos.length) window.PROMOS = d.promos;
+    if (d.learning && typeof d.learning === 'object' && !Array.isArray(d.learning))
+      Object.assign(window.LEARNING_DATA, d.learning);
     try {
       const availability = await fetch('/api/catalog-availability');
       if (availability.ok) window.CATALOG_AVAILABILITY = await availability.json();
@@ -2927,26 +2956,50 @@ function overallBand(doms) {
 
 /* ═══ خطة الدراسة — تُبنى من فصول الدورة ومدة الباقة ═══ */
 function studyPlan(pid) {
-  const p = pack(pid), c = course(p.course);
+  const p = pack(pid); if (!p) return [];
+  const c = course(p.course); if (!c) return [];
   const weeks = Math.max(4, Math.round((p.days || 90) / 7));
-  const chs = c.chapters;
+  const chs = (c.chapters || []).map(ch => typeof ch === 'string' ? ch :
+    ((window.__lang === 'en' ? ch.en || ch.ar : ch.ar || ch.en) || ''));
+  const lessons = window.LESSONS[pid] || window.LESSONS[p.sourcePackageId] || [];
   const perWeek = Math.max(1, Math.ceil(chs.length / (weeks - 2)));
   const plan = [];
   let i = 0, w = 1;
   while (i < chs.length) {
-    const slice = chs.slice(i, i + perWeek);
+    const start = i, slice = chs.slice(i, i + perWeek);
+    const actual = lessons.filter(l => (l.ch || 0) >= start && (l.ch || 0) < start + slice.length && l.vimeo)
+      .map(l => (window.biTitle ? window.biTitle(l) : l.t) || l.t).filter(Boolean);
+    const override = (p.planCards || {})[String(start)] || {};
     plan.push({
-      w, title: slice.length > 1 ? `${slice[0]} + ${slice.length - 1} فصلاً` : slice[0],
-      items: slice,
-      tags: [`${slice.length} فصل`, 'مشاهدة + ملخّص', 'اختبار فصل']
+      w, start, title: (window.__lang === 'en' ? override.title_en : override.title_ar) ||
+        (slice.length > 1 ? `${slice[0]} + ${slice.length - 1} ${window.__lang === 'en' ? 'chapters' : 'فصول'}` : slice[0]),
+      items: (window.__lang === 'en' ? override.items_en?.length && override.items_en : override.items_ar?.length && override.items_ar) || actual.length && actual || slice,
+      tags: (window.__lang === 'en' ? override.tags_en?.length && override.tags_en : override.tags_ar?.length && override.tags_ar) ||
+        [actual.length ? `${actual.length} ${window.__lang === 'en' ? 'videos' : 'فيديو'}` :
+          `${slice.length} ${window.__lang === 'en' ? 'chapters' : 'فصول'}`]
     });
     i += perWeek; w++;
   }
-  plan.push({ w: w++, title: 'اختبارات النطاقات', items: c.domains.map(d => d.ar),
-    tags: ['قياس بالنطاق', 'مراجعة الأخطاء'] });
-  plan.push({ w: w++, title: 'الاختبار الشامل والمراجعة النهائية',
-    items: ['اختبار شامل بمؤقّت', 'مراجعة النطاقات الأضعف', 'استراتيجية يوم الاختبار'],
-    tags: ['محاكاة كاملة', 'جاهزية للاختبار'] });
+  if ((p.kinds || []).includes('exam') || (p.kinds || []).includes('quiz')) {
+    const domainCard = (p.planCards || {}).domains || {};
+    plan.push({ w: w++, start:'domains',
+      title:(window.__lang === 'en' ? domainCard.title_en : domainCard.title_ar) ||
+        (window.__lang === 'en' ? 'Domain assessments' : 'اختبارات النطاقات'),
+      items:(window.__lang === 'en' ? domainCard.items_en?.length && domainCard.items_en : domainCard.items_ar?.length && domainCard.items_ar) ||
+        (c.domains || []).map(d => window.__lang === 'en' ? d.en || d.ar : d.ar || d.en),
+      tags:(window.__lang === 'en' ? domainCard.tags_en?.length && domainCard.tags_en : domainCard.tags_ar?.length && domainCard.tags_ar) ||
+        [window.__lang === 'en' ? 'Assess your progress' : 'قياس التقدم'] });
+    if ((p.kinds || []).includes('exam')) {
+      const finalCard = (p.planCards || {}).final || {};
+      plan.push({ w: w++, start:'final',
+        title:(window.__lang === 'en' ? finalCard.title_en : finalCard.title_ar) ||
+          (window.__lang === 'en' ? 'Final practice and review' : 'المراجعة والمحاكاة النهائية'),
+        items:(window.__lang === 'en' ? finalCard.items_en?.length && finalCard.items_en : finalCard.items_ar?.length && finalCard.items_ar) ||
+          (window.__lang === 'en' ? ['Timed practice', 'Review weaker topics'] : ['تدريب بمؤقّت', 'مراجعة المحاور الأضعف']),
+        tags:(window.__lang === 'en' ? finalCard.tags_en?.length && finalCard.tags_en : finalCard.tags_ar?.length && finalCard.tags_ar) ||
+          [window.__lang === 'en' ? 'Exam preparation' : 'الاستعداد للاختبار'] });
+    }
+  }
   return plan;
 }
 
@@ -3229,6 +3282,7 @@ async function boot() {
     if (sl) Object.assign(window.LESSONS, sl); } catch (e) {}
   try { window.__lang = localStorage.getItem('alsaeed_lang') || 'ar'; } catch (e) { window.__lang = 'ar'; }
   if (window.I18) I18.set(window.__lang);
+  window.applyLearningTheme?.();
   const L0 = window.LANGS.find(x => x.k === window.__lang) || window.LANGS[0];
   document.documentElement.setAttribute('lang', L0.k);
   document.documentElement.setAttribute('dir', L0.dir);
@@ -4252,7 +4306,7 @@ function pkgTab(p, c, has) {
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
             : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
-      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((_, i) => !!pr.lessons[i]).length}/${ls.length} (${Math.round(ls.filter((_, i) => !!pr.lessons[i]).length / ls.length * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((_, i) => !!pr.lessons[i]).length / ls.length * 100)}%"></i></div></div>` : ''}
+      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => l.vimeo).length} (${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
       ${Object.keys(byCh).map(ch => `<div class="ch-blk">
         <div class="ch-h"><b>${esc(window.biTitle ? window.biTitle(c.chapters[ch] || 'مقدّمة') : (c.chapters[ch] || 'مقدّمة'))}</b>
           <span>${byCh[ch].length} درساً</span></div>
@@ -4367,6 +4421,9 @@ function learn(id) {
   const scores = {};
   c.domains.forEach(d => { const r = pr.exams['dom_' + d.k]; if (r) scores[d.k] = r.score; });
   const ov = A().overallBand(A().readiness(c, scores));
+  const fullScore=Number(pr.exams?.full?.score);
+  const readinessPct=ov ? ov.v : pr.exams?.full?.score != null && Number.isFinite(fullScore) ? fullScore : null;
+  const assessed = c.domains.filter(d => Number.isFinite(Number(scores[d.k])) && scores[d.k] !== undefined).length;
   const kinds = p.kinds || [];
   const tabs = [['plan', 'الخطة'],
     ...(kinds.includes('video') || kinds.includes('material') ? [['content', 'المحتوى والفيديو']] : []),
@@ -4389,11 +4446,15 @@ function learn(id) {
     <div class="grid g4 mb">
       <div class="stat hl"><b class="num">${pc}%</b><span>اكتمال الباقة</span>
         <div class="prog" style="background:rgba(255,255,255,.25)"><i style="width:${pc}%;background:#fff"></i></div></div>
-      <div class="stat"><b class="num">${Object.values(pr.lessons).filter(Boolean).length}/${ls.length || '—'}</b><span>درساً مكتملاً</span></div>
+      <div class="stat"><b class="num">${ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length}/${ls.filter(l=>l.vimeo).length || '—'}</b><span>فيديو مكتملاً</span></div>
       <div class="stat"><b class="num">${Object.keys(pr.exams).length}</b><span>اختباراً أُدّي</span></div>
-      <div class="stat"><b class="num">${ov ? ov.v + '%' : '—'}</b>
-        <span>${ov ? A().BAND[ov.band].ar : 'جاهزيتك بعد أول اختبار نطاق'}</span></div>
+      <div class="stat"><b class="num">${readinessPct != null ? readinessPct + '%' : '—'}</b>
+        <span>${readinessPct != null ? (siteEnglish()?'Practice readiness':'مؤشر الجاهزية التدريبي') : (siteEnglish()?'Take a practice assessment':'ابدأ باختبار لقياس الجاهزية')}</span></div>
     </div>
+    <div class="readiness-explain mb"><span aria-hidden="true">🎯</span><div><b>${siteEnglish()?'How ready am I for the exam?':'ما مدى جاهزيتي للاختبار الدولي؟'}</b>
+      <p>${readinessPct != null ? `${siteEnglish()?'Your practice score':'مؤشر التدريب'}: ${readinessPct}% · ${ov ? `${siteEnglish()?'Domains assessed':'نطاقات جرى قياسها'}: ${assessed}/${c.domains.length}` : (siteEnglish()?'Based on the full practice exam':'من نتيجة المحاكاة الشاملة')}.`
+        : (siteEnglish()?'No percentage yet. Complete a practice exam to calculate your indicator.':'لا تظهر نسبة قبل أداء اختبار تدريبي؛ بعدها يُحسب المؤشر من نتيجتك الفعلية.')}
+      ${siteEnglish()?'This indicator reflects your practice results; it does not predict the official exam result.':'هذا مؤشر من اختبارات المنصة، ولا يضمن نتيجة الاختبار الرسمي.'}</p></div></div>
 
     ${Object.keys(scores).length ? `<div class="card pad mb" style="background:linear-gradient(150deg,var(--ink),var(--plum));border:0">
       <div class="rm-h" style="color:#fff"><b>مقياس جاهزيتك</b></div>
@@ -4425,8 +4486,21 @@ function sysTab(c) {
 }
 
 /* ═══════════ لوحة الطالب ═══════════ */
+function loadReminderSettings() {
+  const user=A().me();
+  if (!A().live || !user || window.__reminderUser===user.id) return;
+  window.__reminderUser=user.id;
+  window.__reminderSettings=null;
+  A().api('/reminders').then(data=>{
+    if(A().me()?.id!==user.id)return;
+    window.__reminderSettings=data;
+    if(A().route==='dash') A().render();
+  }).catch(()=>{window.__reminderUser=null;});
+}
 function dash() {
   const u = A().me();
+  loadReminderSettings();
+  const reminder=window.__reminderSettings || {};
   const mine = u.packages.map(x => ({ ...x, p: A().pack(x.id) })).filter(x => x.p);
   return `<section class="dash-hd"><div class="wrap">
     <h1>أهلاً ${esc(u.name.split(' ')[0])}</h1>
@@ -4434,6 +4508,15 @@ function dash() {
       : 'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.'}</p>
   </div></section>
   <div class="wrap" style="padding-bottom:60px">
+    <div class="readiness-explain mb"><span aria-hidden="true">🔔</span><div style="flex:1">
+      <b>${siteEnglish()?'Study reminders':'تذكيرات الدراسة'}</b>
+      <p>${siteEnglish()?'Receive an email when your video lessons are unfinished and you have not studied for several days. You can stop reminders at any time.':'تصل رسالة إلى بريدك عند عدم إكمال الفيديوهات والتوقف عن الدراسة عدة أيام. يمكنك إيقافها في أي وقت.'}</p>
+      <label style="display:inline-flex;gap:8px;align-items:center;margin-top:10px"><input id="reminderEnabled" type="checkbox" ${reminder.enabled?'checked':''} ${!reminder.emailReady&&!reminder.enabled?'disabled':''}>
+        ${siteEnglish()?'Email me a study reminder':'أرسل لي تذكيرًا على البريد'}</label>
+      <select id="reminderDays" aria-label="${siteEnglish()?'Days without study':'أيام التوقف عن الدراسة'}" style="width:auto;display:inline-block;margin-inline:12px" ${!reminder.emailReady?'disabled':''}>
+        ${[1,3,7].map(d=>`<option value="${d}" ${reminder.days===d?'selected':''}>${d} ${siteEnglish()?'days':'أيام'}</option>`).join('')}</select>
+      ${reminder.emailReady===false?`<p class="muted">${siteEnglish()?'Email sending is not configured yet.':'إرسال البريد غير مفعّل من إعدادات الخادم بعد.'}</p>`:''}
+    </div></div>
     ${mine.length ? `<div class="grid g2">${mine.map(x => {
       const pc = A().pct(x.id), c = A().course(x.p.course);
       const left = Math.max(0, x.p.days - Math.floor((Date.now() - x.at) / 86400000));
@@ -4457,7 +4540,7 @@ function dash() {
 /* ═══════════ لوحة الإدارة ═══════════ */
 function admin(sub) {
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
-  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
+  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
   <div class="wrap" style="padding-bottom:60px">
     <div class="admin-kpis-v8">
@@ -4545,6 +4628,25 @@ function openAdminQuestionEditor(q){
     });
 }
 
+function learningAdminView() {
+  const pid = window.__learningPk || window.PACKAGES.find(x => x.id === 'pmp-full')?.id || window.PACKAGES[0]?.id;
+  const p = A().pack(pid); if (!p) return '<div class="empty">لا توجد باقات</div>';
+  const lessonSource = p.sourcePackageId || pid;
+  if (A().live && !A().adminLessonsReady(lessonSource)) {
+    A().loadAdminLessons(lessonSource);
+    return `<label class="f"><span>الباقة</span><select id="learningPackage">${window.PACKAGES.map(x => `<option value="${esc(x.id)}" ${x.id===pid?'selected':''}>${esc(x.ar)}</option>`).join('')}</select></label><div class="note info">جارٍ تحميل الدروس لتحديث الخطة…</div>`;
+  }
+  const c = A().course(p.course), cards = window.LEARNING_DATA[p.course]?.cards || [], plan = A().studyPlan(pid);
+  return `<div class="note info mb">عناوين الفصول والدروس تُقرأ من المحتوى المحفوظ. يمكن تعديل كل بطاقة في الخطة والبطاقات التعليمية، وتعديل أسئلة التقييم من بنك الأسئلة أو من الدرس نفسه.</div>
+    <label class="f"><span>اختر الباقة</span><select id="learningPackage">${window.PACKAGES.map(x => `<option value="${esc(x.id)}" ${x.id===pid?'selected':''}>${esc(x.ar)}</option>`).join('')}</select></label>
+    <h3 style="margin:24px 0 10px">🗓️ خطة المتدرب — ${esc(c?.code || '')}</h3>
+    <div class="grid g2">${plan.map(w => `<div class="card pad"><b>${w.w}. ${esc(w.title)}</b><p class="muted" style="margin:8px 0">${w.items.map(esc).join(' · ')}</p><button class="btn o sm" data-edit-plan="${esc(w.start)}">تعديل البطاقة</button>${p.planCards?.[String(w.start)] ? `<button class="btn o sm" data-reset-plan="${esc(w.start)}">استعادة التلقائي</button>` : ''}</div>`).join('')}</div>
+    <h3 style="margin:28px 0 10px">🃏 البطاقات التعليمية — ${esc(c?.code || '')}</h3>
+    <button class="btn p sm" id="learningAddCard">＋ بطاقة جديدة</button>
+    <div class="grid g2" style="margin-top:14px">${cards.map((card,i) => `<div class="card pad"><b>${esc(card.en)}</b><p class="muted">${esc(card.ar || '')}</p><button class="btn o sm" data-edit-card="${i}">تعديل</button> <button class="btn o sm" data-remove-card="${i}">حذف</button></div>`).join('')}</div>
+    <div class="note info mt"><button class="btn o sm" data-at="questions">إدارة بنك الأسئلة ←</button> <button class="btn o sm" data-at="content">أسئلة الفيديو والفصول ←</button></div>`;
+}
+
 function adminTab() {
   const D=A().DB, O=A().adminOverview||localOverview();
   if(admTab==='overview'){
@@ -4623,6 +4725,7 @@ function adminTab() {
       ${!list.length?'<div class="empty"><div class="ic">🔍</div><b>لا نتائج بهذا البحث</b></div>':''}`;
   }
   if (admTab === 'questions') return adminQuestionsView();
+  if (admTab === 'learning') return learningAdminView();
   if(admTab === 'orders') return D.orders.length ? `
     <div class="tbl-w"><table class="t">
       <thead><tr><th>رقم الطلب</th><th>المستخدم</th><th>الباقة</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
@@ -4758,6 +4861,11 @@ function adminTab() {
     return `<div class="note info"><b>حرّر نصوص الموقع مباشرةً.</b>
       كل ما تكتبه هنا يظهر فوراً في الصفحة الرئيسة — بلا مبرمج.</div>
       <div class="cms-g">
+        <div class="cms-item"><h5>المظهر العام <span class="tag">theme</span></h5>
+          <label class="f"><span>اللون المميز للأزرار والبطاقات</span><select data-cms="accentTheme">
+            ${[['orange','برتقالي السعيد'],['blue','أزرق'],['teal','فيروزي'],['plum','بنفسجي']].map(([value,label])=>
+              `<option value="${value}" ${C.accentTheme===value?'selected':''}>${label}</option>`).join('')}
+          </select></label><p class="muted">يتغير اللون في جميع الباقات مع الاحتفاظ بخط واضح وتباين مناسب.</p></div>
         <div class="cms-item">
           <h5>قسم البطل <span class="tag">hero</span></h5>
           ${F('heroKicker', 'السطر العلوي الصغير')}
@@ -5455,7 +5563,72 @@ function bind() {
   const hp=$('#heroPlay'), hw=$('#heroWatch'); if(hp)hp.onclick=()=>openCoursePreview('pmp'); if(hw)hw.onclick=()=>{ const C=CT(); if(C.heroVimeo){ A().modal(`<div class="video-shell" style="min-height:420px">${vimeoFrame(C.heroVimeo,'عن منصة السعيد')}</div><div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`); } else openCoursePreview('pmp'); };
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
+  const reminderEnabled=$('#reminderEnabled'), reminderDays=$('#reminderDays');
+  const saveReminder=async()=>{
+    if(!reminderEnabled || !reminderDays)return;
+    reminderEnabled.disabled=true;reminderDays.disabled=true;
+    try{window.__reminderSettings=await A().api('/reminders',{method:'PUT',body:{
+      enabled:reminderEnabled.checked,days:Number(reminderDays.value)}});
+      A().toast('حُفظت تفضيلات التذكير');A().render();
+    }catch(e){A().toast(e.message);A().render()}
+  };
+  if(reminderEnabled)reminderEnabled.onchange=saveReminder;
+  if(reminderDays)reminderDays.onchange=saveReminder;
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
+  if (admTab === 'learning') {
+    const picker=$('#learningPackage'); if(picker) picker.onchange=()=>{window.__learningPk=picker.value;A().render();};
+    const pid=window.__learningPk || window.PACKAGES.find(p=>p.id==='pmp-full')?.id || window.PACKAGES[0]?.id;
+    const pkg=A().pack(pid), courseId=pkg?.course;
+    $$('[data-edit-plan]').forEach(button=>button.onclick=()=>{
+      const key=button.dataset.editPlan, card=pkg.planCards?.[key] || {};
+      A().modal(`<h3>تعديل بطاقة الخطة</h3><p class="muted">اترك الحقل فارغاً ليتحدّث تلقائياً عند تغيير عنوان الفصل أو الدرس.</p>
+        <label class="f"><span>عنوان مخصّص بالعربية</span><input id="planTitleAr" value="${esc(card.title_ar||'')}"></label>
+        <label class="f"><span>Custom title in English</span><input dir="ltr" id="planTitleEn" value="${esc(card.title_en||'')}"></label>
+        <div class="grid g2"><label class="f"><span>العناصر بالعربية — كل سطر عنصر</span><textarea id="planItemsAr" rows="5">${esc((card.items_ar||[]).join('\n'))}</textarea></label>
+        <label class="f"><span>Items in English — one per line</span><textarea dir="ltr" id="planItemsEn" rows="5">${esc((card.items_en||[]).join('\n'))}</textarea></label></div>
+        <div class="grid g2"><label class="f"><span>وسوم بالعربية — كل سطر وسم</span><textarea id="planTagsAr" rows="2">${esc((card.tags_ar||[]).join('\n'))}</textarea></label>
+        <label class="f"><span>Tags in English — one per line</span><textarea dir="ltr" id="planTagsEn" rows="2">${esc((card.tags_en||[]).join('\n'))}</textarea></label></div>
+        <div class="mdl-act"><button class="btn p" id="planCardSave">حفظ البطاقة</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+        $('#planCardSave').onclick=async()=>{
+          const lines=id=>$('#'+id).value.split('\n').map(s=>s.trim()).filter(Boolean);
+          const next={...pkg.planCards,[key]:{title_ar:$('#planTitleAr').value.trim(),title_en:$('#planTitleEn').value.trim(),
+            items_ar:lines('planItemsAr'),items_en:lines('planItemsEn'),tags_ar:lines('planTagsAr'),tags_en:lines('planTagsEn')}};
+          try { if(A().live) await A().api('/admin/package-plan/'+encodeURIComponent(pid),{method:'PUT',body:{planCards:next}});
+            pkg.planCards=next;A().closeModal();A().render();A().toast('✅ حُفظت بطاقة الخطة'); }
+          catch(e){A().toast(e.message)}
+        };
+      });
+    });
+    $$('[data-reset-plan]').forEach(button=>button.onclick=async()=>{
+      const next={...pkg.planCards};delete next[button.dataset.resetPlan];
+      try{if(A().live)await A().api('/admin/package-plan/'+encodeURIComponent(pid),{method:'PUT',body:{planCards:next}});
+        pkg.planCards=next;A().render();A().toast('عادت البطاقة للعناوين التلقائية');}catch(e){A().toast(e.message)}
+    });
+    const editCard=index=>{
+      const cards=window.LEARNING_DATA[courseId]?.cards || [], card=cards[index] || {};
+      A().modal(`<h3>${index<0?'إضافة بطاقة تعليمية':'تعديل البطاقة التعليمية'}</h3>
+        <label class="f"><span>المصطلح بالإنجليزية</span><input dir="ltr" id="flashEn" value="${esc(card.en||'')}"></label>
+        <label class="f"><span>المعنى بالعربية</span><input id="flashAr" value="${esc(card.ar||'')}"></label>
+        <div class="mdl-act"><button class="btn p" id="flashSave">حفظ</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
+        $('#flashSave').onclick=async()=>{
+          const item={en:$('#flashEn').value.trim(),ar:$('#flashAr').value.trim()};
+          if(!item.en)return A().toast('اكتب المصطلح');
+          const next=cards.slice();if(index<0)next.push(item);else next[index]=item;
+          try{if(A().live)await A().api('/admin/learning/'+encodeURIComponent(courseId),{method:'PUT',body:{cards:next}});
+            window.LEARNING_DATA[courseId]={...(window.LEARNING_DATA[courseId]||{}),cards:next};
+            A().closeModal();A().render();A().toast('✅ حُفظت البطاقة');}catch(e){A().toast(e.message)}
+        };
+      });
+    };
+    const add=$('#learningAddCard');if(add)add.onclick=()=>editCard(-1);
+    $$('[data-edit-card]').forEach(b=>b.onclick=()=>editCard(+b.dataset.editCard));
+    $$('[data-remove-card]').forEach(b=>b.onclick=async()=>{
+      if(!confirm('حذف هذه البطاقة؟'))return;
+      const next=(window.LEARNING_DATA[courseId]?.cards||[]).filter((_,i)=>i!==+b.dataset.removeCard);
+      try{if(A().live)await A().api('/admin/learning/'+encodeURIComponent(courseId),{method:'PUT',body:{cards:next}});
+        window.LEARNING_DATA[courseId]={...(window.LEARNING_DATA[courseId]||{}),cards:next};A().render();A().toast('حُذفت البطاقة');}catch(e){A().toast(e.message)}
+    });
+  }
   if(admTab==='questions'){
     const review=$('#adminEssayReview');if(review)review.onclick=async()=>{
       try {
@@ -5962,6 +6135,7 @@ function bind() {
 
   const cs2 = $('#cmsSave'); if (cs2) cs2.onclick = () => {
     $$('[data-cms]').forEach(i => { window.CMS[i.dataset.cms] = i.value; });
+    window.applyLearningTheme?.();
     const sessionRows = $$('#v24SessionsAdmin .v24-admin-session');
     if (sessionRows.some(row => !row.querySelector('[data-session-date]').value)) { A().toast('حدد تاريخ كل دورة أو احذف الصف الناقص'); return; }
     window.CMS.sessions = sessionRows.map(row => ({
