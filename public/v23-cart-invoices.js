@@ -48,18 +48,24 @@
       const $=s=>document.querySelector(s),currency=$('#v23Currency'),country=$('#v23Country'),tax=$('#v23Tax');
       let gatewayReady=false;
       const billingCountry=()=>country.value==='OTHER'?$('#v23OtherCountry').value.trim().toUpperCase():country.value;
-      function update(){const due=packages.reduce((sum,p)=>sum+convert(p.price,p.currency,currency.value),0);
-        $('#v23Due').textContent=money(due,currency.value);
+      function update(){const code=billingCountry(),rates=payment.countryTaxRates||{},configured=code==='EG'||Object.prototype.hasOwnProperty.call(rates,code);
+        const rate=code==='EG'?Number(payment.vatRate||0):Number(rates[code]||0);
         $('#v23OtherWrap').hidden=country.value!=='OTHER';
-        const eligible=approvedCountries.includes(billingCountry());
-        tax.querySelector('[value="exempt"]').disabled=!eligible;tax.value=eligible?'exempt':'standard';
-        $('#v23TaxInfo').textContent=eligible?'الفاتورة دون ضريبة متاحة بعد اعتماد الإدارة للأهلية والبلد.':'سعر الباقة يشمل المعاملة الضريبية المقررة. إذا كنت مؤهلاً لمعاملة صفرية فتواصل مع الإدارة لتوثيقها.'}
-      currency.onchange=update;country.onchange=update;$('#v23OtherCountry').oninput=update;update();
+        const eligible=approvedCountries.includes(code);
+        tax.querySelector('[value="exempt"]').disabled=!eligible;
+        if(!eligible)tax.value='standard';
+        const due=packages.reduce((sum,p)=>sum+Math.round((convert(p.price,p.currency,currency.value)/(tax.value==='exempt'&&configured?1+rate/100:1))*100)/100,0);
+        $('#v23Due').textContent=money(due,currency.value);
+        $('#v23TaxInfo').textContent=!configured?'لم تُهيأ المعاملة الضريبية لهذا البلد بعد؛ اطلب من الإدارة اعتمادها قبل الدفع.':
+          'النسبة المهيأة لهذا البلد: '+rate+'%'+(eligible?' · يمكنك اختيار المعاملة الصفرية المعتمدة.':' · السعر المعروض شامل الضريبة المهيأة.');
+        $('#v23Pay').disabled=!gatewayReady||!configured;
+      }
+      currency.onchange=update;country.onchange=update;tax.onchange=update;$('#v23OtherCountry').oninput=update;update();
       APP.api('/my-tax-options').then(result=>{approvedCountries=result.taxExemptCountries||[];update()}).catch(()=>{});
       fetch('/api/pay/readiness').then(r=>r.json()).then(state=>{
         const button=$('#v23Pay'),note=$('#v23GatewayInfo');if(!button||!note)return;
         const ready=state.gateway==='kashier'&&state.configured&&state.mode==='live';
-        gatewayReady=ready;button.disabled=!ready;
+        gatewayReady=ready;update();
         note.textContent=ready?'الدفع المباشر متاح عبر Kashier. تُصدر الفواتير بعد تأكيد العملية.':
           state.mode==='test'?'البوابة في الوضع التجريبي؛ الشراء الحقيقي غير متاح حاليًا.':
           'الدفع المباشر لعدة باقات غير مفعّل حاليًا. تواصل مع الإدارة قبل الشراء.';
@@ -75,11 +81,11 @@
         }};
     });
   }
-  function invoiceHTML(rows,lang,summary,logo='/assets/al-ltc-logo.svg'){
+  function invoiceHTML(rows,lang,summary,logoMarkup){
     const first=rows[0], rtl=['ar','ur'].includes(lang), locale=languages[lang]?lang:'ar';
     const labels={
-      ar:{seller:'الجهة المصدرة',buyer:'المشتري',taxCard:'رقم البطاقة الضريبية',vatId:'رقم تسجيل القيمة المضافة',address:'العنوان',buyerId:'الرقم الضريبي للمشتري',reference:'رقم المرجع',taxMode:'المعاملة الضريبية',qr:'رمز تحقق مرجعي داخل المنصة',disclaimer:'هذه نسخة من فاتورة المنصة. إصدار فاتورة إلكترونية حكومية ورمز التحقق الرسمي يتطلبان الربط بمنظومة الضرائب المصرية.',statement:'هذا بيان مشتريات، وليس فاتورة ضريبية إضافية. راجع الفواتير المنفصلة لكل باقة.'},
-      en:{seller:'Issued by',buyer:'Bill to',taxCard:'Egyptian tax card number',vatId:'VAT registration number',address:'Address',buyerId:'Buyer tax ID',reference:'Reference',taxMode:'Tax treatment',qr:'Platform reference QR',disclaimer:'This platform invoice is not an ETA-registered e-invoice. Government issuance and official verification require ETA integration.',statement:'Purchase statement only. Each package has a separate invoice; this is not an additional tax invoice.'}
+      ar:{seller:'الجهة المصدرة',buyer:'المشتري',taxCard:'رقم البطاقة الضريبية',vatId:'رقم تسجيل القيمة المضافة',address:'العنوان',buyerId:'الرقم الضريبي للمشتري',reference:'رقم المرجع',taxMode:'المعاملة الضريبية',qr:'رمز تحقق مرجعي داخل المنصة',statement:'هذا بيان مشتريات، وليس فاتورة ضريبية إضافية. راجع الفواتير المنفصلة لكل باقة.'},
+      en:{seller:'Issued by',buyer:'Bill to',taxCard:'Egyptian tax card number',vatId:'VAT registration number',address:'Address',buyerId:'Buyer tax ID',reference:'Reference',taxMode:'Tax treatment',qr:'Platform reference QR',statement:'Purchase statement only. Each package has a separate invoice; this is not an additional tax invoice.'}
     };
     const l=locale==='ar'?labels.ar:labels.en,t=languages[locale],sum=k=>rows.reduce((v,r)=>v+Number(r[k]||0),0);
     const date=first.issued_at||first.created;
@@ -87,17 +93,18 @@
     const seller=[line(l.seller,first.seller_name),line(l.taxCard,first.seller_tax_card),line(l.vatId,first.seller_tax_id),line(l.address,first.seller_address)].join('');
     const buyer=[line(l.buyer,first.buyer_name),line(l.buyerId,first.buyer_tax_id),line(l.address,first.buyer_address),line(t[9],first.buyer_country)].join('');
     const itemRows=rows.map(r=>'<tr><td>'+esc(r.item_name||r.package_id||'—')+'</td><td>'+esc(r.invoice_no)+'</td><td>'+money(r.subtotal,r.currency)+'</td><td>'+money(r.tax_amount,r.currency)+'</td><td><strong>'+money(r.total,r.currency)+'</strong></td></tr>').join('');
-    return '<article class="v23-paper" lang="'+esc(locale)+'" dir="'+(rtl?'rtl':'ltr')+'"><header class="v23-head"><div><img class="v23-logo" src="'+esc(logo)+'" alt="Al Saeed"><h1>'+t[summary?1:0]+'</h1><span class="v23-muted">'+l.reference+' · '+esc(summary?first.purchase_id:first.invoice_no)+'</span></div><div class="v23-head-right"><time>'+t[10]+'<strong>'+new Date(date).toLocaleDateString(locale)+'</strong></time>'+(!summary&&first.reference_qr?'<img class="v23-qr" src="'+first.reference_qr+'" alt="'+l.qr+'"><small>'+l.qr+'</small>':'')+'</div></header>'+
+    return '<article class="v23-paper" lang="'+esc(locale)+'" dir="'+(rtl?'rtl':'ltr')+'"><header class="v23-head"><div>'+logoMarkup+'<h1>'+t[summary?1:0]+'</h1><span class="v23-muted">'+l.reference+' · '+esc(summary?first.purchase_id:first.invoice_no)+'</span></div><div class="v23-head-right"><time>'+t[10]+'<strong>'+new Date(date).toLocaleDateString(locale)+'</strong></time>'+(!summary&&first.reference_qr?'<img class="v23-qr" src="'+first.reference_qr+'" alt="'+l.qr+'"><small>'+l.qr+'</small>':'')+'</div></header>'+
       '<section class="v23-parties"><dl>'+seller+'</dl><dl>'+buyer+'</dl></section>'+
       '<div class="v23-scroll"><table><thead><tr><th>'+t[5]+'</th><th>'+t[2]+'</th><th>'+t[6]+'</th><th>'+t[7]+'</th><th>'+t[8]+'</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'+
       '<div class="v23-totals"><div><span>'+t[6]+'</span><b>'+money(sum('subtotal'),first.currency)+'</b></div><div><span>'+t[7]+(summary?'':' ('+Number(first.tax_rate||0)+'%)')+'</span><b>'+money(sum('tax_amount'),first.currency)+'</b></div><div class="v23-grand"><span>'+t[8]+'</span><b>'+money(sum('total'),first.currency)+'</b></div></div>'+
-      '<p class="v23-note">'+(!summary&&first.tax_reason?l.taxMode+': '+esc(first.tax_reason)+'<br>':'')+(summary?l.statement:l.disclaimer)+'</p></article>';
+      (summary?'<p class="v23-note">'+l.statement+'</p>':first.tax_reason?'<p class="v23-note">'+l.taxMode+': '+esc(first.tax_reason)+'</p>':'')+'</article>';
   }
   async function present(rows,lang,summary){
     const name=summary?'Summary-'+rows[0].purchase_id:rows[0].invoice_no;
-    const style='<link rel=\"stylesheet\" href=\"/homepage-v23.css\"><style>body{font:16px Arial,sans-serif;color:#172c46;max-width:960px;margin:26px auto;background:#f3f6fa}.v23-paper{background:#fff;padding:32px;border:1px solid #d9e1eb;border-radius:18px}.v23-scroll{overflow-x:auto}.v23-head,.v23-parties{display:flex;justify-content:space-between;gap:24px}.v23-head{border-bottom:4px solid #da762d;padding-bottom:18px}.v23-head-right{display:grid;justify-items:end}.v23-logo{max-width:175px;max-height:64px}.v23-qr{width:110px}.v23-head time strong{display:block}h1{color:#183b63}dl{flex:1;background:#f4f8fc;padding:16px;border-radius:10px}dl div{margin-bottom:8px}dt{font-size:12px;color:#66758a}dd{margin:0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{border-bottom:1px solid #d9e1eb;padding:10px;text-align:start}.v23-totals{max-width:360px;margin-inline-start:auto}.v23-totals div{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #d9e1eb}.v23-grand{font-size:20px;color:#183b63}.v23-note,.v23-muted,small{font-size:12px;color:#68778a}@media(max-width:650px){.v23-parties{display:block}.v23-paper{padding:18px}}@media print{body{margin:0;background:white}.v23-paper{border:0;border-radius:0}.v23-scroll{overflow:visible}}</style>';
-    const logo=await fetch('/assets/al-ltc-logo.svg').then(r=>r.ok?r.text():Promise.reject()).then(svg=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)).catch(()=>'/assets/al-ltc-logo.svg');
-    const content=invoiceHTML(rows,lang,summary,logo),blob=new Blob(['<!doctype html><html><meta charset="utf-8"><title>'+esc(name)+'</title>'+style+content+'</html>'],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob);
+    const style='<link rel=\"stylesheet\" href=\"/homepage-v23.css\"><style>body{font:16px Arial,sans-serif;color:#172c46;max-width:960px;margin:26px auto;background:#f3f6fa}.v23-paper{background:#fff;padding:32px;border:1px solid #d9e1eb;border-radius:18px}.v23-scroll{overflow-x:auto}.v23-head,.v23-parties{display:flex;justify-content:space-between;gap:24px}.v23-head{border-bottom:4px solid #da762d;padding-bottom:18px}.v23-head-right{display:grid;justify-items:end}.v23-brand{display:flex;align-items:center;gap:12px;direction:ltr;text-align:start}.v23-brand svg,.v23-brand img{width:62px;height:59px;object-fit:contain;flex:none}.v23-brand-text{display:grid;line-height:1.3}.v23-brand-text strong{font-size:23px;color:#183b63}.v23-brand-text small{font-size:12px;color:#506279}.v23-qr{width:110px}.v23-head time strong{display:block}h1{color:#183b63}dl{flex:1;background:#f4f8fc;padding:16px;border-radius:10px}dl div{margin-bottom:8px}dt{font-size:12px;color:#66758a}dd{margin:0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{border-bottom:1px solid #d9e1eb;padding:10px;text-align:start}.v23-totals{max-width:360px;margin-inline-start:auto}.v23-totals div{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #d9e1eb}.v23-grand{font-size:20px;color:#183b63}.v23-note,.v23-muted,small{font-size:12px;color:#68778a}@media(max-width:650px){.v23-parties{display:block}.v23-paper{padding:18px}}@media print{body{margin:0;background:white}.v23-paper{border:0;border-radius:0}.v23-scroll{overflow:visible}}</style>';
+    const mark=typeof window.LOGO==='function'?window.LOGO(62):'<img src="/img/logo.png" alt="AL SAEED">';
+    const brand='<div class="v23-brand" aria-label="AL SAEED">'+mark+'<span class="v23-brand-text"><strong>'+(lang==='ar'?'السعيد':'AL SAEED')+'</strong><small>'+(lang==='ar'?'للتعليم والتدريب والاستشارات':'Education, Training and Consulting Services')+'</small></span></div>';
+    const content=invoiceHTML(rows,lang,summary,brand),blob=new Blob(['<!doctype html><html><meta charset="utf-8"><title>'+esc(name)+'</title>'+style+content+'</html>'],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob);
     APP.modal(content+'<div class="mdl-act"><label>لغة العرض / Language <select id="v23InvoiceLang"><option value="ar" '+(lang==='ar'?'selected':'')+'>العربية</option><option value="en" '+(lang==='en'?'selected':'')+'>English</option></select></label><a class="btn p" href="'+url+'" download="'+esc(name)+'-'+esc(lang)+'.html">تحميل</a><button class="btn o" id="v23Print">طباعة / حفظ PDF</button><button class="btn o" data-close>إغلاق</button></div>',()=>{
       document.getElementById('v23InvoiceLang').onchange=e=>present(rows,e.target.value,summary);
       document.getElementById('v23Print').onclick=()=>{const w=window.open(url,'_blank');if(w)w.onload=()=>w.print()};

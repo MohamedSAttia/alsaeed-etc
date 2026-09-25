@@ -344,6 +344,8 @@ async function handleKashierCreate(req, res) {
     return sendJson(res, 400, { error: 'سعر إحدى الباقات غير صالح للدفع الإلكتروني' });
   const country = String(body.billingCountry || 'EG').toUpperCase();
   if (!/^[A-Z]{2}$/.test(country)) return sendJson(res, 400, { error: 'بلد الفوترة غير صالح' });
+  if (!v16.taxPolicy(country,user).configured)
+    return sendJson(res,400,{error:'المعاملة الضريبية لهذا البلد تحتاج اعتماد الإدارة قبل الدفع. تواصل مع السعيد لإتمام الشراء.'});
   const language = String(body.invoiceLanguage || 'ar').toLowerCase();
   if (!['ar','en','fr','tr','ur'].includes(language)) return sendJson(res, 400, { error: 'لغة الفاتورة غير مدعومة' });
   const taxMode = String(body.taxMode || 'standard');
@@ -362,9 +364,12 @@ async function handleKashierCreate(req, res) {
     body.discountPct = discount;
   }
   let lines;
-  try { lines = packages.map(pkg => ({ pkg, amount:v16.convert(
-    Math.round(Number(pkg.price) * (1 - (body.discountPct || 0) / 100) * 100) / 100,
-    String(pkg.currency || 'USD').toUpperCase(), currency) })); }
+  try { lines = packages.map(pkg => {
+    const gross=v16.convert(Math.round(Number(pkg.price) * (1 - (body.discountPct || 0) / 100) * 100) / 100,
+      String(pkg.currency || 'USD').toUpperCase(), currency);
+    const amount=taxMode==='exempt'?Math.round(gross/(1+v16.taxPolicy(country,user).rate/100)*100)/100:gross;
+    return {pkg,amount};
+  }); }
   catch (e) { return sendJson(res, 400, { error: e.message }); }
   if (lines.some(line => line.amount <= 0)) return sendJson(res, 400, { error: 'قيمة إحدى الباقات بعد الخصم غير صالحة للدفع' });
   const numericAmount = Math.round(lines.reduce((sum,line) => sum + line.amount,0) * 100) / 100;

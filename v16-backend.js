@@ -33,6 +33,7 @@ export function installV16(ctx) {
     sellerTaxCard: '4203296760802177',
     sellerAddress: 'سوهاج، جمهورية مصر العربية',
     vatRate: 14,
+    countryTaxRates: { EG: 14 },
     baseCurrency: 'USD',
     currencies: { USD: 1, EGP: 48, SAR: 3.75, AED: 3.67, EUR: 0.92 },
     taxExemptCountries: [],
@@ -52,7 +53,8 @@ export function installV16(ctx) {
       currencies: Object.keys(value.currencies || {}).filter(function (key) {
         return Number(value.currencies[key]) > 0;
       }),
-      rates: value.currencies || {}
+      rates: value.currencies || {},
+      countryTaxRates: { ...value.countryTaxRates, EG: Number(value.vatRate) || 0 }
     };
   }
 
@@ -75,9 +77,13 @@ export function installV16(ctx) {
 
   function taxPolicy(country, user) {
     const value = config();
+    const rates = value.countryTaxRates || {};
+    const countryRate = country === 'EG' ? Number(value.vatRate) : Number(rates[country]);
+    const configured = country === 'EG' ||
+      (Object.prototype.hasOwnProperty.call(rates,country) && Number.isFinite(countryRate) && countryRate >= 0 && countryRate <= 100);
     const eligible = !!user && Array.isArray(value.taxExemptCountries) && value.taxExemptCountries.includes(country) &&
       Array.isArray(value.taxExemptBuyers) && value.taxExemptBuyers.includes(String(user.email || '').toLowerCase());
-    return { eligible, rate: eligible ? 0 : Math.max(0, Number(value.vatRate) || 0),
+    return { configured, eligible, rate: countryRate,
       reason: eligible ? 'Seller-approved zero-rated transaction; supporting evidence retained separately' : '' };
   }
 
@@ -85,7 +91,8 @@ export function installV16(ctx) {
     const value = config();
     const country = String(billing.country || 'EG').toUpperCase();
     const approved = taxPolicy(country, user);
-    const taxRate = billing.taxMode === 'exempt' && approved.eligible ? 0 : Math.max(0, Number(value.vatRate) || 0);
+    if (!approved.configured) throw new Error('لم تُعتمد المعاملة الضريبية لبلد المشتري في إعدادات الفواتير');
+    const taxRate = billing.taxMode === 'exempt' && approved.eligible ? 0 : approved.rate;
     const reason = billing.taxMode === 'exempt' && approved.eligible ? approved.reason : '';
     const subtotal = Math.round((Number(total) / (1 + taxRate / 100)) * 100) / 100;
     const taxAmount = Math.round((Number(total) - subtotal) * 100) / 100;
@@ -328,6 +335,9 @@ export function installV16(ctx) {
           sellerTaxCard: String(b.sellerTaxCard || '').replace(/\s/g, '').slice(0, 32),
           sellerAddress: String(b.sellerAddress || ''),
           vatRate: Math.max(0, Number(b.vatRate) || 0),
+          countryTaxRates: Object.fromEntries(Object.entries(b.countryTaxRates || {})
+            .filter(([code,rate]) => /^[A-Z]{2}$/.test(code) && Number.isFinite(Number(rate)) && Number(rate)>=0 && Number(rate)<=100)
+            .map(([code,rate]) => [code,Number(rate)])),
           baseCurrency: String(b.baseCurrency || 'USD').toUpperCase(),
           currencies: b.currencies && typeof b.currencies === 'object' ? b.currencies : {},
           taxExemptCountries: Array.isArray(b.taxExemptCountries) ? b.taxExemptCountries
@@ -335,6 +345,7 @@ export function installV16(ctx) {
           taxExemptBuyers: Array.isArray(b.taxExemptBuyers) ? b.taxExemptBuyers
             .map(x => String(x).trim().toLowerCase()).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)).slice(0, 500) : []
         };
+        value.countryTaxRates.EG=value.vatRate;
         setSetting('invoice_settings', JSON.stringify(value));
         return sendJson(res, 200, { ok: true, settings: value });
       }
