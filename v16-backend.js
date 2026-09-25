@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import QRCode from 'qrcode';
 
 export function installV16(ctx) {
   const { db, setting, setSetting, uid, sendJson, readJson, grant, jwtSecret } = ctx;
@@ -20,6 +21,11 @@ export function installV16(ctx) {
     "status TEXT DEFAULT 'pending', created INTEGER NOT NULL, issued_at INTEGER);" +
     'CREATE INDEX IF NOT EXISTS idx_invoices_user ON invoices(user_id, created);'
   );
+  for (const [name, type] of [['purchase_id','TEXT'], ['package_id','TEXT'], ['buyer_country','TEXT'],
+    ['invoice_language','TEXT'], ['tax_reason','TEXT'], ['item_name','TEXT']]) {
+    if (!db.pragma('table_info(invoices)').some(column => column.name === name))
+      db.exec(`ALTER TABLE invoices ADD COLUMN ${name} ${type}`);
+  }
 
   const defaults = {
     sellerName: 'السعيد للتدريب والاستشارات والتعليم عن بعد',
@@ -27,7 +33,9 @@ export function installV16(ctx) {
     sellerAddress: 'مصر',
     vatRate: 14,
     baseCurrency: 'USD',
-    currencies: { USD: 1, EGP: 48, SAR: 3.75, AED: 3.67, EUR: 0.92 }
+    currencies: { USD: 1, EGP: 48, SAR: 3.75, AED: 3.67, EUR: 0.92 },
+    taxExemptCountries: [],
+    taxExemptBuyers: []
   };
 
   function config() {
@@ -61,31 +69,45 @@ export function installV16(ctx) {
 
   function invoiceNo() {
     const year = new Date().getUTCFullYear();
-    const count = db.prepare('SELECT COUNT(*) c FROM invoices WHERE created>=?').get(Date.UTC(year, 0, 1)).c + 1;
-    return 'INV-' + year + '-' + String(count).padStart(6, '0');
+    return 'INV-' + year + '-' + crypto.randomBytes(5).toString('hex').toUpperCase();
   }
 
-  function createInvoice(orderId, user, total, currency, billing) {
+  function taxPolicy(country, user) {
     const value = config();
-    const taxRate = Math.max(0, Number(value.vatRate) || 0);
+    const eligible = !!user && Array.isArray(value.taxExemptCountries) && value.taxExemptCountries.includes(country) &&
+      Array.isArray(value.taxExemptBuyers) && value.taxExemptBuyers.includes(String(user.email || '').toLowerCase());
+    return { eligible, rate: eligible ? 0 : Math.max(0, Number(value.vatRate) || 0),
+      reason: eligible ? 'Seller-approved zero-rated transaction; supporting evidence retained separately' : '' };
+  }
+
+  function createInvoice(orderId, user, total, currency, billing = {}) {
+    const value = config();
+    const country = String(billing.country || 'EG').toUpperCase();
+    const approved = taxPolicy(country, user);
+    const taxRate = billing.taxMode === 'exempt' && approved.eligible ? 0 : Math.max(0, Number(value.vatRate) || 0);
+    const reason = billing.taxMode === 'exempt' && approved.eligible ? approved.reason : '';
     const subtotal = Math.round((Number(total) / (1 + taxRate / 100)) * 100) / 100;
     const taxAmount = Math.round((Number(total) - subtotal) * 100) / 100;
     db.prepare(
       'INSERT INTO invoices (id,order_id,invoice_no,user_id,buyer_name,buyer_tax_id,buyer_address,' +
-      'seller_name,seller_tax_id,seller_address,subtotal,tax_rate,tax_amount,total,currency,status,created) ' +
-      'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+      'seller_name,seller_tax_id,seller_address,subtotal,tax_rate,tax_amount,total,currency,status,created,' +
+      'purchase_id,package_id,buyer_country,invoice_language,tax_reason,item_name) ' +
+      'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     ).run(
       uid(), orderId, invoiceNo(), user.id,
       String((billing && billing.name) || user.name || ''),
       String((billing && billing.taxId) || ''),
       String((billing && billing.address) || ''),
       String(value.sellerName || ''), String(value.sellerTaxId || ''), String(value.sellerAddress || ''),
-      subtotal, taxRate, taxAmount, Number(total), String(currency), 'pending', Date.now()
+      subtotal, taxRate, taxAmount, Number(total), String(currency), 'pending', Date.now(),
+      String(billing.purchaseId || orderId), String(billing.packageId || ''), country,
+      String(billing.language || 'ar'), reason, String(billing.itemName || '')
     );
   }
 
   function markPaid(orderId, paidAt) {
-    db.prepare("UPDATE invoices SET status='issued', issued_at=? WHERE order_id=?").run(paidAt || Date.now(), orderId);
+    db.prepare("UPDATE invoices SET status='issued', issued_at=? WHERE order_id=? OR purchase_id=?")
+      .run(paidAt || Date.now(), orderId, orderId);
   }
 
   const initial = [
@@ -305,7 +327,11 @@ export function installV16(ctx) {
           sellerAddress: String(b.sellerAddress || ''),
           vatRate: Math.max(0, Number(b.vatRate) || 0),
           baseCurrency: String(b.baseCurrency || 'USD').toUpperCase(),
-          currencies: b.currencies && typeof b.currencies === 'object' ? b.currencies : {}
+          currencies: b.currencies && typeof b.currencies === 'object' ? b.currencies : {},
+          taxExemptCountries: Array.isArray(b.taxExemptCountries) ? b.taxExemptCountries
+            .map(x => String(x).toUpperCase()).filter(x => /^[A-Z]{2}$/.test(x)).slice(0, 50) : [],
+          taxExemptBuyers: Array.isArray(b.taxExemptBuyers) ? b.taxExemptBuyers
+            .map(x => String(x).trim().toLowerCase()).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)).slice(0, 500) : []
         };
         setSetting('invoice_settings', JSON.stringify(value));
         return sendJson(res, 200, { ok: true, settings: value });
@@ -313,7 +339,7 @@ export function installV16(ctx) {
     }
 
     if (parts[0] === 'invoices' && method === 'GET') {
-      return sendJson(res, 200, db.prepare('SELECT i.*,o.package_id,u.email buyer_email FROM invoices i JOIN orders o ON o.id=i.order_id JOIN users u ON u.id=i.user_id ORDER BY i.created DESC LIMIT 200').all());
+      return sendJson(res, 200, db.prepare('SELECT i.*,u.email buyer_email FROM invoices i JOIN users u ON u.id=i.user_id ORDER BY i.created DESC LIMIT 200').all());
     }
     return false;
   }
@@ -325,6 +351,13 @@ export function installV16(ctx) {
       return sendJson(res, 200, db.prepare('SELECT slug,title_ar,title_en,excerpt_ar,excerpt_en,body_ar,body_en,category,image,author,created FROM blogs WHERE published=1 ORDER BY created DESC').all());
     }
     if (method === 'GET' && pathname === '/api/payment-config') return sendJson(res, 200, publicConfig());
+    if (method === 'GET' && pathname === '/api/my-tax-options') {
+      const user = authenticatedUser(req);
+      if (!user) return sendJson(res, 401, { error: 'يلزم تسجيل الدخول' });
+      const value = config();
+      return sendJson(res, 200, { taxExemptCountries: Array.isArray(value.taxExemptBuyers) &&
+        value.taxExemptBuyers.includes(String(user.email || '').toLowerCase()) ? value.taxExemptCountries || [] : [] });
+    }
     if (method === 'GET' && pathname === '/api/question-bank-status') {
       return sendJson(res, 200, db.prepare('SELECT package_id packageId, COUNT(*) count FROM questions GROUP BY package_id ORDER BY package_id').all());
     }
@@ -347,19 +380,36 @@ export function installV16(ctx) {
     if (method === 'GET' && pathname === '/api/my-invoices') {
       const user = authenticatedUser(req);
       if (!user) return sendJson(res, 401, { error: 'يلزم تسجيل الدخول' });
-      return sendJson(res, 200, db.prepare('SELECT i.*,o.package_id FROM invoices i JOIN orders o ON o.id=i.order_id WHERE i.user_id=? ORDER BY i.created DESC').all(user.id));
+      return sendJson(res, 200, db.prepare('SELECT i.*,COALESCE(i.package_id,o.package_id) resolved_package_id FROM invoices i LEFT JOIN orders o ON o.id=i.order_id WHERE i.user_id=? ORDER BY i.created DESC').all(user.id));
+    }
+    if (method === 'GET' && pathname.startsWith('/api/invoice-groups/')) {
+      const user = authenticatedUser(req);
+      if (!user) return sendJson(res, 401, { error: 'يلزم تسجيل الدخول' });
+      const key = decodeURIComponent(pathname.slice('/api/invoice-groups/'.length));
+      const items = db.prepare("SELECT * FROM invoices WHERE (purchase_id=? OR order_id=?) AND status='issued' ORDER BY created,id").all(key,key);
+      if (!items.length) return sendJson(res, 404, { error: 'لا يوجد بيان مشتريات صادر' });
+      if (user.role !== 'admin' && items.some(item => item.user_id !== user.id))
+        return sendJson(res, 403, { error: 'لا يمكنك عرض هذا البيان' });
+      return sendJson(res, 200, { purchaseId:key, items, subtotal:items.reduce((s,i)=>s+i.subtotal,0),
+        tax:items.reduce((s,i)=>s+i.tax_amount,0),total:items.reduce((s,i)=>s+i.total,0),
+        currency:items[0].currency });
     }
     if (method === 'GET' && pathname.startsWith('/api/invoices/')) {
       const user = authenticatedUser(req);
       if (!user) return sendJson(res, 401, { error: 'يلزم تسجيل الدخول' });
       const key = decodeURIComponent(pathname.slice('/api/invoices/'.length));
-      const row = db.prepare('SELECT i.*,o.package_id FROM invoices i JOIN orders o ON o.id=i.order_id WHERE (i.id=? OR i.order_id=? OR i.invoice_no=?)').get(key, key, key);
+      const row = db.prepare('SELECT i.* FROM invoices i WHERE (i.id=? OR i.order_id=? OR i.invoice_no=?)').get(key, key, key);
       if (!row) return sendJson(res, 404, { error: 'الفاتورة غير موجودة' });
       if (user.role !== 'admin' && row.user_id !== user.id) return sendJson(res, 403, { error: 'لا يمكنك عرض هذه الفاتورة' });
-      return sendJson(res, 200, row);
+      // A reference QR, not an ETA or ZATCA certified electronic-invoice code.
+      const qr = await QRCode.toDataURL(JSON.stringify({ reference:row.invoice_no,
+        date:new Date(row.issued_at || row.created).toISOString(), seller:row.seller_name,
+        taxId:row.seller_tax_id || '', currency:row.currency,total:row.total,tax:row.tax_amount }),
+        { width:180,margin:1,errorCorrectionLevel:'M' });
+      return sendJson(res, 200, { ...row,reference_qr:qr });
     }
     return false;
   }
 
-  return { config, publicConfig, convert, createInvoice, markPaid, handleAdmin, handlePublic };
+  return { config, publicConfig, convert, taxPolicy, createInvoice, markPaid, handleAdmin, handlePublic };
 }

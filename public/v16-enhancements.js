@@ -44,6 +44,7 @@ function mountInvoiceButton(){
 }
 
 async function showMyInvoices(){
+  if(window.V23_CART)return window.V23_CART.showInvoices();
   try{
     var list=await APP.api('/my-invoices');
     APP.modal('<h3>فواتيري</h3>'+(list.length?'<div class="tbl-w"><table class="t"><thead><tr><th>الرقم</th><th>الإجمالي</th><th>الحالة</th><th></th></tr></thead><tbody>'+list.map(function(i){return '<tr><td class="num">'+esc(i.invoice_no)+'</td><td class="num">'+money(i.total,i.currency)+'</td><td>'+esc(i.status)+'</td><td><button class="btn o" data-my-inv="'+i.id+'">عرض</button></td></tr>'}).join('')+'</tbody></table></div>':'<div class="note info">لا توجد فواتير حتى الآن.</div>')+'<div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>',function(){document.querySelectorAll('[data-my-inv]').forEach(function(b){b.onclick=function(){showInvoice(b.dataset.myInv)}})})
@@ -54,6 +55,7 @@ async function showInvoice(id){
 }
 
 function checkout(pid){
+  if(window.V23_CART)return window.V23_CART.checkout(pid);
   var p=APP.pack(pid);if(!p)return;
   if(!APP.me()){APP.openAuth('login');APP.toast('سجّل الدخول أولاً ثم اختر الباقة');return}
   if(APP.owns(pid)){APP.go('learn/'+pid);return}

@@ -124,6 +124,10 @@ async function readJson(req, limit = 3 * 1024 * 1024) {
 }
 
 const v16 = installV16({ db, setting, setSetting, uid, sendJson, readJson, grant, jwtSecret: JWT_SECRET });
+db.exec(`CREATE TABLE IF NOT EXISTS purchase_items (
+  order_id TEXT NOT NULL, package_id TEXT NOT NULL, amount REAL NOT NULL,
+  currency TEXT NOT NULL, PRIMARY KEY(order_id,package_id)
+);`);
 
 function tokenPayload(req) {
   if (!JWT_SECRET) return null;
@@ -299,14 +303,18 @@ function markOrderPaid(order) {
   if (!order || order.status === 'paid') return;
   let catalog = [];
   try { catalog = JSON.parse(setting('catalog') || '[]'); } catch {}
-  const pkg = catalog.find(p => p.id === order.package_id) || {};
+  const items = db.prepare('SELECT package_id FROM purchase_items WHERE order_id=?').all(order.id);
+  const ids = items.length ? items.map(i => i.package_id) : [order.package_id];
   const tx = db.transaction(() => {
     const current = db.prepare('SELECT status FROM orders WHERE id=?').get(order.id);
     if (!current || current.status === 'paid') return;
     const paidAt=Date.now();
     db.prepare("UPDATE orders SET status='paid', paid_at=? WHERE id=?").run(paidAt, order.id);
     v16.markPaid(order.id, paidAt);
-    grant(order.user_id, order.package_id, pkg.days || 90, 'Kashier');
+    ids.forEach(id => {
+      const pkg = catalog.find(p => p.id === id) || {};
+      grant(order.user_id, id, pkg.days || 90, 'Kashier');
+    });
   });
   tx();
 }
@@ -322,15 +330,27 @@ async function handleKashierCreate(req, res) {
   let body;
   try { body = await readJson(req); }
   catch { return sendJson(res, 400, { error: 'بيانات الطلب غير صحيحة' }); }
-  const packageId = String(body.packageId || '').trim();
+  const requestedIds = Array.isArray(body.packageIds) ? body.packageIds : [body.packageId];
+  const packageIds = requestedIds.map(x => String(x || '').trim());
+  if (!packageIds.length || packageIds.length > 20 || packageIds.some(x => !x) || new Set(packageIds).size !== packageIds.length)
+    return sendJson(res, 400, { error: 'اختر باقات مختلفة بحد أقصى 20 باقة' });
   let catalog = [];
   try { catalog = JSON.parse(setting('catalog') || '[]'); } catch {}
-  const pkg = catalog.find(p => p.id === packageId);
-  if (!pkg) return sendJson(res, 404, { error: 'الباقة غير موجودة' });
-  const enrolled = db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?').get(user.id, packageId);
-  if (enrolled) return sendJson(res, 409, { error: 'أنت مشترك في هذه الباقة' });
-  let numericAmount = Number(pkg.price);
-  if (!Number.isFinite(numericAmount) || numericAmount <= 0) return sendJson(res, 400, { error: 'سعر الباقة غير صالح للدفع الإلكتروني' });
+  const packages = packageIds.map(id => catalog.find(p => p.id === id));
+  if (packages.some(p => !p)) return sendJson(res, 404, { error: 'إحدى الباقات غير موجودة' });
+  if (packages.some(p => db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?').get(user.id,p.id)))
+    return sendJson(res, 409, { error: 'أنت مشترك بالفعل في إحدى الباقات المختارة' });
+  if (packages.some(p => !Number.isFinite(Number(p.price)) || Number(p.price) <= 0))
+    return sendJson(res, 400, { error: 'سعر إحدى الباقات غير صالح للدفع الإلكتروني' });
+  const country = String(body.billingCountry || 'EG').toUpperCase();
+  if (!/^[A-Z]{2}$/.test(country)) return sendJson(res, 400, { error: 'بلد الفوترة غير صالح' });
+  const language = String(body.invoiceLanguage || 'ar').toLowerCase();
+  if (!['ar','en','fr','tr','ur'].includes(language)) return sendJson(res, 400, { error: 'لغة الفاتورة غير مدعومة' });
+  const taxMode = String(body.taxMode || 'standard');
+  if (!['standard','exempt'].includes(taxMode) || (taxMode === 'exempt' && !v16.taxPolicy(country,user).eligible))
+    return sendJson(res, 400, { error: 'خيار عدم تطبيق الضريبة غير متاح لبلد الفوترة المختار' });
+  const currency = String(body.currency || packages[0].currency || 'USD').toUpperCase();
+  if (!v16.publicConfig().currencies.includes(currency)) return sendJson(res, 400, { error: 'العملة غير مفعلة' });
   const promoCode = String(body.promoCode || '').trim().toUpperCase();
   if (promoCode) {
     let promos = [];
@@ -339,23 +359,34 @@ async function handleKashierCreate(req, res) {
     const validUntil = promo && (!promo.until || new Date(`${promo.until}T23:59:59Z`).getTime() >= Date.now());
     if (!promo || !validUntil) return sendJson(res, 400, { error: 'كود الخصم غير صالح أو منتهي' });
     const discount = Math.min(100, Math.max(0, Number(promo.pct) || 0));
-    numericAmount = Math.max(0, Math.round(numericAmount * (1 - discount / 100) * 100) / 100);
+    body.discountPct = discount;
   }
-  if (numericAmount <= 0) return sendJson(res, 400, { error: 'قيمة الطلب بعد الخصم غير صالحة للدفع الإلكتروني' });
-  const sourceCurrency = String(pkg.currency || 'USD').toUpperCase();
-  const currency = String(body.currency || sourceCurrency).toUpperCase();
-  try { numericAmount = v16.convert(numericAmount, sourceCurrency, currency); }
+  let lines;
+  try { lines = packages.map(pkg => ({ pkg, amount:v16.convert(
+    Math.round(Number(pkg.price) * (1 - (body.discountPct || 0) / 100) * 100) / 100,
+    String(pkg.currency || 'USD').toUpperCase(), currency) })); }
   catch (e) { return sendJson(res, 400, { error: e.message }); }
+  if (lines.some(line => line.amount <= 0)) return sendJson(res, 400, { error: 'قيمة إحدى الباقات بعد الخصم غير صالحة للدفع' });
+  const numericAmount = Math.round(lines.reduce((sum,line) => sum + line.amount,0) * 100) / 100;
   const amount = numericAmount.toFixed(2);
   const orderId = 'ORD-' + uid().toUpperCase();
-  db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,gateway_id,created)
-    VALUES (?,?,?,?,?,?,?,?,?)`).run(orderId, user.id, packageId, numericAmount, currency, 'pending', 'kashier', orderId, Date.now());
-  v16.createInvoice(orderId, user, numericAmount, currency, { name: body.billingName, taxId: body.buyerTaxId, address: body.billingAddress });
+  db.transaction(() => {
+    db.prepare(`INSERT INTO orders (id,user_id,package_id,amount,currency,status,gateway,gateway_id,created)
+      VALUES (?,?,?,?,?,?,?,?,?)`).run(orderId, user.id, packageIds[0], numericAmount, currency, 'pending', 'kashier', orderId, Date.now());
+    lines.forEach(({pkg,amount:lineAmount}, index) => {
+      db.prepare('INSERT INTO purchase_items (order_id,package_id,amount,currency) VALUES (?,?,?,?)')
+        .run(orderId,pkg.id,lineAmount,currency);
+      v16.createInvoice(index ? orderId + ':' + index : orderId, user, lineAmount, currency, {
+        name:body.billingName,taxId:body.buyerTaxId,address:body.billingAddress,
+        country,language,taxMode,purchaseId:orderId,packageId:pkg.id,itemName:pkg.ar || pkg.en || pkg.id
+      });
+    });
+  })();
   const hash = kashierOrderHash(cfg.mid, orderId, amount, currency, cfg.paymentKey);
   const params = new URLSearchParams({
     merchantId: cfg.mid, orderId, amount, currency, hash,
     merchantRedirect: `${SITE}/api/pay/kashier/return/${encodeURIComponent(orderId)}`,
-    metaData: JSON.stringify({ customerName: user.name || '', customerEmail: user.email || '', customerPhone: user.phone || '', packageId }),
+    metaData: JSON.stringify({ customerName: user.name || '', customerEmail: user.email || '', customerPhone: user.phone || '', packageIds }),
     allowedMethods: cfg.allowedMethods, failureRedirect: 'true', redirectMethod: 'get', display: 'ar',
     brandColor: 'rgba(240, 116, 26, 1)', mode: cfg.mode,
     metaDataType: 'json'
@@ -382,7 +413,8 @@ function handleKashierReturn(req, res, requestUrl) {
     else reason = 'mismatch';
   } else if (order && order.status === 'paid') { paid = true; reason = 'already-paid'; }
   const pkgId = order ? order.package_id : '';
-  res.writeHead(302, { location: `${SITE}/#learn/${encodeURIComponent(pkgId)}?paid=${paid ? '1' : '0'}&gateway=kashier&reason=${encodeURIComponent(reason)}`, 'cache-control': 'no-store' });
+  const destination = db.prepare('SELECT COUNT(*) n FROM purchase_items WHERE order_id=?').get(orderId)?.n > 1 ? 'dash' : `learn/${encodeURIComponent(pkgId)}`;
+  res.writeHead(302, { location: `${SITE}/#${destination}?paid=${paid ? '1' : '0'}&gateway=kashier&reason=${encodeURIComponent(reason)}`, 'cache-control': 'no-store' });
   res.end();
 }
 
@@ -575,13 +607,17 @@ const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   try {
     if (req.method === 'GET' && requestUrl.pathname === `/${PANEL}/content`) return serveContentAdmin(res);
-    if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/question-bank-status' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/')) {
+    if (requestUrl.pathname === '/api/blogs' || requestUrl.pathname === '/api/payment-config' || requestUrl.pathname === '/api/my-tax-options' || requestUrl.pathname === '/api/question-bank-status' || requestUrl.pathname === '/api/demo/login' || requestUrl.pathname === '/api/my-invoices' || requestUrl.pathname.startsWith('/api/invoices/') || requestUrl.pathname.startsWith('/api/invoice-groups/')) {
       const v16Result = await v16.handlePublic(req, res, requestUrl, authenticatedUser);
       if (v16Result !== false) return v16Result;
     }
     if (requestUrl.pathname.startsWith(`/${PANEL}/api/content-admin`)) return await handleContentAdmin(req,res,requestUrl);
     if (requestUrl.pathname.startsWith('/api/admin-question-bank')) { requestUrl.pathname = `/${PANEL}/api/content-admin/questions` + requestUrl.pathname.slice('/api/admin-question-bank'.length); return await handleContentAdmin(req,res,requestUrl); }
     if (activePaymentGateway() === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
+    if (req.method === 'POST' && requestUrl.pathname === '/api/pay/cart/create') {
+      if (activePaymentGateway() !== 'kashier') return sendJson(res,503,{error:'الدفع المتعدد يحتاج تفعيل بوابة Kashier في الإعدادات'});
+      return await handleKashierCreate(req,res);
+    }
     if (req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
     return forwardToApp(req,res);
   } catch (err) {
