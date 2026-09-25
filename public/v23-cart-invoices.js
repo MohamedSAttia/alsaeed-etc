@@ -28,26 +28,32 @@
   observer.observe(document.body,{childList:true});mount();
   function convert(value,from,to){const a=Number(payment.rates?.[from]),b=Number(payment.rates?.[to]);
     return a>0&&b>0?Math.round(Number(value)/a*b*100)/100:Number(value)}
-  function checkout(id){
+  async function checkout(id){
     if(id&&APP.me()&&APP.owns(id)){APP.go('learn/'+id);return}
     if(id&&!cart.includes(id))cart.push(id);
     if(!APP.me()){save();APP.openAuth('login');APP.toast('سجّل الدخول ثم افتح السلة لإتمام الدفع');return}
     cart=cart.filter(x=>APP.pack(x)&&!APP.owns(x));save();
     const packages=cart.map(x=>APP.pack(x));if(!packages.length){APP.closeModal();APP.toast('السلة فارغة');return}
-    APP.modal('<h3>سلة الباقات والفواتير</h3><div class="v23-lines">'+packages.map(p=>
-      '<div><span>'+esc(p.ar||p.en||p.id)+'</span><b>'+money(p.price,p.currency)+'</b><button type="button" data-remove="'+esc(p.id)+'" aria-label="إزالة">×</button></div>').join('')+'</div>'+ 
-      '<div class="v16-checkout-total">إجمالي الدفع <b id="v23Due"></b></div><div class="grid g2">'+
-      '<label class="f">عملة الدفع والفواتير<select id="v23Currency">'+payment.currencies.map(c=>'<option value="'+esc(c)+'" '+(c===packages[0].currency?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label>'+
-      '<label class="f">اسم العميل<input id="v23Name" value="'+esc(APP.me().name||'')+'"></label>'+
-      '<label class="f">بلد الفوترة<select id="v23Country"><option value="">اختر بلد المشتري / Select billing country</option>'+Object.entries(countries).map(([code,name])=>'<option value="'+code+'">'+name+'</option>').join('')+'<option value="OTHER">دولة أخرى / Other country</option></select></label>'+
-      '<label class="f">لغة الفاتورة<select id="v23Language">'+Object.keys(languages).map(l=>'<option value="'+l+'" '+(l===window.__lang?'selected':'')+'>'+l.toUpperCase()+'</option>').join('')+'</select></label></div>'+
-      '<label class="f" id="v23OtherWrap" hidden>رمز الدولة ISO من حرفين<input id="v23OtherCountry" maxlength="2" placeholder="CA"></label>'+
-      '<label class="f">العنوان<input id="v23Address"></label><label class="f">الرقم الضريبي للعميل (إن وجد)<input id="v23BuyerTax"></label>'+
-      '<label class="f">كود الخصم<input id="v23Promo"></label><label class="f">المعاملة الضريبية<select id="v23Tax"><option value="standard">الضريبة المقررة</option><option value="exempt">بدون ضريبة وفق قاعدة يضبطها البائع</option></select></label>'+
-      '<p class="note info" id="v23TaxInfo"></p><p class="note info" id="v23GatewayInfo" role="status">جارٍ التحقق من بوابة الدفع…</p><div class="mdl-act"><button class="btn p" id="v23Pay" disabled>الانتقال للدفع</button><button class="btn o" data-close>إغلاق</button></div>',()=>{
+    if(!await configReady){APP.toast('تعذر تحميل إعدادات الفوترة. حاول مرة أخرى لاحقًا.');return}
+    const en=window.__lang==='en',tr=(ar,english)=>en?english:ar;
+    APP.modal('<h3>'+tr('سلة الباقات والفواتير','Packages and billing')+'</h3><div class="v23-lines">'+packages.map(p=>
+      '<div><span>'+esc(en?(p.en||p.ar||p.id):(p.ar||p.en||p.id))+'</span><b>'+money(p.price,p.currency)+'</b><button type="button" data-remove="'+esc(p.id)+'" aria-label="'+tr('إزالة','Remove')+'">×</button></div>').join('')+'</div>'+ 
+      '<div class="v16-checkout-total">'+tr('المبلغ المتوقع قبل اعتماد الكود','Estimated amount before promo validation')+' <b id="v23Due"></b></div><div class="grid g2">'+
+      '<label class="f">'+tr('عملة الدفع والفواتير','Payment and invoice currency')+'<select id="v23Currency">'+payment.currencies.map(c=>'<option value="'+esc(c)+'" '+(c===packages[0].currency?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select></label>'+
+      '<label class="f">'+tr('اسم المشتري','Buyer name')+'<input id="v23Name" value="'+esc(APP.me().name||'')+'" maxlength="160" required></label>'+
+      '<label class="f">'+tr('بلد الفوترة','Billing country')+'<select id="v23Country"><option value="">'+tr('اختر بلد المشتري','Select buyer country')+'</option>'+Object.entries(countries).map(([code,name])=>'<option value="'+code+'">'+name+'</option>').join('')+'<option value="OTHER">'+tr('دولة أخرى','Other country')+'</option></select></label>'+
+      '<label class="f">'+tr('لغة الفاتورة','Invoice language')+'<select id="v23Language">'+Object.keys(languages).map(l=>'<option value="'+l+'" '+(l===window.__lang?'selected':'')+'>'+l.toUpperCase()+'</option>').join('')+'</select></label></div>'+
+      '<label class="f" id="v23OtherWrap" hidden>'+tr('رمز الدولة ISO من حرفين','Two-letter ISO country code')+'<input id="v23OtherCountry" maxlength="2" placeholder="CA"></label>'+
+      '<label class="f">'+tr('عنوان الفوترة','Billing address')+'<input id="v23Address" maxlength="300"></label><label class="f">'+tr('الرقم الضريبي للمشتري (إن وجد)','Buyer tax ID (if applicable)')+'<input id="v23BuyerTax" maxlength="80"></label>'+
+      '<label class="f">'+tr('كود الخصم','Promo code')+'<input id="v23Promo"></label><label class="f">'+tr('المعاملة الضريبية','Tax treatment')+'<select id="v23Tax"><option value="standard">'+tr('الضريبة المقررة','Configured tax')+'</option><option value="exempt">'+tr('بدون ضريبة بموافقة البائع','Seller-approved exemption')+'</option></select></label>'+
+      '<p class="note info" id="v23TaxInfo" role="status"></p><p class="note info" id="v23GatewayInfo" role="status">'+tr('جارٍ التحقق من بوابة الدفع…','Checking payment availability…')+'</p><div class="v33-quote" id="v23QuoteResult" role="status">'+tr('راجع إجمالي السعر بعد اختيار بيانات الفوترة.','Review your final price after selecting billing details.')+'</div><div class="mdl-act"><button class="btn o" id="v23Quote" disabled>'+tr('مراجعة السعر والضريبة','Review price and tax')+'</button><button class="btn p" id="v23Pay" disabled>'+tr('الانتقال للدفع','Continue to payment')+'</button><button class="btn o" data-close>'+tr('إغلاق','Close')+'</button></div>',()=>{
       const $=s=>document.querySelector(s),currency=$('#v23Currency'),country=$('#v23Country'),tax=$('#v23Tax');
-      let gatewayReady=false,policyReady=false,policyFailed=false;
+      let gatewayReady=false,policyReady=true,quote=null;
       const billingCountry=()=>country.value==='OTHER'?$('#v23OtherCountry').value.trim().toUpperCase():country.value;
+      const details=()=>({packageIds:cart,currency:currency.value,billingName:$('#v23Name').value.trim(),
+        billingAddress:$('#v23Address').value.trim(),buyerTaxId:$('#v23BuyerTax').value.trim(),
+        billingCountry:billingCountry(),invoiceLanguage:$('#v23Language').value,taxMode:tax.value,
+        promoCode:$('#v23Promo').value.trim()});
       function update(){const code=billingCountry(),rates=payment.countryTaxRates||{},configured=code==='EG'||Object.prototype.hasOwnProperty.call(rates,code);
         const rate=code==='EG'?Number(payment.vatRate||0):Number(rates[code]||0);
         $('#v23OtherWrap').hidden=country.value!=='OTHER';
@@ -56,12 +62,12 @@
         if(!eligible)tax.value='standard';
         const due=packages.reduce((sum,p)=>sum+Math.round((convert(p.price,p.currency,currency.value)/(tax.value==='exempt'&&configured?1+rate/100:1))*100)/100,0);
         $('#v23Due').textContent=money(due,currency.value);
-        $('#v23TaxInfo').textContent=policyFailed?'تعذر تحميل إعدادات الضريبة. أعد فتح السلة لاحقًا.':!code?'اختر بلد المشتري لعرض المعاملة الضريبية قبل الدفع.':!policyReady?'جارٍ تحميل سياسة الضرائب والعملات…':!configured?'لم تُهيأ المعاملة الضريبية لهذا البلد بعد؛ اطلب من الإدارة اعتمادها قبل الدفع.':
-          'النسبة المهيأة لهذا البلد: '+rate+'%'+(eligible?' · يمكنك اختيار المعاملة الصفرية المعتمدة.':' · السعر المعروض شامل الضريبة المهيأة.');
-        $('#v23Pay').disabled=!gatewayReady||!policyReady||!configured||!code;
+        $('#v23TaxInfo').textContent=!code?tr('اختر بلد المشتري لعرض المعاملة الضريبية قبل الدفع.','Select the buyer country to review tax before payment.'):!configured?tr('لم تُهيأ المعاملة الضريبية لهذا البلد بعد؛ تواصل مع الإدارة.','Tax treatment for this country needs seller review. Contact us.'):tr('النسبة المهيأة لهذا البلد: ','Configured rate for this country: ')+rate+'%'+(eligible?tr(' · يمكنك اختيار الإعفاء المعتمد.',' · Seller-approved exemption is available.'):tr(' · السعر المعروض شامل الضريبة المهيأة.',' · Listed prices include configured tax.'));
+        $('#v23Quote').disabled=!gatewayReady||!policyReady||!configured||!/^[A-Z]{2}$/.test(code)||!$('#v23Name').value.trim();
+        $('#v23Pay').disabled=!quote||$('#v23Quote').disabled;
       }
-      currency.onchange=update;country.onchange=update;tax.onchange=update;$('#v23OtherCountry').oninput=update;update();
-      configReady.then(ok=>{policyReady=ok;policyFailed=!ok;update()});
+      function invalidate(){quote=null;$('#v23QuoteResult').textContent=tr('تغيّرت بيانات الطلب. راجع السعر والضريبة من جديد.','Billing details changed. Review the price and tax again.');update()}
+      [currency,country,tax,$('#v23Language'),$('#v23Name'),$('#v23Address'),$('#v23BuyerTax'),$('#v23Promo'),$('#v23OtherCountry')].forEach(el=>{el.addEventListener('change',invalidate);el.addEventListener('input',invalidate)});update();
       APP.api('/my-tax-options').then(result=>{approvedCountries=result.taxExemptCountries||[];update()}).catch(()=>{});
       fetch('/api/pay/readiness').then(r=>r.json()).then(state=>{
         const button=$('#v23Pay'),note=$('#v23GatewayInfo');if(!button||!note)return;
@@ -73,18 +79,23 @@
         }
         const ready=state.gateway==='kashier'&&state.configured&&state.mode==='live';
         gatewayReady=ready;update();
-        note.textContent=ready?'الدفع المباشر متاح عبر Kashier. تُصدر الفواتير بعد تأكيد العملية.':
-          state.mode==='test'?'البوابة في الوضع التجريبي؛ الشراء الحقيقي غير متاح حاليًا.':
-          'الدفع المباشر لعدة باقات غير مفعّل حاليًا. تواصل مع الإدارة قبل الشراء.';
-      }).catch(()=>{const note=$('#v23GatewayInfo');if(note)note.textContent='تعذر التحقق من حالة بوابة الدفع. حاول لاحقًا.'});
+        note.textContent=ready?tr('الدفع المباشر متاح عبر Kashier. تُصدر الفواتير بعد تأكيد العملية.','Live payment is available via Kashier. Invoices are issued after confirmation.'):
+          state.mode==='test'?tr('البوابة في الوضع التجريبي؛ الشراء الحقيقي غير متاح حاليًا.','The gateway is in test mode. Live purchases are unavailable.'):
+          tr('الدفع المباشر لعدة باقات غير مفعّل حاليًا. تواصل مع الإدارة قبل الشراء.','Multi-package live payment is unavailable. Contact us before purchasing.');
+      }).catch(()=>{const note=$('#v23GatewayInfo');if(note)note.textContent=tr('تعذر التحقق من حالة بوابة الدفع. حاول لاحقًا.','Could not check payment availability. Try again later.')});
       document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(x=>x!==b.dataset.remove);save();checkout()});
-      $('#v23Pay').onclick=async function(){if(!/^[A-Z]{2}$/.test(billingCountry())){APP.toast('أدخل رمز بلد الفوترة من حرفين');return}this.disabled=true;this.textContent='جارٍ تجهيز الدفع…';
-        try{const result=await APP.api('/pay/cart/create',{method:'POST',body:{packageIds:cart,currency:currency.value,
-          billingName:$('#v23Name').value.trim(),billingAddress:$('#v23Address').value.trim(),buyerTaxId:$('#v23BuyerTax').value.trim(),
-          billingCountry:billingCountry(),invoiceLanguage:$('#v23Language').value,taxMode:tax.value,promoCode:$('#v23Promo').value.trim()}});
+      $('#v23Quote').onclick=async function(){const input=details();this.disabled=true;$('#v23QuoteResult').textContent=tr('جارٍ احتساب المبلغ من الخادم…','Calculating the server price…');
+        try{const result=await APP.api('/pay/cart/quote',{method:'POST',body:input});
+          if(JSON.stringify(input)!==JSON.stringify(details()))return;
+          quote=result;$('#v23QuoteResult').innerHTML='<b>'+tr('الإجمالي النهائي قبل الانتقال: ','Final total before payment: ')+money(result.amount,result.currency)+'</b><span>'+tr('قبل الضريبة: ','Subtotal: ')+money(result.subtotal,result.currency)+' · '+tr('الضريبة','Tax')+' '+result.taxRate+'%: '+money(result.taxAmount,result.currency)+(result.discountPct?' · '+tr('خصم','Discount')+' '+result.discountPct+'%':'')+'</span>';
+        }catch(e){quote=null;$('#v23QuoteResult').textContent=e.message||tr('تعذر حساب السعر.','Could not calculate the price.')}
+        finally{update()}
+      };
+      $('#v23Pay').onclick=async function(){if(!quote)return;this.disabled=true;this.textContent=tr('جارٍ تجهيز الدفع…','Preparing payment…');
+        try{const result=await APP.api('/pay/cart/create',{method:'POST',body:{...details(),expectedAmount:quote.amount}});
           location.href=result.paymentUrl;
         }catch(e){
-          APP.toast(e.message);this.disabled=!gatewayReady;this.textContent='الانتقال للدفع'
+          APP.toast(e.message);invalidate();this.textContent=tr('الانتقال للدفع','Continue to payment')
         }};
     });
   }
@@ -119,8 +130,9 @@
   }
   async function showInvoices(){
     try{const list=await APP.api('/my-invoices');const groups=[...new Set(list.filter(i=>i.status==='issued'&&i.purchase_id).map(i=>i.purchase_id))];
-      APP.modal('<h3>فواتيري</h3>'+(list.length?'<div class="tbl-w"><table class="t"><tr><th>الرقم</th><th>الباقة</th><th>الإجمالي</th><th>الحالة</th><th></th></tr>'+list.map(i=>'<tr><td>'+esc(i.invoice_no)+'</td><td>'+esc(i.item_name||i.package_id||'—')+'</td><td>'+money(i.total,i.currency)+'</td><td>'+esc(i.status)+'</td><td><button class="btn o" data-invoice="'+esc(i.id)+'" '+(i.status==='issued'?'':'disabled')+'>عرض</button></td></tr>').join('')+'</table></div>':'<p>لا توجد فواتير حتى الآن.</p>')+
-        groups.map(g=>'<button class="btn o" data-statement="'+esc(g)+'">البيان الإجمالي '+esc(g)+'</button>').join('')+'<div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>',()=>{
+      const en=window.__lang==='en',tr=(ar,english)=>en?english:ar;
+      APP.modal('<h3>'+tr('فواتيري','My invoices')+'</h3>'+(list.length?'<div class="tbl-w"><table class="t"><thead><tr><th>'+tr('الرقم','Number')+'</th><th>'+tr('الباقة','Package')+'</th><th>'+tr('الإجمالي','Total')+'</th><th>'+tr('الحالة','Status')+'</th><th>'+tr('العرض','View')+'</th></tr></thead><tbody>'+list.map(i=>'<tr><td>'+esc(i.invoice_no)+'</td><td>'+esc(i.item_name||i.package_id||'—')+'</td><td>'+money(i.total,i.currency)+'</td><td>'+esc(i.status==='issued'?tr('صادرة','Issued'):i.status==='pending'?tr('بانتظار الدفع','Pending payment'):i.status)+'</td><td><button class="btn o" data-invoice="'+esc(i.id)+'" '+(i.status==='issued'?'':'disabled')+'>'+tr('عرض','View')+'</button></td></tr>').join('')+'</tbody></table></div>':'<p>'+tr('لا توجد فواتير حتى الآن.','No invoices yet.')+'</p>')+
+        groups.map(g=>'<button class="btn o" data-statement="'+esc(g)+'">'+tr('البيان الإجمالي','Purchase statement')+' '+esc(g)+'</button>').join('')+'<div class="mdl-act"><button class="btn o" data-close>'+tr('إغلاق','Close')+'</button></div>',()=>{
           document.querySelectorAll('[data-invoice]').forEach(b=>b.onclick=async()=>{try{const i=await APP.api('/invoices/'+encodeURIComponent(b.dataset.invoice));present([i],i.invoice_language||'ar',false)}catch(e){APP.toast(e.message)}});
           document.querySelectorAll('[data-statement]').forEach(b=>b.onclick=async()=>{try{const g=await APP.api('/invoice-groups/'+encodeURIComponent(b.dataset.statement));present(g.items,g.items[0].invoice_language||'ar',true)}catch(e){APP.toast(e.message)}});
         });

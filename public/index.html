@@ -1081,6 +1081,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/visual-refresh-v26.css?v=27.0">
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
+<link rel="stylesheet" href="/checkout-v33.css?v=33.0">
 </head>
 <body>
 
@@ -4173,7 +4174,7 @@ function pkgView(id) {
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
   return `<section class="pg-hero" style="background:${T.col || 'var(--navy)'}"><div class="wrap">
-    <div class="crumb"><a href="#programs" data-r="programs">البرامج</a> ←
+    <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
       <span style="font-size:2.2rem">${T.ic||''}</span>
@@ -4186,23 +4187,23 @@ function pkgView(id) {
   <section class="sec"><div class="wrap"><div class="pd-hero">
     <div>
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin-bottom:4px">
-        مواصفات الباقة</h3>
+        ${siteEnglish()?'Package at a glance':'مواصفات الباقة'}</h3>
       <div class="pd-spec">
-        <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>ساعة معتمدة</span></div>
-        <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(siteEnglish()?(window.TRACKS.find(t=>t.k===c.track)?.en||c.code||'—'):(p.category||'—'))}</b><span>التصنيف</span></div>
-        <div class="pd-s"><span class="ic">❓</span><b class="num">${questionCount}</b><span>سؤال متاح</span></div>
-        <div class="pd-s"><span class="ic">🎬</span><b class="num">${videoCount}</b><span>فيديو متاح</span></div>
-        <div class="pd-s"><span class="ic">⏱</span><b class="num">${hrs}</b><span>مدة الفيديوهات المتاحة</span></div>
-        <div class="pd-s"><span class="ic">🎯</span><b style="font-size:.88rem">${p.kinds?.includes('exam') || p.kinds?.includes('quiz') ? 'تدريب ومحاكاة' : '—'}</b><span>الاختبارات</span></div>
-        <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(publicTitle(L))}</b><span>لغة الكورس</span></div>
-        <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>يوم وصول</span></div>
+        <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>${siteEnglish()?'Training hours':'ساعات التدريب'}</span></div>
+        <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(siteEnglish()?(window.TRACKS.find(t=>t.k===c.track)?.en||c.code||'—'):(p.category||'—'))}</b><span>${siteEnglish()?'Category':'التصنيف'}</span></div>
+        <div class="pd-s"><span class="ic">❓</span><b class="num">${questionCount}</b><span>${siteEnglish()?'Available questions':'الأسئلة المتاحة'}</span></div>
+        <div class="pd-s"><span class="ic">🎬</span><b class="num">${videoCount}</b><span>${siteEnglish()?'Available videos':'الفيديوهات المتاحة'}</span></div>
+        <div class="pd-s"><span class="ic">⏱</span><b class="num">${siteEnglish()?(minutes?Math.floor(minutes/60)+'h '+minutes%60+'m':'—'):hrs}</b><span>${siteEnglish()?'Published video time':'مدة الفيديوهات المتاحة'}</span></div>
+        <div class="pd-s"><span class="ic">🎯</span><b style="font-size:.88rem">${p.kinds?.includes('exam') || p.kinds?.includes('quiz') ? (siteEnglish()?'Practice and exams':'تدريب ومحاكاة') : '—'}</b><span>${siteEnglish()?'Assessments':'الاختبارات'}</span></div>
+        <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(publicTitle(L))}</b><span>${siteEnglish()?'Content language':'لغة المحتوى'}</span></div>
+        <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>${siteEnglish()?'Days of access':'يوم وصول'}</span></div>
         <div class="pd-s"><span class="ic">${p.cert?'🏅':'—'}</span>
-          <b style="font-size:.9rem;color:${p.cert?'var(--ok)':'var(--dim)'}">${p.cert?'نعم':'لا'}</b>
-          <span>شهادة حضور</span></div>
+          <b style="font-size:.9rem;color:${p.cert?'var(--ok)':'var(--dim)'}">${p.cert?(siteEnglish()?'Yes':'نعم'):(siteEnglish()?'No':'لا')}</b>
+          <span>${siteEnglish()?'Attendance certificate':'شهادة حضور'}</span></div>
       </div>
 
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
-        ماذا تتضمّن الباقة؟</h3>
+        ${siteEnglish()?'What is included?':'ماذا تتضمّن الباقة؟'}</h3>
       <div class="kind-g">
         ${(p.kinds||[]).map(k => {
           const K = KINDS.find(x => x.k === k); if (!K) return '';
@@ -4216,23 +4217,23 @@ function pkgView(id) {
       </div>
 
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
-        أنماط الأسئلة المتاحة</h3>
+        ${siteEnglish()?'Available question types':'أنماط الأسئلة المتاحة'}</h3>
       <div class="qtype-row">${(p.questionTypes||[]).map(k=>{const Q=(window.Q_TYPES||[]).find(x=>x.k===k)||{};return `<span class="qtype">${esc(Q.ar||k)} <b class="en">${esc(Q.en||'')}</b></span>`;}).join('')}</div>
-      <button class="btn n" data-practice="${p.id}">ابدأ تدريباً قصيراً الآن</button>
+      <button class="btn n" data-practice="${p.id}">${siteEnglish()?'Try a short practice':'ابدأ تدريباً قصيراً الآن'}</button>
 
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
-        أهداف الباقة</h3>
+        ${siteEnglish()?'Learning objectives':'أهداف الباقة'}</h3>
       <div class="obj-l">
         ${(p.objectives||[]).map((o,n) => `<div class="obj"><i>${n+1}</i><p>${esc(o)}</p></div>`).join('')}
       </div>
 
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
-        الفئة المستهدفة</h3>
+        ${siteEnglish()?'Who is it for?':'الفئة المستهدفة'}</h3>
       <div class="note info" style="margin:0">${esc(p.audience||'')}</div>
 
       ${(p.chapters||[]).length ? `
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
-        محاور الباقة</h3>
+        ${siteEnglish()?'Topics covered':'محاور الباقة'}</h3>
       <div class="chap-g">${p.chapters.map((ch,n)=>`<div class="chap-c">
         <span class="num">${n+1}</span><span>${esc(window.biTitle ? window.biTitle(ch) : ch)}</span></div>`).join('')}</div>` : ''}
 
@@ -6964,7 +6965,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <script src="/v16-enhancements.js?v=16.1"></script>
-<script src="/v23-cart-invoices.js?v=32.0"></script>
+<script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
 <script src="/unified-exam.js?v=20260922-1"></script>
 <script src="/bilingual-admin.js"></script>

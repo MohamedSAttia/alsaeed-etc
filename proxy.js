@@ -349,7 +349,7 @@ function markOrderPaid(order) {
   tx();
 }
 
-async function handleKashierCreate(req, res) {
+async function handleKashierCreate(req, res, quoteOnly = false) {
   const cfg = kashierConfig();
   if (cfg.mode !== 'live') {
     return sendJson(res, 503, { error: 'بوابة الدفع في الوضع التجريبي. فعّل مفاتيح Kashier الحية قبل استقبال أي طلب شراء.' });
@@ -409,6 +409,15 @@ async function handleKashierCreate(req, res) {
   if (lines.some(line => line.amount <= 0)) return sendJson(res, 400, { error: 'قيمة إحدى الباقات بعد الخصم غير صالحة للدفع' });
   const numericAmount = Math.round(lines.reduce((sum,line) => sum + line.amount,0) * 100) / 100;
   const amount = numericAmount.toFixed(2);
+  if (quoteOnly) {
+    const rate=taxMode==='exempt'?0:v16.taxPolicy(country,user).rate;
+    const subtotal=Math.round(lines.reduce((sum,line)=>sum+Math.round(line.amount/(1+rate/100)*100)/100,0)*100)/100;
+    return sendJson(res,200,{amount:numericAmount,currency,country,taxRate:rate,
+      subtotal,taxAmount:Math.round((numericAmount-subtotal)*100)/100,discountPct:body.discountPct||0,
+      packageCount:lines.length});
+  }
+  if (body.expectedAmount != null && (typeof body.expectedAmount !== 'number' || !Number.isFinite(body.expectedAmount) || Math.abs(body.expectedAmount-numericAmount)>0.001))
+    return sendJson(res,409,{error:'تغيّر سعر الطلب أو إعداد الضريبة. راجع الإجمالي مرة أخرى قبل الدفع.'});
   const orderId = 'ORD-' + uid().toUpperCase();
   let sessionUrl='';
   if(cfg.secretKey) {
@@ -682,9 +691,9 @@ const server = http.createServer(async (req, res) => {
     if (requestUrl.pathname.startsWith(`/${PANEL}/api/content-admin`)) return await handleContentAdmin(req,res,requestUrl);
     if (requestUrl.pathname.startsWith('/api/admin-question-bank')) { requestUrl.pathname = `/${PANEL}/api/content-admin/questions` + requestUrl.pathname.slice('/api/admin-question-bank'.length); return await handleContentAdmin(req,res,requestUrl); }
     if (activePaymentGateway() === 'kashier' && req.method === 'POST' && requestUrl.pathname === '/api/pay/create') return await handleKashierCreate(req,res);
-    if (req.method === 'POST' && requestUrl.pathname === '/api/pay/cart/create') {
+    if (req.method === 'POST' && (requestUrl.pathname === '/api/pay/cart/create'||requestUrl.pathname === '/api/pay/cart/quote')) {
       if (activePaymentGateway() !== 'kashier') return sendJson(res,503,{error:'الدفع المتعدد يحتاج تفعيل بوابة Kashier في الإعدادات'});
-      return await handleKashierCreate(req,res);
+      return await handleKashierCreate(req,res,requestUrl.pathname.endsWith('/quote'));
     }
     if (req.method === 'GET' && requestUrl.pathname.startsWith('/api/pay/kashier/return/')) return handleKashierReturn(req,res,requestUrl);
     if (req.method === 'POST' && requestUrl.pathname === '/api/pay/kashier/webhook') return await handleKashierWebhook(req,res);
