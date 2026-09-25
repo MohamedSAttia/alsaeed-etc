@@ -1082,6 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
+<link rel="stylesheet" href="/media-v34.css?v=34.0">
 </head>
 <body>
 
@@ -3592,7 +3593,15 @@ function home() {
     <div class="v26-ecosystem-visual"><img src="/assets/hero/alsaeed-workshop-v26.webp" alt="${english?'An international team collaborates in a learning and consulting workshop':'فريق دولي يعمل معًا في ورشة للتعليم والاستشارات'}" loading="lazy" width="1440" height="810"><div class="v26-photo-caption"><span>${english?'CAIRO · CONNECTED TO THE WORLD':'من القاهرة إلى العالم'}</span><b>${english?'Knowledge becomes action together':'نحوّل المعرفة إلى عمل مشترك'}</b></div></div>
   </div></section>
 
-  <section class="sec tight alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">الأكثر طلباً</span><h2>باقات جاهزة للبدء</h2></div><div class="grid g3">${feat.map(pkgCard).join('')}</div><div class="center mt"><button class="btn o" data-r="programs">كل البرامج والباقات ←</button></div></div></section>
+  <section class="v34-media sec" aria-labelledby="v34-media-title"><div class="wrap">
+    <div class="v34-media-head"><div><span class="eyebrow">${english?'SEE THE EXPERIENCE':'شاهد التجربة'}</span><h2 id="v34-media-title">${english?'Learning and consulting in motion':'التعلّم والاستشارات بصورة أقرب'}</h2><p>${english?'Short visual introductions to our learning paths and organization services. Explore the published programs for full details.':'مشاهد تعريفية قصيرة لمسارات التعلّم وخدمات المؤسسات. تجد التفاصيل الكاملة في صفحات البرامج.'}</p></div><button class="btn o" data-r="programs">${english?'Explore programs':'استكشف البرامج'} ↗</button></div>
+    <div class="v34-media-grid">
+      <article class="v34-media-card"><div class="v34-media-visual"><video controls playsinline preload="none" poster="/assets/hero/alsaeed-global-learning-v22.webp" aria-label="${english?'Visual introduction to learning at Alsaeed':'مقدمة مرئية عن التعلم في السعيد'}"><source src="/assets/hero/alsaeed-learning-film-v34.mp4" type="video/mp4"></video></div><div class="v34-media-copy"><span>01 / ${english?'LEARNING':'التعلّم'}</span><h3>${english?'Choose how you learn':'تعلّم بالطريقة التي تناسبك'}</h3><p>${english?'Explore professional programs, practice and flexible formats.':'استكشف البرامج المهنية والتطبيقات وأنماط التعلّم المرنة.'}</p><a href="#programs">${english?'View programs':'عرض البرامج'} ↗</a></div></article>
+      <article class="v34-media-card"><div class="v34-media-visual"><video controls playsinline preload="none" poster="/assets/hero/alsaeed-workshop-v26.webp" aria-label="${english?'Visual introduction to organization services':'مقدمة مرئية عن خدمات المؤسسات'}"><source src="/assets/hero/alsaeed-consulting-film-v34.mp4" type="video/mp4"></video></div><div class="v34-media-copy"><span>02 / ${english?'ORGANIZATIONS':'المؤسسات'}</span><h3>${english?'Develop your team together':'طوّر مهارات فريقك'}</h3><p>${english?'Plan a live or in-person course, or request a tailored consulting offer.':'خطط لدورة مباشرة أو حضورية، أو اطلب عرضًا استشاريًا مخصصًا.'}</p><a href="#consulting">${english?'Explore team solutions':'حلول الفرق والمؤسسات'} ↗</a></div></article>
+    </div>
+  </div></section>
+
+  <section class="sec tight alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">${english?'POPULAR OPTIONS':'الأكثر طلباً'}</span><h2>${english?'Packages ready to explore':'باقات جاهزة للبدء'}</h2></div><div class="grid g3">${feat.map(pkgCard).join('')}</div><div class="center mt"><button class="btn o" data-r="programs">${english?'All programs and packages':'كل البرامج والباقات'} ←</button></div></div></section>
 
   <section class="sec alt"><div class="wrap">
     <div class="sec-h mid"><span class="eyebrow">هويّتنا</span>
@@ -3615,6 +3624,8 @@ function home() {
   </div></div></section>
 
   <section class="sec alt"><div class="wrap"><div class="sec-h"><span class="eyebrow">${esc(english?(C.whyTitle_en||'Why Al Saeed?'):C.whyTitle)}</span><h2>${esc(english?(C.whySub_en||'What makes our approach different'):C.whySub)}</h2></div><div class="grid g2">${C.why.map((w,i)=>`<div class="card pad reveal d${(i%4)+1}"><div class="cr-ic" style="margin-bottom:14px">${w[0]}</div><h3 style="font-family:var(--fd);font-weight:700;font-size:1.08rem;color:var(--ink);margin-bottom:8px">${esc(english?(C.why_en?.[i]?.[0]||window.I18?.t(w[1])):w[1])}</h3><p class="muted">${esc(english?(C.why_en?.[i]?.[1]||window.I18?.t(w[2])):w[2])}</p></div>`).join('')}</div></div></section>
+
+  ${(window.PUBLISHED_BLOGS||[]).length?`<section class="v34-news sec" aria-labelledby="v34-news-title"><div class="wrap"><div class="v34-media-head"><div><span class="eyebrow">${english?'LATEST ARTICLES':'آخر المقالات'}</span><h2 id="v34-news-title">${english?'Ideas you can apply':'أفكار قابلة للتطبيق'}</h2></div><a class="btn o" href="#blog">${english?'View all articles':'كل المقالات'} ↗</a></div><div class="v34-news-grid">${window.PUBLISHED_BLOGS.slice(0,3).map(post=>`<a class="v34-news-card" href="#blog/${encodeURIComponent(post.slug)}"><span>${esc(post.category|| (english?'Article':'مقال'))}</span><b>${esc(english?(post.title_en||post.title_ar):post.title_ar)}</b><p>${esc(english?(post.excerpt_en||post.excerpt_ar):post.excerpt_ar||'')}</p><em>${english?'Read article':'اقرأ المقال'} ↗</em></a>`).join('')}</div></div></section>`:''}
 
   <section class="sec tight"><div class="wrap"><div class="card pad" style="background:linear-gradient(150deg,var(--navy),var(--navy3));color:#fff;border:0;text-align:center;padding:50px 32px"><h2 style="font-family:var(--fd);font-weight:800;font-size:1.8rem;margin-bottom:10px">${esc(english?(C.ctaTitle_en||'Need help choosing a pathway?'):C.ctaTitle)}</h2><p style="color:#BFCCE0;max-width:620px;margin:0 auto 22px;line-height:1.9">${esc(english?(C.ctaText_en||'Speak with an advisor about the program and format that fit your goals, at no cost.'):C.ctaText)}</p><a class="btn p lg" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener">${esc(english?(C.ctaBtn_en||'Book a free consultation'):C.ctaBtn)}</a></div></div></section>
   ${instructorBlock()}`;
@@ -6964,7 +6975,7 @@ function mount() {
 return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
-<script src="/v16-enhancements.js?v=16.1"></script>
+<script src="/v16-enhancements.js?v=34.0"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
 <script src="/unified-exam.js?v=20260922-1"></script>
@@ -6990,7 +7001,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=24.0"></script>
+<script src="/experience-v24.js?v=34.0"></script>
 <script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>

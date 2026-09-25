@@ -41,10 +41,10 @@
   function openVideo(){
     const source=String(window.CMS?.heroVimeo||'');
     const match=source.match(/(?:vimeo\.com\/(?:video\/)?|^)(\d{6,12})(?:\D|$)/);
-    if(!match){window.APP?.toast?.(document.documentElement.lang==='en'?'The introductory video will be available soon.':'سيُتاح الفيديو التعريفي قريبًا.');return;}
-    const id=match[1];
     const title=document.documentElement.lang==='en'?'Meet Alsaeed':'تعرف على السعيد';
-    window.APP?.modal?.(`<div class="v24-video-modal"><h2>${title}</h2><div class="v24-video-frame"><iframe src="https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${title}"></iframe></div><button class="btn o" data-close>${document.documentElement.lang==='en'?'Close':'إغلاق'}</button></div>`);
+    const media=match?`<iframe src="https://player.vimeo.com/video/${match[1]}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${title}"></iframe>`:
+      `<video controls playsinline preload="none" poster="/assets/hero/alsaeed-global-learning-v22.webp" aria-label="${title}"><source src="/assets/hero/alsaeed-learning-film-v34.mp4" type="video/mp4"></video>`;
+    window.APP?.modal?.(`<div class="v24-video-modal"><h2>${title}</h2><div class="v24-video-frame">${media}</div><button class="btn o" data-close>${document.documentElement.lang==='en'?'Close':'إغلاق'}</button></div>`);
   }
   document.addEventListener('click',event=>{if(event.target.closest('[data-v24-video]'))openVideo()});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else start(currentCarousel)});

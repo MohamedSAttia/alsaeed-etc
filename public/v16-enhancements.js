@@ -76,6 +76,7 @@ document.addEventListener('click',function(e){
 var originalBoot=APP.boot;
 APP.boot=async function(){
   try{var x=await Promise.all([fetch('/api/blogs').then(function(r){return r.ok?r.json():[]}),fetch('/api/payment-config').then(function(r){return r.ok?r.json():PAY})]);BLOGS=x[0]||[];PAY=Object.assign(PAY,x[1]||{})}catch(e){}
+  window.PUBLISHED_BLOGS=Array.isArray(BLOGS)?BLOGS:[];
   installBlog();
   await originalBoot();
   document.body.classList.add('v16-ui');
