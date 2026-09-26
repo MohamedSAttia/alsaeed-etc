@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=41.0">
+<link rel="stylesheet" href="/media-v34.css?v=42.0">
 </head>
 <body>
 
@@ -3395,9 +3395,9 @@ function courseCover(c, big){
   const defaultCover=supplied&&/^(?:\/)?assets\/covers\/[^/]+\.svg$/i.test(supplied);
   const cover=defaultCover?catalogArtwork(c.id):(supplied||catalogArtwork(c.id));const has=!!cover;
   const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.82)),url('${esc(cover)}')`:`background:${tv.grad}`;
-  return `<div class="course-cover ${has?'has-img':''}" style="${style};${big?'min-height:360px':''}">
+  return `<div class="course-cover ${has?'has-img':''} v42-course-cover" style="${style};${big?'min-height:360px':''}">
     <div class="course-cover-grid"></div><div class="course-cover-in">
-      <span class="track-pill">${tv.icon||'🎓'} ${esc(publicTitle(tv))}</span>
+      <span class="track-pill">${tv.icon||'🎓'} ${esc(publicTitle(tv))}</span>${catalogCertMark(c.id,true)}
       <div><span class="course-code-xl"><bdi dir="ltr">${esc(c.code||'')}</bdi></span><h3>${esc(publicTitle(c))}</h3></div>
     </div>${c.previewVimeo?`<button class="cover-play" data-course-preview="${c.id}" title="${siteEnglish()?'Introduction video':'فيديو تعريفي'}">▶</button>`:''}
   </div>`;
@@ -3640,10 +3640,11 @@ function pkgCard(p) {
   const publishedVideos = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.videos || 0) : Number(p.videos || 0);
   const liveQuestions = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.questions || 0) : Number(p.questions || 0);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
-  return `<div class="card pk reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
-    <div class="v38-package-art" style="height:118px;background-image:linear-gradient(90deg,rgba(8,26,45,.46),rgba(8,26,45,.06)),url('${catalogArtwork(c.id||p.course,p.type)}');position:relative;padding:14px;color:#fff;overflow:hidden">
+  return `<div class="card pk reveal v42-package-${esc(p.type)}" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
+    <div class="v38-package-art" style="background-image:linear-gradient(90deg,rgba(8,26,45,.30),rgba(8,26,45,.04)),url('${catalogArtwork(c.id||p.course,p.type)}')">
       <div class="course-cover-grid"></div>
-      <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+      ${catalogCertMark(p.course)}
+      <div class="v42-package-art-copy">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
           <span class="code" style="font-size:.82rem;font-weight:700;opacity:.95">${esc(c.code || '')}</span>
           ${p.badge ? `<span style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);
@@ -3700,6 +3701,15 @@ const CATALOG_INSTRUCTOR_BADGES = {
   pmp:'/assets/badges/pmi-atp-instructor-pmp.png',
   rmp:'/assets/badges/pmi-atp-instructor-rmp.png'
 };
+const CATALOG_CERT_MARKS = {
+  pmp:'/assets/certifications/pmp.jpeg',rmp:'/assets/certifications/rmp.png',
+  acp:'/assets/certifications/acp.jpg',pba:'/assets/certifications/pba.jpeg',
+  pgmp:'/assets/certifications/pgmp.png',pfmp:'/assets/certifications/pfmp.jpg',
+  p3o:'/assets/certifications/axelos.jpg',grcp:'/assets/certifications/grcp.webp'
+};
+const catalogCertMark = (id,small=false) => CATALOG_CERT_MARKS[id]
+  ? `<span class="v42-cert-mark ${small?'small':''} ${id==='grcp'?'wide':''}"><img src="${CATALOG_CERT_MARKS[id]}" alt="${esc(siteEnglish()?`Certification identifier for ${catalogCourse(id)?.code||id}`:`شعار تعريفي لشهادة ${catalogCourse(id)?.code||id}`)}" loading="lazy"></span>`
+  : `<span class="v42-cert-mark ${small?'small':''} text-mark" dir="ltr">${esc(catalogCourse(id)?.code||id.toUpperCase())}</span>`;
 let catalogFamily = '', catalogCertificate = '';
 const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[id];
 const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
@@ -3728,12 +3738,12 @@ function catalogArtwork(code,variant='course') {
 function catalogFamilyCard(f, pk) {
   const n=f.courseIds.filter(id=>pk.some(p=>p.course===id)).length;
   const total=pk.filter(p=>f.courseIds.includes(p.course)).length;
-  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
+  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}">${f.id==='axelos'?catalogCertMark('p3o',true):''}<span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
 }
 function catalogCertificateCard(id,pk) {
   const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
   const cover=c?.cover && !/^(?:\/?assets\/covers\/)/.test(c.cover||'') ? c.cover : catalogArtwork(id);
-  return `<article class="v38-certificate"><div class="v38-certificate-art" style="background-image:url('${esc(cover)}')"><span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Packages are being prepared. Ask us about this certification.':'الباقات قيد الإعداد. يمكنك الاستفسار عن هذه الشهادة.')}</p>${available?`<button type="button" class="btn p" data-ccert="${esc(id)}">${siteEnglish()?'View packages':'عرض الباقات'} ↗</button>`:`<a class="btn o" href="#contact">${siteEnglish()?'Ask about availability':'استفسر عن توفرها'} ↗</a>`}</div></article>`;
+  return `<article class="v38-certificate"><div class="v38-certificate-art v42-certificate-art" style="background-image:url('${esc(cover)}')">${catalogCertMark(id)}<span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Packages are being prepared. Ask us about this certification.':'الباقات قيد الإعداد. يمكنك الاستفسار عن هذه الشهادة.')}</p>${available?`<button type="button" class="btn p" data-ccert="${esc(id)}">${siteEnglish()?'View packages':'عرض الباقات'} ↗</button>`:`<a class="btn o" href="#contact">${siteEnglish()?'Ask about availability':'استفسر عن توفرها'} ↗</a>`}</div></article>`;
 }
 function programs() {
   const en=siteEnglish();
@@ -3748,7 +3758,7 @@ function programs() {
   const heading=cert?publicTitle(cert):family?(en?family.en:family.ar):(en?'Professional training':'التدريب المهني');
   return `<section class="pg-hero v38-hero"><div class="wrap"><div class="crumb"><a href="#home" data-r="home">${en?'Home':'الرئيسية'}</a> ← <button type="button" data-creset>${en?'Catalog':'الكتالوج'}</button>${family?` ← <button type="button" data-cback>${esc(en?family.en:family.ar)}</button>`:''}${cert?` ← ${esc(cert.code)}`:''}</div><h1>${esc(heading)}</h1><p>${cert?(en?'Compare the packages published for this certification.':'قارن الباقات المنشورة لهذه الشهادة.'):family?(en?'Select a certification to see its available packages.':'اختر الشهادة لعرض باقاتها المتاحة.'):(en?'Choose a field, then a certification, then the package that suits your goal.':'اختر المجال، ثم الشهادة، ثم الباقة التي تناسب هدفك.')}</p></div></section>
   <section class="sec"><div class="wrap v38-catalog">
-    ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><img src="${esc(cert.cover||catalogArtwork(catalogCertificate))}" alt=""/><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2>${catalogIssuerLink(catalogCertificate)}${catalogInstructorBadge(catalogCertificate,true)}<p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`}
+    ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><div class="v42-cert-summary-visual" style="background-image:url('${catalogArtwork(catalogCertificate)}')">${catalogCertMark(catalogCertificate)}</div><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2>${catalogIssuerLink(catalogCertificate)}${catalogInstructorBadge(catalogCertificate,true)}<p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`}
     ${!family?`<p class="v38-marks-note">${en?'Certification names identify their respective owners. Alsaeed artwork is original and does not imply endorsement by those organizations.':'أسماء الشهادات مملوكة لجهاتها. الرسوم البصرية من تصميم السعيد ولا تعني اعتمادًا أو تأييدًا من تلك الجهات.'}</p>`:''}
     <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
@@ -4192,6 +4202,7 @@ function pkgView(id) {
         <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(publicTitle(T))}</span></div>
     </div>
     <p>${esc(packageDescription(p,T))}</p>
+    ${catalogCertMark(p.course)}
     ${catalogIssuerLink(p.course)}
     ${catalogInstructorBadge(p.course,true)}
     <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
