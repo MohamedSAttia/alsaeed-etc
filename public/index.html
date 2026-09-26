@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=40.0">
+<link rel="stylesheet" href="/media-v34.css?v=41.0">
 </head>
 <body>
 
@@ -3705,8 +3705,8 @@ const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[
 const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
 const catalogIssuer = id => CATALOG_ISSUERS[catalogFamilyFor(id)?.id];
 const catalogIssuerLink = id => { const issuer=catalogIssuer(id); return issuer?`<a class="v39-issuer" href="${issuer.url}" target="_blank" rel="noopener noreferrer" aria-label="${esc(siteEnglish()?'Certification body: '+issuer.name:'الجهة المانحة: '+issuer.name)}"><span>${siteEnglish()?'Certification body':'الجهة المانحة'}</span><b dir="ltr">${esc(issuer.name)} ↗</b></a>`:''; };
-const catalogInstructorBadge = (id,compact=false) => CATALOG_INSTRUCTOR_BADGES[id]
-  ? `<div class="v40-instructor-badge ${compact?'compact':''}"><img src="${CATALOG_INSTRUCTOR_BADGES[id]}" alt="${esc(siteEnglish()?`PMI Authorized Training Partner Instructor badge for ${id==='pmp'?'PMP':'PMI-RMP'}`:`شارة مدرب PMI-ATP لشهادة ${id==='pmp'?'PMP':'PMI-RMP'}`)}" loading="lazy" width="84" height="86"><div><b>${siteEnglish()?'Dr. Mohamed Attia':'د. محمد عطية'}</b><span>${siteEnglish()?'PMI-ATP Instructor · personal trainer credential':'مدرب PMI-ATP · اعتماد شخصي للمدرب'}</span></div></div>` : '';
+const catalogInstructorBadge = (id,compact=false) => ['pmp','rmp','acp'].includes(id)
+  ? `<div class="v40-instructor-badge ${compact?'compact':''}">${CATALOG_INSTRUCTOR_BADGES[id]?`<img src="${CATALOG_INSTRUCTOR_BADGES[id]}" alt="${esc(siteEnglish()?`PMI-ATP instructor credential for ${id==='pmp'?'PMP':'PMI-RMP'}`:`اعتماد مدرب PMI-ATP لشهادة ${id==='pmp'?'PMP':'PMI-RMP'}`)}" loading="lazy" width="84" height="86">`:`<span class="v41-credential-mark" aria-hidden="true">ATP</span>`}<div><b>${siteEnglish()?'Dr. Mohamed Attia':'د. محمد عطية'}</b><span>${siteEnglish()?`PMI-ATP Instructor · ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`:`مدرب PMI-ATP معتمد لتأهيل ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`}</span></div></div>` : '';
 const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):(n===1?'باقة':'باقات')}`;
 function catalogArtwork(code,variant='course') {
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
@@ -4029,6 +4029,25 @@ function courseCard(c) {
   </div>`;
 }
 
+const CERT_GUIDES = {
+  pmp:{who:['مديرو المشاريع وقادة الفرق الراغبون في توثيق خبرتهم في تسليم القيمة.','Project managers and team leads seeking to validate their experience in delivering value.'],value:['قيادة الفرق، إدارة العمل والمواءمة مع بيئة الأعمال عبر الأساليب التنبؤية والرشيقة والهجينة.','Lead teams, manage work and align projects with business context across predictive, agile and hybrid approaches.'],practice:['حل مواقف عملية، تحليل القرارات وتحديد الفجوات بحسب مخطط الاختبار الحالي.','Practise scenario questions, explain decisions and identify gaps against the current exam outline.'],url:'https://www.pmi.org/certifications/project-management-pmp'},
+  rmp:{who:['المتخصصون في مخاطر المشاريع والبرامج ومديرو المشاريع الذين يقودون قرارات عدم اليقين.','Risk specialists and project or program managers making decisions under uncertainty.'],value:['صياغة استراتيجية المخاطر وتيسير التعرف والتحليل والاستجابة والرصد.','Develop risk strategy and facilitate identification, analysis, response and monitoring.'],practice:['بناء سجل مخاطر، تحليل سيناريوهات، ومراجعة خطط الاستجابة ومؤشرات الإنذار.','Build a risk register, analyze scenarios and review responses and early warning indicators.'],url:'https://www.pmi.org/certifications/risk-management-rmp'},
+  acp:{who:['الممارسون في فرق المنتجات والتسليم الرشيق ومديرو المشاريع العاملون بأساليب تكيفية.','Practitioners in product and agile delivery teams, and project managers using adaptive approaches.'],value:['العقلية الرشيقة والتسليم بالقيمة والتفاعل مع أصحاب المصلحة وأداء الفرق.','Agile mindset, value delivery, stakeholder engagement and team performance.'],practice:['تطبيق سكرم وكانبان وممارسات التيسير على مواقف واقعية مع مراجعة مخطط PMI-ACP الحالي.','Apply Scrum, Kanban and facilitation to real situations, guided by the current PMI-ACP outline.'],url:'https://www.pmi.org/certifications/agile-acp'},
+  pba:{who:['محللو الأعمال ومديرو المشاريع والمنتجات الذين يربطون احتياجات الأعمال بالحلول.','Business analysts and project or product managers connecting business needs to solutions.'],value:['تقييم الحاجة، التخطيط، استخلاص المتطلبات وتحليلها وتتبعها وتقييم الحل.','Needs assessment, planning, requirements elicitation and analysis, traceability and solution evaluation.'],practice:['تحويل حالة عمل إلى متطلبات قابلة للتحقق وتتبع أثر التغيير على القيمة.','Turn a business case into testable requirements and trace the impact of changes.'],url:'https://www.pmi.org/certifications/business-analysis-pba'},
+  p3o:{who:['قادة مكاتب إدارة المشاريع والمحافظ والبرامج والمهتمون بنماذج دعم القرار.','PMO, portfolio and programme leaders designing decision support offices.'],value:['فهم مبادئ P3O ونماذج المكاتب وخدماتها وكيفية مواءمتها مع احتياجات المؤسسة.','Understand P3O principles, office models and services, and how to tailor them to the organization.'],practice:['رسم نموذج مكتب مناسب وتحديد الخدمات والأدوار وآلية قياس القيمة.','Design an office model and map its services, roles and value measures.'],url:'https://www.peoplecert.org/browse-certifications/project-programme-and-portfolio-management/P3O-7'},
+  grcp:{who:['مسؤولو الحوكمة والمخاطر والامتثال والتدقيق والاستراتيجية.','Governance, risk, compliance, audit and strategy professionals.'],value:['دمج الأهداف والمخاطر والالتزامات والأداء ضمن نموذج GRC متكامل.','Connect objectives, risks, obligations and performance in an integrated GRC model.'],practice:['بناء سجل التزامات ومخاطر وتطبيق مكونات نموذج القدرات على حالة مؤسسية.','Build obligation and risk registers and apply the capability model to an organization.'],url:'https://www.oceg.org/certifications/grc-professional-certification/'},
+  lss:{who:['محترفو الجودة والعمليات والتحسين المستمر وقادة الفرق التشغيلية.','Quality, operations and continuous improvement professionals and team leads.'],value:['استخدام DMAIC لتحديد المشكلة وقياس الأداء وتحليل الأسباب والتحسين والضبط.','Use DMAIC to define a problem, measure performance, analyze causes, improve and control.'],practice:['اختيار مشروع تحسين، تحليل بياناته وتصميم لوحة قياس لاستدامة النتيجة.','Choose an improvement project, analyze its data and design a control plan.'],url:''},
+  nebosh:{who:['المسؤولون عن السلامة والصحة المهنية والمشرفون والمديرون في مواقع العمل.','Health and safety officers, supervisors and managers responsible for workplace risk.'],value:['إدارة السلامة والصحة وتحديد الأخطار وإجراء تقييم مخاطر عملي في بيئة العمل.','Manage health and safety, identify hazards and complete a practical workplace risk assessment.'],practice:['التدرب على تقييم مخاطر واقعي ومراجعة متطلبات المنهج والتقييم الأحدث لدى NEBOSH.','Practise a real risk assessment and check the latest NEBOSH syllabus and assessment requirements.'],url:'https://www.nebosh.org.uk/qualifications/international-general-certificate/'},
+  aipro:{who:['المهنيون الراغبون في توظيف الذكاء الاصطناعي بأمان في أعمالهم اليومية.','Professionals who want to apply AI responsibly in daily work.'],value:['صياغة أوامر مفيدة، تقييم المخرجات وتطوير سير عمل عملي.','Write effective prompts, evaluate outputs and build a practical workflow.'],practice:['إنشاء حالة استخدام من مجال عملك مع مراجعة الجودة والخصوصية.','Create a use case from your work and review quality and privacy.'],url:''}
+};
+function certificationGuide(c) {
+  const en=siteEnglish(), tr=(ar,english)=>en?english:ar, g=CERT_GUIDES[c.id];
+  if(!g)return '';
+  const issuer=catalogIssuer(c.id), external=!!issuer;
+  const steps=[tr('اختر الباقة ونمط التدريب المناسب','Choose a package and study format'),g.practice[en?1:0],external?tr('تحقّق من الأهلية ومخطط الاختبار لدى الجهة المانحة','Check eligibility and exam outline with the issuer'):tr('أنجز التطبيق العملي ومتطلبات الإتمام','Complete the practical work and course requirements'),external?tr('قدّم الاختبار لدى الجهة المانحة وفق إجراءاتها','Book and take the issuer’s exam under its rules'):tr('استلم إثبات الإتمام بحسب شروط الباقة','Receive completion evidence under your package terms')];
+  return `<section class="v41-guide sec"><div class="wrap"><div class="v41-guide-heading"><span class="eyebrow">${tr('دليل الشهادة','CERTIFICATION GUIDE')}</span><h2>${tr('افهم المسار قبل اختيار الباقة','Understand the pathway before choosing a package')}</h2><p>${tr('نربط محتوى التدريب بتطبيق عملي وخطة استعداد واضحة.','We connect training to practical work and a clear preparation plan.')}</p></div><div class="v41-guide-grid"><article><span>01 / ${tr('لمن تناسب؟','WHO IS IT FOR?')}</span><h3>${tr('ابدأ من هدفك المهني','Start with your career goal')}</h3><p>${esc(g.who[en?1:0])}</p></article><article><span>02 / ${tr('ماذا تغطي؟','WHAT DOES IT COVER?')}</span><h3>${tr('المعرفة والمهارة','Knowledge and skills')}</h3><p>${esc(g.value[en?1:0])}</p></article><article><span>03 / ${tr('كيف تستعد؟','HOW TO PREPARE?')}</span><h3>${tr('تدريب تطبيقي','Practical preparation')}</h3><p>${esc(g.practice[en?1:0])}</p></article></div><div class="v41-guide-path"><h3>${tr('رحلتك خطوة بخطوة','Your step by step path')}</h3><ol>${steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div><div class="v41-guide-issuer"><div><b>${external?tr('تدريب السعيد · اختبار الجهة المانحة','Alsaeed training · issuer exam'):tr('برنامج تطبيقي من السعيد','An applied Alsaeed program')}</b><p>${external?tr(`السعيد يقدّم التأهيل والتدريب. شروط الأهلية والحجز والاختبار وإصدار الشهادة يحددها ${issuer.name}؛ راجع أحدث التفاصيل قبل التسجيل.`, `Alsaeed provides preparation and training. ${issuer.name} sets eligibility, booking, exam and certification rules; check current details before applying.`):c.id==='lss'?tr('تختلف جهات شهادة الحزام الأخضر ومتطلبات اختباراتها؛ حدّد الجهة المستهدفة معنا قبل التسجيل.','Green Belt issuers and exam requirements vary. Choose your target issuer with us before enrolling.'):tr('هذا برنامج تدريبي تطبيقي؛ راجع شروط الباقة لمعرفة وثيقة الإتمام المتاحة.','This is an applied training program. Check package terms for the available completion document.')}</p></div>${external?`<a href="${esc(g.url||issuer.url)}" target="_blank" rel="noopener noreferrer">${tr('متطلبات الجهة المانحة','Official issuer requirements')} ↗</a>`:''}</div></div></section>`;
+}
+
 /* ═══════════ صفحة الدورة ═══════════ */
 function courseTabBody(c) {
   const t=window.__cTab||'about',en=siteEnglish(),tr=(ar,english)=>en?english:ar;
@@ -4128,6 +4147,7 @@ function courseView(id) {
     <div class="course-media-card reveal d1">${courseCover(c,true)}<div class="course-media-foot"><div><b>${pkgs.length}</b><span>${tr('باقات','Packages')}</span></div><div><b>${sessions.length}</b><span>${tr('مواعيد مؤكدة','Confirmed dates')}</span></div><div><b>${(c.chapters||[]).length}</b><span>${tr('محاور','Topics')}</span></div></div></div>
   </div></section>
 
+  ${certificationGuide(c)}
   ${courseDecision(c,pkgs)}
   <section class="sec"><div class="wrap course-about-shell">
     <div>
@@ -4174,6 +4194,7 @@ function pkgView(id) {
     <p>${esc(packageDescription(p,T))}</p>
     ${catalogIssuerLink(p.course)}
     ${catalogInstructorBadge(p.course,true)}
+    <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
   </div></section>
 
   <section class="sec"><div class="wrap"><div class="pd-hero">
@@ -5072,7 +5093,7 @@ function about() {
 
         <h3 style="font-family:var(--fd);font-weight:800;font-size:1.35rem;color:var(--ink);margin:32px 0 16px">المدرّب</h3>
         <p class="muted mb">${esc(siteEnglish()?'Dr Mohamed Attia brings over thirteen years of experience in project management, strategy and digital transformation across Saudi Arabia, the Middle East and Africa. His work combines academic foundations with practical, data informed organizational solutions.':B.bio)}</p>
-        <p class="muted">${esc(siteEnglish()?'He specializes in project management offices, governance, risk and compliance, and strategic performance systems. An internationally accredited trainer with PMI, AXELOS and NEBOSH, he has helped professionals prepare for global certifications.':B.bio2)}</p>
+        <p class="muted">${esc(siteEnglish()?'He specializes in project management offices, governance, risk and compliance, and strategic performance systems. He is a PMI-ATP instructor for PMP, PMI-RMP and PMI-ACP preparation, and contributed substantially to the preparation of the PMBOK® Guide, Eighth Edition. Candidates sit certification exams with the respective issuing bodies.':'مدرب PMI-ATP لتأهيل PMP وPMI-RMP وPMI-ACP، وساهم مساهمة رئيسية في إعداد PMBOK® Guide، الإصدار الثامن. الاختبارات والشهادات المهنية تُجرى وتصدر لدى الجهات المانحة.')}</p>
       </div>
       <div class="side">${instructorCard()}</div>
     </div>
@@ -5115,7 +5136,7 @@ function instructorBlock() {
         <h2>${esc(siteEnglish()?'Dr Mohamed Attia':B.founder)}</h2>
         <p class="v27-instructor-role">${esc(siteEnglish()?'Founder and CEO · Senior Project Management and Digital Transformation Consultant':B.founderRole)}</p>
         <p>${esc(siteEnglish()?'Dr Mohamed Attia brings over thirteen years of experience in project management, strategy and digital transformation across Saudi Arabia, the Middle East and Africa. His work combines academic foundations with practical, data informed organizational solutions.':B.bio)}</p>
-        <p>${esc(siteEnglish()?'He specializes in project management offices, governance, risk and compliance, and strategic performance systems. An internationally accredited trainer with PMI, AXELOS and NEBOSH, he has helped professionals prepare for global certifications.':B.bio2)}</p>
+        <p>${esc(siteEnglish()?'He specializes in project management offices, governance, risk and compliance, and strategic performance systems. He is a PMI-ATP instructor for PMP, PMI-RMP and PMI-ACP preparation, and contributed substantially to the preparation of the PMBOK® Guide, Eighth Edition. Candidates sit certification exams with the respective issuing bodies.':'مدرب PMI-ATP لتأهيل PMP وPMI-RMP وPMI-ACP، وساهم مساهمة رئيسية في إعداد PMBOK® Guide، الإصدار الثامن. الاختبارات والشهادات المهنية تُجرى وتصدر لدى الجهات المانحة.')}</p>
         <div class="v27-instructor-actions"><button class="btn p" data-r="about">${english?'More about us':'المزيد عنا'} ↗</button><a class="btn o" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${english?'Discuss a program':'ناقش برنامجًا تدريبيًا'} ↗</a></div>
       </div>
     </div></div>
