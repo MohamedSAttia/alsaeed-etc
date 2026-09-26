@@ -117,3 +117,4 @@
 @media(max-width:850px){.v44-package-hero.pg-hero{background-image:linear-gradient(90deg,rgba(8,23,42,.68),rgba(8,23,42,.9)),url('/assets/hero/alsaeed-academy-wide-v44.webp')!important;background-position:43% center!important}}
 .v44-package-hero.pg-hero{background-image:url('/assets/hero/alsaeed-academy-wide-v44.webp')!important}
 @media(max-width:850px){.v44-package-hero.pg-hero{background-image:linear-gradient(90deg,rgba(8,23,42,.35),rgba(8,23,42,.65)),url('/assets/hero/alsaeed-academy-wide-v44.webp')!important}}
+.v44-package-hero.pg-hero::before,.v44-package-hero.pg-hero::after{display:none!important}
