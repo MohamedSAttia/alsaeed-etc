@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=36.1">
+<link rel="stylesheet" href="/media-v34.css?v=37.0">
 </head>
 <body>
 
@@ -3678,6 +3678,21 @@ function pkgCard(p) {
   </div>`;
 }
 
+function catalogProgramCard(c, packages) {
+  const en=siteEnglish(), tv=trackVisual(c);
+  const modes=[...new Set(packages.map(p=>p.mode))].map(k=>window.MODES.find(m=>m.k===k)).filter(Boolean);
+  const lead=packages.find(p=>p.featured||p.badge)||packages[0];
+  const price=Math.min(...packages.map(p=>Number(p.price)).filter(Number.isFinite));
+  const summary=en?(c.blurb_en||c.desc_en||'Explore the program, its learning topics and the available packages.'):c.blurb||'';
+  const search=[c.code,c.ar,c.en,...packages.flatMap(p=>[p.ar,p.en])].join(' ');
+  return `<article class="v37-program-card reveal" data-v37-search="${esc(search)}">
+    <div class="v37-program-art" style="background:${tv.grad}"><span>${esc(tv.icon||'◈')}</span><small>${esc(publicTitle(tv))}</small><strong dir="ltr">${esc(c.code||'')}</strong></div>
+    <div class="v37-program-content"><div class="v37-program-heading"><div><span class="eyebrow">${en?'PROFESSIONAL PROGRAM':'برنامج مهني'}</span><h2>${esc(publicTitle(c))}</h2></div><span class="v37-count">${packages.length} ${en?'options':'خيارات'}</span></div>
+      <p>${esc(summary)}</p><div class="v37-mode-list">${modes.map(m=>`<span>${m.icon} ${esc(publicTitle(m))}</span>`).join('')}</div>
+      <div class="v37-program-footer"><span>${en?'Packages from':'تبدأ الباقات من'} <b>${money(price)} ${esc(lead.currency||'USD')}</b></span><a href="#course/${encodeURIComponent(c.id)}">${en?'Explore program and compare':'استكشف البرنامج وقارن الباقات'} ↗</a></div>
+    </div></article>`;
+}
+
 function programs() {
   let pk = window.PACKAGES.filter(p=>p.active!==false);
   const scheduled=(Array.isArray(window.CMS.sessions)?window.CMS.sessions:[])
@@ -3687,16 +3702,17 @@ function programs() {
   if (fTrack) pk = pk.filter(p => { const c = A().course(p.course); return c && c.track === fTrack; });
   if (fLevel) pk = pk.filter(p => { const c = A().course(p.course); return c && c.level === fLevel; });
   if (fLang) pk = pk.filter(p => p.lang === fLang);
+  const grouped=window.COURSES.map(c=>({course:c,packages:pk.filter(p=>p.course===c.id)})).filter(x=>x.packages.length);
 
   return `<section class="pg-hero"><div class="wrap">
     <div class="crumb"><a href="#home" data-r="home">${siteEnglish()?'Home':'الرئيسية'}</a> ← ${siteEnglish()?'Programs':'البرامج'}</div>
     <h1>${siteEnglish()?'Professional training programs':'البرامج التدريبية'}</h1>
-    <p>${siteEnglish()?'Explore published packages and filter by format, subject, level and language.':'استكشف الباقات المنشورة وصَفِّها حسب النمط والمجال والمستوى واللغة.'}</p>
+    <p>${siteEnglish()?'Choose a program first, then compare the packages and learning formats published for it.':'اختر البرنامج أولًا، ثم قارن باقاته وطرق التعلّم المنشورة له.'}</p>
   </div></section>
 
   <section class="sec"><div class="wrap">
     <div class="filters">
-      <label class="v36-catalog-search"><span>⌕</span><input type="search" id="v36CatalogSearch" autocomplete="off" placeholder="${siteEnglish()?'Search by program, code or package…':'ابحث باسم البرنامج أو الرمز أو الباقة…'}" aria-label="${siteEnglish()?'Search published packages':'ابحث في الباقات المنشورة'}"></label>
+      <label class="v36-catalog-search"><span>⌕</span><input type="search" id="v36CatalogSearch" autocomplete="off" placeholder="${siteEnglish()?'Search programs or certifications…':'ابحث عن برنامج أو شهادة…'}" aria-label="${siteEnglish()?'Search programs':'البحث في البرامج'}"></label>
       <div class="frow"><b>${siteEnglish()?'Learning format':'نمط التعلّم'}</b>
         <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">${siteEnglish()?'All':'الكل'}</button>
         ${window.MODES.map(m => `<button class="fchip ${fMode === m.k ? 'on' : ''}" data-fm="${m.k}">
@@ -3718,18 +3734,18 @@ function programs() {
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <b id="v36CatalogCount" style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
+      <b id="v36CatalogCount" style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${grouped.length} ${siteEnglish()?'programs':'برامج'} · ${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
       ${(fMode || fTrack || fLevel || fLang) ? `<button class="btn o sm" id="clearF">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button>` : ''}
     </div>
 
-    ${pk.length ? `<div class="grid g3 v36-catalog-grid">${pk.map(pkgCard).join('')}</div><div id="v36CatalogEmpty" class="v36-search-empty" hidden>${siteEnglish()?'No packages match your search. Try another word.':'لا توجد باقات مطابقة للبحث. جرّب كلمة أخرى.'}</div>`
+    ${grouped.length ? `<div class="v36-catalog-grid v37-program-grid">${grouped.map(x=>catalogProgramCard(x.course,x.packages)).join('')}</div><div id="v36CatalogEmpty" class="v36-search-empty" hidden>${siteEnglish()?'No programs match your search. Try another word.':'لا توجد برامج مطابقة للبحث. جرّب كلمة أخرى.'}</div>`
       : `<div class="empty"><div class="ic">🔍</div><b>${siteEnglish()?'No matching results':'لا نتائج بهذه الفلاتر'}</b>
           <p class="muted">${siteEnglish()?'Try another option or clear the filters.':'جرّب توسيع البحث أو امسح الفلاتر.'}</p>
           <button class="btn p mt" id="clearF2">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button></div>`}
     <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
       <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
-      ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Format','Location','Details']:['البرنامج','التاريخ','النمط','المدينة / المنطقة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(siteEnglish()?(c.en||c.ar):c.ar):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
+      ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Time & zone','Format','Language','Location','Details']:['البرنامج','التاريخ','الوقت والمنطقة','النمط','اللغة','المدينة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(siteEnglish()?(c.en||c.ar):c.ar):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.time?`${s.time} · ${s.timezone||'Africa/Cairo'}`:(siteEnglish()?'Time to be confirmed':'الوقت قيد التأكيد'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(({ar:siteEnglish()?'Arabic':'عربي',en:siteEnglish()?'English':'إنجليزي',both:siteEnglish()?'Arabic & English':'عربي/إنجليزي'})[s.language]||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
       <button class="btn p" data-r="contact" style="margin-top:22px">${siteEnglish()?'Request a proposed date or team offer':'اطلب موعدًا مقترحًا أو عرضًا لفريقك'} ↗</button>
     </section>
   </div></section>`;
@@ -4007,77 +4023,32 @@ function courseCard(c) {
 
 /* ═══════════ صفحة الدورة ═══════════ */
 function courseTabBody(c) {
-  const t = window.__cTab || 'about';
-  if (t === 'out') {
-    const outs = c.outcomes || [
-      `فهم إطار ${c.code} وتطبيقه عملياً في بيئة عملك`,
-      'اجتياز الاختبار الدولي من المحاولة الأولى',
-      'إتقان المصطلحات والمفاهيم بلغتيها العربية والإنجليزية',
-      'القدرة على قيادة المبادرات وفق المعايير الدولية',
-      'شهادة إتمام معتمدة برقم تحقّق'
-    ];
-    return `<h3>ماذا ستحقّق من هذه الدورة؟</h3>
-      <div class="out-g">${outs.map((o,i2)=>`<div class="out-c reveal d${(i2%4)+1}">
-        <span class="out-n num">${i2+1}</span><p>${esc(o)}</p></div>`).join('')}</div>
-      <div class="note info mt"><b>لمن هذه الدورة؟</b>
-        ${esc(c.audience || 'المحترفون الراغبون في الاعتماد الدولي وتطوير مسارهم المهني — سواءً كنت في بداية الطريق أو تسعى للترقّي.')}</div>`;
+  const t=window.__cTab||'about',en=siteEnglish(),tr=(ar,english)=>en?english:ar;
+  const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false);
+  const topics=(c.chapters||[]);
+  const title=x=>window.biTitle?window.biTitle(x):(typeof x==='object'?(en?x.en||x.ar:x.ar||x.en):x);
+  if(t==='out') {
+    const outcomes=en?(Array.isArray(c.outcomes_en)&&c.outcomes_en.length?c.outcomes_en:[
+      'Understand the core concepts and apply them to practical situations.',
+      'Use the program topics to guide a focused study plan.',
+      'Compare the published formats before choosing a package.'
+    ]):(c.outcomes&&c.outcomes.length?c.outcomes:[
+      'فهم مفاهيم البرنامج وتطبيقها في مواقف عملية.',
+      'بناء خطة دراسة تستند إلى المحاور المنشورة.',
+      'مقارنة طرق التعلم والباقات لاختيار الأنسب.'
+    ]);
+    return `<h3>${tr('ما الذي ستتعلّمه؟','What you will learn')}</h3><div class="out-g">${outcomes.map((o,i)=>`<div class="out-c reveal d${i%4+1}"><span class="out-n num">${i+1}</span><p>${esc(o)}</p></div>`).join('')}</div><div class="note info mt"><b>${tr('لمن هذا البرنامج؟','Who is this for?')}</b> ${esc(en?(c.audience_en||'Professionals exploring this subject and comparing the available study formats.'):c.audience||'للمهتمين بتطوير مهاراتهم في هذا المجال ومقارنة أنماط الدراسة المتاحة.')}</div>`;
   }
-  if (t === 'exam') {
-    const cols=['#F0741A','#0E7C7B','#1B3B6F','#C9A227','#8B5CF6','#EC4899','#10B981'];
-    return `<h3>تفاصيل الاختبار الرسمي</h3>
-      <div class="exam-facts">
-        <div class="ef"><b class="num">${c.questions||'—'}</b><span>سؤالاً</span></div>
-        <div class="ef"><b class="num">${c.examMin||'—'}</b><span>دقيقة</span></div>
-        <div class="ef"><b class="num">${(c.domains||[]).length}</b><span>نطاقاً</span></div>
-        <div class="ef"><b class="num">${c.hours||'—'}</b><span>ساعة تدريبية</span></div>
-      </div>
-      <h4 style="font-family:var(--fd);font-weight:700;font-size:1.02rem;color:var(--navy);margin:22px 0 12px">
-        توزيع النطاقات وأوزانها</h4>
-      <div class="dom-list">
-        ${(c.domains||[]).map((d,i2)=>`<div class="dom-r">
-          <div class="dom-w num" style="color:${cols[i2%cols.length]}">${d.w}%</div>
-          <div class="dom-t"><b>${esc(d.ar)}</b><span class="en">${esc(d.en||'')}</span></div>
-          <div class="dom-bar"><i style="width:${d.w}%;background:${cols[i2%cols.length]}"></i></div>
-        </div>`).join('')}
-      </div>
-      <div class="note warn mt"><b>ملاحظة مهمة:</b>
-        هذه الأوزان رسمية ومحدَّثة — وهي التي تحدّد كم من وقت دراستك يجب أن يذهب لكل نطاق.
-        محتوى الدورة مبنيّ على هذا التوزيع بالضبط.</div>`;
+  if(t==='exam') {
+    return `<h3>${tr('الاستعداد للاختبار','Exam preparation')}</h3><p class="muted">${tr('تساعدك الباقات المنشورة على دراسة المحاور والتدرّب بالأسئلة المتاحة. تحقّق من دليل الاختبار الحالي وشروط الأهلية واللغة والحجز لدى جهة الشهادة قبل اتخاذ قرار التسجيل.','Published packages help you study the topics and practise with the available questions. Confirm the current exam outline, eligibility, language and booking rules with the certification body before registering.')}</p><div class="v37-domain-list">${(c.domains||[]).map((d,i)=>`<div><span>${String(i+1).padStart(2,'0')}</span><b>${esc(en?d.en||d.ar:d.ar||d.en)}</b></div>`).join('')}</div><a class="btn o mt" href="#contact">${tr('اسأل عن خطة الاستعداد','Discuss a study plan')} ↗</a>`;
   }
-  if (t === 'modes') {
-    const pks = window.PACKAGES.filter(p => p.course === c.id&&p.active!==false);
-    const byMode = {};
-    pks.forEach(p => { (byMode[p.mode] = byMode[p.mode] || []).push(p); });
-    return `<h3>طرق التدريب المتاحة</h3>
-      <p class="muted mb">اختر ما يناسب وقتك وميزانيتك وأسلوبك في التعلّم.</p>
-      <div class="mode-list">
-        ${(c.modes||[]).map(mk => {
-          const M = window.MODES.find(x => x.k === mk); if (!M) return '';
-          const ps = byMode[mk] || [];
-          const lo = ps.length ? Math.min(...ps.map(p => p.price)) : null;
-          return `<div class="mode-r" style="border-inline-start-color:${M.col}">
-            <div class="mode-i" style="background:${M.col}18">${M.icon}</div>
-            <div class="mode-b">
-              <b>${esc(M.ar)}</b><span class="en">${esc(M.en)}</span>
-              <p>${esc(M.desc)}</p>
-              <em>${esc(M.forWho)}</em>
-            </div>
-            <div class="mode-a">
-              ${lo!=null?`<div class="num" style="font-size:1.15rem;font-weight:600;color:var(--navy)">
-                من $${lo}</div>`:''}
-              ${ps.length?`<button class="btn p sm" data-r="pkg/${ps[0].id}">اشترك ←</button>`
-                :'<span class="tg">قريباً</span>'}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
+  if(t==='modes') {
+    const modes=[...new Set(pkgs.map(p=>p.mode))].map(k=>window.MODES.find(m=>m.k===k)).filter(Boolean);
+    return `<h3>${tr('طرق التعلّم المنشورة','Published learning formats')}</h3><p class="muted mb">${tr('تختلف المواد والمدد والأسعار بين الباقات. افتح تفاصيل كل باقة قبل الاشتراك.','Content, access periods and prices vary by package. Review each package before enrolling.')}</p><div class="v37-mode-options">${modes.map(m=>{const list=pkgs.filter(p=>p.mode===m.k),price=Math.min(...list.map(p=>Number(p.price)).filter(Number.isFinite));return `<div><span>${m.icon}</span><b>${esc(publicTitle(m))}</b><small>${list.length} ${tr('خيارات','options')} · ${tr('من','from')} ${money(price)} ${esc(list[0]?.currency||'USD')}</small><button class="btn o sm" data-v25-choose>${tr('قارن الباقات','Compare packages')} ↗</button></div>`}).join('')}</div>`;
   }
-  return `<h3>عن هذه الدورة</h3>
-    <p class="muted" style="font-size:.96rem;line-height:2;margin-bottom:22px">${esc(c.blurb||'')}</p>
-    <h4 style="font-family:var(--fd);font-weight:700;font-size:1.02rem;color:var(--navy);margin-bottom:12px">
-      الفصول الدراسية</h4>
-    <div class="chap-g">${(c.chapters||[]).map((ch,i2)=>`<div class="chap-c">
-      <span class="num">${i2+1}</span><span>${esc(window.biTitle ? window.biTitle(ch) : ch)}</span></div>`).join('')}</div>`;
+  const untranslated=en&&topics.some(x=>typeof x==='string');
+  const trainer=en?(c.trainer_en||c.trainer||'Ask us who leads your chosen format before enrolling.'):(c.trainer||'اسألنا عن المدرب المخصص للباقة أو المجموعة قبل الاشتراك.');
+  return `<h3>${tr('عن هذا البرنامج','About this program')}</h3><p class="muted" style="font-size:.96rem;line-height:2;margin-bottom:22px">${esc(en?(c.blurb_en||c.desc_en||'Explore this professional pathway and compare its published learning options.'):c.blurb||'')}</p><h4 class="v37-subheading">${tr('محاور البرنامج','Program topics')}</h4>${untranslated?`<p class="v37-translation-note">${tr('','Topic titles are currently shown in their original language.')}</p>`:''}<div class="chap-g">${topics.map((ch,i)=>`<div class="chap-c"><span class="num">${i+1}</span><span ${en&&typeof ch==='string'?'lang="ar" dir="rtl"':''}>${esc(title(ch))}</span></div>`).join('')}</div><div class="v37-trainer-note"><b>${tr('المدرب','Instructor')}</b><p>${esc(trainer)}</p><a href="#contact">${tr('اسأل عن هذا البرنامج','Ask about this program')} ↗</a></div>`;
 }
 
 function courseDecision(c, pkgs) {
@@ -4104,14 +4075,12 @@ function courseDecision(c, pkgs) {
   const rows=pkgs.map(p=>{
     const type=(window.PKG_TYPES||[]).find(x=>x.k===p.type)||{};
     const mode=(window.MODES||[]).find(x=>x.k===p.mode)||{};
-    const included=(p.kinds||[]).slice(0,4).map(k=>{
-      const item=(window.CONTENT_KINDS||[]).find(x=>x.k===k);
-      return item?`${item.ic} ${en?(item.en||item.ar):item.ar}`:'';
-    }).filter(Boolean);
+    const actual=window.CATALOG_AVAILABILITY?.[p.id];
+    const included=actual?[actual.questions>0?`${actual.questions} ${tr('سؤالًا منشورًا','published questions')}`:'',actual.videos>0?`${actual.videos} ${tr('درس فيديو منشور','published video lessons')}`:''].filter(Boolean):[];
     return `<article class="v25-option" data-v25-lang="${esc(p.lang||'en')}">
       <div class="v25-option-head"><span class="v25-option-icon" aria-hidden="true">${type.ic||'◈'}</span><div><h3>${esc((en?type.en:type.ar)||p.ar)}</h3><p>${esc(en?'Review the included learning materials and format before enrolling.':p.desc||'')}</p></div></div>
       <div class="v25-option-tags"><span>${esc(langNames[p.lang]||p.lang||'')}</span><span>${esc((en?mode.en:mode.ar)||tr('تعلم مرن','Flexible learning'))}</span><span>${esc(p.days||0)} ${tr('يوم وصول','days access')}</span></div>
-      <ul class="v25-includes">${included.map(label=>`<li>${esc(label)}</li>`).join('')}</ul>
+      ${included.length?`<ul class="v25-includes">${included.map(label=>`<li>${esc(label)}</li>`).join('')}</ul>`:`<p class="v37-package-note">${tr('راجع تفاصيل المحتوى المتاح قبل الاشتراك.','Review the available content before enrolling.')}</p>`}
       <div class="v25-option-foot"><strong>${money(p.price)} <small>${esc(p.currency||'USD')}</small></strong><button class="btn p sm" data-r="pkg/${esc(p.id)}">${tr('تفاصيل الباقة والاشتراك','Package details and enrollment')} ←</button></div>
     </article>`;
   }).join('');
@@ -4128,21 +4097,25 @@ function courseDecision(c, pkgs) {
 
 function courseView(id) {
   const c=A().course(id); if(!c)return home();
+  if(!c.examMin&&window.__cTab==='exam')window.__cTab='about';
+  const en=siteEnglish(),tr=(ar,english)=>en?english:ar;
   const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false);
   const modes=(c.modes||[]).map(k=>window.MODES.find(m=>m.k===k)).filter(Boolean);
-  const lead=pkgs.find(p=>p.featured||p.badge)||pkgs[0];
-  const cols=['#F0741A','#0E7C7B','#1B3B6F','#C9A227','#38BDF8','#BE123C'];
+  const published=pkgs.map(p=>window.CATALOG_AVAILABILITY?.[p.id]).filter(Boolean);
+  const videos=published.length?Math.max(...published.map(x=>Number(x.videos)||0)):0;
+  const questions=published.length?Math.max(...published.map(x=>Number(x.questions)||0)):0;
+  const sessions=(window.CMS.sessions||[]).filter(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date));
   return `<section class="course-hero-v8"><div class="wrap course-hero-grid">
     <div>
-      <div class="crumb"><a href="#programs" data-r="programs">البرامج التدريبية</a> ← ${code(c)}</div>
-      <span class="eyebrow" style="color:var(--orange2)">${code(c)} · ${esc(c.edition||'2026')}</span>
-      <h1>${esc(c.ar)}</h1><p>${esc(c.blurb)}</p>
-      <div class="course-kpis"><span><b>${c.hours}</b> ساعة تدريبية</span><span><b>${c.questions}</b> سؤالاً</span><span><b>${c.examMin}</b> دقيقة</span><span><b>${pkgs.length}</b> خيارات تدريب</span></div>
-      <div class="course-mode-pills" style="margin-top:12px">${modes.map(m=>`<span style="background:${m.col}22;color:#fff;border:1px solid ${m.col}55">${m.icon} ${esc(m.ar)}</span>`).join('')}</div>
-      ${(window.CMS.sessions||[]).filter(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,2).map(s=>`<div class="v24-course-date">◷ ${esc(s.date)} · ${s.mode==='onsite'?'حضوري':'أونلاين مباشر'}${s.city?' · '+esc(s.city):''}</div>`).join('')}
+      <div class="crumb"><a href="#programs" data-r="programs">${tr('البرامج التدريبية','Programs')}</a> ← ${code(c)}</div>
+      <span class="eyebrow" style="color:var(--orange2)">${tr('مسار مهني','PROFESSIONAL PATHWAY')} · ${code(c)}</span>
+      <h1>${esc(publicTitle(c))}</h1><p>${esc(en?(c.blurb_en||c.desc_en||'Explore the topics, published content and learning formats for this program.'):c.blurb||'')}</p>
+      <div class="course-kpis"><span><b>${pkgs.length}</b> ${tr('باقات منشورة','published packages')}</span>${questions?`<span><b>${questions}</b> ${tr('سؤالًا في البنك المنشور','questions in the published bank')}</span>`:''}${videos?`<span><b>${videos}</b> ${tr('درس فيديو منشور','published video lessons')}</span>`:''}<span><b>${(c.chapters||[]).length}</b> ${tr('محاور','topics')}</span></div>
+      <div class="course-mode-pills" style="margin-top:12px">${modes.filter(m=>pkgs.some(p=>p.mode===m.k)).map(m=>`<span style="background:${m.col}22;color:#fff;border:1px solid ${m.col}55">${m.icon} ${esc(publicTitle(m))}</span>`).join('')}</div>
+      ${sessions.slice(0,2).map(s=>`<div class="v24-course-date">◷ ${esc(s.date)} · ${s.mode==='onsite'?tr('حضوري','In person'):tr('أونلاين مباشر','Live online')}${s.city?' · '+esc(s.city):''}</div>`).join('')}
       <div class="course-hero-actions"><button class="btn p lg" data-v25-choose>${window.__lang==='en'?'Compare packages and languages':'قارن الباقات واللغات'} ↓</button>${c.previewVimeo?`<button class="btn gh lg" data-course-preview="${esc(c.id)}">▶ ${window.__lang==='en'?'Watch preview':'مشاهدة المعاينة'}</button>`:''}</div>
     </div>
-    <div class="course-media-card reveal d1">${courseCover(c,true)}<div class="course-media-foot"><div><b>${c.hours}</b><span>ساعة</span></div><div><b>${c.domains.length}</b><span>نطاقات</span></div><div><b>${c.chapters.length}</b><span>فصول</span></div></div></div>
+    <div class="course-media-card reveal d1">${courseCover(c,true)}<div class="course-media-foot"><div><b>${pkgs.length}</b><span>${tr('باقات','Packages')}</span></div><div><b>${sessions.length}</b><span>${tr('مواعيد مؤكدة','Confirmed dates')}</span></div><div><b>${(c.chapters||[]).length}</b><span>${tr('محاور','Topics')}</span></div></div></div>
   </div></section>
 
   ${courseDecision(c,pkgs)}
@@ -4150,7 +4123,7 @@ function courseView(id) {
     <div>
       <div class="course-about-card reveal">
         <div class="course-tabs-v8">
-          ${[['about','عن الدورة'],['out','المخرجات'],['exam','تفاصيل الاختبار'],['modes','طرق التدريب']]
+          ${[['about',tr('عن الدورة','About')],['out',tr('المخرجات','Outcomes')],...(c.examMin?[['exam',tr('تفاصيل الاختبار','Exam overview')]]:[]),['modes',tr('طرق التدريب','Learning formats')]]
             .map(([k,l])=>`<button class="${(window.__cTab||'about')===k?'on':''}" data-ctab="${k}">${l}</button>`).join('')}
         </div>
         ${courseTabBody(c)}
@@ -4921,7 +4894,7 @@ function adminTab() {
         <div class="cms-item">
           <h5>مواعيد الدورات <span class="tag">sessions</span></h5>
           <p class="muted">أضف الموعد بعد تأكيده. يظهر للزوار عندما تختار «منشور» ويكون تاريخه قادمًا.</p>
-          <div id="v24SessionsAdmin">${(Array.isArray(C.sessions)?C.sessions:[]).map((s,i)=>`<div class="v24-admin-session"><select data-session-course>${window.COURSES.map(c=>`<option value="${esc(c.id)}" ${s.course===c.id?'selected':''}>${esc(c.code)}</option>`).join('')}</select><input type="date" data-session-date value="${esc(s.date||'')}"><select data-session-mode><option value="onsite" ${s.mode==='onsite'?'selected':''}>حضوري</option><option value="live" ${s.mode==='live'?'selected':''}>أونلاين مباشر</option></select><input data-session-city placeholder="المدينة / المنطقة الزمنية" value="${esc(s.city||'')}"><label><input type="checkbox" data-session-published ${s.published!==false?'checked':''}> منشور</label><button class="btn o sm" type="button" data-session-remove>حذف</button></div>`).join('')}</div>
+          <div id="v24SessionsAdmin">${(Array.isArray(C.sessions)?C.sessions:[]).map((s,i)=>`<div class="v24-admin-session"><select data-session-course>${window.COURSES.map(c=>`<option value="${esc(c.id)}" ${s.course===c.id?'selected':''}>${esc(c.code)}</option>`).join('')}</select><input type="date" data-session-date value="${esc(s.date||'')}"><input type="time" data-session-time value="${esc(s.time||'')}" aria-label="وقت البداية"><select data-session-timezone aria-label="المنطقة الزمنية">${[['Africa/Cairo','القاهرة'],['Asia/Riyadh','الرياض'],['UTC','UTC']].map(([value,label])=>`<option value="${value}" ${s.timezone===value?'selected':''}>${label}</option>`).join('')}</select><select data-session-language aria-label="لغة الدورة"><option value="both" ${s.language==='both'?'selected':''}>عربي/إنجليزي</option><option value="ar" ${s.language==='ar'?'selected':''}>عربي</option><option value="en" ${s.language==='en'?'selected':''}>إنجليزي</option></select><select data-session-mode><option value="onsite" ${s.mode==='onsite'?'selected':''}>حضوري</option><option value="live" ${s.mode==='live'?'selected':''}>أونلاين مباشر</option></select><input data-session-city placeholder="المدينة / المنطقة الزمنية" value="${esc(s.city||'')}"><label><input type="checkbox" data-session-published ${s.published!==false?'checked':''}> منشور</label><button class="btn o sm" type="button" data-session-remove>حذف</button></div>`).join('')}</div>
           <button type="button" class="btn o sm" id="v24SessionAdd">＋ أضف موعدًا</button>
         </div>
         <div class="cms-item">
@@ -6206,10 +6179,13 @@ function bind() {
     $$('[data-cms]').forEach(i => { window.CMS[i.dataset.cms] = i.value; });
     window.applyLearningTheme?.();
     const sessionRows = $$('#v24SessionsAdmin .v24-admin-session');
-    if (sessionRows.some(row => !row.querySelector('[data-session-date]').value)) { A().toast('حدد تاريخ كل دورة أو احذف الصف الناقص'); return; }
+    if (sessionRows.some(row => !row.querySelector('[data-session-date]').value || row.querySelector('[data-session-published]').checked&&!row.querySelector('[data-session-time]').value)) { A().toast('حدد التاريخ ووقت البداية لكل دورة منشورة، أو أبقها غير منشورة'); return; }
     window.CMS.sessions = sessionRows.map(row => ({
       course:row.querySelector('[data-session-course]').value,
       date:row.querySelector('[data-session-date]').value,
+      time:row.querySelector('[data-session-time]').value,
+      timezone:row.querySelector('[data-session-timezone]').value,
+      language:row.querySelector('[data-session-language]').value,
       mode:row.querySelector('[data-session-mode]').value,
       city:row.querySelector('[data-session-city]').value.trim(),
       published:row.querySelector('[data-session-published]').checked
@@ -6233,7 +6209,7 @@ function bind() {
   const addSession=$('#v24SessionAdd'); if(addSession)addSession.onclick=()=>{
     const container=$('#v24SessionsAdmin');
     const row=document.createElement('div');row.className='v24-admin-session';
-    row.innerHTML=`<select data-session-course>${window.COURSES.map(c=>`<option value="${esc(c.id)}">${esc(c.code)}</option>`).join('')}</select><input type="date" data-session-date><select data-session-mode><option value="onsite">حضوري</option><option value="live">أونلاين مباشر</option></select><input data-session-city placeholder="المدينة / المنطقة الزمنية"><label><input type="checkbox" data-session-published> منشور</label><button class="btn o sm" type="button" data-session-remove>حذف</button>`;
+    row.innerHTML=`<select data-session-course>${window.COURSES.map(c=>`<option value="${esc(c.id)}">${esc(c.code)}</option>`).join('')}</select><input type="date" data-session-date><input type="time" data-session-time aria-label="وقت البداية"><select data-session-timezone aria-label="المنطقة الزمنية"><option value="Africa/Cairo">القاهرة</option><option value="Asia/Riyadh">الرياض</option><option value="UTC">UTC</option></select><select data-session-language aria-label="لغة الدورة"><option value="both">عربي/إنجليزي</option><option value="ar">عربي</option><option value="en">إنجليزي</option></select><select data-session-mode><option value="onsite">حضوري</option><option value="live">أونلاين مباشر</option></select><input data-session-city placeholder="المدينة / المنطقة الزمنية"><label><input type="checkbox" data-session-published> منشور</label><button class="btn o sm" type="button" data-session-remove>حذف</button>`;
     container.appendChild(row);
   };
   const sessionContainer=$('#v24SessionsAdmin');if(sessionContainer)sessionContainer.onclick=e=>{
@@ -6997,7 +6973,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=36.0"></script>
+<script src="/experience-v24.js?v=37.0"></script>
 <script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>
