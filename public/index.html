@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=35.0">
+<link rel="stylesheet" href="/media-v34.css?v=36.0">
 </head>
 <body>
 
@@ -3542,7 +3542,7 @@ function home() {
         <div class="v24-slide"><img src="/assets/hero/alsaeed-global-1-v24.webp" alt="${english?'International professionals working together':'محترفون من دول مختلفة يتعلمون معًا'}" width="1672" height="941" loading="lazy"></div>
         <div class="v24-slide"><img src="/assets/hero/alsaeed-global-2-v24.webp" alt="${english?'A diverse consulting team exploring solutions':'فريق استشاري عالمي يناقش حلولًا عملية'}" width="1672" height="941" loading="lazy"></div>
         <div class="v23-image-label"><span>${copy.imageTag}</span><strong>${copy.imageSub}</strong></div>
-        <div class="v24-controls"><button type="button" data-v24-prev aria-label="${english?'Previous image':'الصورة السابقة'}">‹</button><span class="v24-count" aria-live="polite">01 / 03</span><button type="button" data-v24-next aria-label="${english?'Next image':'الصورة التالية'}">›</button></div>
+        <div class="v24-controls"><button type="button" data-v24-prev aria-label="${english?'Previous image':'الصورة السابقة'}">‹</button><span class="v24-count" aria-live="polite">01 / 03</span><button type="button" data-v24-next aria-label="${english?'Next image':'الصورة التالية'}">›</button><button type="button" class="v36-pause" data-v24-toggle aria-label="${english?'Pause slideshow':'إيقاف عرض الصور مؤقتًا'}" aria-pressed="false">Ⅱ</button><span class="v36-progress" aria-hidden="true"><i></i></span></div>
       </div>
     </div>
   </section>
@@ -3700,6 +3700,7 @@ function programs() {
 
   <section class="sec"><div class="wrap">
     <div class="filters">
+      <label class="v36-catalog-search"><span>⌕</span><input type="search" id="v36CatalogSearch" autocomplete="off" placeholder="${siteEnglish()?'Search by program, code or package…':'ابحث باسم البرنامج أو الرمز أو الباقة…'}" aria-label="${siteEnglish()?'Search published packages':'ابحث في الباقات المنشورة'}"></label>
       <div class="frow"><b>${siteEnglish()?'Learning format':'نمط التعلّم'}</b>
         <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">${siteEnglish()?'All':'الكل'}</button>
         ${window.MODES.map(m => `<button class="fchip ${fMode === m.k ? 'on' : ''}" data-fm="${m.k}">
@@ -3721,11 +3722,11 @@ function programs() {
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <b style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
+      <b id="v36CatalogCount" style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
       ${(fMode || fTrack || fLevel || fLang) ? `<button class="btn o sm" id="clearF">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button>` : ''}
     </div>
 
-    ${pk.length ? `<div class="grid g3">${pk.map(pkgCard).join('')}</div>`
+    ${pk.length ? `<div class="grid g3 v36-catalog-grid">${pk.map(pkgCard).join('')}</div><div id="v36CatalogEmpty" class="v36-search-empty" hidden>${siteEnglish()?'No packages match your search. Try another word.':'لا توجد باقات مطابقة للبحث. جرّب كلمة أخرى.'}</div>`
       : `<div class="empty"><div class="ic">🔍</div><b>${siteEnglish()?'No matching results':'لا نتائج بهذه الفلاتر'}</b>
           <p class="muted">${siteEnglish()?'Try another option or clear the filters.':'جرّب توسيع البحث أو امسح الفلاتر.'}</p>
           <button class="btn p mt" id="clearF2">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button></div>`}
@@ -7000,7 +7001,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=35.0"></script>
+<script src="/experience-v24.js?v=36.0"></script>
 <script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>

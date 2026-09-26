@@ -14,3 +14,18 @@
 .course-vcard,.pk,.v16-blog-card,.stage-c,.acad-c{border-radius:18px!important;overflow:hidden;box-shadow:0 12px 35px rgba(15,44,69,.07);transition:transform .25s,box-shadow .25s}.course-vcard:hover,.pk:hover,.v16-blog-card:hover,.stage-c:hover,.acad-c:hover{transform:translateY(-5px);box-shadow:0 19px 44px rgba(15,44,69,.14)}
 .pk [style*="height:118px"]{height:146px!important}.pk-body{padding:24px!important}.pk-facts{background:#f2f6f8;border-radius:12px;padding:12px}.v16-article{background:#f5f8fa}.v16-article-head{padding-block:38px 28px}.v16-article-body{background:#fff;border:1px solid #dae5ec;border-radius:18px;padding:clamp(24px,4vw,55px);max-width:830px;line-height:2.05;box-shadow:0 14px 40px rgba(20,46,69,.06)}.v16-article-body p+p{margin-top:1.6em}.v16-blog-grid{gap:24px}.v16-blog-card{background:#fff}
 @media(max-width:850px){.v35-story{grid-template-columns:1fr}.v35-story-copy{order:2}}@media(prefers-reduced-motion:reduce){.course-vcard,.pk,.v16-blog-card,.stage-c,.acad-c{transition:none}}
+
+/* v36 — faster gallery with a visible timer and searchable catalog */
+.v24-slide{transition-duration:.6s!important}
+.v24-slide.is-current img{animation-duration:3.8s}
+.v24-controls .v36-pause{width:36px;height:36px;font-size:1rem}
+.v36-progress{display:block;height:3px;width:76px;overflow:hidden;border-radius:5px;background:rgba(255,255,255,.35);margin-inline-start:4px}
+.v36-progress i{display:block;width:100%;height:100%;transform-origin:left center;background:#f5a668;animation:v36-progress 3.8s linear forwards}
+@keyframes v36-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.v36-catalog-search{display:flex;align-items:center;gap:12px;border:1px solid #cddde8;background:white;border-radius:14px;padding:0 17px;margin-bottom:21px;max-width:520px;box-shadow:0 6px 23px rgba(20,54,75,.06)}
+.v36-catalog-search:focus-within{outline:2px solid #d58140;outline-offset:2px}
+.v36-catalog-search span{font-size:1.7rem;color:#a85425}.v36-catalog-search input{width:100%;border:0!important;outline:0!important;padding:14px 0!important;background:none!important;box-shadow:none!important}
+.v36-search-empty{padding:35px;text-align:center;background:#f3f7fa;border-radius:14px;color:#426079;margin-top:15px}
+.v36-catalog-grid .pk[hidden],.v36-search-empty[hidden]{display:none!important}
+@media(max-width:520px){.v36-progress{width:46px}.v24-controls{gap:6px}}
+@media(prefers-reduced-motion:reduce){.v36-progress i{animation:none!important;transform:none}.v24-slide.is-current img{animation:none!important}}
