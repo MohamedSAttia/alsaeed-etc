@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=37.0">
+<link rel="stylesheet" href="/media-v34.css?v=38.0">
 </head>
 <body>
 
@@ -3391,10 +3391,9 @@ function vimeoFrame(v,title){
 }
 function courseCover(c, big){
   const tv=trackVisual(c);
-  const gallery={pmp:'/assets/hero/alsaeed-workshop-v26.webp',grcp:'/assets/hero/alsaeed-global-2-v24.webp',rmp:'/assets/hero/alsaeed-global-1-v24.webp',pba:'/assets/hero/alsaeed-global-learning-v22.webp'};
   const supplied=c.cover&&String(c.cover).trim();
   const defaultCover=supplied&&/^(?:\/)?assets\/covers\/[^/]+\.svg$/i.test(supplied);
-  const cover=defaultCover?(gallery[c.id]||supplied):(supplied||gallery[c.id]);const has=!!cover;
+  const cover=defaultCover?catalogArtwork(c.id):(supplied||catalogArtwork(c.id));const has=!!cover;
   const style=has?`background-image:linear-gradient(180deg,rgba(8,27,52,.08),rgba(8,27,52,.82)),url('${esc(cover)}')`:`background:${tv.grad}`;
   return `<div class="course-cover ${has?'has-img':''}" style="${style};${big?'min-height:360px':''}">
     <div class="course-cover-grid"></div><div class="course-cover-in">
@@ -3642,7 +3641,7 @@ function pkgCard(p) {
   const liveQuestions = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.questions || 0) : Number(p.questions || 0);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   return `<div class="card pk reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
-    <div style="height:118px;background:${T.col || tv.grad};position:relative;padding:14px;color:#fff;overflow:hidden">
+    <div class="v38-package-art" style="height:118px;background-image:linear-gradient(90deg,rgba(8,26,45,.46),rgba(8,26,45,.06)),url('${catalogArtwork(c.id||p.course,p.type)}');position:relative;padding:14px;color:#fff;overflow:hidden">
       <div class="course-cover-grid"></div>
       <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
@@ -3678,70 +3677,65 @@ function pkgCard(p) {
   </div>`;
 }
 
-function catalogProgramCard(c, packages) {
-  const en=siteEnglish(), tv=trackVisual(c);
-  const modes=[...new Set(packages.map(p=>p.mode))].map(k=>window.MODES.find(m=>m.k===k)).filter(Boolean);
-  const lead=packages.find(p=>p.featured||p.badge)||packages[0];
-  const price=Math.min(...packages.map(p=>Number(p.price)).filter(Number.isFinite));
-  const summary=en?(c.blurb_en||c.desc_en||'Explore the program, its learning topics and the available packages.'):c.blurb||'';
-  const search=[c.code,c.ar,c.en,...packages.flatMap(p=>[p.ar,p.en])].join(' ');
-  return `<article class="v37-program-card reveal" data-v37-search="${esc(search)}">
-    <div class="v37-program-art" style="background:${tv.grad}"><span>${esc(tv.icon||'◈')}</span><small>${esc(publicTitle(tv))}</small><strong dir="ltr">${esc(c.code||'')}</strong></div>
-    <div class="v37-program-content"><div class="v37-program-heading"><div><span class="eyebrow">${en?'PROFESSIONAL PROGRAM':'برنامج مهني'}</span><h2>${esc(publicTitle(c))}</h2></div><span class="v37-count">${packages.length} ${en?'options':'خيارات'}</span></div>
-      <p>${esc(summary)}</p><div class="v37-mode-list">${modes.map(m=>`<span>${m.icon} ${esc(publicTitle(m))}</span>`).join('')}</div>
-      <div class="v37-program-footer"><span>${en?'Packages from':'تبدأ الباقات من'} <b>${money(price)} ${esc(lead.currency||'USD')}</b></span><a href="#course/${encodeURIComponent(c.id)}">${en?'Explore program and compare':'استكشف البرنامج وقارن الباقات'} ↗</a></div>
-    </div></article>`;
+const CATALOG_FAMILIES = [
+  {id:'pmi',en:'PMI',ar:'معهد إدارة المشاريع PMI',tag:'Project management',tagAr:'إدارة المشاريع',courseIds:['pmp','rmp','acp','pba','pmocp','pgmp','pfmp']},
+  {id:'axelos',en:'AXELOS / PeopleCert',ar:'أكسيلوس / بيبول سيرت',tag:'Methods and offices',tagAr:'المنهجيات والمكاتب',courseIds:['p3o']},
+  {id:'grc',en:'GRC',ar:'الحوكمة والمخاطر والامتثال',tag:'Governance & risk',tagAr:'الحوكمة والمخاطر',courseIds:['grcp']},
+  {id:'quality',en:'QUALITY',ar:'الجودة والتحسين',tag:'Continuous improvement',tagAr:'التحسين المستمر',courseIds:['lss']},
+  {id:'safety',en:'SAFETY',ar:'السلامة المهنية',tag:'Health & safety',tagAr:'الصحة والسلامة',courseIds:['nebosh']},
+  {id:'more',en:'MORE PROGRAMS',ar:'برامج إضافية',tag:'Applied technology',tagAr:'التقنية التطبيقية',courseIds:['aipro']}
+];
+const CATALOG_FUTURE = {
+  pmocp:{code:'PMI-PMOCP™',ar:'محترف مكاتب إدارة المشاريع',en:'PMI PMO Certified Professional'},
+  pgmp:{code:'PgMP®',ar:'محترف إدارة البرامج',en:'Program Management Professional'},
+  pfmp:{code:'PfMP®',ar:'محترف إدارة المحافظ',en:'Portfolio Management Professional'}
+};
+let catalogFamily = '', catalogCertificate = '';
+const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[id];
+const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
+const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):'باقة'}`;
+function catalogArtwork(code,variant='course') {
+  const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
+  const key=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const id=Object.keys(colors).find(k=>key.includes(k))||'pmp';
+  const [dark,mid,light]=colors[id];
+  const type=variant==='course'?0:{full:1,sim:2,review:3,self:4}[variant]||0;
+  const motifs=[
+    '<path d="M180 340L320 145l125 140 140-170"/><circle cx="585" cy="115" r="27"/>',
+    '<path d="M142 330L230 235l102 70 116-161 133 98"/><path d="M230 235v-80h90"/>',
+    '<circle cx="355" cy="225" r="116"/><path d="M270 270l55-52 55 40 72-98"/>',
+    '<path d="M130 292h150l56-120 80 173 70-105h105"/><circle cx="336" cy="172" r="15"/>',
+    '<path d="M130 130h140v100h150v100h160"/><circle cx="270" cy="230" r="19"/><circle cx="420" cy="330" r="19"/>'
+  ];
+  const shift=Object.keys(colors).indexOf(id)*29;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="${dark}"/><stop offset="1" stop-color="${mid}"/></linearGradient><pattern id="p" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="white" opacity=".08"/></pattern></defs><rect width="800" height="450" fill="url(#g)"/><rect width="800" height="450" fill="url(#p)"/><circle cx="${640-shift}" cy="${92+shift/2}" r="153" fill="${light}" opacity=".18"/><circle cx="${155+shift}" cy="400" r="110" fill="white" opacity=".06"/><g fill="none" stroke="${light}" stroke-width="13" stroke-linejoin="round" stroke-linecap="round" opacity=".88" transform="translate(${shift%75},0)">${motifs[type]}</g><path d="M0 392Q360 310 800 405V450H0" fill="${dark}" opacity=".35"/></svg>`;
+  return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
 }
-
+function catalogFamilyCard(f, pk) {
+  const n=f.courseIds.filter(id=>pk.some(p=>p.course===id)).length;
+  const total=pk.filter(p=>f.courseIds.includes(p.course)).length;
+  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?'certifications':'شهادات'} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
+}
+function catalogCertificateCard(id,pk) {
+  const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
+  const cover=c?.cover && !/^(?:\/?assets\/covers\/)/.test(c.cover||'') ? c.cover : catalogArtwork(id);
+  return `<article class="v38-certificate"><div class="v38-certificate-art" style="background-image:url('${esc(cover)}')"><span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2><p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Packages are being prepared. Ask us about this certification.':'الباقات قيد الإعداد. يمكنك الاستفسار عن هذه الشهادة.')}</p>${available?`<button type="button" class="btn p" data-ccert="${esc(id)}">${siteEnglish()?'View packages':'عرض الباقات'} ↗</button>`:`<a class="btn o" href="#contact">${siteEnglish()?'Ask about availability':'استفسر عن توفرها'} ↗</a>`}</div></article>`;
+}
 function programs() {
-  let pk = window.PACKAGES.filter(p=>p.active!==false);
+  const en=siteEnglish();
+  let pk=window.PACKAGES.filter(p=>p.active!==false);
   const scheduled=(Array.isArray(window.CMS.sessions)?window.CMS.sessions:[])
     .filter(s=>s.published!==false&&s.date&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&Date.parse(s.date+'T23:59:59Z')>=Date.now())
     .sort((a,b)=>a.date.localeCompare(b.date));
-  if (fMode) pk = pk.filter(p => p.mode === fMode);
-  if (fTrack) pk = pk.filter(p => { const c = A().course(p.course); return c && c.track === fTrack; });
-  if (fLevel) pk = pk.filter(p => { const c = A().course(p.course); return c && c.level === fLevel; });
-  if (fLang) pk = pk.filter(p => p.lang === fLang);
-  const grouped=window.COURSES.map(c=>({course:c,packages:pk.filter(p=>p.course===c.id)})).filter(x=>x.packages.length);
-
-  return `<section class="pg-hero"><div class="wrap">
-    <div class="crumb"><a href="#home" data-r="home">${siteEnglish()?'Home':'الرئيسية'}</a> ← ${siteEnglish()?'Programs':'البرامج'}</div>
-    <h1>${siteEnglish()?'Professional training programs':'البرامج التدريبية'}</h1>
-    <p>${siteEnglish()?'Choose a program first, then compare the packages and learning formats published for it.':'اختر البرنامج أولًا، ثم قارن باقاته وطرق التعلّم المنشورة له.'}</p>
-  </div></section>
-
-  <section class="sec"><div class="wrap">
-    <div class="filters">
-      <label class="v36-catalog-search"><span>⌕</span><input type="search" id="v36CatalogSearch" autocomplete="off" placeholder="${siteEnglish()?'Search programs or certifications…':'ابحث عن برنامج أو شهادة…'}" aria-label="${siteEnglish()?'Search programs':'البحث في البرامج'}"></label>
-      <div class="frow"><b>${siteEnglish()?'Learning format':'نمط التعلّم'}</b>
-        <button class="fchip ${!fMode ? 'on' : ''}" data-fm="">${siteEnglish()?'All':'الكل'}</button>
-        ${window.MODES.map(m => `<button class="fchip ${fMode === m.k ? 'on' : ''}" data-fm="${m.k}">
-          <span class="ic">${m.icon}</span>${esc(publicTitle(m))}</button>`).join('')}
-      </div>
-      <div class="frow"><b>${siteEnglish()?'Subject':'المجال'}</b>
-        <button class="fchip ${!fTrack ? 'on' : ''}" data-ft="">${siteEnglish()?'All':'الكل'}</button>
-        ${window.TRACKS.map(t => `<button class="fchip ${fTrack === t.k ? 'on' : ''}" data-ft="${t.k}">
-          <span class="ic">${t.icon}</span>${esc(publicTitle(t))}</button>`).join('')}
-      </div>
-      <div class="frow"><b>${siteEnglish()?'Level':'المستوى'}</b>
-        <button class="fchip ${!fLevel ? 'on' : ''}" data-fl="">${siteEnglish()?'All':'الكل'}</button>
-        ${window.LEVELS.map(l => `<button class="fchip ${fLevel === l.k ? 'on' : ''}" data-fl="${l.k}">${esc(publicTitle(l))}</button>`).join('')}
-      </div>
-      <div class="frow"><b>${siteEnglish()?'Package language':'لغة الباقة'}</b>
-        <button class="fchip ${!fLang ? 'on' : ''}" data-fpl="">${siteEnglish()?'All':'الكل'}</button>
-        ${Object.entries(window.LANG_LABEL).map(([k,v]) => `<button class="fchip ${fLang===k?'on':''}" data-fpl="${k}">${esc(publicTitle(v))}</button>`).join('')}
-      </div>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <b id="v36CatalogCount" style="font-family:var(--fd);font-size:1.05rem;color:var(--ink)">${grouped.length} ${siteEnglish()?'programs':'برامج'} · ${pk.length} ${siteEnglish()?'packages':'باقة'}</b>
-      ${(fMode || fTrack || fLevel || fLang) ? `<button class="btn o sm" id="clearF">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button>` : ''}
-    </div>
-
-    ${grouped.length ? `<div class="v36-catalog-grid v37-program-grid">${grouped.map(x=>catalogProgramCard(x.course,x.packages)).join('')}</div><div id="v36CatalogEmpty" class="v36-search-empty" hidden>${siteEnglish()?'No programs match your search. Try another word.':'لا توجد برامج مطابقة للبحث. جرّب كلمة أخرى.'}</div>`
-      : `<div class="empty"><div class="ic">🔍</div><b>${siteEnglish()?'No matching results':'لا نتائج بهذه الفلاتر'}</b>
-          <p class="muted">${siteEnglish()?'Try another option or clear the filters.':'جرّب توسيع البحث أو امسح الفلاتر.'}</p>
-          <button class="btn p mt" id="clearF2">${siteEnglish()?'Clear filters':'امسح الفلاتر'}</button></div>`}
+  const family=CATALOG_FAMILIES.find(f=>f.id===catalogFamily);
+  if(family)pk=pk.filter(p=>family.courseIds.includes(p.course));
+  const cert=family?.courseIds.includes(catalogCertificate)?catalogCourse(catalogCertificate):null;
+  if(cert)pk=pk.filter(p=>p.course===catalogCertificate);
+  const heading=cert?publicTitle(cert):family?(en?family.en:family.ar):(en?'Professional training':'التدريب المهني');
+  return `<section class="pg-hero v38-hero"><div class="wrap"><div class="crumb"><a href="#home" data-r="home">${en?'Home':'الرئيسية'}</a> ← <button type="button" data-creset>${en?'Catalog':'الكتالوج'}</button>${family?` ← <button type="button" data-cback>${esc(en?family.en:family.ar)}</button>`:''}${cert?` ← ${esc(cert.code)}`:''}</div><h1>${esc(heading)}</h1><p>${cert?(en?'Compare the packages published for this certification.':'قارن الباقات المنشورة لهذه الشهادة.'):family?(en?'Select a certification to see its available packages.':'اختر الشهادة لعرض باقاتها المتاحة.'):(en?'Choose a field, then a certification, then the package that suits your goal.':'اختر المجال، ثم الشهادة، ثم الباقة التي تناسب هدفك.')}</p></div></section>
+  <section class="sec"><div class="wrap v38-catalog">
+    ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><img src="${esc(cert.cover||catalogArtwork(catalogCertificate))}" alt=""/><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2><p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`}
+    ${!family?`<p class="v38-marks-note">${en?'Certification names identify their respective owners. Alsaeed artwork is original and does not imply endorsement by those organizations.':'أسماء الشهادات مملوكة لجهاتها. الرسوم البصرية من تصميم السعيد ولا تعني اعتمادًا أو تأييدًا من تلك الجهات.'}</p>`:''}
     <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
       <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
@@ -4153,7 +4147,7 @@ function pkgView(id) {
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
-  return `<section class="pg-hero" style="background:${T.col || 'var(--navy)'}"><div class="wrap">
+  return `<section class="pg-hero v38-package-hero" style="background-image:linear-gradient(90deg,rgba(8,23,42,.95),rgba(8,23,42,.60)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
@@ -5492,6 +5486,10 @@ function bind() {
   /* روابط القائمة تُغلقها */
   $$('#mega [data-r]').forEach(a2 => a2.addEventListener('click', () => { window.__mega = false; }));
   $$('[data-fm]').forEach(b => b.onclick = () => { fMode = b.dataset.fm; A().render(); });
+  $$('[data-cfamily]').forEach(b => b.onclick = () => { catalogFamily=b.dataset.cfamily;catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
+  $$('[data-ccert]').forEach(b => b.onclick = () => { catalogCertificate=b.dataset.ccert;A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
+  $$('[data-cback]').forEach(b => b.onclick = () => { catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
+  $$('[data-creset]').forEach(b => b.onclick = () => { catalogFamily='';catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
   $$('[data-ft]').forEach(b => b.onclick = () => { fTrack = b.dataset.ft; A().render(); });
   $$('[data-fl]').forEach(b => b.onclick = () => { fLevel = b.dataset.fl; A().render(); });
   $$('[data-fpl]').forEach(b => b.onclick = () => { fLang = b.dataset.fpl; A().render(); });
@@ -6973,7 +6971,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/exam-ai-v19.js?v=20.0"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=37.1"></script>
+<script src="/experience-v24.js?v=38.0"></script>
 <script src="/experience-v31.js?v=31.0"></script>
 </body>
 </html>
