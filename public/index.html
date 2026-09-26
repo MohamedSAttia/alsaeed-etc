@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=43.1">
+<link rel="stylesheet" href="/media-v34.css?v=44.0">
 </head>
 <body>
 
@@ -3748,12 +3748,13 @@ function catalogArtwork(code,variant='course') {
 function catalogFamilyCard(f, pk) {
   const n=f.courseIds.filter(id=>pk.some(p=>p.course===id)).length;
   const total=pk.filter(p=>f.courseIds.includes(p.course)).length;
-  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}">${f.id==='axelos'?catalogCertMark('p3o',true):''}<span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
+  const samples=f.courseIds.slice(0,4).map(id=>`<span dir="ltr">${esc(catalogCourse(id)?.code||id.toUpperCase())}</span>`).join('');
+  return `<button type="button" class="v38-family v44-family v44-family-${f.id}" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v44-family-top"><span class="v44-family-index">${String(CATALOG_FAMILIES.indexOf(f)+1).padStart(2,'0')} / 0${CATALOG_FAMILIES.length}</span><span class="v44-family-symbol" aria-hidden="true">${({pmi:'PM',axelos:'AX',grc:'GRC',quality:'Q',safety:'S',more:'AI'})[f.id]||f.en.slice(0,2)}</span></span><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v44-family-paths">${samples}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v44-family-action">${siteEnglish()?'Explore field':'استكشف المجال'}</span></button>`;
 }
 function catalogCertificateCard(id,pk) {
   const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
   const cover=c?.cover && !/^(?:\/?assets\/covers\/)/.test(c.cover||'') ? c.cover : catalogArtwork(id);
-  return `<article class="v38-certificate"><div class="v38-certificate-art v42-certificate-art" style="background-image:url('${esc(cover)}')">${catalogCertMark(id)}<span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Certification guide available · packages in preparation':'دليل الشهادة متاح · الباقات قيد الإعداد')}</p><button type="button" class="btn ${available?'p':'o'}" data-ccert="${esc(id)}">${available?(siteEnglish()?'View packages':'عرض الباقات'):(siteEnglish()?'Explore certification':'اكتشف الشهادة')} ↗</button></div></article>`;
+  return `<article class="v38-certificate v44-certificate v44-cert-${id}"><div class="v38-certificate-art v42-certificate-art" style="background-image:url('${esc(cover)}')"><span class="v44-cert-identity">${catalogCertMark(id)}</span><span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Certification guide available · packages in preparation':'دليل الشهادة متاح · الباقات قيد الإعداد')}</p><button type="button" class="btn ${available?'p':'o'}" data-ccert="${esc(id)}">${available?(siteEnglish()?'View packages':'عرض الباقات'):(siteEnglish()?'Explore certification':'اكتشف الشهادة')}</button></div></article>`;
 }
 function catalogFutureDetail(c) {
   const en=siteEnglish(),g=CERT_GUIDES[c.id];
@@ -4212,21 +4213,20 @@ function pkgView(id) {
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
-  return `<section class="pg-hero v38-package-hero v43-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.93),rgba(8,23,42,.56)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap v43-package-layout"><div class="v43-package-copy">
+  return `<section class="pg-hero v38-package-hero v43-package-hero v44-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.08) 0%,rgba(8,23,42,.43) 42%,rgba(8,23,42,.96) 76%),url('/assets/hero/alsaeed-academy-wide-v44.webp')"><div class="wrap v43-package-layout"><div class="v43-package-copy">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
-      <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
-      <span style="font-size:2.2rem">${T.ic||''}</span>
-      <div><h1 style="margin:0">${esc(publicTitle(c))}</h1>
-        <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(publicTitle(T))}</span></div>
+      <a href="#course/${c.id}" data-r="course/${c.id}"><bdi dir="ltr">${esc(c.code||'')}</bdi></a> ← ${esc(publicTitle(T))}</div>
+    <div class="v44-hero-heading">
+      <span class="v44-hero-eyebrow"><bdi dir="ltr">${esc(c.code||'')}</bdi> <span>${esc(en?story.en:story.ar)}</span></span>
+      <div><h1>${esc(publicTitle(c))}</h1>
+        <span class="v44-hero-package">${esc(publicTitle(T))}</span></div>
     </div>
     <p>${esc(packageDescription(p,T))}</p>
     <div class="v43-package-story"><strong>${esc(en?story.en:story.ar)}</strong><div>${(en?story.enPoints:story.arPoints).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
-    ${catalogCertMark(p.course)}
-    ${catalogIssuerLink(p.course)}
+    <div class="v44-hero-credentials">${catalogCertMark(p.course)}${catalogIssuerLink(p.course)}</div>
     ${catalogInstructorBadge(p.course,true)}
     <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
-  </div><div class="v43-package-visual" style="background-image:url('${catalogArtwork(c.id||p.course,p.type)}')"><span class="v43-visual-label">${esc(en?story.en:story.ar)}</span>${catalogCertMark(p.course)}<div><small>${esc(publicTitle(c))}</small><strong>${esc(publicTitle(T))}</strong><span>${esc(c.code||'')}</span></div></div></div></section>
+  </div></div></section>
 
   <section class="sec"><div class="wrap"><div class="pd-hero">
     <div>
