@@ -4075,7 +4075,7 @@ function courseTabBody(c) {
   }
   const untranslated=en&&topics.some(x=>typeof x==='string');
   const trainer=en?(c.trainer_en||c.trainer||'Ask us who leads your chosen format before enrolling.'):(c.trainer||'اسألنا عن المدرب المخصص للباقة أو المجموعة قبل الاشتراك.');
-  return `<h3>${tr('عن هذا البرنامج','About this program')}</h3><p class="muted" style="font-size:.96rem;line-height:2;margin-bottom:22px">${esc(en?(c.blurb_en||c.desc_en||'Explore this professional pathway and compare its published learning options.'):c.blurb||'')}</p><h4 class="v37-subheading">${tr('محاور البرنامج','Program topics')}</h4>${untranslated?`<p class="v37-translation-note">${tr('','Topic titles are currently shown in their original language.')}</p>`:''}<div class="chap-g">${topics.map((ch,i)=>`<div class="chap-c"><span class="num">${i+1}</span><span ${en&&typeof ch==='string'?'lang="ar" dir="rtl"':''}>${esc(title(ch))}</span></div>`).join('')}</div><div class="v37-trainer-note"><b>${tr('المدرب','Instructor')}</b><p>${esc(trainer)}</p><a href="#contact">${tr('اسأل عن هذا البرنامج','Ask about this program')} ↗</a></div>`;
+  return `<h3>${tr('عن هذا البرنامج','About this program')}</h3><p class="muted" style="font-size:.96rem;line-height:2;margin-bottom:22px">${esc(en?(c.blurb_en||c.desc_en||CERT_GUIDES[c.id]?.value[1]||'Explore this professional pathway and compare its published learning options.'):c.blurb||'')}</p><h4 class="v37-subheading">${tr('محاور البرنامج','Program topics')}</h4>${untranslated?`<p class="v37-translation-note">${tr('','Topic titles are currently shown in their original language.')}</p>`:''}<div class="chap-g">${topics.map((ch,i)=>`<div class="chap-c"><span class="num">${i+1}</span><span ${en&&typeof ch==='string'?'lang="ar" dir="rtl"':''}>${esc(title(ch))}</span></div>`).join('')}</div><div class="v37-trainer-note"><b>${tr('المدرب','Instructor')}</b><p>${esc(trainer)}</p><a href="#contact">${tr('اسأل عن هذا البرنامج','Ask about this program')} ↗</a></div>`;
 }
 
 function courseDecision(c, pkgs) {
@@ -4136,7 +4136,7 @@ function courseView(id) {
     <div>
       <div class="crumb"><a href="#programs" data-r="programs">${tr('البرامج التدريبية','Programs')}</a> ← ${code(c)}</div>
       <span class="eyebrow" style="color:var(--orange2)">${tr('مسار مهني','PROFESSIONAL PATHWAY')} · ${code(c)}</span>
-      <h1>${esc(publicTitle(c))}</h1><p>${esc(en?(c.blurb_en||c.desc_en||'Explore the topics, published content and learning formats for this program.'):c.blurb||'')}</p>
+      <h1>${esc(publicTitle(c))}</h1><p>${esc(en?(c.blurb_en||c.desc_en||CERT_GUIDES[c.id]?.value[1]||'Explore the topics, published content and learning formats for this program.'):c.blurb||'')}</p>
       ${catalogIssuerLink(c.id)}
       ${catalogInstructorBadge(c.id,true)}
       <div class="course-kpis"><span><b>${pkgs.length}</b> ${tr('باقات منشورة','published packages')}</span>${questions?`<span><b>${questions}</b> ${tr('سؤالًا في البنك المنشور','questions in the published bank')}</span>`:''}${videos?`<span><b>${videos}</b> ${tr('درس فيديو منشور','published video lessons')}</span>`:''}<span><b>${(c.chapters||[]).length}</b> ${tr('محاور','topics')}</span></div>
