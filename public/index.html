@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=36.0">
+<link rel="stylesheet" href="/media-v34.css?v=36.1">
 </head>
 <body>
 
@@ -3638,10 +3638,8 @@ function pkgCard(p) {
   const off = p.was ? Math.round((1 - p.price / p.was) * 100) : 0;
   const L = (window.LANG_LABEL || {})[p.lang] || {};
   const tv = trackVisual(c);
-  const publishedMinutes = A().live ? window.CATALOG_AVAILABILITY?.[p.id]?.videoMins : p.videoMins;
-  const hrs = publishedMinutes ? (siteEnglish()?Math.floor(publishedMinutes / 60)+'h '+(publishedMinutes % 60)+'m':Math.floor(publishedMinutes / 60)+'س '+(publishedMinutes % 60)+'د') : '—';
-  const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
-  const liveQuestions = A().live ? (window.CATALOG_AVAILABILITY?.[p.id]?.questions || '—') : (p.questions || '—');
+  const publishedVideos = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.videos || 0) : Number(p.videos || 0);
+  const liveQuestions = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.questions || 0) : Number(p.questions || 0);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   return `<div class="card pk reveal" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
     <div style="height:118px;background:${T.col || tv.grad};position:relative;padding:14px;color:#fff;overflow:hidden">
@@ -3662,15 +3660,13 @@ function pkgCard(p) {
       <h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
       <p style="font-size:.82rem;margin-bottom:12px">${esc(packageDescription(p,T))}</p>
       <div class="pk-facts">
-        <div><span>${siteEnglish()?'Hours':'الساعات'}</span><b class="num">${p.hours || '—'}</b></div>
-        <div><span>${siteEnglish()?'Available questions':'الأسئلة المتاحة'}</span><b class="num">${liveQuestions}</b></div>
-        <div><span>${siteEnglish()?'Published video':'الفيديو'}</span><b class="num">${hrs}</b></div>
-        <div><span>${siteEnglish()?'Quizzes':'الاختبارات'}</span><b class="num">${testCount || '—'}</b></div>
+        <div><span>${siteEnglish()?'Published question bank':'بنك الأسئلة المنشور'}</span><b class="num">${liveQuestions || '—'}</b></div>
+        <div><span>${publishedVideos?(siteEnglish()?'Video lessons':'دروس الفيديو'):(siteEnglish()?'Access period':'مدة الوصول')}</span><b class="num">${publishedVideos || p.days || '—'}</b></div>
       </div>
       <div class="pk-tags">
         <span class="tg">${L.ic || ''} ${esc(publicTitle(L))}</span>
         ${next&&['onsite','live'].includes(p.mode)?`<span class="tg">◷ ${esc(next.date)} · ${next.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'مباشر')}</span>`:''}
-        <span class="tg">⏱ ${p.days} ${siteEnglish()?'days':'يوم'}</span>
+        <span class="tg">⏱ ${p.days} ${siteEnglish()?'days of access':'يوم وصول'}</span>
         ${p.cert ? `<span class="tg ok">🏅 ${siteEnglish()?'Certificate of attendance':'شهادة حضور'}</span>` : ''}
       </div>
       <div class="pk-price">

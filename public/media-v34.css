@@ -29,3 +29,5 @@
 .v36-catalog-grid .pk[hidden],.v36-search-empty[hidden]{display:none!important}
 @media(max-width:520px){.v36-progress{width:46px}.v24-controls{gap:6px}}
 @media(prefers-reduced-motion:reduce){.v36-progress i{animation:none!important;transform:none}.v24-slide.is-current img{animation:none!important}}
+
+.pk-facts{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}.pk-facts>div+div{border-inline-start:1px solid #d8e4eb}.pk-facts b{font-size:1.05rem!important}
