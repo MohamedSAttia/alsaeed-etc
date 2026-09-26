@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=43.0">
+<link rel="stylesheet" href="/media-v34.css?v=43.1">
 </head>
 <body>
 
@@ -4212,7 +4212,7 @@ function pkgView(id) {
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
-  return `<section class="pg-hero v38-package-hero v43-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.93),rgba(8,23,42,.56)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap">
+  return `<section class="pg-hero v38-package-hero v43-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.93),rgba(8,23,42,.56)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap v43-package-layout"><div class="v43-package-copy">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
@@ -4226,7 +4226,7 @@ function pkgView(id) {
     ${catalogIssuerLink(p.course)}
     ${catalogInstructorBadge(p.course,true)}
     <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
-  </div></section>
+  </div><div class="v43-package-visual" style="background-image:url('${catalogArtwork(c.id||p.course,p.type)}')"><span class="v43-visual-label">${esc(en?story.en:story.ar)}</span>${catalogCertMark(p.course)}<div><small>${esc(publicTitle(c))}</small><strong>${esc(publicTitle(T))}</strong><span>${esc(c.code||'')}</span></div></div></div></section>
 
   <section class="sec"><div class="wrap"><div class="pd-hero">
     <div>
