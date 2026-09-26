@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=42.0">
+<link rel="stylesheet" href="/media-v34.css?v=43.0">
 </head>
 <body>
 
@@ -3631,6 +3631,13 @@ function home() {
 }
 
 /* ═══════════ بطاقة الباقة ═══════════ */
+const PACKAGE_PRESENTATION = {
+  full:{ar:'رحلة متكاملة',en:'Complete learning journey',arPoints:['تعلّم منظّم','تطبيق وممارسة','تقييم التقدم'],enPoints:['Structured learning','Practice and apply','Track progress']},
+  sim:{ar:'تدرّب في أجواء الاختبار',en:'Practice under exam conditions',arPoints:['أسئلة وتوقيت','تحليل الأداء','تحديد الفجوات'],enPoints:['Timed questions','Performance insights','Find study gaps']},
+  review:{ar:'تركيز قبل الاختبار',en:'Focused final review',arPoints:['المفاهيم الأهم','مراجعة مركّزة','اختبر جاهزيتك'],enPoints:['Key concepts','Focused revision','Check readiness']},
+  self:{ar:'تقدّم بإيقاعك',en:'Learn at your own pace',arPoints:['خطة مرنة','مصادر مراجعة','تعلّم مستقل'],enPoints:['Flexible plan','Review resources','Independent study']}
+};
+const packagePresentation = p => PACKAGE_PRESENTATION[p.type] || PACKAGE_PRESENTATION.full;
 function pkgCard(p) {
   const c = A().course(p.course) || {};
   const T = (window.PKG_TYPES || []).find(x => x.k === p.type) || {};
@@ -3640,6 +3647,7 @@ function pkgCard(p) {
   const publishedVideos = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.videos || 0) : Number(p.videos || 0);
   const liveQuestions = A().live ? Number(window.CATALOG_AVAILABILITY?.[p.id]?.questions || 0) : Number(p.questions || 0);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===p.course&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const story=packagePresentation(p), en=siteEnglish();
   return `<div class="card pk reveal v42-package-${esc(p.type)}" data-r="pkg/${p.id}" style="cursor:pointer;overflow:hidden">
     <div class="v38-package-art" style="background-image:linear-gradient(90deg,rgba(8,26,45,.30),rgba(8,26,45,.04)),url('${catalogArtwork(c.id||p.course,p.type)}')">
       <div class="course-cover-grid"></div>
@@ -3657,8 +3665,9 @@ function pkgCard(p) {
       </div>
     </div>
     <div class="pk-body">
-      <h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
+      <span class="v43-card-kicker">${esc(en?story.en:story.ar)}</span><h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
       <p style="font-size:.82rem;margin-bottom:12px">${esc(packageDescription(p,T))}</p>
+      <div class="v43-card-points">${(en?story.enPoints:story.arPoints).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
       <div class="pk-facts">
         <div><span>${siteEnglish()?'Published question bank':'بنك الأسئلة المنشور'}</span><b class="num">${liveQuestions || '—'}</b></div>
         <div><span>${publishedVideos?(siteEnglish()?'Video lessons':'دروس الفيديو'):(siteEnglish()?'Access period':'مدة الوصول')}</span><b class="num">${publishedVideos || p.days || '—'}</b></div>
@@ -3687,9 +3696,9 @@ const CATALOG_FAMILIES = [
   {id:'more',en:'MORE PROGRAMS',ar:'برامج إضافية',tag:'Applied technology',tagAr:'التقنية التطبيقية',courseIds:['aipro']}
 ];
 const CATALOG_FUTURE = {
-  pmocp:{code:'PMI-PMOCP™',ar:'محترف مكاتب إدارة المشاريع',en:'PMI PMO Certified Professional'},
-  pgmp:{code:'PgMP®',ar:'محترف إدارة البرامج',en:'Program Management Professional'},
-  pfmp:{code:'PfMP®',ar:'محترف إدارة المحافظ',en:'Portfolio Management Professional'}
+  pmocp:{id:'pmocp',code:'PMI-PMOCP™',ar:'محترف مكاتب إدارة المشاريع',en:'PMI PMO Certified Professional'},
+  pgmp:{id:'pgmp',code:'PgMP®',ar:'محترف إدارة البرامج',en:'Program Management Professional'},
+  pfmp:{id:'pfmp',code:'PfMP®',ar:'محترف إدارة المحافظ',en:'Portfolio Management Professional'}
 };
 const CATALOG_ISSUERS = {
   pmi:{name:'Project Management Institute (PMI)',url:'https://www.pmi.org/certifications'},
@@ -3709,12 +3718,13 @@ const CATALOG_CERT_MARKS = {
 };
 const catalogCertMark = (id,small=false) => CATALOG_CERT_MARKS[id]
   ? `<span class="v42-cert-mark ${small?'small':''} ${id==='grcp'?'wide':''}"><img src="${CATALOG_CERT_MARKS[id]}" alt="${esc(siteEnglish()?`Certification identifier for ${catalogCourse(id)?.code||id}`:`شعار تعريفي لشهادة ${catalogCourse(id)?.code||id}`)}" loading="lazy"></span>`
+  : id==='pmocp' ? `<span class="v42-cert-mark v43-pmocp-mark ${small?'small':''}" dir="ltr"><b>PMO</b><small>PMI-PMOCP™</small></span>`
   : `<span class="v42-cert-mark ${small?'small':''} text-mark" dir="ltr">${esc(catalogCourse(id)?.code||id.toUpperCase())}</span>`;
 let catalogFamily = '', catalogCertificate = '';
 const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[id];
 const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
 const catalogIssuer = id => CATALOG_ISSUERS[catalogFamilyFor(id)?.id];
-const catalogIssuerLink = id => { const issuer=catalogIssuer(id); return issuer?`<a class="v39-issuer" href="${issuer.url}" target="_blank" rel="noopener noreferrer" aria-label="${esc(siteEnglish()?'Certification body: '+issuer.name:'الجهة المانحة: '+issuer.name)}"><span>${siteEnglish()?'Certification body':'الجهة المانحة'}</span><b dir="ltr">${esc(issuer.name)} ↗</b></a>`:''; };
+const catalogIssuerLink = id => { const issuer=catalogIssuer(id); return issuer?`<a class="v39-issuer" href="${id==='pmocp'?'https://www.pmi.org/certifications/pmo-certified-professional-pmi-pmocp':issuer.url}" target="_blank" rel="noopener noreferrer" aria-label="${esc(siteEnglish()?'Certification body: '+issuer.name:'الجهة المانحة: '+issuer.name)}"><span>${siteEnglish()?'Certification body':'الجهة المانحة'}</span><b dir="ltr">${esc(issuer.name)} ↗</b></a>`:''; };
 const catalogInstructorBadge = (id,compact=false) => ['pmp','rmp','acp'].includes(id)
   ? `<div class="v40-instructor-badge ${compact?'compact':''}">${CATALOG_INSTRUCTOR_BADGES[id]?`<img src="${CATALOG_INSTRUCTOR_BADGES[id]}" alt="${esc(siteEnglish()?`PMI-ATP instructor credential for ${id==='pmp'?'PMP':'PMI-RMP'}`:`اعتماد مدرب PMI-ATP لشهادة ${id==='pmp'?'PMP':'PMI-RMP'}`)}" loading="lazy" width="84" height="86">`:`<span class="v41-credential-mark" aria-hidden="true">ATP</span>`}<div><b>${siteEnglish()?'Dr. Mohamed Attia':'د. محمد عطية'}</b><span>${siteEnglish()?`PMI-ATP Instructor · ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`:`مدرب PMI-ATP معتمد لتأهيل ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`}</span></div></div>` : '';
 const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):(n===1?'باقة':'باقات')}`;
@@ -3743,7 +3753,12 @@ function catalogFamilyCard(f, pk) {
 function catalogCertificateCard(id,pk) {
   const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
   const cover=c?.cover && !/^(?:\/?assets\/covers\/)/.test(c.cover||'') ? c.cover : catalogArtwork(id);
-  return `<article class="v38-certificate"><div class="v38-certificate-art v42-certificate-art" style="background-image:url('${esc(cover)}')">${catalogCertMark(id)}<span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Packages are being prepared. Ask us about this certification.':'الباقات قيد الإعداد. يمكنك الاستفسار عن هذه الشهادة.')}</p>${available?`<button type="button" class="btn p" data-ccert="${esc(id)}">${siteEnglish()?'View packages':'عرض الباقات'} ↗</button>`:`<a class="btn o" href="#contact">${siteEnglish()?'Ask about availability':'استفسر عن توفرها'} ↗</a>`}</div></article>`;
+  return `<article class="v38-certificate"><div class="v38-certificate-art v42-certificate-art" style="background-image:url('${esc(cover)}')">${catalogCertMark(id)}<span class="v38-cert-code" dir="ltr">${esc(c?.code||id.toUpperCase())}</span></div><div class="v38-certificate-body"><h2>${esc(publicTitle(c))}</h2>${catalogIssuerLink(id)}${catalogInstructorBadge(id,true)}<p>${available?`${catalogCount(packages.length)} · ${siteEnglish()?'View formats and prices':'عرض الأنماط والأسعار'}`:(siteEnglish()?'Certification guide available · packages in preparation':'دليل الشهادة متاح · الباقات قيد الإعداد')}</p><button type="button" class="btn ${available?'p':'o'}" data-ccert="${esc(id)}">${available?(siteEnglish()?'View packages':'عرض الباقات'):(siteEnglish()?'Explore certification':'اكتشف الشهادة')} ↗</button></div></article>`;
+}
+function catalogFutureDetail(c) {
+  const en=siteEnglish(),g=CERT_GUIDES[c.id];
+  if(!g)return '';
+  return `<div class="v43-future-detail"><div class="v43-future-visual" style="background-image:url('${catalogArtwork(c.id)}')">${catalogCertMark(c.id)}<b dir="ltr">${esc(c.code)}</b></div><div class="v43-future-copy"><span class="eyebrow">${en?'CERTIFICATION PATHWAY':'مسار الشهادة'}</span><h2>${esc(publicTitle(c))}</h2><p>${esc(g.value[en?1:0])}</p><div class="v43-future-points"><div><b>${en?'Who it is for':'لمن تناسب؟'}</b><span>${esc(g.who[en?1:0])}</span></div><div><b>${en?'Preparation focus':'محور الاستعداد'}</b><span>${esc(g.practice[en?1:0])}</span></div></div><p class="v43-future-status">${en?'Training packages are in preparation. The certification exam and credential are administered by PMI.':'باقات التدريب قيد الإعداد. الاختبار وإصدار الشهادة يتمان لدى PMI وفق شروطها.'}</p><div class="v43-future-actions"><a class="btn o" href="${esc(g.url)}" target="_blank" rel="noopener noreferrer">${en?'PMI certification details':'التفاصيل الرسمية لدى PMI'} ↗</a><a class="btn p" href="#contact">${en?'Ask about training availability':'استفسر عن موعد التدريب'} ↗</a></div></div></div>`;
 }
 function programs() {
   const en=siteEnglish();
@@ -3756,9 +3771,9 @@ function programs() {
   const cert=family?.courseIds.includes(catalogCertificate)?catalogCourse(catalogCertificate):null;
   if(cert)pk=pk.filter(p=>p.course===catalogCertificate);
   const heading=cert?publicTitle(cert):family?(en?family.en:family.ar):(en?'Professional training':'التدريب المهني');
-  return `<section class="pg-hero v38-hero"><div class="wrap"><div class="crumb"><a href="#home" data-r="home">${en?'Home':'الرئيسية'}</a> ← <button type="button" data-creset>${en?'Catalog':'الكتالوج'}</button>${family?` ← <button type="button" data-cback>${esc(en?family.en:family.ar)}</button>`:''}${cert?` ← ${esc(cert.code)}`:''}</div><h1>${esc(heading)}</h1><p>${cert?(en?'Compare the packages published for this certification.':'قارن الباقات المنشورة لهذه الشهادة.'):family?(en?'Select a certification to see its available packages.':'اختر الشهادة لعرض باقاتها المتاحة.'):(en?'Choose a field, then a certification, then the package that suits your goal.':'اختر المجال، ثم الشهادة، ثم الباقة التي تناسب هدفك.')}</p></div></section>
+  return `<section class="pg-hero v38-hero"><div class="wrap"><div class="crumb"><a href="#home" data-r="home">${en?'Home':'الرئيسية'}</a> ← <button type="button" data-creset>${en?'Catalog':'الكتالوج'}</button>${family?` ← <button type="button" data-cback>${esc(en?family.en:family.ar)}</button>`:''}${cert?` ← ${esc(cert.code)}`:''}</div><h1>${esc(heading)}</h1><p>${cert?(pk.length?(en?'Compare the packages published for this certification.':'قارن الباقات المنشورة لهذه الشهادة.'):(en?'Explore the certification and ask about upcoming training.':'تعرّف على الشهادة واستفسر عن التدريب القادم.')):family?(en?'Select a certification to see its available packages.':'اختر الشهادة لعرض باقاتها المتاحة.'):(en?'Choose a field, then a certification, then the package that suits your goal.':'اختر المجال، ثم الشهادة، ثم الباقة التي تناسب هدفك.')}</p></div></section>
   <section class="sec"><div class="wrap v38-catalog">
-    ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><div class="v42-cert-summary-visual" style="background-image:url('${catalogArtwork(catalogCertificate)}')">${catalogCertMark(catalogCertificate)}</div><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2>${catalogIssuerLink(catalogCertificate)}${catalogInstructorBadge(catalogCertificate,true)}<p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`}
+    ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:pk.length?`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><div class="v42-cert-summary-visual" style="background-image:url('${catalogArtwork(catalogCertificate)}')">${catalogCertMark(catalogCertificate)}</div><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2>${catalogIssuerLink(catalogCertificate)}${catalogInstructorBadge(catalogCertificate,true)}<p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`:catalogFutureDetail(cert)}
     ${!family?`<p class="v38-marks-note">${en?'Certification names identify their respective owners. Alsaeed artwork is original and does not imply endorsement by those organizations.':'أسماء الشهادات مملوكة لجهاتها. الرسوم البصرية من تصميم السعيد ولا تعني اعتمادًا أو تأييدًا من تلك الجهات.'}</p>`:''}
     <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
@@ -4040,6 +4055,9 @@ function courseCard(c) {
 }
 
 const CERT_GUIDES = {
+  pmocp:{who:['قادة مكاتب إدارة المشاريع، ومديرو المحافظ والبرامج، والمستشارون المسؤولون عن تصميم خدمات المكتب.','PMO leaders, portfolio and program managers, and consultants designing PMO services.'],value:['تصميم مكتب إدارة مشاريع يراعي سياق المؤسسة، وتقييم أدائه، وتشغيل خدماته وتطوير القيمة الاستراتيجية التي يقدمها.','Design a PMO for its organizational context, assess performance, operate services and improve strategic value.'],practice:['تشخيص وضع مكتب قائم أو مقترح، وتحديد الخدمات وأصحاب المصلحة ومؤشرات القيمة وخطة التحسين.','Assess a current or proposed PMO, then map services, stakeholders, value measures and an improvement plan.'],url:'https://www.pmi.org/certifications/pmo-certified-professional-pmi-pmocp'},
+  pgmp:{who:['مديرو البرامج ذوو الخبرة في تنسيق مشاريع مترابطة وتحقيق منافع استراتيجية.','Experienced program managers coordinating related projects and strategic benefits.'],value:['مواءمة البرنامج مع الاستراتيجية وإدارة المنافع والحوكمة وأصحاب المصلحة ودورة الحياة.','Align programs to strategy and manage benefits, governance, stakeholders and life cycle.'],practice:['صياغة خريطة منافع وبرنامج حوكمة وتفسير قرارات البرنامج في حالات معقدة.','Map benefits and governance, then reason through complex program decisions.'],url:'https://www.pmi.org/certifications/program-management-pgmp'},
+  pfmp:{who:['قادة المحافظ والمديرون التنفيذيون المسؤولون عن اختيار الاستثمارات والمبادرات.','Portfolio leaders and executives selecting and balancing investments and initiatives.'],value:['مواءمة مكونات المحفظة مع الاستراتيجية وتحديد الأولويات وتوزيع الموارد ومراقبة الأداء.','Align portfolio components with strategy, prioritize work, allocate resources and monitor performance.'],practice:['بناء معايير مفاضلة للمبادرات وتفسير قرارات إعادة التوازن ضمن حالة مؤسسية.','Build initiative selection criteria and explain rebalancing choices in an organizational case.'],url:'https://www.pmi.org/certifications/portfolio-management-pfmp'},
   pmp:{who:['مديرو المشاريع وقادة الفرق الراغبون في توثيق خبرتهم في تسليم القيمة.','Project managers and team leads seeking to validate their experience in delivering value.'],value:['قيادة الفرق، إدارة العمل والمواءمة مع بيئة الأعمال عبر الأساليب التنبؤية والرشيقة والهجينة.','Lead teams, manage work and align projects with business context across predictive, agile and hybrid approaches.'],practice:['حل مواقف عملية، تحليل القرارات وتحديد الفجوات بحسب مخطط الاختبار الحالي.','Practise scenario questions, explain decisions and identify gaps against the current exam outline.'],url:'https://www.pmi.org/certifications/project-management-pmp'},
   rmp:{who:['المتخصصون في مخاطر المشاريع والبرامج ومديرو المشاريع الذين يقودون قرارات عدم اليقين.','Risk specialists and project or program managers making decisions under uncertainty.'],value:['صياغة استراتيجية المخاطر وتيسير التعرف والتحليل والاستجابة والرصد.','Develop risk strategy and facilitate identification, analysis, response and monitoring.'],practice:['بناء سجل مخاطر، تحليل سيناريوهات، ومراجعة خطط الاستجابة ومؤشرات الإنذار.','Build a risk register, analyze scenarios and review responses and early warning indicators.'],url:'https://www.pmi.org/certifications/risk-management-rmp'},
   acp:{who:['الممارسون في فرق المنتجات والتسليم الرشيق ومديرو المشاريع العاملون بأساليب تكيفية.','Practitioners in product and agile delivery teams, and project managers using adaptive approaches.'],value:['العقلية الرشيقة والتسليم بالقيمة والتفاعل مع أصحاب المصلحة وأداء الفرق.','Agile mindset, value delivery, stakeholder engagement and team performance.'],practice:['تطبيق سكرم وكانبان وممارسات التيسير على مواقف واقعية مع مراجعة مخطط PMI-ACP الحالي.','Apply Scrum, Kanban and facilitation to real situations, guided by the current PMI-ACP outline.'],url:'https://www.pmi.org/certifications/agile-acp'},
@@ -4190,10 +4208,11 @@ function pkgView(id) {
   const KINDS = window.CONTENT_KINDS || [];
   const promo = window.__promo;
   const siblings=window.PACKAGES.filter(x=>x.course===p.course&&x.active!==false);
+  const story=packagePresentation(p), en=siteEnglish();
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
-  return `<section class="pg-hero v38-package-hero" style="background-image:linear-gradient(90deg,rgba(8,23,42,.95),rgba(8,23,42,.60)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap">
+  return `<section class="pg-hero v38-package-hero v43-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.93),rgba(8,23,42,.56)),url('${catalogArtwork(c.id||p.course,p.type)}')"><div class="wrap">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}">${esc(c.code||'')}</a> ← ${esc(publicTitle(T))}</div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
@@ -4202,6 +4221,7 @@ function pkgView(id) {
         <span style="font-size:1.05rem;color:rgba(255,255,255,.85)">${esc(publicTitle(T))}</span></div>
     </div>
     <p>${esc(packageDescription(p,T))}</p>
+    <div class="v43-package-story"><strong>${esc(en?story.en:story.ar)}</strong><div>${(en?story.enPoints:story.arPoints).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
     ${catalogCertMark(p.course)}
     ${catalogIssuerLink(p.course)}
     ${catalogInstructorBadge(p.course,true)}
