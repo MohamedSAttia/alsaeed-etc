@@ -4233,7 +4233,7 @@ function pkgView(id) {
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin-bottom:4px">
         ${siteEnglish()?'Package at a glance':'مواصفات الباقة'}</h3>
       <div class="pd-spec">
-        <div class="pd-s"><span class="ic">⏱</span><b class="num">${p.hours||'—'}</b><span>${siteEnglish()?'Training hours':'ساعات التدريب'}</span></div>
+        <div class="pd-s"><span class="ic">${T.ic||'◈'}</span><b style="font-size:.9rem">${esc(publicTitle(T))}</b><span>${siteEnglish()?'Package type':'نوع الباقة'}</span></div>
         <div class="pd-s"><span class="ic">🏷</span><b style="font-size:.9rem">${esc(siteEnglish()?(window.TRACKS.find(t=>t.k===c.track)?.en||c.code||'—'):(p.category||'—'))}</b><span>${siteEnglish()?'Category':'التصنيف'}</span></div>
         <div class="pd-s"><span class="ic">❓</span><b class="num">${questionCount}</b><span>${siteEnglish()?'Available questions':'الأسئلة المتاحة'}</span></div>
         <div class="pd-s"><span class="ic">🎬</span><b class="num">${videoCount}</b><span>${siteEnglish()?'Available videos':'الفيديوهات المتاحة'}</span></div>
@@ -4255,7 +4255,7 @@ function pkgView(id) {
             : k==='flash' ? p.flashCards : k==='activity' ? p.activities
             : k==='game' ? p.games : '';
           return `<div class="kind"><span class="ic">${K.ic}</span>
-            <div style="flex:1;min-width:0"><b>${esc(publicTitle(K))}</b><span>${esc(siteEnglish()?K.desc_en:K.desc)}</span></div>
+            <div style="flex:1;min-width:0"><b>${esc(publicTitle(K))}</b><span>${esc(k==='quiz'&&!p.kinds?.includes('video')?(siteEnglish()?'Short practice questions to check your understanding.':'أسئلة تدريبية قصيرة لقياس فهمك.'):siteEnglish()?K.desc_en:K.desc)}</span></div>
             ${n ? `<span class="n">${n}</span>` : ''}</div>`;
         }).join('')}
       </div>
