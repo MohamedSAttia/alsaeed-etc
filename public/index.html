@@ -1082,7 +1082,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=44.0">
+<link rel="stylesheet" href="/media-v34.css?v=44.1">
 </head>
 <body>
 
@@ -3749,7 +3749,7 @@ function catalogFamilyCard(f, pk) {
   const n=f.courseIds.filter(id=>pk.some(p=>p.course===id)).length;
   const total=pk.filter(p=>f.courseIds.includes(p.course)).length;
   const samples=f.courseIds.slice(0,4).map(id=>`<span dir="ltr">${esc(catalogCourse(id)?.code||id.toUpperCase())}</span>`).join('');
-  return `<button type="button" class="v38-family v44-family v44-family-${f.id}" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v44-family-top"><span class="v44-family-index">${String(CATALOG_FAMILIES.indexOf(f)+1).padStart(2,'0')} / 0${CATALOG_FAMILIES.length}</span><span class="v44-family-symbol" aria-hidden="true">${({pmi:'PM',axelos:'AX',grc:'GRC',quality:'Q',safety:'S',more:'AI'})[f.id]||f.en.slice(0,2)}</span></span><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v44-family-paths">${samples}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v44-family-action">${siteEnglish()?'Explore field':'استكشف المجال'}</span></button>`;
+  return `<button type="button" class="v38-family v44-family v44-family-${f.id}" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v44-family-top"><span class="v44-family-index" dir="ltr">${String(CATALOG_FAMILIES.indexOf(f)+1).padStart(2,'0')} / 0${CATALOG_FAMILIES.length}</span><span class="v44-family-symbol" aria-hidden="true">${({pmi:'PM',axelos:'AX',grc:'GRC',quality:'Q',safety:'S',more:'AI'})[f.id]||f.en.slice(0,2)}</span></span><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v44-family-paths">${samples}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v44-family-action">${siteEnglish()?'Explore field':'استكشف المجال'}</span></button>`;
 }
 function catalogCertificateCard(id,pk) {
   const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
