@@ -3693,7 +3693,7 @@ const CATALOG_FUTURE = {
 let catalogFamily = '', catalogCertificate = '';
 const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[id];
 const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
-const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):'باقة'}`;
+const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):(n===1?'باقة':'باقات')}`;
 function catalogArtwork(code,variant='course') {
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
   const key=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -3714,7 +3714,7 @@ function catalogArtwork(code,variant='course') {
 function catalogFamilyCard(f, pk) {
   const n=f.courseIds.filter(id=>pk.some(p=>p.course===id)).length;
   const total=pk.filter(p=>f.courseIds.includes(p.course)).length;
-  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?'certifications':'شهادات'} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
+  return `<button type="button" class="v38-family" data-cfamily="${f.id}" aria-label="${esc(siteEnglish()?`Explore ${f.en}`:`استكشف ${f.ar}`)}"><span class="v38-wordmark" dir="ltr">${esc(f.en)}</span><span class="v38-family-tag">${esc(siteEnglish()?f.tag:f.tagAr)}</span><span class="v38-family-count">${n} ${siteEnglish()?(n===1?'certification':'certifications'):(n===1?'شهادة':'شهادات')} · ${catalogCount(total)}</span><span class="v38-next" aria-hidden="true">↗</span></button>`;
 }
 function catalogCertificateCard(id,pk) {
   const c=catalogCourse(id), packages=pk.filter(p=>p.course===id), available=packages.length>0;
