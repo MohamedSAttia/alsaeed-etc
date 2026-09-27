@@ -127,16 +127,26 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.get('/content', auth, (req, res) => res.json(qa('SELECT kind,id,data,active,updated FROM cls_content ORDER BY updated DESC').map(x => ({ ...x, data: J(x.data, {}) }))));
   r.put('/admin/content/:kind/:id', auth, staff, (req, res) => {
     const kind = req.params.kind, id = str(req.params.id, 64), data = req.body?.data;
-    if (!['question','activity'].includes(kind) || !/^[A-Za-z0-9_-]{2,64}$/.test(id) || !data || typeof data !== 'object' || Array.isArray(data) || data.id !== id) return bad(res, 'بيانات المحتوى غير صالحة');
+    if (!['question','activity','game'].includes(kind) || !/^[A-Za-z0-9_-]{2,64}$/.test(id) || !data || typeof data !== 'object' || Array.isArray(data) || data.id !== id) return bad(res, 'بيانات المحتوى غير صالحة');
     const bilingual = x => x && typeof x.ar === 'string' && x.ar.trim() && typeof x.en === 'string' && x.en.trim();
     if (!bilingual(data.t || data.q)) return bad(res, 'أدخل النص بالعربية والإنجليزية');
     if (kind === 'question') {
       const opts = data.o, answers = [].concat(data.c ?? []);
       if (!opts || !Array.isArray(opts.ar) || !Array.isArray(opts.en) || opts.ar.length < 2 || opts.ar.length > 5 || opts.en.length !== opts.ar.length || !opts.ar.every(x => typeof x === 'string' && x.trim()) || !opts.en.every(x => typeof x === 'string' && x.trim()) || !answers.length || !answers.every(x => Number.isInteger(x) && x >= 0 && x < opts.ar.length) || ![1,2,3,4,5].includes(+data.d)) return bad(res, 'خيارات السؤال أو الإجابة أو المجال غير صالحة');
-    } else if (!Array.isArray(data.steps) || !data.steps.length || !data.steps.every(bilingual) || ![1,2,3,4,5].includes(+data.day)) return bad(res, 'اليوم والخطوات باللغتين مطلوبة');
+    } else if (kind === 'activity') {
+      if (!Array.isArray(data.steps) || !data.steps.length || !data.steps.every(bilingual) || ![1,2,3,4,5].includes(+data.day)) return bad(res, 'اليوم والخطوات باللغتين مطلوبة');
+    } else if (!Array.isArray(data.questionIds) || !data.questionIds.length || data.questionIds.length > 30 || !data.questionIds.every(x => typeof x === 'string' && /^[A-Za-z0-9_-]{2,64}$/.test(x)) || ![1,2,3,4,5].includes(+data.day)) return bad(res, 'اختر يومًا وأضف من 1 إلى 30 رمز سؤال صالح');
     const raw = JSON.stringify(data); if (raw.length > 25000) return bad(res, 'المحتوى طويل جدًا');
     run('INSERT INTO cls_content(kind,id,data,active,updated_by,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET data=excluded.data,active=excluded.active,updated_by=excluded.updated_by,updated=excluded.updated', kind, id, raw, req.body.active === false ? 0 : 1, req.user.id, now());
     audit(req.user.id, 'content_updated', `${kind}:${id}`); res.json({ ok: true });
+  });
+  r.delete('/admin/content/:kind/:id', auth, staff, (req, res) => {
+    const { kind, id } = req.params;
+    if (!['question','activity','game'].includes(kind) || !/^[A-Za-z0-9_-]{2,64}$/.test(id)) return bad(res, 'محتوى غير صالح');
+    const row = q1('SELECT data FROM cls_content WHERE kind=? AND id=?', kind, id);
+    const data = row ? row.data : JSON.stringify({ id });
+    run('INSERT INTO cls_content(kind,id,data,active,updated_by,updated) VALUES(?,?,?,0,?,?) ON CONFLICT(kind,id) DO UPDATE SET active=0,updated_by=excluded.updated_by,updated=excluded.updated', kind, id, data, req.user.id, now());
+    audit(req.user.id, 'content_disabled', `${kind}:${id}`); res.json({ ok: true });
   });
   r.post('/my/submissions', auth, (req, res) => {
     const id = str(req.body?.activity_id, 64), notes = str(req.body?.notes, 10000), report = req.body?.report;
@@ -225,7 +235,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
       if (!m || +m[1] > released) return bad(res, 'هذا الاختبار لم يُفتح بعد', 403);
     }
     if (released < 5 && kind === 'game') {
-      const m = /^game:[a-z]+:(\d)$/.exec(ref);
+      const m = /^game:(?:[a-z]+|custom-[A-Za-z0-9_-]+):(\d)$/.exec(ref);
       if (!m || !+m[1] || +m[1] > released) return bad(res, 'لعبة هذا اليوم لم تُفتح بعد', 403);
     }
     let aid = b.assignment_id ? +b.assignment_id : null;
