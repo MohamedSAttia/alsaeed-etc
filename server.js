@@ -15,6 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { mountCorporateWorkflow } from './corporate-workflow.js';
+import { mountClassroom } from './classroom.js'; // الفصل الخاص (باقة مخفية)
 
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1187,6 +1188,8 @@ const PANEL = mountAdmin(app, db, {
 });
 
 /* الملفات الثابتة */
+/* الفصل الخاص — باقة مخفية: /classroom */
+mountClassroom(app, { db, JWT_SECRET });
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 app.get('/verify/:no', (req, res) => res.sendFile(path.join(__dirname, 'public', 'verify.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
