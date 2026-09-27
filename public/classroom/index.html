@@ -545,6 +545,30 @@ function readiness() {
   return w ? Math.round(100 * s / w) : null;
 }
 const doneCount = () => LESSONS.filter(l => S.done[l.id]).length;
+let MY_SUBMISSIONS = [];
+const DAY_TARGET = 80; // A study target set by ALSAEED, not an official PMI passing score.
+function dailyGoal(n) {
+  const lessons = lessonsOf(n), done = lessons.filter(l => S.done[l.id]).length;
+  const attempts = (S.hist || []).filter(h => h.spec === 'day:' + n);
+  const best = attempts.length ? Math.max(...attempts.map(h => h.pct)) : null;
+  const ids = new Set(D.days[n - 1].acts);
+  const submitted = MY_SUBMISSIONS.filter(x => ids.has(x.activity_id)).length;
+  const lessonMet = lessons.length > 0 && done === lessons.length;
+  const activityMet = submitted > 0;
+  const examMet = best != null && best >= DAY_TARGET;
+  return { done, total: lessons.length, submitted, best, lessonMet, activityMet, examMet,
+    met: lessonMet && activityMet && examMet };
+}
+function dailyGoalCard(n) {
+  const d = D.days[n - 1], g = dailyGoal(n), locked = SERVER && ME && !isStaff() && n > RELEASED_DAY;
+  const status = locked ? 'يفتح ' + d.date.ar : g.met ? 'تحقق هدف اليوم' : g.best != null && g.best < DAY_TARGET ? 'راجع الاختبار وأعِده' : 'الهدف قيد الإنجاز';
+  return `<div class="card pad stack tag-d" style="--c:${DOMC[n]};gap:8px"><div class="row between"><b>هدف اليوم ${DN[n]}</b><span class="chip ${g.met ? 'ok' : locked ? '' : 'warn'}">${esc(status)}</span></div>
+    <p class="small muted">${esc(d.t.ar)} · ${esc(d.date.ar)}</p>
+    <div class="small">${g.lessonMet ? '✓' : '○'} إكمال الدروس: <b class="num">${g.done}/${g.total}</b></div>
+    <div class="small">${g.activityMet ? '✓' : '○'} رفع نشاط أو ورشة واحدة للمشرف: <b class="num">${g.submitted}</b></div>
+    <div class="small">${g.examMet ? '✓' : '○'} اختبار اليوم ≥ ${DAY_TARGET}%: <b class="num">${g.best == null ? 'لم يُؤدَّ بعد' : g.best + '%'}</b></div>
+    <div class="row"><a class="btn sm o" href="#learn-${n}">الدروس</a><a class="btn sm g" href="#kit">الأنشطة</a><button class="btn sm" data-start="day:${n}">الاختبار</button></div></div>`;
+}
 
 // ---------------------------------------------------------------- AI (Claude in artifact → /api/ai → offline)
 const AIX = {
@@ -644,6 +668,7 @@ routes.home = () => {
     </div>
   </section>
   <h2 style="margin:26px 0 12px">الأيام الخمسة</h2>
+  <div class="notice small" style="margin-bottom:14px">خطة الاجتياز اليومية: أكمل دروس اليوم، ارفع نشاطًا أو ورشة للمشرف، وحقق 80% أو أكثر في اختبار اليوم. هذه أهداف تدريبية داخل المنصة، وليست درجة نجاح رسمية من PMI. يفتح كل يوم تلقائيًا بتوقيت الرياض.</div>
   <div class="grid g5">
     ${D.days.map(d => { const ls = lessonsOf(d.n), dn = ls.filter(l => S.done[l.id]).length; return `
       <a class="card daycard" style="--c:${DOMC[d.n]}" href="#learn-${d.n}">
@@ -696,6 +721,7 @@ routes.plan = (tab = 'course') => {
         </div>
         <div class="row" style="gap:16px">${!SERVER || !ME || isStaff() || d.n <= RELEASED_DAY ? ck('d' + d.n + 'a', 'حضرت الجلسات') + ck('d' + d.n + 'b', 'أنجزت الأنشطة والقوالب') + ck('d' + d.n + 'c', 'أنهيت اختبار اليوم') : '<span class="chip">يفتح في موعده · '+esc(d.date.ar)+'</span>'}</div>
         <div class="row between"><div class="small">الدروس: <span class="num">${dn}/${ls.length}</span></div><div class="row"><a class="btn sm o" href="#learn-${d.n}">المحتوى</a><button class="btn sm" data-start="day:${d.n}">اختبار اليوم</button></div></div>
+        <div class="hr"></div>${dailyGoalCard(d.n)}
       </article>`;
     }).join('');
   } else if (tab === 'post') {
@@ -859,7 +885,7 @@ routes.kit = (id) => {
     $('#activityPdf').onclick = () => printReport(reportHtml());
     $('#activityPptx').onclick = () => exportPptx(a.t.ar, [{title:'الهدف',body:a.goal?.ar||''},{title:'خطوات التطبيق',body:a.steps.map((x,i)=>`${i+1}. ${x.ar}`).join('\n')},{title:'نتائج الورشة والقرار',body:notes.value},{title:'سجل المخاطر',body:(S.lab?.reg||[]).map(r=>`${r.id}: ${r.event} — ${r.effect} — ${r.owner} — ${r.action}`).join('\n')}]);
     $('#activityShare').onclick = () => shareReport(a.t.ar,reportHtml());
-    $('#submitActivity').onclick = async () => { if (!SERVER || !ME) return toast('سجّل الدخول أولًا'); try { await API.post('my/submissions', { activity_id: a.id, notes: notes.value, report: { title: a.t, day: a.day, goal: a.goal, steps: a.steps, lab: S.lab || null } }); S.activities = S.activities || {}; S.activities[a.id] = { notes: notes.value, submitted: Date.now() }; save(); $('#submissionState').textContent = 'تم الرفع للمشرف'; toast('تم تسليم النشاط'); } catch(e) { toast(e.message); } };
+    $('#submitActivity').onclick = async () => { if (!SERVER || !ME) return toast('سجّل الدخول أولًا'); try { const result = await API.post('my/submissions', { activity_id: a.id, notes: notes.value, report: { title: a.t, day: a.day, goal: a.goal, steps: a.steps, lab: S.lab || null } }); MY_SUBMISSIONS.push({ id:result.id, activity_id:a.id }); S.activities = S.activities || {}; S.activities[a.id] = { notes: notes.value, submitted: Date.now() }; save(); $('#submissionState').textContent = 'تم الرفع للمشرف'; toast('تم تسليم النشاط'); } catch(e) { toast(e.message); } };
     return;
   }
   const f = S.kitDay || 0;
@@ -1404,21 +1430,32 @@ function wireCalc() {
     const s = $('#cscr'); if (s) s.textContent = calcV || '0';
   });
 }
+function examInsights(h) {
+  const domains = D.domains.map(d => { const v = h.byD?.[d.n] || [0, 0], p = v[1] ? pct(v[0], v[1]) : null;
+    return { ...d, correct:v[0], total:v[1], p, rating:p == null ? 'غير مقاس' : level(p)[1] }; });
+  const weak = domains.filter(d => d.total >= 3 && d.p < 80).sort((a,b) => a.p - b.p);
+  const unmeasured = domains.filter(d => d.total < 3);
+  return { domains, weak, unmeasured, unanswered:h.exam ? h.exam.items.filter((_,i) => !(h.exam.ans[i] || []).length).length : null,
+    flagged:h.exam ? Object.values(h.exam.fl || {}).filter(Boolean).length : null };
+}
 routes.result = (id) => {
   const h = S.hist.find(x => String(x.id) === id); if (!h) return go('#progress');
-  const X = h.exam; const lv = level(h.pct);
+  const X = h.exam; const lv = level(h.pct), I = examInsights(h);
   const viol = (h.viol || []).filter(v => v.k !== 'cam');
   view.innerHTML = `<div class="stack"><div class="card pad stack report">
       <div class="row between"><div><span class="eyebrow">Examination score report · تقرير الأداء</span><h1 style="font-size:1.55rem">${esc(h.label)}</h1><span class="small muted">${esc(h.name || '')} · ${new Date(h.date).toLocaleString('en-GB')} · الوقت المستخدم ${fmtTime(h.dur)} · ${h.mode === 'exam' ? 'وضع الاختبار' : 'وضع التدريب'}${h.proctor === 'cam' ? ' · بمراقبة' : ''}</span></div>
-      <div class="ready">${gauge(h.pct, h.pct + '%')}<div class="stack" style="gap:6px"><div class="pf ${lv[0] >= 3 ? 'pass' : 'fail'}">${lv[0] >= 3 ? 'PASS · ناجح (تقديريًا)' : 'FAIL · غير ناجح (تقديريًا)'}</div><div><b class="num">${h.r}</b> صحيحة من <b class="num">${h.n}</b></div><span class="tiny muted">PMI لا يعلن درجة النجاح؛ هذا تقدير تدريبي.</span></div></div></div>
+      <div class="ready">${gauge(h.pct, h.pct + '%')}<div class="stack" style="gap:6px"><div class="pf ${h.pct >= DAY_TARGET ? 'pass' : 'fail'}">${h.pct >= DAY_TARGET ? 'حقق هدف التدريب · Training target met' : 'يحتاج مراجعة · Keep practicing'}</div><div><b class="num">${h.r}</b> صحيحة من <b class="num">${h.n}</b></div><span class="tiny muted">هدف المنصة التدريبي 80%. لا يُعد حكم نجاح رسميًا من PMI.</span></div></div></div>
       <h3>الأداء حسب المجال</h3>
       <div class="pmi-scale"><span></span>${['Needs Improvement', 'Below Target', 'Target', 'Above Target'].map(x => `<span class="en tiny">${x}</span>`).join('')}</div>
-      ${Object.entries(h.byD).sort().map(([d, v]) => { const p = pct(v[0], v[1]), l = level(p)[0]; return `<div class="pmi-scale"><span class="small">${esc(D.domains[d - 1].t.ar)} <span class="muted num">${v[0]}/${v[1]}</span></span>${[1, 2, 3, 4].map(k => `<span class="pmi-cell ${k === l ? 'on lv' + l : ''}">${k === l ? p + '%' : ''}</span>`).join('')}</div>`; }).join('')}
+      ${I.domains.map(d => { const l = d.p == null ? 0 : level(d.p)[0]; return `<div class="pmi-scale"><span class="small">${esc(d.t.ar)} <span class="muted num">${d.correct}/${d.total} · وزن ${d.w}%</span></span>${[1, 2, 3, 4].map(k => `<span class="pmi-cell ${k === l ? 'on lv' + l : ''}">${k === l ? d.p + '%' : ''}</span>`).join('')}</div>`; }).join('')}
+      <div class="tiny muted">مستويات الأداء المعروضة محاكاة تدريبية وفق نسب المنصة. المجال الذي لم تُطرح منه أسئلة لا يُقيَّم؛ عينة قليلة لا تكفي للحكم على الجاهزية.</div>
+      <div class="grid g3"><div class="kpi"><span class="small muted">الإجابات الصحيحة</span><b class="num">${h.r}/${h.n}</b></div><div class="kpi"><span class="small muted">غير مُجاب</span><b class="num">${I.unanswered == null ? '—' : I.unanswered}</b></div><div class="kpi"><span class="small muted">أسئلة معلّمة للمراجعة</span><b class="num">${I.flagged == null ? '—' : I.flagged}</b></div></div>
+      <div class="blk stack"><h3>تحليل الأداء وخطوة المذاكرة التالية</h3>${I.weak.length ? I.weak.map(d => `<p class="small">راجع <b>${esc(d.t.ar)}</b> (${d.correct}/${d.total} · ${d.p}%). أعد درس المجال ثم حل اختبارًا جديدًا له؛ استهدف ${DAY_TARGET}% أو أكثر في التدريب.</p>`).join('') : '<p class="small">لا توجد مجالات مقاسة دون هدف المذاكرة. واصل الاختبارات التدريبية للتحقق من ثبات الأداء.</p>'}${I.unmeasured.length ? `<p class="small muted">تحتاج عينة إضافية: ${I.unmeasured.map(d => esc(d.t.ar)).join('، ')}.</p>` : ''}<a class="btn sm o" href="#plan-post">افتح خطة الاجتياز بعد البرنامج</a></div>
       ${h.proctor === 'cam' ? `<h3>سجل المراقبة</h3>${viol.length ? `<div class="scroll"><table><thead><tr><th>الوقت</th><th>المخالفة</th></tr></thead><tbody>${viol.map(v => `<tr><td class="num small">${new Date(v.t).toLocaleTimeString('en-GB')}</td><td>${esc(v.m)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="chip ok">لا توجد مخالفات مسجّلة</div>'}${(h.viol || []).some(v => v.k === 'cam') ? '<div class="tiny muted">الكاميرا لم تكن متاحة؛ اعتمدت المراقبة على السلوك.</div>' : ''}` : ''}
       <div class="row"><button class="btn g" id="examPdf">حفظ التقرير PDF</button><button class="btn g" id="examWord">تنزيل Word</button><button class="btn" data-start="${h.spec}">اختبار مشابه</button><button class="btn o" data-start="wrong">راجع أخطائي</button><button class="btn g" id="advise">خطة علاجية بالذكاء الاصطناعي</button></div><div id="advOut"></div></div>
     ${X ? `<h2>مراجعة الإجابات</h2><div class="stack">${X.items.map((it, k) => { const q = QBY.get(it.id) || (X.ai || {})[it.id]; if (!q) return ''; const a = X.ans[k] || []; const ok = sameSet(a, q.c); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc((q.q.ar || q.q.en).slice(0, 140))}${(q.q.ar || q.q.en).length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
       <div class="stack" style="margin-top:10px"><div>${bi(q.q)}</div><div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${bi({ ar: q.o.ar[o], en: q.o.en[o] })}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${bi(q.x)}${q.ref ? `<div class="tiny muted">المصدر: ${esc(q.ref)}</div>` : ''}</div></div></details>`; }).join('')}</div>` : '<p class="muted">تفاصيل المراجعة محفوظة لآخر 6 اختبارات فقط.</p>'}</div>`;
-  const examReport = () => `<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>ALSAEED | تقرير الاختبار</title><style>body{font:16px Arial,sans-serif;color:#163149;line-height:1.7;margin:40px}header{background:#123b5d;color:white;padding:30px;border-radius:14px}table{border-collapse:collapse;width:100%}td,th{padding:12px;border:1px solid #ccd9e2}th{background:#eaf4f7}</style><header><b>ALSAEED · تقرير أداء تدريبي</b><h1>${esc(h.label)}</h1><p>${esc(h.name || ME?.name || '')} · ${new Date(h.date).toLocaleString('ar-EG')}</p></header><h2>النتيجة الإجمالية: ${h.pct}%</h2><p>${h.r} صحيحة من ${h.n} · ${esc(lv[1])} · ${fmtTime(h.dur)}</p><table><tr><th>مجال ECO</th><th>الإجابات الصحيحة</th><th>النسبة</th><th>مستوى الأداء</th></tr>${Object.entries(h.byD).sort().map(([d,v])=>`<tr><td>${esc(D.domains[d-1]?.t.ar || d)}</td><td>${v[0]}/${v[1]}</td><td>${pct(v[0],v[1])}%</td><td>${esc(level(pct(v[0],v[1]))[1])}</td></tr>`).join('')}</table><p>تقرير تدريبي من منصة السعيد؛ لا يمثل نتيجة رسمية أو درجة نجاح معلنة من PMI.</p></html>`;
+  const examReport = () => `<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>ALSAEED | تقرير الاختبار</title><style>body{font:16px Arial,sans-serif;color:#163149;line-height:1.7;margin:40px}header{background:#123b5d;color:white;padding:30px;border-radius:14px}table{border-collapse:collapse;width:100%}td,th{padding:12px;border:1px solid #ccd9e2}th{background:#eaf4f7}.badge{display:inline-block;background:#e3f3f0;border-radius:12px;padding:8px 14px;font-weight:bold}.warn{background:#fff3dc;padding:12px;border-radius:8px}</style><header><b>ALSAEED · تقرير أداء تدريبي / Training Performance Report</b><h1>${esc(h.label)}</h1><p>${esc(h.name || ME?.name || '')} · ${new Date(h.date).toLocaleString('ar-EG')} · ${h.mode === 'exam' ? 'وضع الاختبار' : 'وضع التدريب'}</p></header><h2>النتيجة الإجمالية: ${h.pct}%</h2><p class="badge">${h.r} صحيحة من ${h.n} · ${esc(lv[1])} / ${esc(lv[2])} · الوقت ${fmtTime(h.dur)}</p><p>غير مُجاب: ${I.unanswered ?? '—'} · معلّم للمراجعة: ${I.flagged ?? '—'}</p><h2>الأداء حسب مجالات مخطط الاختبار / ECO</h2><table><tr><th>المجال</th><th>الوزن</th><th>الإجابات الصحيحة</th><th>النسبة</th><th>المستوى</th></tr>${I.domains.map(d=>`<tr><td>${esc(d.t.ar)} / ${esc(d.t.en)}</td><td>${d.w}%</td><td>${d.correct}/${d.total}</td><td>${d.p == null ? '—' : d.p+'%'}</td><td>${esc(d.rating)}</td></tr>`).join('')}</table><h2>خطة المراجعة</h2>${I.weak.length ? `<ol>${I.weak.map(d=>`<li>راجع ${esc(d.t.ar)}، ثم أعد اختبار المجال؛ أداؤك ${d.p}% والهدف التدريبي ${DAY_TARGET}%.</li>`).join('')}</ol>` : '<p>واصل التدريب على جميع المجالات وثبّت مستواك باختبارات متعددة.</p>'}${I.unmeasured.length ? `<p class="warn">تحتاج عينة أسئلة إضافية لتقييم: ${I.unmeasured.map(d=>esc(d.t.ar)).join('، ')}.</p>` : ''}<p class="warn">مستويات الأداء وهدف 80% تقديرات تدريبية من منصة السعيد؛ هذا التقرير لا يمثل نتيجة رسمية من PMI، ولا تعلن PMI درجة نجاح رقمية.</p></html>`;
   $('#examPdf').onclick = () => printReport(examReport());
   $('#examWord').onclick = () => exportWord('ALSAEED-RMP-report.doc',examReport());
   $('#advise').onclick = () => AIX.ask(`هذه نتيجتي في «${h.label}»: ${h.r}/${h.n} (${h.pct}%). حسب المجال: ${Object.entries(h.byD).map(([d, v]) => D.domains[d - 1].t.en + ' ' + v[0] + '/' + v[1]).join('، ')}. ضع لي خطة علاجية لمدة 7 أيام (ساعة إلى ساعتين يوميًا) تبدأ بأضعف مجال، مع المفاهيم التي يجب مراجعتها في كل يوم ونوع الاختبار المناسب من المنصة (اختبار المجال/الفصل/المهمة/الكامل).`, { onText: t => { $('#advOut').innerHTML = `<div class="msg a">${esc(t)}</div>`; } });
@@ -1430,6 +1467,8 @@ routes.progress = () => {
   const full = S.hist.filter(h => h.spec === 'full');
   view.innerHTML = `<div class="stack"><div><span class="eyebrow">My progress</span><h1>تقدّمي</h1></div>
     <div class="grid g4">${[['الدروس المنجزة', dc + '/' + LESSONS.length], ['أسئلة مُجابة', st.n], ['الدقة الحالية', st.n ? pct(st.r, st.n) + '%' : '—'], ['اختبارات كاملة', full.length + (full.length ? ' · أفضل ' + Math.max(...full.map(h => h.pct)) + '%' : '')]].map(k => `<div class="card pad kpi"><span class="small muted">${k[0]}</span><b>${k[1]}</b></div>`).join('')}</div>
+    <h2>خطة اجتياز الأيام الخمسة</h2><p class="small muted">تحقيق الهدف يُحسب من الدروس المكتملة والنشاط المرفوع وأفضل نتيجة لاختبار اليوم. معيار 80% هنا هدف تدريبي وضعته المنصة.</p>
+    <div class="grid g3">${D.days.map(d => dailyGoalCard(d.n)).join('')}</div>
     <div class="grid g2">
       <div class="card pad stack"><h3>الجاهزية حسب المجال</h3>${D.domains.map(d => { const v = st.byD[d.n]; const p = v ? pct(v[0], v[1]) : null; return `<div class="stack" style="gap:4px"><div class="row between"><span><span class="dot" style="background:${DOMC[d.n]}"></span> ${esc(d.t.ar)} <span class="muted num small">${d.w}%</span></span>${p == null ? '<span class="tiny muted">لا بيانات</span>' : lvl(p)}</div><div class="bar"><i style="width:${p || 0}%;background:${DOMC[d.n]}"></i></div><span class="tiny muted num">${v ? v[0] + '/' + v[1] + ' صحيحة' : ''}</span></div>`; }).join('')}
         <div class="row between"><b>الجاهزية المرجّحة</b>${r == null ? '<span class="muted">—</span>' : `<b class="num">${r}%</b>`}</div></div>
@@ -2152,6 +2191,7 @@ window.addEventListener('beforeunload', () => { if (SERVER && ME && syncT) { try
 async function afterLogin(d) {
   ME = d.user; MYG = d.groups || [];
   try { RELEASED_DAY = (await API.get('schedule')).released; } catch(e) { RELEASED_DAY = isStaff() ? 5 : 0; }
+  try { MY_SUBMISSIONS = await API.get('my/submissions'); } catch(e) { MY_SUBMISSIONS = []; }
   try { applyContent(await API.get('content')); } catch (e) { toast('تعذر تحميل تحديثات المحتوى'); }
   try {
     const p = await API.get('progress');
@@ -2165,9 +2205,14 @@ async function afterLogin(d) {
   if (ME.must_change) return pwView(true);
   if (!location.hash || location.hash === '#login') go(isStaff() ? '#admin' : '#tasks'); else render();
 }
+// A trainee who leaves the tab open overnight receives the next day's access without signing in again.
+setInterval(async () => {
+  if (!SERVER || !ME || isStaff() || document.hidden) return;
+  try { const next = (await API.get('schedule')).released; if (next !== RELEASED_DAY) { RELEASED_DAY = next; render(); toast('فُتح محتوى اليوم الجديد'); } } catch(e) {}
+}, 60000);
 function logout(silent) {
   try { localStorage.removeItem(TOK); } catch (e) {}
-  ME = null; MYG = []; RELEASED_DAY = 0;
+  ME = null; MYG = []; MY_SUBMISSIONS = []; RELEASED_DAY = 0;
   S = Object.assign(FRESH(), {}); save();
   buildNav(); userChip();
   if (!silent) toast('تم تسجيل الخروج');
