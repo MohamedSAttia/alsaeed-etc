@@ -497,6 +497,23 @@ const ic = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 const NAV = [['home', 'الرئيسية'], ['plan', 'الخطة التدريبية'], ['learn', 'المحتوى'], ['eco', 'مهام ECO'], ['kit', 'الأنشطة والقوالب'], ['lab', 'المختبر التطبيقي'], ['exams', 'الاختبارات'], ['gov', 'متابعة المخاطر'], ['ai', 'المساعد الذكي'], ['progress', 'تقدّمي']];
 
 // ---------------------------------------------------------------- derived data
+const STUDY_TIPS = {
+  KL54:{ar:'اقرأ بيان مخاطرة لفريقك، ثم حدّدوا السبب والحدث والأثر في بيانات الفرق الأخرى.',en:'Read one risk statement aloud; identify the cause, event and effect in other teams’ statements.'},
+  KL68:{ar:'فكّر: ما الذي سيتغير في سجل المخاطر عندما يتغير نهج المشروع؟',en:'Reflect: what changes in your risk register if the project approach changes?'},
+  KL86:{ar:'ضع رقمًا واضحًا لكل حد فاصل؛ وصف «متحفّظ» وحده لا يكفي.',en:'Give each threshold a number; “conservative” alone is not measurable.'},
+  KL136:{ar:'حدّث سجل المخاطر كل يوم؛ إنه وثيقة حيّة طوال البرنامج.',en:'Update your risk register daily throughout the course.'},
+  KL146:{ar:'حدّد افتراضًا هشًا واحدًا على الأقل وحوّله إلى بيان مخاطرة.',en:'Find at least one fragile assumption and turn it into a risk statement.'},
+  KL161:{ar:'راجع بياناتك في السجل بصيغة السبب ثم الحدث ثم الأثر.',en:'Review your entries using cause, uncertain event and impact.'},
+  KL211:{ar:'راجع مصطلحات التحليل النوعي: الإلحاح والقرب وقائمة المراقبة وجودة البيانات.',en:'Review urgency, proximity, watch list and data quality.'},
+  KL215:{ar:'برّر لزملائك وضع مخاطرة واحدة في المنطقة الحمراء.',en:'Explain to your peers why one risk belongs in the red zone.'},
+  KL231:{ar:'تحقق من إشارات EMV: لا تجمع الفرص كما لو كانت تهديدات.',en:'Check EMV signs: opportunities must not be added as threats.'},
+  KL279:{ar:'حدّد شخصًا مسؤولًا لكل مخاطرة؛ «الفريق» أو «الجميع» ليس مالكًا محددًا.',en:'Name a responsible person for each risk, rather than “the team” or “everyone”.'},
+  KL287:{ar:'اختر استراتيجيات للفرص أيضًا، وليس للتهديدات وحدها.',en:'Choose response strategies for opportunities as well as threats.'},
+  KL300:{ar:'اسأل نفسك لكل استجابة: ما المخاطرة الثانوية والمتبقية؟ ومن يراقب المحفّز؟',en:'For each response, identify secondary and residual risks and the trigger owner.'},
+  KL350:{ar:'ارسم اتجاه التعرّض الكلي للمخاطر خلال الأيام الأربعة الماضية.',en:'Chart overall risk exposure across the past four days.'},
+  KL361:{ar:'قدّم درسًا واحدًا يمكن تطبيقه في مبادرة أخرى، ووضّح سبب صلاحيته.',en:'Present one lesson that could transfer to another initiative and explain why.'},
+  KL367:{ar:'وزّعوا أدوار اللجنة بينكم وسجّلوا النقاش والقرار في محضر واضح.',en:'Assign committee roles and record your discussion and decision in clear minutes.'}
+};
 const LESSONS = D.lessons;
 const LBY = new Map(LESSONS.map(l => [l.id, l]));
 function lessonsOf(day, sec) { return LESSONS.filter(l => l.day === day && (sec == null || l.sec === sec)); }
@@ -585,6 +602,8 @@ function render() {
   $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.k === (key === 'lesson' ? 'learn' : key === 'run' || key === 'result' || key === 'setup' ? 'exams' : key === 'play' ? 'games' : key === 'live' ? 'tasks' : key)));
   view.innerHTML = '';
   view.className = 'fade';
+  const blocked = lockedRoute(key, args);
+  if (blocked) { view.innerHTML = `<div class="auth-wrap"><div class="card pad stack" style="max-width:670px;margin:auto"><span class="eyebrow">برنامج 27 سبتمبر – 1 أكتوبر 2026</span><h1>هذا اليوم لم يُفتح بعد</h1><p>يمكنك الاطلاع على خطة الأيام الخمسة، وتُفتح دروس وأنشطة وتمارين واختبارات كل يوم في موعده بتوقيت الرياض.</p><p class="small muted">اليوم ${DN[blocked]} يُفتح في ${esc(D.days[blocked-1]?.date.ar || 'موعده المحدد')}. المتاح الآن حتى اليوم ${DN[Math.max(1, RELEASED_DAY)]}.</p><div class="row"><a class="btn" href="#plan">عرض الخطة</a><a class="btn g" href="#learn-${Math.max(1,RELEASED_DAY)}">محتوى اليوم المتاح</a></div></div></div>`; return; }
   routes[key](...args);
   if (!['run'].includes(key)) window.scrollTo(0, 0);
 }
@@ -675,7 +694,7 @@ routes.plan = (tab = 'course') => {
             <div class="small muted">حقيبة المتدرب: اليوم ${DN[d.n]} — الأقسام 1–${d.secs.length}</div>
           </div>
         </div>
-        <div class="row" style="gap:16px">${ck('d' + d.n + 'a', 'حضرت الجلسات')}${ck('d' + d.n + 'b', 'أنجزت الأنشطة والقوالب')}${ck('d' + d.n + 'c', 'أنهيت اختبار اليوم')}</div>
+        <div class="row" style="gap:16px">${!SERVER || !ME || isStaff() || d.n <= RELEASED_DAY ? ck('d' + d.n + 'a', 'حضرت الجلسات') + ck('d' + d.n + 'b', 'أنجزت الأنشطة والقوالب') + ck('d' + d.n + 'c', 'أنهيت اختبار اليوم') : '<span class="chip">يفتح في موعده · '+esc(d.date.ar)+'</span>'}</div>
         <div class="row between"><div class="small">الدروس: <span class="num">${dn}/${ls.length}</span></div><div class="row"><a class="btn sm o" href="#learn-${d.n}">المحتوى</a><button class="btn sm" data-start="day:${d.n}">اختبار اليوم</button></div></div>
       </article>`;
     }).join('');
@@ -685,7 +704,7 @@ routes.plan = (tab = 'course') => {
       ${POST60.map((w, i) => `<tr><td class="num">${w[0]}</td><td>${esc(w[1])}<span class="en-line">${esc(w[2])}</span></td><td>${w[3].length ? w[3].map(c => `<button class="btn sm g" data-start="ch:${c}">${esc(D.chapters.find(x => x.k === c).t.ar)}</button>`).join(' ') : (i === 3 || i === 5 || i === 6 ? '<button class="btn sm" data-start="full">اختبار كامل</button>' : i === 4 ? '<button class="btn sm g" data-start="weak">أضعف المجالات</button>' : '—')}</td><td><input type="checkbox" data-plan="w${i}" ${S.plan['w' + i] ? 'checked' : ''} aria-label="تم"></td></tr>`).join('')}
       </tbody></table></div></div>`;
   } else {
-    body = `<div class="card pad stack"><p class="muted small">خطة المدرّب المكثفة: أسبوعان بمعدل 3 ساعات يوميًا، وآخر 4 أيام نحو 7 ساعات. قدّم الطلب قبل المذاكرة، وادفع بعد الاختبارين 1 و2، واحجز الموعد بعد الاختبار 3.</p>
+    body = `<div class="card pad stack"><p class="muted small">خطة مذاكرتك المكثفة: أسبوعان بمعدل 3 ساعات يوميًا، وآخر 4 أيام نحو 7 ساعات. قدّم الطلب قبل المذاكرة، وادفع بعد الاختبارين 1 و2، واحجز الموعد بعد الاختبار 3.</p>
       <div class="scroll"><table><thead><tr><th>اليوم</th><th>المحتوى</th><th>المعدل المطلوب</th><th>تم</th></tr></thead><tbody>
       ${TWO.map((t, i) => `<tr><td class="num">${i + 1}</td><td>${esc(t[0])}</td><td class="num">${t[1] === '—' ? '—' : '≥ ' + t[1]}</td><td><input type="checkbox" data-plan="t${i}" ${S.plan['t' + i] ? 'checked' : ''} aria-label="تم"></td></tr>`).join('')}
       </tbody></table></div>
@@ -700,7 +719,7 @@ routes.plan = (tab = 'course') => {
 routes.learn = (day, sec) => {
   day = +day || 0;
   if (!day) {
-    view.innerHTML = `<div class="stack"><div><span class="eyebrow">Course content</span><h1>محتوى البرنامج</h1><p class="muted">مطابق لحقيبة المدرّب وحقيبة المتدرب: 5 أيام، لكل يوم أقسامه ودروسه ونقاط الاختبار وروابط الأنشطة.</p></div>
+    view.innerHTML = `<div class="stack"><div><span class="eyebrow">Course content</span><h1>محتوى البرنامج</h1><p class="muted">أعدّ د. محمد عطية هذا المسار لك: خمسة أيام من الدروس والتطبيقات والأسئلة. تظهر الخطة كاملة، ويُفتح محتوى كل يوم في موعده.</p></div>
     ${D.days.map(d => `<section class="card pad stack tag-d" style="--c:${DOMC[d.n]}"><div class="row between"><h2>اليوم ${DN[d.n]} — ${esc(d.t.ar)}</h2><button class="btn sm" data-start="day:${d.n}">اختبار اليوم</button></div>
       <div class="grid g3">${d.secs.map(s => { const ls = lessonsOf(d.n, s.n); const dn = ls.filter(l => S.done[l.id]).length; return `<a class="card pad stack" style="text-decoration:none;color:inherit;gap:6px;box-shadow:none" href="#learn-${d.n}-${s.n}"><span class="eyebrow" style="color:${DOMC[d.n]}">القسم ${s.n}</span><h4>${bi(s.t)}</h4><div class="bar"><i style="width:${pct(dn, ls.length)}%;background:${DOMC[d.n]}"></i></div><span class="tiny muted num">${dn}/${ls.length}</span></a>`; }).join('')}</div></section>`).join('')}</div>`;
     return;
@@ -770,7 +789,7 @@ function kitLessonBody(l) {
       <div class="blk"><h4>📘 حقيبة الأنشطة والقوالب</h4>${a ? `<div>${a.id} — ${esc(a.t.ar)}</div>` : ''}${l.tpl.map(t => { const tp = D.tpls.find(x => x.id === t); return `<div class="small">${t} — ${esc(tp.t.ar)}</div>`; }).join('')}
         <div class="row" style="margin-top:8px">${a ? `<a class="btn sm o" href="#kit-${a.id}">بطاقة النشاط</a>` : ''}${(a && a.lab) || l.tpl.some(t => (D.tpls.find(x => x.id === t) || {}).lab) ? `<a class="btn sm" href="#lab-${(a && a.lab) || D.tpls.find(x => l.tpl.includes(x.id) && x.lab).lab}">نفّذه في المختبر</a>` : ''}</div></div>
       <div class="blk"><h4>📗 حقيبة المتدرب</h4><div>اليوم ${DN[l.wb[0]]} — ${esc(wb.ar)}</div><span class="en-line">Day ${l.wb[0]} — ${esc(wb.en)}</span></div>
-      <div class="blk"><h4>🎯 للمدرب</h4>${bi(l.trainer)}<div class="small" style="margin-top:6px"><b>لاحقًا:</b> ${bi(l.coming)}</div></div>
+      <div class="blk"><h4>🎯 توجيه لك من د. محمد عطية</h4>${bi(STUDY_TIPS[l.id] || l.trainer)}<div class="small" style="margin-top:6px"><b>لاحقًا:</b> ${bi(l.coming)}</div></div>
     </div></div>`;
 }
 
@@ -807,6 +826,21 @@ function reportDocument(activity, notes) {
 }
 function exportWord(name, html) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff',html], { type: 'application/msword' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 function printReport(html) { const w = window.open('', '_blank'); if (!w) return toast('اسمح بالنوافذ المنبثقة لحفظ PDF'); w.document.write(html); w.document.close(); w.onload = () => w.print(); }
+async function exportPptx(title, sections) {
+  if (!SERVER || !ME) return toast('سجّل الدخول لتنزيل العرض');
+  try { const r = await fetch('api/my/report.pptx', { method:'POST', headers:{...window.__authH(),'content-type':'application/json'}, body:JSON.stringify({title,sections}) });
+    if (!r.ok) { const e=await r.json().catch(()=>({}));throw new Error(e.error||'تعذر إنشاء العرض'); }
+    const url=URL.createObjectURL(await r.blob()), a=document.createElement('a');a.href=url;a.download='ALSAEED-risk-report.pptx';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  } catch(e) {toast(e.message);}
+}
+async function shareReport(title, html) {
+  const file = new File([html], 'ALSAEED-risk-report.doc', {type:'application/msword'});
+  if (navigator.canShare?.({files:[file]}) && navigator.share) { try {await navigator.share({title,files:[file]});return;} catch(e) { if(e.name==='AbortError')return; } }
+  const link=location.href, msg=`${title} — التقرير متاح للتنزيل من الفصل الخاص: ${link}`;
+  const m=modal(`<h3>مشاركة التقرير</h3><p class="small muted">نزّل الملف ثم أرفقه يدويًا إذا لم يدعم جهازك مشاركة الملفات.</p><div class="row"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">واتساب</a><a class="btn o" href="mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(msg)}">البريد الإلكتروني</a><button class="btn g" id="shareCopy">نسخ النص</button></div>`);
+  $('#shareCopy',m.el).onclick=()=>copy(msg);
+}
+
 // ---------------------------------------------------------------- KIT
 routes.kit = (id) => {
   if (id && ACT.has(id)) {
@@ -817,12 +851,14 @@ routes.kit = (id) => {
       ${a.out ? `<div class="nrc" style="border-color:var(--ok);background:var(--ok-soft)"><b style="color:var(--ok)">المُخرَج:</b> ${bi(a.out)}</div>` : ''}
       ${a.nrc ? `<div class="nrc"><b>مثال — المجلس الوطني:</b> ${bi(a.nrc)}</div>` : ''}
       <div class="row">${a.lab ? `<a class="btn" href="#lab-${a.lab}">نفّذه في المختبر التطبيقي</a>` : ''}${a.day ? `<a class="btn o" href="#learn-${a.day}">محتوى اليوم ${DN[a.day]}</a>` : ''}</div>
-      <div class="blk stack"><h3>مخرجات ورشة العمل · Workshop deliverable</h3><p class="small muted">اكتب النتائج والقرارات والدليل، ثم ارفعها للمشرف. يمكنك تنزيل ملخص Word أو حفظه PDF من أمر الطباعة.</p><textarea id="activityNotes" rows="8" placeholder="النتائج، سجل المخاطر، مالك كل إجراء، الأولوية، الافتراضات والقرار...">${esc(S.activities?.[a.id]?.notes || '')}</textarea><div class="row"><button class="btn" id="submitActivity">رفع للمشرف</button><button class="btn g" id="activityWord">تنزيل Word</button><button class="btn o" id="activityPdf">حفظ PDF</button></div><span class="small muted" id="submissionState">${S.activities?.[a.id]?.submitted ? 'رُفع للمشرف' : 'مسودة محلية'}</span></div></article></div>`;
+      <div class="blk stack"><h3>مخرجات ورشة العمل · Workshop deliverable</h3><p class="small muted">اكتب النتائج والقرارات والدليل، ثم ارفعها للمشرف. يمكنك تنزيل ملخص Word أو حفظه PDF من أمر الطباعة.</p><textarea id="activityNotes" rows="8" placeholder="النتائج، سجل المخاطر، مالك كل إجراء، الأولوية، الافتراضات والقرار...">${esc(S.activities?.[a.id]?.notes || '')}</textarea><div class="row"><button class="btn" id="submitActivity">رفع للمشرف</button><button class="btn g" id="activityWord">تنزيل Word</button><button class="btn o" id="activityPdf">حفظ PDF</button><button class="btn g" id="activityPptx">تنزيل PPTX</button><button class="btn g" id="activityShare">مشاركة</button></div><span class="small muted" id="submissionState">${S.activities?.[a.id]?.submitted ? 'رُفع للمشرف' : 'مسودة محلية'}</span></div></article></div>`;
     const notes = $('#activityNotes');
     notes.oninput = () => { S.activities = S.activities || {}; S.activities[a.id] = { ...(S.activities[a.id] || {}), notes: notes.value, submitted: false }; save(); $('#submissionState').textContent = 'مسودة محلية'; };
     const reportHtml = () => reportDocument(a, notes.value);
     $('#activityWord').onclick = () => exportWord('ALSAEED-' + a.id + '.doc', reportHtml());
     $('#activityPdf').onclick = () => printReport(reportHtml());
+    $('#activityPptx').onclick = () => exportPptx(a.t.ar, [{title:'الهدف',body:a.goal?.ar||''},{title:'خطوات التطبيق',body:a.steps.map((x,i)=>`${i+1}. ${x.ar}`).join('\n')},{title:'نتائج الورشة والقرار',body:notes.value},{title:'سجل المخاطر',body:(S.lab?.reg||[]).map(r=>`${r.id}: ${r.event} — ${r.effect} — ${r.owner} — ${r.action}`).join('\n')}]);
+    $('#activityShare').onclick = () => shareReport(a.t.ar,reportHtml());
     $('#submitActivity').onclick = async () => { if (!SERVER || !ME) return toast('سجّل الدخول أولًا'); try { await API.post('my/submissions', { activity_id: a.id, notes: notes.value, report: { title: a.t, day: a.day, goal: a.goal, steps: a.steps, lab: S.lab || null } }); S.activities = S.activities || {}; S.activities[a.id] = { notes: notes.value, submitted: Date.now() }; save(); $('#submissionState').textContent = 'تم الرفع للمشرف'; toast('تم تسليم النشاط'); } catch(e) { toast(e.message); } };
     return;
   }
@@ -846,13 +882,13 @@ routes.interview = () => {
     ['قرار اللجنة والمتابعة','ما القرار المقترح وصلاحية اعتماده ومؤشرات الإنذار وموعد المراجعة؟']
   ];
   const I = S.interview || (S.interview={answers:['','','','',''],step:0});
-  const draw=()=>{const n=Math.min(4,Math.max(0,I.step));view.innerHTML=`<div class="stack"><div><span class="eyebrow">Risk committee · Simulation</span><h1>مقابلة لجنة إدارة المخاطر</h1><p class="muted">محاكاة تدريبية لصنع قرار مستند إلى الأدلة. تعليق الذكاء الاصطناعي للمراجعة، والاعتماد للمسؤول المختص.</p></div><div class="row">${P.map((x,i)=>`<button class="chip ${i===n?'a':''}" data-istep="${i}">${i+1} · ${x[0]}</button>`).join('')}</div><div class="card pad stack"><h2>${P[n][0]}</h2><p>${P[n][1]}</p><textarea id="iAnswer" rows="8">${esc(I.answers[n]||'')}</textarea><div class="row"><button class="btn" id="iNext">${n===4?'إكمال المقابلة':'حفظ والمرحلة التالية'}</button><button class="btn o" id="iAI">ناقش مع المساعد الذكي</button></div><div id="iFeedback"></div></div>${I.completed?`<div class="card pad stack"><h3>محضر اللجنة التدريبي</h3>${P.map((x,i)=>`<div class="blk"><b>${x[0]}</b><p style="white-space:pre-wrap">${esc(I.answers[i]||'—')}</p></div>`).join('')}<div class="row"><button class="btn" id="iSubmit">رفع للمشرف</button><button class="btn g" id="iWord">تنزيل Word</button><button class="btn g" id="iPdf">حفظ PDF</button></div></div>`:''}</div>`;
+  const draw=()=>{const n=Math.min(4,Math.max(0,I.step));view.innerHTML=`<div class="stack"><div><span class="eyebrow">Risk committee · Simulation</span><h1>مقابلة لجنة إدارة المخاطر</h1><p class="muted">محاكاة تدريبية لصنع قرار مستند إلى الأدلة. تعليق الذكاء الاصطناعي للمراجعة، والاعتماد للمسؤول المختص.</p></div><div class="row">${P.map((x,i)=>`<button class="chip ${i===n?'a':''}" data-istep="${i}">${i+1} · ${x[0]}</button>`).join('')}</div><div class="card pad stack"><h2>${P[n][0]}</h2><p>${P[n][1]}</p><textarea id="iAnswer" rows="8">${esc(I.answers[n]||'')}</textarea><div class="row"><button class="btn" id="iNext">${n===4?'إكمال المقابلة':'حفظ والمرحلة التالية'}</button><button class="btn o" id="iAI">ناقش مع المساعد الذكي</button></div><div id="iFeedback"></div></div>${I.completed?`<div class="card pad stack"><h3>محضر اللجنة التدريبي</h3>${P.map((x,i)=>`<div class="blk"><b>${x[0]}</b><p style="white-space:pre-wrap">${esc(I.answers[i]||'—')}</p></div>`).join('')}<div class="row"><button class="btn" id="iSubmit">رفع للمشرف</button><button class="btn g" id="iWord">تنزيل Word</button><button class="btn g" id="iPdf">حفظ PDF</button><button class="btn g" id="iPptx">تنزيل PPTX</button><button class="btn g" id="iShare">مشاركة</button></div></div>`:''}</div>`;
     $$('[data-istep]').forEach(b=>b.onclick=()=>{I.answers[n]=$('#iAnswer').value;I.step=+b.dataset.istep;save();draw();});
     $('#iAnswer').oninput=e=>{I.answers[n]=e.target.value;save();};
     $('#iNext').onclick=()=>{I.answers[n]=$('#iAnswer').value;if(!I.answers[n].trim())return toast('اكتب تحليلك أولًا');if(n===4)I.completed=Date.now();else I.step=n+1;save();draw();};
     $('#iAI').onclick=()=>AIX.ask(`أنت لجنة تدريبية في إدارة المخاطر. اطرح سؤالين نقديين وقيّم الأدلة والافتراضات دون ادعاء اعتماد رسمي. المرحلة: ${P[n][0]}. إجابة المتدرب: ${I.answers[n]||''}`,{onText:t=>{const el=$('#iFeedback');if(el)el.innerHTML=`<div class="msg a">${esc(t)}</div>`;}});
     if(I.completed){const notes=P.map((x,i)=>x[0]+'\n'+(I.answers[i]||'—')).join('\n\n');const report=()=>reportDocument({id:'INTERVIEW-D5',day:5,t:{ar:'محضر لجنة المخاطر',en:'Risk committee minutes'},goal:{ar:'تقييم القرارات وتحليل الأداء والتأثيرات'}},notes);
-      $('#iWord').onclick=()=>exportWord('ALSAEED-risk-committee.doc',report());$('#iPdf').onclick=()=>printReport(report());
+      $('#iWord').onclick=()=>exportWord('ALSAEED-risk-committee.doc',report());$('#iPdf').onclick=()=>printReport(report());$('#iPptx').onclick=()=>exportPptx('محضر لجنة المخاطر',P.map((x,i)=>({title:x[0],body:I.answers[i]||'—'})));$('#iShare').onclick=()=>shareReport('محضر لجنة المخاطر',report());
       $('#iSubmit').onclick=async()=>{try{await API.post('my/submissions',{activity_id:'INTERVIEW-D5',notes,report:{answers:I.answers,lab:S.lab||null}});toast('تم رفع المحضر للمشرف');}catch(e){toast(e.message);}};
     }
   };draw();
@@ -2038,6 +2074,28 @@ const TOK = CLS ? 'alsaeed_token' : 'eyad-token';
 let ME = null, MYG = [], BOOTING = SERVER && (() => { try { return !!localStorage.getItem(TOK); } catch (e) { return false; } })();
 const isStaff = () => ME && (ME.role === 'admin' || ME.role === 'trainer');
 const ROLE_T = { admin: 'مدير النظام', trainer: 'مدرّب', trainee: 'متدرّب' };
+let RELEASED_DAY = 0;
+function lockedSpec(spec) {
+  if (RELEASED_DAY >= 5) return 0;
+  const m = /^(day|qc|scen):(\d)$/.exec(spec || '');
+  if (m) return +m[2] > RELEASED_DAY ? +m[2] : 0;
+  return 5; // comprehensive, chapter and domain exams open after the five-day course
+}
+function lockedRoute(key, args) {
+  if (!SERVER || !ME || isStaff() || RELEASED_DAY >= 5) return 0;
+  const id = args.join('-');
+  if (key === 'learn') return +args[0] > RELEASED_DAY ? +args[0] : 0;
+  if (key === 'lesson') { const d = LBY.get(id)?.day; return d > RELEASED_DAY ? d : 0; }
+  if (key === 'kit') { const d = ACT.get(id)?.day; return d > RELEASED_DAY ? d : 0; }
+  if (key === 'games') { const d = args.length ? +args[0] : (S.gday || 1); return !d || d > RELEASED_DAY ? (d || 5) : 0; }
+  if (key === 'play') { const d = +String(id).split('~')[1]; return !d || d > RELEASED_DAY ? (d || 5) : 0; }
+  if (key === 'setup') { const z = id.split('~'); return lockedSpec(z[0] + (z[1] && !['exam','practice'].includes(z[1]) ? ':' + z[1] : '')); }
+  if (key === 'run') return lockedSpec(S.cur?.spec);
+  if (key === 'lab') return args[0] && args[0] !== 'register' && RELEASED_DAY < 3 ? 3 : 0;
+  if (key === 'gov' || key === 'interview' || key === 'eco' || (key === 'ai' && args[0] === 'gen')) return 5;
+  return 0;
+}
+
 
 const API = {
   tok() { try { return localStorage.getItem(TOK); } catch (e) { return null; } },
@@ -2093,6 +2151,7 @@ window.addEventListener('beforeunload', () => { if (SERVER && ME && syncT) { try
 
 async function afterLogin(d) {
   ME = d.user; MYG = d.groups || [];
+  try { RELEASED_DAY = (await API.get('schedule')).released; } catch(e) { RELEASED_DAY = isStaff() ? 5 : 0; }
   try { applyContent(await API.get('content')); } catch (e) { toast('تعذر تحميل تحديثات المحتوى'); }
   try {
     const p = await API.get('progress');
@@ -2108,7 +2167,7 @@ async function afterLogin(d) {
 }
 function logout(silent) {
   try { localStorage.removeItem(TOK); } catch (e) {}
-  ME = null; MYG = [];
+  ME = null; MYG = []; RELEASED_DAY = 0;
   S = Object.assign(FRESH(), {}); save();
   buildNav(); userChip();
   if (!silent) toast('تم تسجيل الخروج');
@@ -2879,15 +2938,15 @@ async function aContent() {
   const draw = () => {
     $('#aMain').innerHTML = `${aHead('Course studio', 'تحرير الأسئلة والأنشطة', 'التعديلات محفوظة في الفصل لجميع المتدربين؛ تبقى المحاولات السابقة في سجل الأداء.')}
       <div class="card pad stack"><div class="row"><button class="btn" id="newQ">إضافة سؤال</button><button class="btn o" id="newA">إضافة نشاط أو ورشة</button><input id="contentSearch" placeholder="ابحث بالرمز أو العنوان…" style="max-width:300px"></div><div class="row small muted">${D.q.length} سؤال · ${D.acts.length} نشاط · المحتوى معروض بالعربية والإنجليزية</div><div id="contentList" class="stack"></div></div>`;
-    const list = () => { const term = $('#contentSearch').value.trim().toLowerCase(); const all = [...D.acts.map(x => ({ kind:'activity', x })), ...D.q.map(x => ({ kind:'question', x }))];
-      $('#contentList').innerHTML = all.filter(({x}) => !term || (x.id + ' ' + (x.t?.ar || x.q?.ar || '') + ' ' + (x.t?.en || x.q?.en || '')).toLowerCase().includes(term)).slice(0,80).map(({kind,x}) => `<div class="notice row between"><div><span class="chip">${esc(x.id)}</span> <b>${esc(x.t?.ar || x.q?.ar || '')}</b><span class="small muted"> · ${kind === 'activity' ? 'نشاط · اليوم ' + x.day : 'سؤال · المجال ' + x.d}</span></div><button class="btn sm g" data-edit="${esc(x.id)}" data-kind="${kind}">تحرير</button></div>`).join('') || '<p class="empty">لا نتائج</p>';
+    const list = () => { const term = $('#contentSearch').value.trim().toLowerCase(); const all = [...D.acts.map(x => ({ kind:'activity', x, active:true })), ...D.q.map(x => ({ kind:'question', x, active:true }))]; for (const r of CONTENT.filter(r => !r.active)) all.push({ kind:r.kind, x:r.data, active:false });
+      $('#contentList').innerHTML = all.filter(({x}) => !term || (x.id + ' ' + (x.t?.ar || x.q?.ar || '') + ' ' + (x.t?.en || x.q?.en || '')).toLowerCase().includes(term)).slice(0,80).map(({kind,x}) => `<div class="notice row between"><div><span class="chip">${esc(x.id)}</span> <b>${esc(x.t?.ar || x.q?.ar || '')}</b><span class="small muted"> · ${kind === 'activity' ? 'نشاط · اليوم ' + x.day : 'سؤال · المجال ' + x.d}${active ? '' : ' · معطّل'}</span></div><button class="btn sm g" data-edit="${esc(x.id)}" data-kind="${kind}">تحرير</button></div>`).join('') || '<p class="empty">لا نتائج</p>';
       $$('[data-edit]').forEach(b => b.onclick = () => editor(b.dataset.kind, b.dataset.edit)); };
     $('#contentSearch').oninput = list; $('#newQ').onclick = () => editor('question'); $('#newA').onclick = () => editor('activity'); list();
   };
   const editor = (kind, id) => {
-    const orig = kind === 'question' ? QBY.get(id) : ACT.get(id), x = orig || {};
+    const override = CONTENT.find(r => r.kind === kind && r.id === id), orig = override?.data || (kind === 'question' ? QBY.get(id) : ACT.get(id)), x = orig || {};
     const rows = kind === 'question' ? `<label class="f">السؤال بالعربية<textarea id="cqAr" rows="3">${esc(x.q?.ar || '')}</textarea></label><label class="f">Question in English<textarea id="cqEn" rows="3">${esc(x.q?.en || '')}</textarea></label><label class="f">الخيارات بالعربية (سطر لكل خيار)<textarea id="coAr" rows="5">${esc((x.o?.ar || []).join('\n'))}</textarea></label><label class="f">Options in English (one per line)<textarea id="coEn" rows="5">${esc((x.o?.en || []).join('\n'))}</textarea></label><label class="f">الإجابة الصحيحة (أرقام الخيارات تبدأ من 1؛ افصل بينها بفاصلة)<input id="cc" value="${esc((x.c || []).map(v=>v+1).join(','))}"></label><label class="f">التفسير بالعربية<textarea id="cxAr">${esc(x.x?.ar || '')}</textarea></label><label class="f">Explanation in English<textarea id="cxEn">${esc(x.x?.en || '')}</textarea></label><label class="f">المجال ECO (1–5)<input id="cd" type="number" min="1" max="5" value="${x.d || 1}"></label>` : `<label class="f">عنوان عربي<input id="ctAr" value="${esc(x.t?.ar || '')}"></label><label class="f">English title<input id="ctEn" value="${esc(x.t?.en || '')}"></label><label class="f">الهدف بالعربية<textarea id="cgAr">${esc(x.goal?.ar || '')}</textarea></label><label class="f">Goal in English<textarea id="cgEn">${esc(x.goal?.en || '')}</textarea></label><label class="f">الخطوات بالعربية (سطر لكل خطوة)<textarea id="csAr" rows="5">${esc((x.steps || []).map(y=>y.ar).join('\n'))}</textarea></label><label class="f">Steps in English (one per line)<textarea id="csEn" rows="5">${esc((x.steps || []).map(y=>y.en).join('\n'))}</textarea></label><label class="f">اليوم (1–5)<input id="cday" type="number" min="1" max="5" value="${x.day || 1}"></label><label class="f">المدة بالدقائق<input id="cmin" type="number" min="5" value="${x.min || 30}"></label>`;
-    const m = modal(`<div class="stack"><h2>${orig ? 'تعديل' : 'إضافة'} ${kind === 'question' ? 'سؤال' : 'نشاط / ورشة'}</h2><label class="f">الرمز<input id="cid" value="${esc(id || (kind === 'question' ? 'custom-q-' : 'CUSTOM-A-') + Date.now().toString(36))}" ${orig ? 'disabled' : ''}></label>${rows}<label class="f"><input type="checkbox" id="cactive" checked> مفعّل للمتدربين</label><div class="row"><button class="btn" id="saveContent">حفظ ونشر</button><button class="btn g mclose" type="button">إلغاء</button></div></div>`,true);
+    const m = modal(`<div class="stack"><h2>${orig ? 'تعديل' : 'إضافة'} ${kind === 'question' ? 'سؤال' : 'نشاط / ورشة'}</h2><label class="f">الرمز<input id="cid" value="${esc(id || (kind === 'question' ? 'custom-q-' : 'CUSTOM-A-') + Date.now().toString(36))}" ${orig ? 'disabled' : ''}></label>${rows}<label class="f"><input type="checkbox" id="cactive" ${override?.active === 0 ? '' : 'checked'}> مفعّل للمتدربين</label><div class="row"><button class="btn" id="saveContent">حفظ ونشر</button><button class="btn g mclose" type="button">إلغاء</button></div></div>`,true);
     $('#saveContent',m.el).onclick = async () => { const v = n => $('#' + n,m.el).value.trim(), lines = n => v(n).split(/\r?\n/).map(t=>t.trim()).filter(Boolean), key = v('cid');
       let data;
       if (kind === 'question') { const ar = lines('coAr'), en = lines('coEn'); data = { ...x, id:key, src:x.src || 'trainer', d:+v('cd'), day:x.day || 1, q:{ar:v('cqAr'),en:v('cqEn')}, o:{ar,en}, c:v('cc').split(',').map(t=>+t.trim()-1), x:{ar:v('cxAr'),en:v('cxEn')} }; }
