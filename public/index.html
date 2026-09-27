@@ -4569,14 +4569,15 @@ function dash() {
   const u = A().me();
   loadReminderSettings();
   const reminder=window.__reminderSettings || {};
+  const classroom = u.packages.some(x => x.id === 'rmp-private-classroom' && (!x.expires || +x.expires > Date.now()));
   const mine = u.packages.map(x => ({ ...x, p: A().pack(x.id) })).filter(x => x.p);
   return `<section class="dash-hd"><div class="wrap">
     <h1>${siteEnglish()?'Welcome':'أهلاً'} ${esc(u.name.split(' ')[0])}</h1>
-    <p>${mine.length ? (siteEnglish()?`You have ${mine.length} packages. Pick up where you left off.`:`لديك ${mine.length} ${mine.length === 1 ? 'باقة' : 'باقات'} — واصل من حيث توقّفت.`)
+    <p>${mine.length || classroom ? (siteEnglish()?`You have ${mine.length + Number(classroom)} packages. Pick up where you left off.`:`لديك ${mine.length + Number(classroom)} ${(mine.length + Number(classroom)) === 1 ? 'باقة' : 'باقات'} — واصل من حيث توقّفت.`)
       : (siteEnglish()?'You have no packages yet. Choose your next program.':'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.')}</p>
   </div></section>
   <div class="wrap" style="padding-bottom:60px">
-    <div class="v32-dash-actions"><button class="btn o" id="dashInvoices" type="button">${siteEnglish()?'My invoices':'فواتيري'} ↗</button><a class="btn o" href="#programs">${siteEnglish()?'Explore programs':'استكشف البرامج'} ↗</a></div>
+    <div class="v32-dash-actions"><button class="btn o" id="dashInvoices" type="button">${siteEnglish()?'My invoices':'فواتيري'} ↗</button><a class="btn o" href="#programs">${siteEnglish()?'Explore programs':'استكشف البرامج'} ↗</a>${classroom?`<a class="btn p" href="/classroom/">${siteEnglish()?'Open private classroom':'افتح الفصل الخاص'} ↗</a>`:''}</div>
     <div class="readiness-explain mb"><span aria-hidden="true">🔔</span><div style="flex:1">
       <b>${siteEnglish()?'Study reminders':'تذكيرات الدراسة'}</b>
       <p>${siteEnglish()?'Receive an email when your video lessons are unfinished and you have not studied for several days. You can stop reminders at any time.':'تصل رسالة إلى بريدك عند عدم إكمال الفيديوهات والتوقف عن الدراسة عدة أيام. يمكنك إيقافها في أي وقت.'}</p>
@@ -4586,7 +4587,7 @@ function dash() {
         ${[1,3,7].map(d=>`<option value="${d}" ${reminder.days===d?'selected':''}>${d} ${siteEnglish()?'days':'أيام'}</option>`).join('')}</select>
       ${reminder.emailReady===false?`<p class="muted">${siteEnglish()?'Email sending is not configured yet.':'إرسال البريد غير مفعّل من إعدادات الخادم بعد.'}</p>`:''}
     </div></div>
-    ${mine.length ? `<div class="grid g2">${mine.map(x => {
+    ${mine.length || classroom ? `<div class="grid g2">${classroom?`<div class="card pad"><div class="pk-code">PMI-RMP</div><h3>${siteEnglish()?'Private classroom':'الفصل الخاص'}</h3><p>${siteEnglish()?'Your assignments, daily games and trainer feedback.':'تكليفاتك وألعاب اليوم ومتابعة المدرّب.'}</p><a class="btn p full" href="/classroom/">${siteEnglish()?'Enter classroom':'ادخل الفصل'} ↗</a></div>`:''}${mine.map(x => {
       const pc = A().pct(x.id), c = A().course(x.p.course);
       const left = Math.max(0, x.p.days - Math.floor((Date.now() - x.at) / 86400000));
       return `<div class="card pad">
@@ -4730,7 +4731,7 @@ function adminTab() {
         <button class="btn n full" data-at="users">إدارة المسجلين</button>
       </div>
       <div class="apanel"><h4>أحدث الطلبات</h4>${orders.length?orders.map(o=>`<div class="student-quick"><div><b>${esc(o.user_name||o.userName||'—')}</b><span>${esc(o.package_name||o.packageName||o.package_id||o.pkg||'—')}</span></div><div style="text-align:end"><b class="num">${money(o.amount||0)} ${esc(o.currency||'')}</b><span>${esc(o.status||'')}</span></div></div>`).join(''):`<div class="empty"><div class="ic">🧾</div><b>لا طلبات بعد</b></div>`}</div>
-      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><button class="btn o full" data-at="questions">❓ إدارة بنك الأسئلة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
+      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><a class="btn o full" href="/classroom/">الفصل الخاص · المجموعات والنتائج ↗</a><button class="btn o full" data-at="questions">❓ إدارة بنك الأسئلة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
     </div>`;
   }
   if(admTab==='users'){
@@ -4752,6 +4753,7 @@ function adminTab() {
     return `<div class="admin-action-row" style="flex-wrap:wrap;gap:9px">
         <button class="btn p sm" id="admAddUser">＋ مستخدم جديد</button>
         <button class="btn o sm" id="admGrant">🎁 منح باقة</button>
+        <a class="btn o sm" href="/classroom/">الفصل الخاص · متابعة المتدرّبين ↗</a>
         <button class="btn o sm" id="exportStudents">⬇ تصدير CSV</button>
         <input id="studentSearch" placeholder="🔍 ابحث بالاسم أو البريد…" value="${esc(q)}"
           style="max-width:260px;padding:9px 14px;font-size:.86rem;border:1.5px solid var(--line2);border-radius:11px">
@@ -4780,7 +4782,7 @@ function adminTab() {
         <td><span class="chip ${u.role==='admin'?'info':'ok'}">${u.role==='admin'?'مشرف':'طالب'}</span></td>
         <td><span class="chip ${u.active===0?'no':'ok'}">${u.active===0?'معطّل':'نشط'}</span></td>
         <td>${(u.packages||[]).length?(u.packages||[]).map(x=>{const p=A().pack(x.id||x.package_id);
-          return p?`<span class="chip ok" style="margin:2px">${esc(p.ar)}</span>`:'';}).join(''):'<span class="muted">—</span>'}</td>
+          return p?`<span class="chip ok" style="margin:2px">${esc(p.ar)}</span>`:(x.id||x.package_id)==='rmp-private-classroom'?'<span class="chip info" style="margin:2px">الفصل الخاص</span>':'';}).join(''):'<span class="muted">—</span>'}</td>
         <td>${u.progress!=null?`<div class="prog" style="width:80px;margin:0"><i style="width:${u.progress||0}%"></i></div>
           <span class="num" style="font-size:.74rem">${u.progress||0}%</span>`:'<span class="muted">—</span>'}</td>
         <td class="num" style="font-size:.77rem">${new Date(u.created||u.joined||Date.now()).toLocaleDateString('ar-EG')}</td>
@@ -6657,7 +6659,7 @@ function bulkAction(action) {
   if (action === 'grant') {
     A().modal(`<h3>منح باقة لـ ${ids.length} مستخدماً</h3>
       <label class="f"><span>الباقة</span><select id="bkPk">
-        ${window.PACKAGES.map(p => `<option value="${p.id}">${esc(p.ar)}</option>`).join('')}
+        ${window.PACKAGES.map(p => `<option value="${p.id}">${esc(p.ar)}</option>`).join('')}<option value="rmp-private-classroom">الفصل الخاص · باقة مخفية</option>
       </select></label>
       <label class="f"><span>مدة الوصول (يوماً)</span><input type="number" id="bkDays" value="365"></label>
       <div class="mdl-act"><button class="btn p" id="bkGo">امنح للجميع</button>
@@ -6708,7 +6710,7 @@ function grantPkg() {
   const D=A().DB;
   A().modal(`<h3>منح باقة لمستخدم</h3><p>يفتح المحتوى فوراً بلا دفع — للتدريب المؤسسي أو المنح.</p>
     <label class="f"><span>المستخدم</span><select id="gpUser">${D.users.filter(u=>u.role==='student').map(u=>`<option value="${u.id}">${esc(u.name)} — ${esc(u.email)}</option>`).join('')}</select></label>
-    <label class="f"><span>الباقة</span><select id="gpPk">${window.PACKAGES.map(p=>`<option value="${p.id}">${esc(p.ar)}</option>`).join('')}</select></label>
+    <label class="f"><span>الباقة</span><select id="gpPk">${window.PACKAGES.map(p=>`<option value="${p.id}">${esc(p.ar)}</option>`).join('')}<option value="rmp-private-classroom">الفصل الخاص · باقة مخفية</option></select></label>
     <label class="f"><span>مدة الوصول بالأيام</span><input class="num" id="gpDays" type="number" min="1" value="365"></label>
     <div class="mdl-act"><button class="btn p" id="gpGo">امنح الباقة</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
       $('#gpGo').onclick=async()=>{
