@@ -267,7 +267,10 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   };
   const summ = id => J(q1('SELECT summary FROM cls_progress WHERE user_id = ?', id)?.summary, {}) || {};
   r.get('/admin/overview', auth, staff, (req, res) => {
-    const gids = groupIdsFor(req.user), T = traineeIdsFor(req.user), L = inList(T), day0 = new Date().setHours(0, 0, 0, 0);
+    const todayRiyadh = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    const gids = groupIdsFor(req.user), T = traineeIdsFor(req.user), L = inList(T), day0 = Date.parse(todayRiyadh + 'T00:00:00+03:00');
+    const currentDay = releasedDay({ role: 'trainee' });
+    const dailyGoals = T.map(id => ({ id, name: userRow(id)?.name || '—', goal: (summ(id).daily || []).find(x => x.day === currentDay) || null }));
     const k = {
       trainees: T.length,
       active_today: q1(`SELECT COUNT(*) c FROM cls_profile WHERE user_id IN (${L}) AND last_seen >= ?`, ...T, day0).c,
@@ -278,6 +281,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
       game_avg: q1(`SELECT ROUND(AVG(pct),1) a FROM cls_attempts WHERE kind = 'game' AND user_id IN (${L})`, ...T).a,
       groups: gids.length,
       assignments: q1(`SELECT COUNT(*) c FROM cls_assignments WHERE active = 1 AND ((target_type='group' AND target_id IN (${inList(gids)})) OR (target_type='user' AND target_id IN (${L})))`, ...gids.map(String), ...T).c,
+      goals_met_today: currentDay ? dailyGoals.filter(x => x.goal?.met).length : 0,
     };
     const groups = qa(`SELECT g.*, u.name AS trainer, (SELECT COUNT(*) FROM cls_members m WHERE m.group_id = g.id) AS n FROM cls_groups g LEFT JOIN users u ON u.id = g.trainer_id WHERE g.id IN (${inList(gids)}) ORDER BY g.active DESC, g.created DESC`, ...gids).map(g => {
       const ids = qa('SELECT user_id FROM cls_members WHERE group_id = ?', g.id).map(x => x.user_id), IL = inList(ids);
@@ -289,7 +293,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     });
     const daily = qa(`SELECT strftime('%Y-%m-%d', created/1000, 'unixepoch', '+3 hours') d, COUNT(*) n, ROUND(AVG(pct),1) avg FROM cls_attempts WHERE user_id IN (${L}) AND created >= ? GROUP BY d ORDER BY d`, ...T, now() - 14 * 864e5);
     const recent = qa(`SELECT a.id, a.kind, a.title, a.pct, a.created, u.name FROM cls_attempts a JOIN users u ON u.id = a.user_id WHERE a.user_id IN (${L}) ORDER BY a.created DESC LIMIT 15`, ...T);
-    res.json({ kpi: k, groups, daily, recent });
+    res.json({ kpi: k, groups, daily, recent, currentDay, dailyGoals });
   });
 
   // ---------------------------------------------------------------- staff: users (trainees & trainers)
