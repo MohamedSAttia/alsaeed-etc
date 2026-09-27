@@ -43,6 +43,9 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   CREATE TABLE IF NOT EXISTS cls_live (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT NOT NULL, group_id INTEGER, host_id TEXT NOT NULL, title TEXT, qs TEXT NOT NULL, state TEXT NOT NULL, created INTEGER NOT NULL, ended INTEGER);
   CREATE TABLE IF NOT EXISTS cls_live_answers (live_id INTEGER NOT NULL, user_id TEXT NOT NULL, qi INTEGER NOT NULL, choice TEXT, correct INTEGER, ms INTEGER, points INTEGER, PRIMARY KEY (live_id, user_id, qi));
   CREATE TABLE IF NOT EXISTS cls_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER NOT NULL, user_id TEXT, action TEXT NOT NULL, detail TEXT);
+  CREATE TABLE IF NOT EXISTS cls_content (kind TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1, updated_by TEXT, updated INTEGER NOT NULL, PRIMARY KEY(kind,id));
+  CREATE TABLE IF NOT EXISTS cls_submissions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, activity_id TEXT NOT NULL, notes TEXT NOT NULL, report TEXT, status TEXT NOT NULL DEFAULT 'submitted', feedback TEXT, reviewed_by TEXT, reviewed INTEGER, created INTEGER NOT NULL, updated INTEGER NOT NULL);
+  CREATE INDEX IF NOT EXISTS ix_cls_sub_user ON cls_submissions(user_id, updated);
   `);
 
   const q1 = (sql, ...a) => db.prepare(sql).get(...a);
@@ -108,6 +111,43 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     run(`INSERT INTO cls_progress (user_id, data, summary, updated) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, summary = excluded.summary, updated = excluded.updated`,
       req.user.id, s, JSON.stringify(req.body.summary || {}), now());
     res.json({ ok: true });
+  });
+  // The built-in bilingual course is immutable in the shipped page. These rows
+  // overlay it so editing content never destroys an existing trainee attempt.
+  r.get('/content', auth, (req, res) => res.json(qa('SELECT kind,id,data,active,updated FROM cls_content ORDER BY updated DESC').map(x => ({ ...x, data: J(x.data, {}) }))));
+  r.put('/admin/content/:kind/:id', auth, staff, (req, res) => {
+    const kind = req.params.kind, id = str(req.params.id, 64), data = req.body?.data;
+    if (!['question','activity'].includes(kind) || !/^[A-Za-z0-9_-]{2,64}$/.test(id) || !data || typeof data !== 'object' || Array.isArray(data) || data.id !== id) return bad(res, 'بيانات المحتوى غير صالحة');
+    const bilingual = x => x && typeof x.ar === 'string' && x.ar.trim() && typeof x.en === 'string' && x.en.trim();
+    if (!bilingual(data.t || data.q)) return bad(res, 'أدخل النص بالعربية والإنجليزية');
+    if (kind === 'question') {
+      const opts = data.o, answers = [].concat(data.c ?? []);
+      if (!opts || !Array.isArray(opts.ar) || !Array.isArray(opts.en) || opts.ar.length < 2 || opts.ar.length > 5 || opts.en.length !== opts.ar.length || !opts.ar.every(x => typeof x === 'string' && x.trim()) || !opts.en.every(x => typeof x === 'string' && x.trim()) || !answers.length || !answers.every(x => Number.isInteger(x) && x >= 0 && x < opts.ar.length) || ![1,2,3,4,5].includes(+data.d)) return bad(res, 'خيارات السؤال أو الإجابة أو المجال غير صالحة');
+    } else if (!Array.isArray(data.steps) || !data.steps.length || !data.steps.every(bilingual) || ![1,2,3,4,5].includes(+data.day)) return bad(res, 'اليوم والخطوات باللغتين مطلوبة');
+    const raw = JSON.stringify(data); if (raw.length > 25000) return bad(res, 'المحتوى طويل جدًا');
+    run('INSERT INTO cls_content(kind,id,data,active,updated_by,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET data=excluded.data,active=excluded.active,updated_by=excluded.updated_by,updated=excluded.updated', kind, id, raw, req.body.active === false ? 0 : 1, req.user.id, now());
+    audit(req.user.id, 'content_updated', `${kind}:${id}`); res.json({ ok: true });
+  });
+  r.post('/my/submissions', auth, (req, res) => {
+    const id = str(req.body?.activity_id, 64), notes = str(req.body?.notes, 10000), report = req.body?.report;
+    if (!/^[A-Za-z0-9_-]{2,64}$/.test(id) || notes.length < 10) return bad(res, 'اختر النشاط واكتب ملخصًا لا يقل عن 10 أحرف');
+    const serialized = report == null ? null : JSON.stringify(report);
+    if (serialized?.length > 150000) return bad(res, 'حجم التقرير كبير جدًا');
+    const t = now(), x = run('INSERT INTO cls_submissions(user_id,activity_id,notes,report,created,updated) VALUES(?,?,?,?,?,?)', req.user.id, id, notes, serialized, t, t);
+    audit(req.user.id, 'activity_submitted', id); res.json({ ok: true, id: Number(x.lastInsertRowid) });
+  });
+  r.get('/my/submissions', auth, (req, res) => res.json(qa('SELECT id,activity_id,notes,status,feedback,created,updated,reviewed FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', req.user.id)));
+  r.get('/admin/submissions', auth, staff, (req, res) => {
+    const ids = traineeIdsFor(req.user);
+    res.json(qa(`SELECT s.*, u.name, u.email FROM cls_submissions s JOIN users u ON u.id = s.user_id WHERE s.user_id IN (${inList(ids)}) ORDER BY s.created DESC LIMIT 500`, ...ids).map(x => ({ ...x, report: J(x.report) })));
+  });
+  r.put('/admin/submissions/:id', auth, staff, (req, res) => {
+    const s = q1('SELECT * FROM cls_submissions WHERE id = ?', +req.params.id);
+    if (!s || !canUser(req.user, s.user_id)) return bad(res, 'غير مسموح', 403);
+    const status = req.body?.status;
+    if (!['reviewed','revision_requested'].includes(status)) return bad(res, 'الحالة غير صالحة');
+    run('UPDATE cls_submissions SET status=?,feedback=?,reviewed_by=?,reviewed=?,updated=? WHERE id=?', status, str(req.body.feedback, 2000), req.user.id, now(), now(), s.id);
+    audit(req.user.id, 'submission_reviewed', String(s.id)); res.json({ ok: true });
   });
 
   // ---------------------------------------------------------------- trainee
@@ -243,7 +283,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     const u = userRow(id); if (!u) return bad(res, 'غير موجود', 404);
     const p = q1('SELECT summary, updated FROM cls_progress WHERE user_id = ?', id);
     res.json({ user: pub(u), groups: userGroups(id), summary: J(p?.summary, {}), synced: p?.updated || null,
-      attempts: qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 500', id), assignments: assignmentsFor(id) });
+      attempts: qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 500', id), submissions: qa('SELECT id,activity_id,notes,status,feedback,created FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', id), assignments: assignmentsFor(id) });
   });
   r.get('/admin/attempts/:id', auth, staff, (req, res) => {
     const a = q1('SELECT * FROM cls_attempts WHERE id = ?', +req.params.id);
@@ -406,7 +446,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.get('/admin/audit', auth, adminOnly, (req, res) => res.json(qa('SELECT a.*, u.name FROM cls_audit a LEFT JOIN users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT 300')));
   r.get('/admin/backup', auth, adminOnly, (req, res) => {
     const out = { package: CLASSROOM_PACKAGE, exported: new Date().toISOString() };
-    for (const t of ['cls_staff', 'cls_profile', 'cls_groups', 'cls_members', 'cls_assignments', 'cls_attempts', 'cls_progress', 'cls_notices', 'cls_live', 'cls_live_answers', 'cls_audit']) out[t] = qa(`SELECT * FROM ${t}`);
+    for (const t of ['cls_staff', 'cls_profile', 'cls_groups', 'cls_members', 'cls_assignments', 'cls_attempts', 'cls_progress', 'cls_notices', 'cls_live', 'cls_live_answers', 'cls_content', 'cls_submissions', 'cls_audit']) out[t] = qa(`SELECT * FROM ${t}`);
     out.enrollments = qa('SELECT * FROM enrollments WHERE package_id = ?', CLASSROOM_PACKAGE);
     res.setHeader('Content-Disposition', 'attachment; filename="classroom-backup.json"');
     res.json(out);
