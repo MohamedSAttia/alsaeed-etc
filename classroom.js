@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'node:crypto';
 import path from 'node:path';
+import pptxgen from 'pptxgenjs';
 import { fileURLToPath } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -43,6 +44,9 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   CREATE TABLE IF NOT EXISTS cls_live (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT NOT NULL, group_id INTEGER, host_id TEXT NOT NULL, title TEXT, qs TEXT NOT NULL, state TEXT NOT NULL, created INTEGER NOT NULL, ended INTEGER);
   CREATE TABLE IF NOT EXISTS cls_live_answers (live_id INTEGER NOT NULL, user_id TEXT NOT NULL, qi INTEGER NOT NULL, choice TEXT, correct INTEGER, ms INTEGER, points INTEGER, PRIMARY KEY (live_id, user_id, qi));
   CREATE TABLE IF NOT EXISTS cls_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, t INTEGER NOT NULL, user_id TEXT, action TEXT NOT NULL, detail TEXT);
+  CREATE TABLE IF NOT EXISTS cls_content (kind TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1, updated_by TEXT, updated INTEGER NOT NULL, PRIMARY KEY(kind,id));
+  CREATE TABLE IF NOT EXISTS cls_submissions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, activity_id TEXT NOT NULL, notes TEXT NOT NULL, report TEXT, status TEXT NOT NULL DEFAULT 'submitted', feedback TEXT, reviewed_by TEXT, reviewed INTEGER, created INTEGER NOT NULL, updated INTEGER NOT NULL);
+  CREATE INDEX IF NOT EXISTS ix_cls_sub_user ON cls_submissions(user_id, updated);
   `);
 
   const q1 = (sql, ...a) => db.prepare(sql).get(...a);
@@ -57,6 +61,14 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   const inList = ids => ids.length ? ids.map(() => '?').join(',') : 'NULL';
   const bad = (res, m, c = 400) => res.status(c).json({ error: m });
   const str = (v, n = 200) => (v == null ? '' : String(v).trim().slice(0, n));
+  const courseDates = ['2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01'];
+  const releasedDay = u => {
+    if (u.role === 'admin' || u.role === 'trainer') return 5;
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    return Math.max(0, Math.min(5, courseDates.filter(d => d <= today).length));
+  };
+  const baseActivityDays = Object.fromEntries([...Array(15)].map((_, i) => [`A-${String(i + 1).padStart(2, '0')}`, Math.floor(i / 3) + 1]));
+  Object.assign(baseActivityDays, { 'G-01': 2, 'G-02': 4, 'G-03': 3, 'G-04': 5, 'INTERVIEW-D5': 5 });
 
   // ---------------------------------------------------------------- access
   const hasAccess = id => !!q1('SELECT 1 FROM enrollments WHERE user_id = ? AND package_id = ? AND (expires IS NULL OR expires > ?)', id, CLASSROOM_PACKAGE, now());
@@ -101,6 +113,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
 
   // ---------------------------------------------------------------- me / progress
   r.get('/me', auth, (req, res) => res.json({ user: pub(req.user, req.user.role), groups: userGroups(req.user.id), package: CLASSROOM_PACKAGE }));
+  r.get('/schedule', auth, (req, res) => res.json({ released: releasedDay(req.user), dates: courseDates, timeZone: 'Asia/Riyadh', serverTime: now() }));
   r.get('/progress', auth, (req, res) => { const p = q1('SELECT data, updated FROM cls_progress WHERE user_id = ?', req.user.id); res.json({ data: J(p?.data), updated: p?.updated || 0 }); });
   r.put('/progress', auth, (req, res) => {
     const data = req.body?.data; if (!data || typeof data !== 'object') return bad(res, 'بيانات غير صالحة');
@@ -108,6 +121,88 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     run(`INSERT INTO cls_progress (user_id, data, summary, updated) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, summary = excluded.summary, updated = excluded.updated`,
       req.user.id, s, JSON.stringify(req.body.summary || {}), now());
     res.json({ ok: true });
+  });
+  // The built-in bilingual course is immutable in the shipped page. These rows
+  // overlay it so editing content never destroys an existing trainee attempt.
+  r.get('/content', auth, (req, res) => res.json(qa('SELECT kind,id,data,active,updated FROM cls_content ORDER BY updated DESC').map(x => ({ ...x, data: J(x.data, {}) }))));
+  r.put('/admin/content/:kind/:id', auth, staff, (req, res) => {
+    const kind = req.params.kind, id = str(req.params.id, 64), data = req.body?.data;
+    if (!['question','activity'].includes(kind) || !/^[A-Za-z0-9_-]{2,64}$/.test(id) || !data || typeof data !== 'object' || Array.isArray(data) || data.id !== id) return bad(res, 'بيانات المحتوى غير صالحة');
+    const bilingual = x => x && typeof x.ar === 'string' && x.ar.trim() && typeof x.en === 'string' && x.en.trim();
+    if (!bilingual(data.t || data.q)) return bad(res, 'أدخل النص بالعربية والإنجليزية');
+    if (kind === 'question') {
+      const opts = data.o, answers = [].concat(data.c ?? []);
+      if (!opts || !Array.isArray(opts.ar) || !Array.isArray(opts.en) || opts.ar.length < 2 || opts.ar.length > 5 || opts.en.length !== opts.ar.length || !opts.ar.every(x => typeof x === 'string' && x.trim()) || !opts.en.every(x => typeof x === 'string' && x.trim()) || !answers.length || !answers.every(x => Number.isInteger(x) && x >= 0 && x < opts.ar.length) || ![1,2,3,4,5].includes(+data.d)) return bad(res, 'خيارات السؤال أو الإجابة أو المجال غير صالحة');
+    } else if (!Array.isArray(data.steps) || !data.steps.length || !data.steps.every(bilingual) || ![1,2,3,4,5].includes(+data.day)) return bad(res, 'اليوم والخطوات باللغتين مطلوبة');
+    const raw = JSON.stringify(data); if (raw.length > 25000) return bad(res, 'المحتوى طويل جدًا');
+    run('INSERT INTO cls_content(kind,id,data,active,updated_by,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET data=excluded.data,active=excluded.active,updated_by=excluded.updated_by,updated=excluded.updated', kind, id, raw, req.body.active === false ? 0 : 1, req.user.id, now());
+    audit(req.user.id, 'content_updated', `${kind}:${id}`); res.json({ ok: true });
+  });
+  r.post('/my/submissions', auth, (req, res) => {
+    const id = str(req.body?.activity_id, 64), notes = str(req.body?.notes, 10000), report = req.body?.report;
+    if (!/^[A-Za-z0-9_-]{2,64}$/.test(id) || notes.length < 10) return bad(res, 'اختر النشاط واكتب ملخصًا لا يقل عن 10 أحرف');
+    const custom = q1("SELECT data,active FROM cls_content WHERE kind='activity' AND id=?", id);
+    const day = custom ? (custom.active ? +J(custom.data, {}).day : 99) : baseActivityDays[id];
+    if (!day) return bad(res, 'هذا النشاط غير متاح');
+    if (day > releasedDay(req.user)) return bad(res, 'يُفتح هذا النشاط في يومه المحدد', 403);
+    const serialized = report == null ? null : JSON.stringify(report);
+    if (serialized?.length > 150000) return bad(res, 'حجم التقرير كبير جدًا');
+    const t = now(), x = run('INSERT INTO cls_submissions(user_id,activity_id,notes,report,created,updated) VALUES(?,?,?,?,?,?)', req.user.id, id, notes, serialized, t, t);
+    audit(req.user.id, 'activity_submitted', id); res.json({ ok: true, id: Number(x.lastInsertRowid) });
+  });
+  r.get('/my/submissions', auth, (req, res) => res.json(qa('SELECT id,activity_id,notes,status,feedback,created,updated,reviewed FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', req.user.id)));
+  r.post('/my/report.pptx', auth, async (req, res) => {
+    const b = req.body || {}, title = str(b.title, 180), sections = Array.isArray(b.sections) ? b.sections.slice(0, 12) : [];
+    if (!title || !sections.length) return bad(res, 'عنوان التقرير وأقسامه مطلوبة');
+    const P = new pptxgen(); P.layout = 'LAYOUT_WIDE'; P.author = 'ALSAEED'; P.subject = 'تقرير تدريبي تطبيقي لإدارة المخاطر'; P.title = title;
+    const navy = '123B5D', teal = '087D91', gold = 'E8A23A', pale = 'EAF4F7', ink = '17364B';
+    const addBase = (caption, n) => {
+      const slide = P.addSlide(); slide.background = { color: 'F7FAFC' };
+      slide.addShape(P.ShapeType.rect, { x: 0, y: 0, w: 13.333, h: .17, line: { color: teal }, fill: { color: teal } });
+      slide.addText('ALSAEED', { x: .6, y: .34, w: 2.8, h: .35, fontFace: 'Arial', fontSize: 17, bold: true, color: navy });
+      slide.addText(caption, { x: 3.2, y: .38, w: 9.4, h: .3, fontFace: 'Arial', fontSize: 10, color: teal, align: 'right', rtlMode: true });
+      slide.addShape(P.ShapeType.line, { x: .6, y: 6.95, w: 12.1, h: 0, line: { color: 'C9DCE5', width: 1 } });
+      slide.addText('ALSAEED · تقرير تدريبي · ليس اعتمادًا رسميًا من جهة خارجية', { x: .6, y: 7.02, w: 11.5, h: .22, fontFace: 'Arial', fontSize: 8, color: '667D89', align: 'right', rtlMode: true });
+      slide.addText(String(n).padStart(2, '0'), { x: .65, y: 7.0, w: .5, h: .22, fontSize: 8, color: teal });
+      return slide;
+    };
+    const cover = addBase('Risk management · Practical report', 1);
+    cover.addShape(P.ShapeType.roundRect, { x: .8, y: 1.25, w: 11.7, h: 4.9, rectRadius: .2, line: { color: navy }, fill: { color: navy } });
+    cover.addText('تقرير إدارة المخاطر', { x: 1.3, y: 1.8, w: 10.5, h: .55, fontFace: 'Arial', fontSize: 27, bold: true, color: 'FFFFFF', align: 'right', rtlMode: true });
+    cover.addText(title, { x: 1.3, y: 2.55, w: 10.5, h: 1.4, fontFace: 'Arial', fontSize: 26, bold: true, color: 'FFFFFF', align: 'right', rtlMode: true, breakLine: false });
+    cover.addShape(P.ShapeType.rect, { x: 9.7, y: 4.23, w: 2.1, h: .06, line: { color: gold }, fill: { color: gold } });
+    cover.addText(`${str(req.user.name, 120)}  ·  ${new Date().toLocaleDateString('ar-EG')}`, { x: 1.4, y: 4.65, w: 10.35, h: .45, fontFace: 'Arial', fontSize: 15, color: 'D3EDF1', align: 'right', rtlMode: true });
+    let pageNo = 1;
+    sections.forEach((sec, i) => {
+      const heading = str(sec?.title, 120), body = str(sec?.body, 3500) || 'لم تُسجَّل بيانات بعد.';
+      const chunks = body.match(/[\s\S]{1,850}/g) || [body];
+      chunks.forEach((chunk, j) => {
+        const slide = addBase(`Section ${i + 1} / ${sections.length}${j ? ' · تابع' : ''}`, ++pageNo);
+        slide.addText((heading || `القسم ${i + 1}`) + (j ? ' (تابع)' : ''), { x: .85, y: 1.05, w: 11.65, h: .7, fontFace: 'Arial', fontSize: 23, bold: true, color: navy, align: 'right', rtlMode: true });
+        slide.addShape(P.ShapeType.roundRect, { x: .85, y: 1.95, w: 11.65, h: 4.5, rectRadius: .12, line: { color: 'D5E6EC', width: 1 }, fill: { color: pale } });
+        slide.addText(chunk, { x: 1.25, y: 2.3, w: 10.8, h: 3.8, fontFace: 'Arial', fontSize: 17, color: ink, align: 'right', valign: 'top', rtlMode: true, breakLine: false, margin: .1 });
+      });
+    });
+    const end = addBase('Action & follow-up', ++pageNo);
+    end.addText('خطوات المتابعة', { x: .9, y: 1.15, w: 11.5, h: .7, fontFace: 'Arial', fontSize: 25, bold: true, color: navy, align: 'right', rtlMode: true });
+    ['تأكيد مالك كل خطر وإجراء استجابة', 'مراجعة الأدلة والافتراضات وحدود الثقة', 'اعتماد القرار من صاحب الصلاحية وتحديد موعد المتابعة'].forEach((t, i) => {
+      end.addShape(P.ShapeType.roundRect, { x: 1, y: 2.1 + i * 1.27, w: 11.25, h: .95, rectRadius: .1, line: { color: 'C9DFE5' }, fill: { color: i % 2 ? 'FFFFFF' : pale } });
+      end.addText(t, { x: 1.4, y: 2.36 + i * 1.27, w: 10.3, h: .4, fontFace: 'Arial', fontSize: 17, color: ink, align: 'right', rtlMode: true });
+    });
+    try { const out = await P.write({ outputType: 'nodebuffer', compression: true }); res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'); res.setHeader('Content-Disposition', 'attachment; filename="ALSAEED-risk-report.pptx"'); res.send(Buffer.from(out)); }
+    catch (e) { console.error('[classroom] pptx report', e); bad(res, 'تعذر إنشاء العرض', 500); }
+  });
+  r.get('/admin/submissions', auth, staff, (req, res) => {
+    const ids = traineeIdsFor(req.user);
+    res.json(qa(`SELECT s.*, u.name, u.email FROM cls_submissions s JOIN users u ON u.id = s.user_id WHERE s.user_id IN (${inList(ids)}) ORDER BY s.created DESC LIMIT 500`, ...ids).map(x => ({ ...x, report: J(x.report) })));
+  });
+  r.put('/admin/submissions/:id', auth, staff, (req, res) => {
+    const s = q1('SELECT * FROM cls_submissions WHERE id = ?', +req.params.id);
+    if (!s || !canUser(req.user, s.user_id)) return bad(res, 'غير مسموح', 403);
+    const status = req.body?.status;
+    if (!['reviewed','revision_requested'].includes(status)) return bad(res, 'الحالة غير صالحة');
+    run('UPDATE cls_submissions SET status=?,feedback=?,reviewed_by=?,reviewed=?,updated=? WHERE id=?', status, str(req.body.feedback, 2000), req.user.id, now(), now(), s.id);
+    audit(req.user.id, 'submission_reviewed', String(s.id)); res.json({ ok: true });
   });
 
   // ---------------------------------------------------------------- trainee
@@ -124,6 +219,15 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.post('/attempts', auth, (req, res) => {
     const b = req.body || {}, kind = str(b.kind, 20), ref = str(b.ref, 120);
     if (!['game', 'exam', 'live'].includes(kind) || !ref) return bad(res, 'بيانات المحاولة غير صالحة');
+    const released = releasedDay(req.user);
+    if (released < 5 && kind === 'exam') {
+      const m = /^exam:(?:day|qc|scen):(\d)$/.exec(ref);
+      if (!m || +m[1] > released) return bad(res, 'هذا الاختبار لم يُفتح بعد', 403);
+    }
+    if (released < 5 && kind === 'game') {
+      const m = /^game:[a-z]+:(\d)$/.exec(ref);
+      if (!m || !+m[1] || +m[1] > released) return bad(res, 'لعبة هذا اليوم لم تُفتح بعد', 403);
+    }
     let aid = b.assignment_id ? +b.assignment_id : null;
     if (aid) {
       const mine = assignmentsFor(req.user.id).find(a => a.id === aid);
@@ -243,7 +347,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     const u = userRow(id); if (!u) return bad(res, 'غير موجود', 404);
     const p = q1('SELECT summary, updated FROM cls_progress WHERE user_id = ?', id);
     res.json({ user: pub(u), groups: userGroups(id), summary: J(p?.summary, {}), synced: p?.updated || null,
-      attempts: qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 500', id), assignments: assignmentsFor(id) });
+      attempts: qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 500', id), submissions: qa('SELECT id,activity_id,notes,status,feedback,created FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', id), assignments: assignmentsFor(id) });
   });
   r.get('/admin/attempts/:id', auth, staff, (req, res) => {
     const a = q1('SELECT * FROM cls_attempts WHERE id = ?', +req.params.id);
@@ -406,7 +510,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.get('/admin/audit', auth, adminOnly, (req, res) => res.json(qa('SELECT a.*, u.name FROM cls_audit a LEFT JOIN users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT 300')));
   r.get('/admin/backup', auth, adminOnly, (req, res) => {
     const out = { package: CLASSROOM_PACKAGE, exported: new Date().toISOString() };
-    for (const t of ['cls_staff', 'cls_profile', 'cls_groups', 'cls_members', 'cls_assignments', 'cls_attempts', 'cls_progress', 'cls_notices', 'cls_live', 'cls_live_answers', 'cls_audit']) out[t] = qa(`SELECT * FROM ${t}`);
+    for (const t of ['cls_staff', 'cls_profile', 'cls_groups', 'cls_members', 'cls_assignments', 'cls_attempts', 'cls_progress', 'cls_notices', 'cls_live', 'cls_live_answers', 'cls_content', 'cls_submissions', 'cls_audit']) out[t] = qa(`SELECT * FROM ${t}`);
     out.enrollments = qa('SELECT * FROM enrollments WHERE package_id = ?', CLASSROOM_PACKAGE);
     res.setHeader('Content-Disposition', 'attachment; filename="classroom-backup.json"');
     res.json(out);
