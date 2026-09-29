@@ -613,6 +613,35 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     } catch (e) { res.status(502).json({ error: String(e.message || e) }); }
   });
 
+  // Optional natural voice for Dr. Ahlam. No user audio is sent to this endpoint.
+  const voiceHits = new Map();
+  r.post('/voice', auth, async (req, res) => {
+    const arr = (voiceHits.get(req.user.id) || []).filter(t => now() - t < 60e3);
+    if (arr.length >= 12) return bad(res, 'محاولات كثيرة', 429);
+    arr.push(now()); voiceHits.set(req.user.id, arr);
+    const text = String(req.body?.text || '').trim().slice(0, 1400);
+    const lang = req.body?.lang === 'en' ? 'en' : 'ar';
+    if (!text) return bad(res, 'empty text');
+    if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'voice service not configured' });
+    try {
+      const x = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: 'Bearer ' + process.env.OPENAI_API_KEY },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini-tts', voice: 'shimmer', response_format: 'mp3',
+          instructions: lang === 'ar'
+            ? 'Speak as a warm, professional Saudi woman in a clear natural Saudi Arabic accent. Conversational, unhurried, with natural pauses. Do not change the words.'
+            : 'Speak as a warm, professional woman in clear natural English. Conversational, unhurried, with natural pauses. Do not change the words.',
+          input: text
+        })
+      });
+      if (!x.ok) throw new Error('voice unavailable');
+      const bytes = Buffer.from(await x.arrayBuffer());
+      res.setHeader('Cache-Control', 'no-store');
+      res.type('mp3').send(bytes);
+    } catch (e) { res.status(502).json({ error: 'voice unavailable' }); }
+  });
+
   r.get('/health', (req, res) => res.json({ ok: true, package: CLASSROOM_PACKAGE }));
   r.use((req, res) => bad(res, 'not found', 404));
   r.use((err, req, res, next) => { console.error('[classroom]', err); bad(res, 'خطأ في الخادم', 500); });
