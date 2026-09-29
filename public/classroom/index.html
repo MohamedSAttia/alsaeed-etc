@@ -922,7 +922,7 @@ routes.kit = (id) => {
 // Browser media stays local; the chair is a fictional training simulation.
 const CM={stream:null,rec:null,feedback:''};
 function committeeSpeak(t){if(!('speechSynthesis' in window))return toast('تشغيل الصوت غير مدعوم');speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';u.rate=.92;u.voice=speechSynthesis.getVoices().find(v=>v.lang==='ar-SA')||speechSynthesis.getVoices().find(v=>v.lang.startsWith('ar'))||null;u.onstart=()=>$('.committee-avatar')?.classList.add('talking');u.onend=u.onerror=()=>$('.committee-avatar')?.classList.remove('talking');speechSynthesis.speak(u);}
-window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#interview')){speechSynthesis?.cancel();CM.rec?.stop();CM.stream?.getTracks().forEach(t=>t.stop());CM.stream=null;}});
+window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#interview')){window.speechSynthesis?.cancel();CM.rec?.stop();CM.stream?.getTracks().forEach(t=>t.stop());CM.stream=null;}});
 // Structured risk committee simulation; decisions remain with the responsible officer.
 routes.interview = () => {
   const P = [
