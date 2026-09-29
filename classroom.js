@@ -622,6 +622,27 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     const text = String(req.body?.text || '').trim().slice(0, 1400);
     const lang = req.body?.lang === 'en' ? 'en' : 'ar';
     if (!text) return bad(res, 'empty text');
+    if (lang === 'ar') {
+      if (!process.env.AZURE_SPEECH_KEY || !process.env.AZURE_SPEECH_REGION)
+        return res.status(503).json({ error: 'Saudi voice not configured' });
+      try {
+        const mod = await import('microsoft-cognitiveservices-speech-sdk');
+        const sdk = mod.default || mod;
+        const config = sdk.SpeechConfig.fromSubscription(process.env.AZURE_SPEECH_KEY, process.env.AZURE_SPEECH_REGION);
+        config.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
+        const synthesizer = new sdk.SpeechSynthesizer(config, null);
+        const visemes = [];
+        synthesizer.visemeReceived = (_sender, event) => visemes.push({ ms: Math.round(event.audioOffset / 10000), id: event.visemeId });
+        const escaped = text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
+        const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ar-SA"><voice name="ar-SA-ZariyahNeural"><prosody rate="-3%">${escaped}</prosody></voice></speak>`;
+        let result;
+        try { result = await new Promise((resolve, reject) => synthesizer.speakSsmlAsync(ssml, resolve, reject)); }
+        finally { synthesizer.close(); }
+        if (result.reason !== sdk.ResultReason.SynthesizingAudioCompleted) throw new Error('Saudi synthesis failed');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.json({ provider: 'azure', audio: Buffer.from(result.audioData).toString('base64'), visemes });
+      } catch (e) { console.error('[classroom voice]', e.message); return res.status(502).json({ error: 'Saudi voice unavailable' }); }
+    }
     if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'voice service not configured' });
     try {
       const x = await fetch('https://api.openai.com/v1/audio/speech', {
