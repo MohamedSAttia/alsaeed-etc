@@ -62,13 +62,10 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   const bad = (res, m, c = 400) => res.status(c).json({ error: m });
   const str = (v, n = 200) => (v == null ? '' : String(v).trim().slice(0, n));
   const courseDates = ['2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01'];
-  const releasedDay = u => {
-    if (u.role === 'admin' || u.role === 'trainer') return 5;
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-    return Math.max(0, Math.min(5, courseDates.filter(d => d <= today).length));
-  };
+  // All course days are open to authorized classroom members.
+  const releasedDay = () => 5;
   const baseActivityDays = Object.fromEntries([...Array(15)].map((_, i) => [`A-${String(i + 1).padStart(2, '0')}`, Math.floor(i / 3) + 1]));
-  Object.assign(baseActivityDays, { 'G-01': 2, 'G-02': 4, 'G-03': 3, 'G-04': 5, 'INTERVIEW-D5': 5 });
+  Object.assign(baseActivityDays, { 'G-01': 2, 'G-02': 4, 'G-03': 3, 'G-04': 5, 'INTERVIEW-D5': 5, 'LAB-register': 3, 'LAB-emv': 3, 'LAB-tree': 3, 'LAB-mc': 3, 'LAB-pert': 3 });
 
   // ---------------------------------------------------------------- access
   const hasAccess = id => !!q1('SELECT 1 FROM enrollments WHERE user_id = ? AND package_id = ? AND (expires IS NULL OR expires > ?)', id, CLASSROOM_PACKAGE, now());
@@ -161,6 +158,19 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     audit(req.user.id, 'activity_submitted', id); res.json({ ok: true, id: Number(x.lastInsertRowid) });
   });
   r.get('/my/submissions', auth, (req, res) => res.json(qa('SELECT id,activity_id,notes,status,feedback,created,updated,reviewed FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', req.user.id)));
+  r.post('/my/report.docx', auth, async (req, res) => {
+    const title = str(req.body?.title, 180), sections = Array.isArray(req.body?.sections) ? req.body.sections.slice(0, 12) : [];
+    if (!title || !sections.length) return bad(res, 'عنوان التقرير وأقسامه مطلوبة');
+    try {
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header, Footer, PageNumber } = await import('docx');
+      const para = (text, extra = {}) => new Paragraph({ bidirectional: true, alignment: AlignmentType.RIGHT, spacing: { after: 140 }, ...extra, children: [new TextRun({ text, font: 'Arial', size: extra.heading ? 32 : 24, bold: !!extra.heading, color: extra.heading ? '087D91' : '17364B', rightToLeft: true })] });
+      const children = [para('ALSAEED · تقرير تطبيقي لإدارة المخاطر', { heading: HeadingLevel.TITLE }), para(title, { heading: HeadingLevel.HEADING_1 }), para(str(req.user.name, 120) + ' · ' + new Date().toLocaleDateString('ar-SA'))];
+      for (const sec of sections) { children.push(para(str(sec?.title, 120), { heading: HeadingLevel.HEADING_1 })); for (const line of (str(sec?.body, 10000) || 'لم تُسجّل بيانات').split('\n')) children.push(para(line)); }
+      children.push(para('تقرير تدريبي. التوصيات تحتاج مراجعة المسؤول المختص.'));
+      const doc = new Document({ creator: 'ALSAEED', title, styles: { default: { document: { run: { font: 'Arial', size: 24, color: '17364B' }, paragraph: { bidirectional: true } } } }, sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, headers: { default: new Header({ children: [para('ALSAEED · ' + title)] }) }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT] })] })] }) }, children }] });
+      res.type('application/vnd.openxmlformats-officedocument.wordprocessingml.document'); res.setHeader('Content-Disposition', 'attachment; filename="ALSAEED-risk-report.docx"'); res.send(await Packer.toBuffer(doc));
+    } catch (e) { console.error('[classroom docx]', e.message); bad(res, 'تعذر إنشاء ملف Word', 500); }
+  });
   r.post('/my/report.pptx', auth, async (req, res) => {
     const b = req.body || {}, title = str(b.title, 180), sections = Array.isArray(b.sections) ? b.sections.slice(0, 12) : [];
     if (!title || !sections.length) return bad(res, 'عنوان التقرير وأقسامه مطلوبة');
@@ -184,7 +194,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     cover.addText(`${str(req.user.name, 120)}  ·  ${new Date().toLocaleDateString('ar-EG')}`, { x: 1.4, y: 4.65, w: 10.35, h: .45, fontFace: 'Arial', fontSize: 15, color: 'D3EDF1', align: 'right', rtlMode: true });
     let pageNo = 1;
     sections.forEach((sec, i) => {
-      const heading = str(sec?.title, 120), body = str(sec?.body, 3500) || 'لم تُسجَّل بيانات بعد.';
+      const heading = str(sec?.title, 120), body = str(sec?.body, 10000) || 'لم تُسجَّل بيانات بعد.';
       const chunks = body.match(/[\s\S]{1,850}/g) || [body];
       chunks.forEach((chunk, j) => {
         const slide = addBase(`Section ${i + 1} / ${sections.length}${j ? ' · تابع' : ''}`, ++pageNo);
