@@ -49,6 +49,12 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   CREATE INDEX IF NOT EXISTS ix_cls_sub_user ON cls_submissions(user_id, updated);
   `);
 
+  // Additive migration: existing submissions and reports remain intact.
+  const submissionColumns = new Set(db.prepare('PRAGMA table_info(cls_submissions)').all().map(x => x.name));
+  for (const [name, type] of [['version','INTEGER NOT NULL DEFAULT 1'],['parent_id','INTEGER'],['rubric','TEXT'],['grade','REAL']]) {
+    if (!submissionColumns.has(name)) db.exec(`ALTER TABLE cls_submissions ADD COLUMN ${name} ${type}`);
+  }
+  db.exec('CREATE TABLE IF NOT EXISTS cls_submission_reviews(id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL, status TEXT NOT NULL, feedback TEXT, rubric TEXT, grade REAL, reviewer TEXT NOT NULL, created INTEGER NOT NULL)');
   const q1 = (sql, ...a) => db.prepare(sql).get(...a);
   const qa = (sql, ...a) => db.prepare(sql).all(...a);
   const run = (sql, ...a) => db.prepare(sql).run(...a);
@@ -65,7 +71,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   // All course days are open to authorized classroom members.
   const releasedDay = () => 5;
   const baseActivityDays = Object.fromEntries([...Array(15)].map((_, i) => [`A-${String(i + 1).padStart(2, '0')}`, Math.floor(i / 3) + 1]));
-  Object.assign(baseActivityDays, { 'G-01': 2, 'G-02': 4, 'G-03': 3, 'G-04': 5, 'INTERVIEW-D5': 5, 'LAB-register': 3, 'LAB-emv': 3, 'LAB-tree': 3, 'LAB-mc': 3, 'LAB-pert': 3 });
+  Object.assign(baseActivityDays, { 'G-01': 2, 'G-02': 4, 'G-03': 3, 'G-04': 5, 'INTERVIEW-D5': 5, 'LAB-register': 3, 'LAB-emv': 3, 'LAB-tree': 3, 'LAB-mc': 3, 'LAB-pert': 3, 'PROJECT-D1': 1, 'PROJECT-D2': 2, 'PROJECT-D3': 3, 'PROJECT-D4': 4, 'PROJECT-D5': 5 });
 
   // ---------------------------------------------------------------- access
   const hasAccess = id => !!q1('SELECT 1 FROM enrollments WHERE user_id = ? AND package_id = ? AND (expires IS NULL OR expires > ?)', id, CLASSROOM_PACKAGE, now());
@@ -154,10 +160,19 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     if (day > releasedDay(req.user)) return bad(res, 'يُفتح هذا النشاط في يومه المحدد', 403);
     const serialized = report == null ? null : JSON.stringify(report);
     if (serialized?.length > 150000) return bad(res, 'حجم التقرير كبير جدًا');
-    const t = now(), x = run('INSERT INTO cls_submissions(user_id,activity_id,notes,report,created,updated) VALUES(?,?,?,?,?,?)', req.user.id, id, notes, serialized, t, t);
-    audit(req.user.id, 'activity_submitted', id); res.json({ ok: true, id: Number(x.lastInsertRowid) });
+    const latest = q1('SELECT * FROM cls_submissions WHERE user_id=? AND activity_id=? ORDER BY id DESC LIMIT 1', req.user.id, id);
+    if (latest && ['submitted','approved'].includes(latest.status)) return bad(res, latest.status === 'approved' ? 'هذه العملية معتمدة؛ لا يمكن استبدال النسخة المعتمدة' : 'التقرير قيد المراجعة؛ انتظر ملاحظات المشرف قبل إعادة التسليم', 409);
+    if (id.startsWith('PROJECT-D') && day > 1 && !q1("SELECT 1 FROM cls_submissions WHERE user_id=? AND activity_id=?",req.user.id,`PROJECT-D${day-1}`)) return bad(res,'سلّم مرحلة المشروع السابقة أولًا لتبني المرحلة الحالية على مخرجاتها',409);
+    const t = now(), version = (latest?.version || 0) + 1;
+    const x = run('INSERT INTO cls_submissions(user_id,activity_id,notes,report,version,parent_id,created,updated) VALUES(?,?,?,?,?,?,?,?)', req.user.id, id, notes, serialized, version, latest?.id || null, t, t);
+    audit(req.user.id, 'activity_submitted', `${id}:v${version}`); res.json({ ok: true, id: Number(x.lastInsertRowid), version, status:'submitted' });
   });
-  r.get('/my/submissions', auth, (req, res) => res.json(qa('SELECT id,activity_id,notes,status,feedback,created,updated,reviewed FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', req.user.id)));
+  r.get('/my/submissions', auth, (req, res) => res.json(qa('SELECT * FROM cls_submissions WHERE user_id = ? ORDER BY id DESC LIMIT 300', req.user.id).map(x=>({...x,report:J(x.report),rubric:J(x.rubric)}))));
+  r.get('/my/submissions/:id/history', auth, (req,res)=>{
+    const s=q1('SELECT * FROM cls_submissions WHERE id=?',+req.params.id);
+    if(!s || s.user_id!==req.user.id) return bad(res,'غير مسموح',403);
+    res.json(qa('SELECT status,feedback,rubric,grade,created FROM cls_submission_reviews WHERE submission_id=? ORDER BY id',s.id).map(x=>({...x,rubric:J(x.rubric)})));
+  });
   r.post('/my/report.docx', auth, async (req, res) => {
     const title = str(req.body?.title, 180), sections = Array.isArray(req.body?.sections) ? req.body.sections.slice(0, 12) : [];
     if (!title || !sections.length) return bad(res, 'عنوان التقرير وأقسامه مطلوبة');
@@ -165,7 +180,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
       const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header, Footer, PageNumber } = await import('docx');
       const para = (text, extra = {}) => new Paragraph({ bidirectional: true, alignment: AlignmentType.RIGHT, spacing: { after: 140 }, ...extra, children: [new TextRun({ text, font: 'Arial', size: extra.heading ? 32 : 24, bold: !!extra.heading, color: extra.heading ? '087D91' : '17364B', rightToLeft: true })] });
       const children = [para('ALSAEED · تقرير تطبيقي لإدارة المخاطر', { heading: HeadingLevel.TITLE }), para(title, { heading: HeadingLevel.HEADING_1 }), para(str(req.user.name, 120) + ' · ' + new Date().toLocaleDateString('ar-SA'))];
-      for (const sec of sections) { children.push(para(str(sec?.title, 120), { heading: HeadingLevel.HEADING_1 })); for (const line of (str(sec?.body, 10000) || 'لم تُسجّل بيانات').split('\n')) children.push(para(line)); }
+      for (const sec of sections) { children.push(para(str(sec?.title, 120), { heading: HeadingLevel.HEADING_1 })); for (const line of (str(sec?.body, 70000) || 'لم تُسجّل بيانات').split('\n')) children.push(para(line)); }
       children.push(para('تقرير تدريبي. التوصيات تحتاج مراجعة المسؤول المختص.'));
       const doc = new Document({ creator: 'ALSAEED', title, styles: { default: { document: { run: { font: 'Arial', size: 24, color: '17364B' }, paragraph: { bidirectional: true } } } }, sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, headers: { default: new Header({ children: [para('ALSAEED · ' + title)] }) }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT] })] })] }) }, children }] });
       res.type('application/vnd.openxmlformats-officedocument.wordprocessingml.document'); res.setHeader('Content-Disposition', 'attachment; filename="ALSAEED-risk-report.docx"'); res.send(await Packer.toBuffer(doc));
@@ -194,7 +209,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     cover.addText(`${str(req.user.name, 120)}  ·  ${new Date().toLocaleDateString('ar-EG')}`, { x: 1.4, y: 4.65, w: 10.35, h: .45, fontFace: 'Arial', fontSize: 15, color: 'D3EDF1', align: 'right', rtlMode: true });
     let pageNo = 1;
     sections.forEach((sec, i) => {
-      const heading = str(sec?.title, 120), body = str(sec?.body, 10000) || 'لم تُسجَّل بيانات بعد.';
+      const heading = str(sec?.title, 120), body = str(sec?.body, 70000) || 'لم تُسجَّل بيانات بعد.';
       const chunks = body.match(/[\s\S]{1,850}/g) || [body];
       chunks.forEach((chunk, j) => {
         const slide = addBase(`Section ${i + 1} / ${sections.length}${j ? ' · تابع' : ''}`, ++pageNo);
@@ -220,9 +235,19 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     const s = q1('SELECT * FROM cls_submissions WHERE id = ?', +req.params.id);
     if (!s || !canUser(req.user, s.user_id)) return bad(res, 'غير مسموح', 403);
     const status = req.body?.status;
-    if (!['reviewed','revision_requested'].includes(status)) return bad(res, 'الحالة غير صالحة');
-    run('UPDATE cls_submissions SET status=?,feedback=?,reviewed_by=?,reviewed=?,updated=? WHERE id=?', status, str(req.body.feedback, 2000), req.user.id, now(), now(), s.id);
-    audit(req.user.id, 'submission_reviewed', String(s.id)); res.json({ ok: true });
+    if (!['reviewed','revision_requested','approved'].includes(status)) return bad(res, 'الحالة غير صالحة');
+    const latest=q1('SELECT id FROM cls_submissions WHERE user_id=? AND activity_id=? ORDER BY id DESC LIMIT 1',s.user_id,s.activity_id);
+    if(latest.id!==s.id || s.status==='approved')return bad(res,'هذه نسخة قديمة أو معتمدة؛ راجع أحدث نسخة غير معتمدة',409);
+    const feedback=str(req.body.feedback,4000), rubric=req.body.rubric;
+    if(!Array.isArray(rubric)||rubric.length!==5||!rubric.every(x=>Number.isInteger(x)&&x>=0&&x<=4))return bad(res,'قيّم المعايير الخمسة من صفر إلى أربعة');
+    const grade=rubric.reduce((a,b)=>a+b,0)*5;
+    if(status==='revision_requested' && feedback.length<10)return bad(res,'اشرح التعديلات المطلوبة في الملاحظات');
+    if(status==='approved' && grade<80)return bad(res,'الاعتماد يتطلب 80% على الأقل وفق معيار التدريب');
+    tx(()=>{
+      run('UPDATE cls_submissions SET status=?,feedback=?,rubric=?,grade=?,reviewed_by=?,reviewed=?,updated=? WHERE id=?', status, feedback, JSON.stringify(rubric), grade, req.user.id, now(), now(), s.id);
+      run('INSERT INTO cls_submission_reviews(submission_id,status,feedback,rubric,grade,reviewer,created) VALUES(?,?,?,?,?,?,?)',s.id,status,feedback,JSON.stringify(rubric),grade,req.user.id,now());
+    });
+    audit(req.user.id, 'submission_reviewed', `${s.id}:${status}:${grade}`); res.json({ ok: true, grade });
   });
 
   // ---------------------------------------------------------------- trainee
