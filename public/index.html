@@ -4493,7 +4493,7 @@ function learn(id) {
   const readinessPct=ov ? ov.v : pr.exams?.full?.score != null && Number.isFinite(fullScore) ? fullScore : null;
   const assessed = c.domains.filter(d => Number.isFinite(Number(scores[d.k])) && scores[d.k] !== undefined).length;
   const kinds = p.kinds || [];
-  const tabs = [['plan', 'الخطة'], ['workspace', siteEnglish()?'Learning workspace':'التعلم والتطبيق'],
+  const tabs = [['plan', 'الخطة'], ['workspace', siteEnglish()?'Workshops, tools & reports':'الورش والأدوات والتقارير'],
     ...(kinds.includes('video') || kinds.includes('material') ? [['content', 'المحتوى والفيديو']] : []),
     ...(kinds.includes('download') ? [['resources', 'الملفات']] : []),
     ...(kinds.includes('flash') ? [['flash', 'Flash Cards']] : []),
@@ -4534,7 +4534,7 @@ function learn(id) {
 
     <div class="tabs">${tabs.map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
-    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<iframe title="${siteEnglish()?'Package application and reports':'تطبيقات الباقة وتقاريرها'}" src="/workspace/${encodeURIComponent(p.id)}/?embedded=1" allow="camera; microphone; fullscreen" style="display:block;width:100%;height:1100px;min-height:75vh;border:0;border-radius:18px;background:var(--bg)" loading="lazy"></iframe>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
+    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<iframe title="${siteEnglish()?'Package application and reports':'تطبيقات الباقة وتقاريرها'}" src="/workspace/${encodeURIComponent(p.id)}/?embedded=1&lang=${siteEnglish()?'en':'ar'}#workshops" allow="camera; microphone; fullscreen" style="display:block;width:100%;height:1100px;min-height:75vh;border:0;border-radius:18px;background:var(--bg)" loading="lazy"></iframe>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
   </div>`;
 }
 
