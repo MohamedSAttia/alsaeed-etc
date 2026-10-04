@@ -22,3 +22,7 @@
 !pba-study.html
 !public/
 !public/**
+
+!pmp-topic-seed.js
+!data/
+!data/**
