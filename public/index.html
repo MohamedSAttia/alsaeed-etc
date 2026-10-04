@@ -4534,7 +4534,7 @@ function learn(id) {
 
     <div class="tabs">${tabs.map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
-    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<div class="card pad stack"><span class="eyebrow">ALSAEED · Learning workspace</span><h2>${siteEnglish()?'Content, application and reports':'المحتوى والتطبيق والتقارير'}</h2><p>${siteEnglish()?'Published videos, connected workshops, practical tools, assisted drafts, interviews and supervisor review — scoped to this package.':'الفيديوهات المنشورة والورش المترابطة والأدوات والتعبئة المساعدة والمقابلة ومراجعة المشرف، مرتبطة بهذه الباقة.'}</p><a class="btn p lg" href="/workspace/${encodeURIComponent(p.id)}/">${siteEnglish()?'Open learning workspace':'فتح مساحة التعلم والتطبيق'}</a></div>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
+    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<iframe title="${siteEnglish()?'Package application and reports':'تطبيقات الباقة وتقاريرها'}" src="/workspace/${encodeURIComponent(p.id)}/?embedded=1" allow="camera; microphone; fullscreen" style="display:block;width:100%;height:1100px;min-height:75vh;border:0;border-radius:18px;background:var(--bg)" loading="lazy"></iframe>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
   </div>`;
 }
 
