@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/unified-exam.css?v=20260905-1">
+<link rel="stylesheet" href="/unified-exam.css?v=20261004-3">
 <link rel="stylesheet" href="/learning-v20.css?v=20.0">
 <link rel="stylesheet" href="/ui-v21.css?v=21.1">
 <link rel="stylesheet" href="/platform-v22.css?v=22.0">
@@ -1073,6 +1073,8 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 .course-choice-result p{margin:0 0 12px}
 .course-choice-result p:last-child{margin:0}
 @media(max-width:760px){.course-choice-grid{grid-template-columns:1fr}}
+
+.learning-chapter summary{cursor:pointer;list-style:none;background:linear-gradient(110deg,var(--paper),#fff);padding:20px}.learning-chapter summary::after{content:'⌄';margin-inline-start:12px}.learning-lesson{margin:12px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card,#fff)}.learning-lesson .ls{padding:18px;cursor:pointer;border:0}.learning-lesson .ls:hover{background:var(--paper)}.learning-lesson .note{margin:0 16px 12px}.learning-lesson>.btn{margin:0 12px 12px}.learning-chapter>button{margin:12px 20px 20px}.lesson-attachments{padding:16px;margin-top:16px;border:1px solid var(--line);border-radius:14px}.lesson-attachments .btn{margin:4px}.player{border-radius:16px;overflow:hidden}
 </style>
 <link rel="stylesheet" href="/homepage-v23.css?v=23.0">
 <link rel="stylesheet" href="/experience-v24.css?v=24.0">
@@ -4375,10 +4377,10 @@ function pkgTab(p, c, has) {
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
             : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
       ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => l.vimeo).length} (${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
-      ${Object.keys(byCh).map(ch => `<div class="ch-blk">
-        <div class="ch-h"><b>${esc(window.biTitle ? window.biTitle(c.chapters[ch] || 'مقدّمة') : (c.chapters[ch] || 'مقدّمة'))}</b>
-          <span>${byCh[ch].length} درساً</span></div>
-        ${byCh[ch].map(l => `<div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
+      ${Object.keys(byCh).map((ch,ci) => `<details class="ch-blk learning-chapter" ${ci===0?'open':''}>
+        <summary class="ch-h"><b>${esc(window.biTitle ? window.biTitle(c.chapters[ch] || 'مقدّمة') : (c.chapters[ch] || 'مقدّمة'))}</b>
+          <span>${byCh[ch].length} ${siteEnglish()?'lessons':'دروس'} · ${byCh[ch].filter(l=>pr.lessons[l.i]).length} ✓</span></summary>
+        ${byCh[ch].map(l => `<article class="learning-lesson"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
           ${l.vimeo ? `<span class="num" aria-label="${siteEnglish()?'Video':'فيديو'} ${videoNumbers.get(l.i)}">${videoNumbers.get(l.i)}</span>` : ''}
@@ -4387,8 +4389,8 @@ function pkgTab(p, c, has) {
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${(has||l.free)?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en||(!siteEnglish()?'':'')||(siteEnglish()?'No lesson-specific reading has been added yet.':'لم يضف المدرب شرحًا نصيًا خاصًا بهذا الدرس بعد.'))}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
-      ${has?`<button class="btn p" data-chapter-test="${ch}" data-pk="${p.id}">${siteEnglish()?'Assess this chapter':'اختبر فهمك لهذا الفصل'} · 20 / 30</button>`:''}</div>`).join('')}`;
+        </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en)}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
+      ${has?`<button class="btn p" data-chapter-test="${ch}" data-pk="${p.id}">${siteEnglish()?'Assess this chapter':'اختبر فهمك لهذا الفصل'} · 20 / 30</button>`:''}</details>`).join('')}`;
   }
 
   if (pkTab === 'resources') {
@@ -5327,7 +5329,7 @@ function playLesson(pid, idx) {
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
-    <div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Read before watching':'اقرأ قبل المشاهدة'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes||(siteEnglish()?'No lesson-specific reading has been added yet.':'لم يضف المدرب شرحًا نصيًا خاصًا بهذا الدرس بعد.'))}</p></div>
+    ${String(l.notes||l.notes_en||'').trim()?`<div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Lesson reading':'شرح الدرس'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes)}</p></div>`:''}
     <p>${l.dur} · درس ${idx + 1} من ${ls.length}</p>
     <div class="player">
       ${l.vimeo
@@ -5337,6 +5339,7 @@ function playLesson(pid, idx) {
              <p>ارفع الدرس على Vimeo وضع رقمه من لوحة الإدارة ← المحتوى والفيديو.
              سيظهر هنا مباشرةً بمشغّل Vimeo الرسمي.</p></div>`}
     </div>
+    ${(l.files||[]).length?`<div class="lesson-attachments"><h4>${siteEnglish()?'Lesson files':'ملفات الدرس'}</h4>${l.files.map(f=>`<button class="btn o sm" data-player-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
     <div class="mdl-act">
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
         ${pr.lessons[idx] ? '✓ مكتمل — إلغاء' : 'علّم كمكتمل'}</button>
@@ -5344,6 +5347,7 @@ function playLesson(pid, idx) {
       ${idx + 1 < ls.length ? '<button class="btn o" id="lsNext">الدرس التالي ←</button>' : ''}
       <button class="btn o" data-close>إغلاق</button>
     </div>`, () => {
+    $$('[data-player-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.playerFile),{headers:{Authorization:'Bearer '+A().token}});if(!response.ok)throw Error('تعذر تنزيل الملف');const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;link.download=b.dataset.fileName;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);pr.downloads=pr.downloads||{};pr.downloads[b.dataset.playerFile]={name:b.dataset.fileName,at:Date.now()};A().save()}catch(e){A().toast(e.message)}});
     $('#lsDone').onclick = () => {
       const completed = !pr.lessons[idx]; pr.lessons[idx] = completed; A().save();
       A().toast(pr.lessons[idx] ? '✓ سُجّل إتمام الدرس' : 'أُلغي التعليم');
@@ -7021,10 +7025,10 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261004-2"></script><script src="/course-assessments.js?v=2"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261004-3"></script><script src="/course-assessments.js?v=3"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>
-<script src="/v17-interactive.js?v=20.0"></script>
+<script src="/v17-interactive.js?v=20.1"></script>
 <script src="/dict-v17.js"></script>
 <script src="/english-copy-v27.js?v=27.0"></script>
 <script>

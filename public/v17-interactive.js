@@ -87,6 +87,7 @@ window.buildCover = function (opts) {
    ② المشغّل التفاعلي
    ═══════════════════════════════════════════ */
 let V = null;
+let hiddenLessons=[];
 let player = null;
 let playerLoader = null;
 function visibleVideoOrder(pkgId) {
@@ -195,16 +196,10 @@ window.InteractiveVideo = {
     if (!lesson) { if (window.APP) window.APP.toast('الدرس غير متاح'); return; }
     const c = p && window.APP.course ? window.APP.course(p.course) : {};
 
-    V = {
-      pkgId, lessonIdx, lesson, course: (c && c.id) || 'pmp',
-      cues: buildCues(lesson, lessonIdx),
-      done: {}, t: 0, dur: durSec(lesson.dur || lesson.duration),
-      answered: 0, correct: 0, paused: false, cue: null,
-      autoNext: localStorage.getItem('alsaeed_auto_next') !== 'false',
-      discussion: [], discussionStatus: 'loading', discussionError: '', canReply: false, replying: null
-    };
-    document.body.classList.add('iv-lock');
-    document.body.insertAdjacentHTML('beforeend', `<div class="iv-shell" id="iv"></div>`);
+    close();V={pkgId,lessonIdx,lesson,course:(c&&c.id)||'pmp',cues:buildCues(lesson,lessonIdx),done:{},t:0,dur:durSec(lesson.dur||lesson.duration),answered:0,correct:0,paused:false,cue:null,autoNext:localStorage.getItem('alsaeed_auto_next')!=='false',discussion:[],discussionStatus:'loading',discussionError:'',canReply:false,replying:null};
+    const host=$('#lnBody')||document.body,inline=host!==document.body;
+    if(inline){hiddenLessons=[...host.children].map(el=>({el,display:el.style.display}));hiddenLessons.forEach(x=>x.el.style.display='none')}else document.body.classList.add('iv-lock');
+    host.insertAdjacentHTML('beforeend', `<div class="iv-shell ${inline?'iv-inline':''}" id="iv"></div>`);
     render();
     loadDiscussion();
   },
@@ -212,6 +207,7 @@ window.InteractiveVideo = {
 };
 
 function close() {
+  hiddenLessons.forEach(x=>x.el.style.display=x.display);hiddenLessons=[];
   if(player){player.destroy().catch(()=>{});player=null;}
   V = null;
   document.body.classList.remove('iv-lock');
@@ -264,11 +260,8 @@ function render() {
         <button class="btn o" id="ivPause" type="button">${T('إيقاف الفيديو مؤقتاً','Pause video')}</button>
         <button class="btn o" id="ivNext" type="button">${T('الفيديو التالي','Next video')} →</button>
         ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
-        <div class="iv-notes">
-          ${l.notes ? esc(l.notes).replace(/\n/g, '<br>')
-            : `<p class="muted">${T('ملاحظات هذا الدرس تُضاف من لوحة الإدارة.',
-                'Lesson notes are added from the admin panel.')}</p>`}
-        </div>
+        ${String(l.notes||l.notes_en||'').trim()?`<div class="iv-notes">${esc((L()==='en'?l.notes_en:l.notes)||l.notes||l.notes_en).replace(/\n/g,'<br>')}</div>`:''}
+        ${(l.files||[]).length?`<div class="iv-files"><h4>${T('ملفات الدرس','Lesson files')}</h4>${l.files.map(f=>`<button class="btn o" data-iv-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
         <h4>${T('دروس الفصل', 'Chapter lessons')}</h4>
         <div class="iv-list">
           ${((window.LESSONS && window.LESSONS[V.pkgId]) || [])
@@ -374,8 +367,9 @@ function bind() {
   const next=$('#ivNext');if(next)next.onclick=nextVideo;
   const quiz = $('#ivLessonQuiz'); if (quiz) quiz.onclick = () => {
     const pkg = V.pkgId, idx = V.lessonIdx;
-    close(); if (window.runLessonQuiz) window.runLessonQuiz(pkg, 'lesson' + idx);
+    close(); if(window.PackageJourney)window.PackageJourney.lessonTest(pkg,idx);else if(window.runLessonQuiz)window.runLessonQuiz(pkg,'lesson'+idx);
   };
+  $$('[data-iv-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.ivFile),{headers:{Authorization:'Bearer '+window.APP.token}});if(!response.ok)throw Error(T('تعذر تنزيل الملف','Could not download file'));const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download=b.dataset.fileName;document.body.append(a);a.click();a.remove();const pr=window.APP.prog(V.pkgId);pr.downloads||={};pr.downloads[b.dataset.ivFile]={name:b.dataset.fileName,at:Date.now()};window.APP.save();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(e){window.APP.toast(e.message)}});
   $$('[data-go]').forEach(b => b.onclick = () => selectVideo(+b.dataset.go));
   $$('[data-cue]').forEach(b => b.onclick = () => openCue(+b.dataset.cue));
   $$('[data-cueo]').forEach(b => b.onclick = () => {

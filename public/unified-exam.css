@@ -6,3 +6,7 @@
 .ux-domain strong{font-variant-numeric:tabular-nums}
 .ux-weak{margin:16px 0 4px;padding:12px 14px;border-radius:12px;background:#fff5ec;border:1px solid #f6d6b8;color:#8a4b12;font-size:14px;line-height:1.7}
 .ux-weak b{color:#c2410c}
+
+.ux-shell.ux-inline{position:relative;inset:auto;z-index:1;border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:480px}.ux-inline .ux-loading{min-height:360px;padding:28px}.ux-inline .ux-main{padding:18px}.ux-inline .ux-head{position:relative}.ux-inline .ux-nav{top:12px}.ux-inline .ux-report{margin:0}.ux-inline .ux-title b{font-size:1rem}
+
+.iv-shell.iv-inline{position:relative;inset:auto;z-index:1;border-radius:18px;overflow:hidden;background:var(--paper);min-height:520px;display:block}.iv-inline .iv-body{overflow:visible;height:auto;grid-template-columns:minmax(0,2fr) minmax(260px,1fr)}.iv-inline .iv-stage{padding:18px}.iv-inline .iv-player{border-radius:14px;overflow:hidden;aspect-ratio:16/9}.iv-inline .iv-side{max-height:none;overflow:visible}.iv-files .btn{display:block;width:100%;margin:6px 0;text-align:start}@media(max-width:900px){.iv-inline .iv-body{display:block}.iv-inline .iv-side{padding:18px}}
