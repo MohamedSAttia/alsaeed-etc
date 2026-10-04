@@ -49,9 +49,10 @@ function showBreak(after){clearInterval(timer);const minutes=after===10?5:10;let
 function startTimer(){clearInterval(timer);timer=setInterval(()=>{if(!S)return;S.left--;const e=$('#uxTime');if(e)e.textContent=fmt(S.left);if(S.left<=0){clearInterval(timer);finish()}},1000)}function fmt(n){return[Math.floor(n/3600),Math.floor(n%3600/60),n%60].map(x=>String(x).padStart(2,'0')).join(':')}
 function finish(){clearInterval(timer);const correct=S.items.filter(isCorrect).length,pct=Math.round(correct/S.items.length*100),profile=courseProfile();
  const progress=window.APP.prog(S.pid);progress.exams=progress.exams||{};
- progress.exams[S.eid||'practice']={score:pct,passed:pct>=65,at:Date.now(),total:S.items.length,correct};
+ const bucket=S.config?.kind==='game'?(progress.games||={}):progress.exams;bucket[S.eid||'practice']={score:pct,passed:pct>=65,at:Date.now(),total:S.items.length,correct};
  progress.updatedAt=Date.now();
  window.APP.save();
+ fetch('/workspace/'+encodeURIComponent(S.pid)+'/api/attempts',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+window.APP.token},body:JSON.stringify({kind:S.config?.kind==='game'?'game':'exam',ref:S.config?.kind==='game'?'game:package:1':S.eid||'practice',title:(S.c.code||'')+' · '+(S.eid||'practice'),score:correct,max:S.items.length,dur:Date.now()-S.started,detail:{questions:S.items.map(q=>({id:q.id,domain:q.domain,topic:q.topic,answer:S.answers[q.id]??null,correct:isCorrect(q)}))}})}).then(r=>{if(!r.ok)throw Error('تعذر حفظ المحاولة')}).catch(e=>window.APP.toast('حُفظت النتيجة؛ تعذر تسجيل تفاصيل المحاولة للمشرف: '+e.message));
  const L=(profile.labels||[]).map(l=>(typeof l==='string'?{k:l,ar:l,en:l}:l)),lm={};L.forEach(l=>{lm[String(l.k).toLowerCase()]=l;if(l.ar)lm[String(l.ar).toLowerCase()]=l;if(l.en)lm[String(l.en).toLowerCase()]=l});
  const groups={};S.items.forEach(q=>{const raw=String(q.domain||q.topic||'Other'),lab=lm[raw.toLowerCase()],gk=lab?lab.k:raw;groups[gk]=groups[gk]||{disp:lab?(S.lang==='ar'?(lab.ar||lab.en||lab.k):(lab.en||lab.ar||lab.k)):raw,n:0,c:0};groups[gk].n++;if(isCorrect(q))groups[gk].c++});
  const order=[...L.map(l=>l.k).filter(k=>groups[k]),...Object.keys(groups).filter(k=>!L.some(l=>l.k===k))];

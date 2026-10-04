@@ -350,9 +350,14 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
   });
 
   // ---------------------------------------------------------------- staff: users (trainees & trainers)
+  const learningFor = id => {
+    if (!workspace || !q1("SELECT name FROM sqlite_master WHERE type='table' AND name='progress'")) return null;
+    const row=q1('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?',id,CLASSROOM_PACKAGE);const data=J(row?.data,{})||{};
+    const catalog=q1("SELECT name FROM sqlite_master WHERE type='table' AND name='lessons'")?qa('SELECT idx,title,chapter,vimeo FROM lessons WHERE package_id=? ORDER BY idx',CLASSROOM_PACKAGE):[];return {catalog,lessons:data.lessons||{},weeks:data.weeks||{},exams:data.exams||{},activities:data.activities||{},games:data.games||{},downloads:data.downloads||{},updated:row?.updated||null};
+  };
   const userListRow = u => {
     const s = summ(u.id), a = q1("SELECT COUNT(*) n, ROUND(AVG(CASE WHEN kind='exam' THEN pct END),1) ex, ROUND(AVG(CASE WHEN kind='game' THEN pct END),1) gm, MAX(created) last FROM cls_attempts WHERE user_id = ?", u.id);
-    return { ...pub(u), groups: qa('SELECT g.id, g.name FROM cls_members m JOIN cls_groups g ON g.id = m.group_id WHERE m.user_id = ?', u.id), readiness: s.readiness ?? null, lessons: s.lessons ?? null, answered: s.answered ?? null, accuracy: s.accuracy ?? null, attempts: a.n, exam_avg: a.ex, game_avg: a.gm, last_attempt: a.last };
+    return { ...pub(u), learning:learningFor(u.id), groups: qa('SELECT g.id, g.name FROM cls_members m JOIN cls_groups g ON g.id = m.group_id WHERE m.user_id = ?', u.id), readiness: s.readiness ?? null, lessons: s.lessons ?? null, answered: s.answered ?? null, accuracy: s.accuracy ?? null, attempts: a.n, exam_avg: a.ex, game_avg: a.gm, last_attempt: a.last };
   };
   r.get('/admin/users', auth, staff, (req, res) => {
     let ids = traineeIdsFor(req.user);
@@ -403,7 +408,7 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
     const id = req.params.id; if (!canUser(req.user, id)) return bad(res, 'غير مسموح', 403);
     const u = userRow(id); if (!u) return bad(res, 'غير موجود', 404);
     const p = q1('SELECT summary, updated FROM cls_progress WHERE user_id = ?', id);
-    res.json({ user: pub(u), groups: userGroups(id), summary: J(p?.summary, {}), synced: p?.updated || null,
+    res.json({ user: pub(u), learning:learningFor(id), groups: userGroups(id), summary: J(p?.summary, {}), synced: p?.updated || null,
       attempts: qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 500', id), submissions: qa('SELECT id,activity_id,notes,status,feedback,created FROM cls_submissions WHERE user_id = ? ORDER BY created DESC LIMIT 300', id), assignments: assignmentsFor(id) });
   });
   r.get('/admin/attempts/:id', auth, staff, (req, res) => {

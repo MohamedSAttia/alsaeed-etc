@@ -4387,8 +4387,8 @@ function pkgTab(p, c, has) {
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${(has||l.free)?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en||(!siteEnglish()?window.CourseAssessments?.guide(c,c.chapters[l.ch]):'')||'راجع الدرس وحدد المفاهيم والأداة ومخرجات التطبيق، ثم سجّل مثالًا من واقع عملك.')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
-      </div>`).join('')}`;
+        </div>${(has||l.free)?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en||(!siteEnglish()?'':'')||(siteEnglish()?'No lesson-specific reading has been added yet.':'لم يضف المدرب شرحًا نصيًا خاصًا بهذا الدرس بعد.'))}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
+      ${has?`<button class="btn p" data-chapter-test="${ch}" data-pk="${p.id}">${siteEnglish()?'Assess this chapter':'اختبر فهمك لهذا الفصل'} · 20 / 30</button>`:''}</div>`).join('')}`;
   }
 
   if (pkTab === 'resources') {
@@ -4494,14 +4494,14 @@ function learn(id) {
   const readinessPct=ov ? ov.v : pr.exams?.full?.score != null && Number.isFinite(fullScore) ? fullScore : null;
   const assessed = c.domains.filter(d => Number.isFinite(Number(scores[d.k])) && scores[d.k] !== undefined).length;
   const kinds = p.kinds || [];
-  const tabs = [['plan', 'الخطة'], ['workspace', siteEnglish()?'Workshops, tools & reports':'الورش والأدوات والتقارير'],
+  const tabs = [['plan', 'الخطة'], ['workspace', siteEnglish()?'Practical system':'النظام التطبيقي'],
     ...(kinds.includes('video') || kinds.includes('material') ? [['content', 'المحتوى والفيديو']] : []),
     ...(kinds.includes('download') ? [['resources', 'الملفات']] : []),
     ...(kinds.includes('flash') ? [['flash', 'Flash Cards']] : []),
     ...(kinds.includes('activity') ? [['activities', 'الأنشطة']] : []),
     ...(kinds.includes('game') ? [['games', 'الألعاب']] : []),
     ...(kinds.includes('quiz') || kinds.includes('exam') ? [['exams', 'الاختبارات']] : []),
-    ...(p.hasSystem ? [['system', 'النظام التطبيقي']] : []),
+
     ...(p.cert ? [['cert', 'الشهادة']] : [])];
   if (!tabs.some(x => x[0] === learnTab)) learnTab = tabs[0][0];
 
@@ -4533,9 +4533,10 @@ function learn(id) {
         `<span class="k"><i style="background:${A().BAND[k].c}"></i>${A().BAND[k].ar}</span>`).join('')}</div>
     </div>` : ''}
 
+    <div class="card pad mb"><h3>${siteEnglish()?'My learning dashboard':'لوحة تقدمي في الباقة'}</h3><p>${siteEnglish()?'Follow the steps below. Completion counts reflect recorded activity.':'تابع الخطوات التالية. الأعداد تعكس ما سجلته فعليًا في هذه الباقة.'}</p><div class="learner-steps">${[['plan',siteEnglish()?'Plan':'الخطة',Object.values(pr.weeks||{}).filter(Boolean).length],['content',siteEnglish()?'Reading & video':'الشرح والفيديو',ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length],['resources',siteEnglish()?'Files':'الملفات',Object.keys(pr.downloads||{}).length],['activities',siteEnglish()?'Exercises':'التمارين',Object.values(pr.activities||{}).filter(Boolean).length],['workspace',siteEnglish()?'Application':'التطبيق',Object.keys(pr.applicationReports||{}).length],['exams',siteEnglish()?'Tests':'الاختبارات',Object.keys(pr.exams||{}).length]].filter(([id])=>tabs.some(t=>t[0]===id)).map(([id,t,n],i)=>`<button class="learner-step ${learnTab===id?'on':''} ${n?'done':''}" data-lt="${id}"><strong>${i+1} · ${t}</strong><small>${n} ${siteEnglish()?'recorded':'مسجل'}</small></button>`).join('')}</div></div>
     <div class="tabs">${tabs.map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
-    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<iframe title="${siteEnglish()?'Package application and reports':'تطبيقات الباقة وتقاريرها'}" src="/workspace/${encodeURIComponent(p.id)}/?embedded=1&lang=${siteEnglish()?'en':'ar'}#workshops" allow="camera; microphone; fullscreen" style="display:block;width:100%;height:1100px;min-height:75vh;border:0;border-radius:18px;background:var(--bg)" loading="lazy"></iframe>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
+    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<section class="package-application" data-native-workspace="${esc(p.id)}"><div class="card pad">${siteEnglish()?'Loading applications…':'جارٍ تحميل التطبيق…'}</div></section>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
   </div>`;
 }
 
@@ -5278,7 +5279,7 @@ function downloadResource(pid, kind) {
 /* ═══════════ مختبر الأسئلة التفاعلي ═══════════ */
 function openPractice(pid, requested) {
   if (A().live && window.UnifiedExam) {
-    window.UnifiedExam.open(pid, requested === 'game' ? 'practice' : (requested || 'practice'));
+    window.UnifiedExam.open(pid, requested === 'game' ? 'game' : (requested || 'practice'),requested==='game'?{kind:'game'}:{});
     return;
   }
   const p=A().pack(pid), c=p&&A().course(p.course); if(!p||!c)return;
@@ -5326,7 +5327,7 @@ function playLesson(pid, idx) {
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
-    <div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Read before watching':'اقرأ قبل المشاهدة'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes||'حدد المفهوم الرئيس في هذا الدرس، ثم دوّن كيف ستطبقه في مشروعك ومعيار قياس النتيجة.')}</p></div>
+    <div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Read before watching':'اقرأ قبل المشاهدة'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes||(siteEnglish()?'No lesson-specific reading has been added yet.':'لم يضف المدرب شرحًا نصيًا خاصًا بهذا الدرس بعد.'))}</p></div>
     <p>${l.dur} · درس ${idx + 1} من ${ls.length}</p>
     <div class="player">
       ${l.vimeo
@@ -5339,7 +5340,7 @@ function playLesson(pid, idx) {
     <div class="mdl-act">
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
         ${pr.lessons[idx] ? '✓ مكتمل — إلغاء' : 'علّم كمكتمل'}</button>
-      ${(l.quiz || []).length ? `<button class="btn o" id="lessonQuiz">اختبار الفيديو (${l.quiz.length})</button>` : ''}
+      <button class="btn o" id="lessonQuiz">${siteEnglish()?'Test this lesson / chapter':'اختبار هذا الدرس / الفصل'}</button>
       ${idx + 1 < ls.length ? '<button class="btn o" id="lsNext">الدرس التالي ←</button>' : ''}
       <button class="btn o" data-close>إغلاق</button>
     </div>`, () => {
@@ -5347,9 +5348,9 @@ function playLesson(pid, idx) {
       const completed = !pr.lessons[idx]; pr.lessons[idx] = completed; A().save();
       A().toast(pr.lessons[idx] ? '✓ سُجّل إتمام الدرس' : 'أُلغي التعليم');
       A().closeModal(); A().render();
-      if (completed && (l.quiz || []).length) setTimeout(() => runLessonQuiz(pid, 'lesson' + idx), 180);
+      if(completed)setTimeout(()=>A().modal(`<h3>${siteEnglish()?'Lesson completed':'أتممت الدرس'}</h3><p>${siteEnglish()?'Apply what you learned, then assess your understanding.':'طبّق ما تعلمته، ثم اختبر فهمك للدرس أو الفصل.'}</p><button class="btn p" id="afterLessonTest">${siteEnglish()?'Start assessment':'ابدأ اختبار الدرس / الفصل'}</button><button class="btn o" data-close>${siteEnglish()?'Continue learning':'متابعة التعلم'}</button>`,()=>{$('#afterLessonTest').onclick=()=>{A().closeModal();PackageJourney.lessonTest(pid,idx)}}),180);
     };
-    const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); runLessonQuiz(pid, 'lesson' + idx); };
+    const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); PackageJourney.lessonTest(pid,idx); };
     const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, idx + 1); };
   });
 }
@@ -5370,6 +5371,7 @@ function runLessonQuiz(pid, key) {
       progress.exams[key] = { score:percent, autoCount:scored, autoCorrect:score,
         passed:percent != null && percent >= 65 && !pending, pendingReview:pending, at:Date.now() };
       A().save();
+      fetch('/workspace/'+encodeURIComponent(pid)+'/api/attempts',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+A().token},body:JSON.stringify({kind:'exam',ref:key,title:key,score,max:scored,detail:{essayPending:pending}})}).catch(()=>A().toast('تعذر تسجيل المحاولة للمشرف؛ النتيجة محفوظة في تقدمك.'));
       A().modal(`<h3>${scored ? 'نتيجة الأسئلة المصححة: ' + percent + '%' : 'تم إرسال الإجابة'}</h3>
         <p>${score} من ${scored} إجابة صحيحة آليًا${pending ? ' · ' + pending + ' إجابة مقالية تنتظر مراجعة المدرب' : ''}</p>
         <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`);
@@ -5653,6 +5655,7 @@ function bind() {
   });
   const hp=$('#heroPlay'), hw=$('#heroWatch'); if(hp)hp.onclick=()=>openCoursePreview('pmp'); if(hw)hw.onclick=()=>{ const C=CT(); if(C.heroVimeo){ A().modal(`<div class="video-shell" style="min-height:420px">${vimeoFrame(C.heroVimeo,'عن منصة السعيد')}</div><div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`); } else openCoursePreview('pmp'); };
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
+  $$('[data-chapter-test]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pk,c=A().course(A().pack(pid).course);if(c.id==='pmp')window.PackageChapterTest?.(pid,c.chapters[+b.dataset.chapterTest]);else window.UnifiedExam?.open(pid,'ch'+b.dataset.chapterTest)});
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
   const reminderEnabled=$('#reminderEnabled'), reminderDays=$('#reminderDays');
   const saveReminder=async()=>{
@@ -5768,7 +5771,7 @@ function bind() {
       if (!response.ok) throw new Error('تعذر تنزيل الملف؛ تحقق من الاشتراك');
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement('a'); link.href = url; link.download = button.dataset.fileName;
-      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+      document.body.append(link); link.click(); link.remove();const progress=A().prog(button.dataset.downloadPkg);progress.downloads||={};progress.downloads[button.dataset.lessonFile]={name:button.dataset.fileName,at:Date.now()};A().save(); setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err) { A().toast(err.message); }
   });
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
@@ -7018,7 +7021,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261004-2"></script><script src="/course-assessments.js?v=1"></script>
+<script src="/unified-exam.js?v=20261004-2"></script><script src="/course-assessments.js?v=2"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>
 <script src="/v17-interactive.js?v=20.0"></script>
