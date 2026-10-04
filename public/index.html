@@ -4347,7 +4347,7 @@ function pkgTab(p, c, has) {
   if (pkTab === 'plan') {
     const plan = A().studyPlan(p.id);
     const pr = has ? A().prog(p.id) : { weeks: {} };
-    return `<div class="note info mb"><b>خطة ${plan.length} أسابيع.</b>
+    return `<div class="card pad mb"><h3>${siteEnglish()?'Your learning journey':'مسارك التعليمي'}</h3><div class="grid g3">${[['content',siteEnglish()?'1 · Reading and video':'1 · الشرح النصي والفيديو'],['resources',siteEnglish()?'2 · Files and templates':'2 · الملفات والقوالب'],['games',siteEnglish()?'3 · Management games':'3 · الألعاب الإدارية'],['activities',siteEnglish()?'4 · Exercises':'4 · الأنشطة والتمارين'],['workspace',siteEnglish()?'5 · Application and reports':'5 · التطبيق والتقارير'],['exams',siteEnglish()?'6 · Chapter tests and mocks':'6 · اختبارات الفصول والمحاكاة']].filter(([id])=>id==='content'?p.kinds?.includes('video')||p.kinds?.includes('material'):id==='resources'?p.kinds?.includes('download'):id==='games'?p.kinds?.includes('game'):id==='activities'?p.kinds?.includes('activity'):id==='exams'?p.kinds?.includes('exam')||p.kinds?.includes('quiz'):true).map(([id,t])=>`<button class="btn o" data-lt="${id}">${esc(t)}</button>`).join('')}</div></div><div class="note info mb"><b>خطة ${plan.length} أسابيع.</b>
       علّم الأسبوع عند إتمامه ليتحدّث تقدّمك تلقائياً — والخطة قابلة للتعديل حسب وقتك.</div>
       <div class="plan-w">${plan.map(w => `
         <div class="wk ${pr.weeks[w.w] ? 'done' : ''}">
@@ -4387,7 +4387,7 @@ function pkgTab(p, c, has) {
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
+        </div>${(has||l.free)?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en||(!siteEnglish()?window.CourseAssessments?.guide(c,c.chapters[l.ch]):'')||'راجع الدرس وحدد المفاهيم والأداة ومخرجات التطبيق، ثم سجّل مثالًا من واقع عملك.')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('') : ''}`).join('')}
       </div>`).join('')}`;
   }
 
@@ -4419,6 +4419,7 @@ function pkgTab(p, c, has) {
   if (pkTab === 'games') return `<div class="card pad" style="background:linear-gradient(145deg,var(--navy),var(--navy3));color:#fff;border:0"><span class="eyebrow" style="color:var(--orange2)">Management Game</span><h3 style="font-family:var(--fd);font-size:1.45rem;margin:8px 0">تحدّي القرار في 90 ثانية</h3><p style="color:#C7D3E5;line-height:1.8">اقرأ موقفاً من ${esc(c.code)}، اتخذ قرارك، ثم احصل على تغذية راجعة فورية مرتبطة بالمفهوم الصحيح.</p><button class="btn p lg" data-game="${p.id}">ابدأ اللعبة</button></div>`;
 
   if (pkTab === 'exams') {
+    if(c.id==='pmp'&&has&&window.CourseAssessments)return CourseAssessments.markup(p.id);
     const set = A().examSet(p.id);
     const pr = has ? A().prog(p.id) : { exams: {} };
     const grp = { 'فصل': [], 'نطاق': [], 'شامل': [] };
@@ -5325,6 +5326,7 @@ function playLesson(pid, idx) {
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
+    <div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Read before watching':'اقرأ قبل المشاهدة'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes||'حدد المفهوم الرئيس في هذا الدرس، ثم دوّن كيف ستطبقه في مشروعك ومعيار قياس النتيجة.')}</p></div>
     <p>${l.dur} · درس ${idx + 1} من ${ls.length}</p>
     <div class="player">
       ${l.vimeo
@@ -5446,10 +5448,6 @@ function runExam(pid, eid) {
   if (/^ch\d+$/.test(eid) && (window.LESSONS[pid] || []).some(l =>
     (l.ch || 0) === Number(eid.slice(2)) && (l.quiz || []).length)) {
     runLessonQuiz(pid, eid); return;
-  }
-  if (eid === 'full' && /^pmp-(?:full|sim)(?:-|$)/i.test(String(pid || ''))) {
-    window.location.href = '/pmp/';
-    return;
   }
   if(window.UnifiedExam) window.UnifiedExam.open(pid, eid);
   else openPractice(pid, eid);
@@ -5775,7 +5773,7 @@ function bind() {
   });
   $$('[data-exam]').forEach(b => b.onclick = e => { e.stopPropagation(); runExam(b.dataset.pk, b.dataset.exam); });
   $$('[data-unified-exam]').forEach(b => b.onclick = () => runExam(b.dataset.unifiedExam, b.dataset.examCode || 'full'));
-  $$('[data-pmp-hub]').forEach(b => b.onclick = () => { window.location.href = '/pmp/'; });
+  $$('[data-pmp-hub]').forEach(b => b.onclick = () => { window.UnifiedExam?.open(curPk(),'full'); });
   $$('[data-practice]').forEach(b => b.onclick = () => openPractice(b.dataset.practice));
   $$('[data-game]').forEach(b => b.onclick = () => decisionGame(b.dataset.game));
   $$('[data-download]').forEach(b => b.onclick = () => downloadResource(b.dataset.pk, b.dataset.download));
@@ -7020,7 +7018,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20260922-1"></script>
+<script src="/unified-exam.js?v=20261004-2"></script><script src="/course-assessments.js?v=1"></script>
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script>
 <script src="/v17-interactive.js?v=20.0"></script>

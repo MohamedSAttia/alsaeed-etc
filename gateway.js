@@ -439,7 +439,7 @@ async function handleQuestionAdmin(req,res,url){
     const pkg=decodeURIComponent(parts[0]);
     const sourcePkg=questionSourcePackageId(pkg,true);
     const rows=db.prepare('SELECT * FROM questions WHERE package_id=? ORDER BY id').all(sourcePkg).map(r=>{const o=normalizedQuestionOptions(r);return {
-      ...r, active:!!r.active, options:o.display, options_en:o.en, options_ar:o.ar
+      ...r, phase:String(parseJson(r.meta,{}).phase||''), active:!!r.active, options:o.display, options_en:o.en, options_ar:o.ar
     }});
     return sendJson(res,200,rows);
   }
@@ -449,7 +449,7 @@ async function handleQuestionAdmin(req,res,url){
     const id='Q-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),now=Date.now();
     const en=arr(b.options_en).slice(0,8), arOpts=arr(b.options_ar).slice(0,8), display=arOpts.some(Boolean)?arOpts:en;
     db.prepare(`INSERT INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,options_ar,options_en,correct,explanation_ar,explanation_en,reference,active,created,updated,approach,source_id,meta)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,validDomain(b.domain)||String(b.domain||''),b.topic||'',b.difficulty||'medium',normalizeType(b.type),b.question_ar||'',b.question_en||'',JSON.stringify(display),JSON.stringify(arOpts),JSON.stringify(en),String(b.correct||'A').toUpperCase(),b.explanation_ar||'',b.explanation_en||'',b.reference||'',b.active===false?0:1,now,now,b.approach||'',id,JSON.stringify({source:'admin'}));
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,b.package_id,validDomain(b.domain)||String(b.domain||''),b.topic||'',b.difficulty||'medium',normalizeType(b.type),b.question_ar||'',b.question_en||'',JSON.stringify(display),JSON.stringify(arOpts),JSON.stringify(en),String(b.correct||'A').toUpperCase(),b.explanation_ar||'',b.explanation_en||'',b.reference||'',b.active===false?0:1,now,now,b.approach||'',id,JSON.stringify({source:'admin',phase:['initiating','planning','executing','monitoring','closing'].includes(b.phase)?b.phase:''}));
     return sendJson(res,200,{ok:true,id});
   }
   if(parts.length===1 && method==='PUT'){
@@ -459,6 +459,7 @@ async function handleQuestionAdmin(req,res,url){
     const arOpts=Array.isArray(b.options_ar)?b.options_ar:parseJson(old.options_ar,[]); const display=arOpts.some(Boolean)?arOpts:en;
     db.prepare(`UPDATE questions SET package_id=?,domain=?,topic=?,difficulty=?,type=?,question_ar=?,question_en=?,options=?,options_ar=?,options_en=?,correct=?,explanation_ar=?,explanation_en=?,reference=?,active=?,updated=?,approach=? WHERE id=?`)
       .run(b.package_id||old.package_id,validDomain(b.domain)||b.domain||old.domain,b.topic??old.topic,b.difficulty||old.difficulty,normalizeType(b.type||old.type),b.question_ar??old.question_ar,b.question_en??old.question_en,JSON.stringify(display),JSON.stringify(arOpts),JSON.stringify(en),String(b.correct||old.correct).toUpperCase(),b.explanation_ar??old.explanation_ar,b.explanation_en??old.explanation_en,b.reference??old.reference,b.active===false?0:1,Date.now(),b.approach??old.approach,id);
+    if(b.phase!==undefined){const meta=parseJson(old.meta,{});meta.phase=['initiating','planning','executing','monitoring','closing'].includes(b.phase)?b.phase:'';db.prepare('UPDATE questions SET meta=? WHERE id=?').run(JSON.stringify(meta),id);}
     return sendJson(res,200,{ok:true});
   }
   if(parts.length===1 && method==='DELETE'){
@@ -507,7 +508,7 @@ function handleLearnerQuestionBank(req,res,url){
     options_ar:o.ar,options_en:o.en,
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
-    source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
+    phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }});
   return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions});
 }
