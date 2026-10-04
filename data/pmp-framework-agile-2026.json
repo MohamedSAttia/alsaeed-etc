@@ -1,0 +1,1162 @@
+[
+  {
+    "id": "ALSAEED-PMP-2026-FA-001",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "أطلق مركز تدريب بوابة تسجيل. اكتمل تسليم البوابة، لكن زمن التسجيل لم يتحسن. ما الذي ينبغي تقييمه؟",
+    "question_en": "A training centre delivered a registration portal, but registration time did not improve. What should be evaluated?",
+    "options_ar": [
+      "تحقق النتائج والفوائد مقارنة بمعايير النجاح",
+      "عدد الشاشات فقط",
+      "إغلاق المشروع دون مراجعة",
+      "زيادة عدد التقارير"
+    ],
+    "options_en": [
+      "Outcomes and benefits against success criteria",
+      "Only the number of screens",
+      "Close without a review",
+      "Increase report volume"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "تسليم المخرج لا يثبت تحقق الفائدة؛ يجب قياس النتيجة المقصودة مثل تقليل زمن التسجيل.",
+    "explanation_en": "Delivering an output does not prove benefit realization; measure the intended outcome, such as reduced registration time.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-002",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تتكرر معالجة فواتير الموردين شهريًا، بينما تطوير نظام جديد لمعالجتها يستغرق ستة أشهر. كيف تُصنف المبادرتان؟",
+    "question_en": "Supplier invoices are processed monthly, while developing a new processing system takes six months. How are these classified?",
+    "options_ar": [
+      "التطوير محفظة بالضرورة",
+      "المعالجة تشغيل، وتطوير النظام مشروع",
+      "كلاهما تشغيل",
+      "كلاهما مشروع"
+    ],
+    "options_en": [
+      "Development must be a portfolio",
+      "Processing is operations; system development is a project",
+      "Both are operations",
+      "Both are projects"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "العمل المستمر المتكرر تشغيل؛ المبادرة المؤقتة لإنتاج نظام فريد مشروع.",
+    "explanation_en": "Recurring ongoing work is operations; a temporary initiative to create a unique system is a project.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-003",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تدير مؤسسة مشروعات غير مترابطة في الصحة والتعليم لاختيار الاستثمارات الأكثر دعمًا للاستراتيجية. أي مستوى إدارة يناسب ذلك؟",
+    "question_en": "An organization selects unrelated health and education projects to best support its strategy. Which management level applies?",
+    "options_ar": [
+      "إدارة برنامج لأنها مشروعات كثيرة",
+      "إدارة التشغيل فقط",
+      "إدارة المحفظة",
+      "إدارة نشاط واحد"
+    ],
+    "options_en": [
+      "Program management because there are many projects",
+      "Operations only",
+      "Portfolio management",
+      "Single activity management"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "المحفظة تختار وتوازن المكونات لتحقيق الأهداف الاستراتيجية؛ لا يشترط ترابط مشروعاتها.",
+    "explanation_en": "A portfolio selects and balances components for strategic objectives; its projects need not be related.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-004",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "مشروعات الهوية الرقمية والتوقيع الإلكتروني والخدمات الإلكترونية مترابطة وتحقق فائدة لا يحققها كل مشروع منفردًا. ما الإطار الأنسب؟",
+    "question_en": "Digital identity, e-signature and online service projects are related and provide benefits unavailable individually. What fits best?",
+    "options_ar": [
+      "محفظة دون تنسيق",
+      "عملية يومية واحدة",
+      "مشروعات مستقلة دون إدارة الترابط",
+      "برنامج منسق لإدارة الفوائد والترابط"
+    ],
+    "options_en": [
+      "A portfolio without coordination",
+      "One daily operation",
+      "Independent projects without dependency management",
+      "A coordinated program managing benefits and dependencies"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "البرنامج ينسق المشروعات المترابطة للحصول على فوائد وضبط لا يتحققان بإدارتها منفردة.",
+    "explanation_en": "A program coordinates related projects to obtain benefits and control unavailable when managed separately.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-005",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "المتطلبات الإنشائية مستقرة، لكن واجهة الخدمة الرقمية تحتاج تجربة المستخدم المتكررة. ما القرار الأنسب؟",
+    "question_en": "Construction requirements are stable, but the digital interface needs repeated user feedback. What is appropriate?",
+    "options_ar": [
+      "اختيار نهج مختلط مع تبرير الممارسات لكل جزء",
+      "فرض الرشيق على جميع الأعمال",
+      "فرض التنبؤي لأن المشروع كبير",
+      "تجنب اختيار نهج"
+    ],
+    "options_en": [
+      "Tailor a hybrid approach with justified practices for each part",
+      "Force agile on all work",
+      "Force predictive because the project is large",
+      "Avoid selecting an approach"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "التكييف يعتمد على طبيعة العمل وعدم اليقين؛ يمكن دمج ممارسات ملائمة للأجزاء المختلفة.",
+    "explanation_en": "Tailoring considers work characteristics and uncertainty; appropriate practices can be combined across components.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-006",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تغيير مطلوب يتجاوز صلاحيات مدير المشروع المعتمدة. ما الخطوة المناسبة؟",
+    "question_en": "A requested change exceeds the project manager’s authorized limits. What is appropriate?",
+    "options_ar": [
+      "تنفيذه ثم طلب الإذن",
+      "تحليل الأثر ورفع القرار إلى الجهة المخولة",
+      "اعتماد التغيير منفردًا",
+      "رفض جميع التغييرات"
+    ],
+    "options_en": [
+      "Implement then seek permission",
+      "Assess impact and escalate to the authorized decision body",
+      "Approve it alone",
+      "Reject all changes"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "الحوكمة تحدد صلاحيات القرار والتصعيد؛ يجب توضيح الأثر قبل إحالة القرار.",
+    "explanation_en": "Governance defines decision authority and escalation; clarify impacts before referring the decision.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-007",
+    "topic": "Project Management Framework",
+    "domain": "people",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يعرف الراعي النجاح بأنه زيادة الإيراد، بينما يراه الفريق إطلاق النظام في الموعد. ما البداية الأفضل؟",
+    "question_en": "The sponsor defines success as higher revenue, while the team defines it as an on-time launch. What should happen first?",
+    "options_ar": [
+      "تأجيل النقاش للإغلاق",
+      "مضاعفة عدد الاجتماعات",
+      "الاتفاق على رؤية ومعايير نجاح مشتركة",
+      "اعتماد تعريف الفريق تلقائيًا"
+    ],
+    "options_en": [
+      "Defer discussion until closure",
+      "Double meeting frequency",
+      "Agree a shared vision and success criteria",
+      "Automatically adopt the team definition"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "الرؤية المشتركة ومعايير النجاح تربطان المخرجات بالقيمة وتقللان سوء الفهم.",
+    "explanation_en": "A shared vision and success criteria link outputs to value and reduce misunderstanding.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-008",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "بُني الجدول على افتراض وصول الأجهزة خلال أسبوعين. ما الإجراء الأفضل؟",
+    "question_en": "The schedule assumes equipment will arrive within two weeks. What is best?",
+    "options_ar": [
+      "اعتباره حقيقة مؤكدة",
+      "حذفه من الوثائق",
+      "إضافة احتياطي دون تحليل",
+      "توثيق الافتراض والتحقق منه وتحليل خطر عدم صحته"
+    ],
+    "options_en": [
+      "Treat it as a certainty",
+      "Remove it from documents",
+      "Add reserves without analysis",
+      "Document and validate the assumption and assess the risk if false"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "الافتراض غير المؤكد يحتاج تحققًا ومتابعة؛ عدم صحته قد يولد خطرًا على الجدول.",
+    "explanation_en": "An uncertain assumption requires validation and monitoring; being false may create schedule risk.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-009",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "ورد تنبيه أن المورد قد يتأخر، ثم تأكد أن الشحنة تأخرت بالفعل. كيف يتغير التعامل؟",
+    "question_en": "A supplier might be late; later the shipment is confirmed late. How does treatment change?",
+    "options_ar": [
+      "من خطر محتمل إلى قضية فعلية تحتاج إجراءً",
+      "يبقى مجرد افتراض",
+      "يُحذف بلا إجراء",
+      "يصبح فرصة تلقائيًا"
+    ],
+    "options_en": [
+      "From a potential risk to an issue requiring action",
+      "It remains only an assumption",
+      "Delete it without action",
+      "It automatically becomes an opportunity"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الخطر يتعلق بعدم اليقين؛ بعد وقوع الحدث السلبي يُدار أثره كقضية فعلية.",
+    "explanation_en": "Risk concerns uncertainty; after a negative event occurs, its consequences are managed as an issue.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-010",
+    "topic": "Project Management Framework",
+    "domain": "people",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "مدير إدارة مؤثرة لا يستخدم المنتج مباشرة، لكنه يملك صلاحية تمويله. هل يُستبعد من تحليل المعنيين؟",
+    "question_en": "An influential department head does not use the product but can fund it. Should they be excluded from stakeholder analysis?",
+    "options_ar": [
+      "يُضاف عند الإغلاق فقط",
+      "لا، يُحلل تأثيره واحتياجاته",
+      "نعم، لأن المستخدم فقط معني",
+      "نعم، حتى يشتكي"
+    ],
+    "options_en": [
+      "Add them only at closure",
+      "No; analyze their influence and needs",
+      "Yes; only users are stakeholders",
+      "Yes, until they complain"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "المعني قد يؤثر في المشروع أو يتأثر به؛ الاستخدام المباشر ليس شرطًا.",
+    "explanation_en": "Stakeholders may influence or be affected by a project; direct product use is not required.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-011",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "أصبح العائد المتوقع أقل من مبررات الاستثمار بسبب تغير السوق. ما التصرف الأنسب؟",
+    "question_en": "Market changes reduced expected returns below the investment justification. What is appropriate?",
+    "options_ar": [
+      "تغيير بيانات العائد لإبقاء الموافقة",
+      "منع مشاركة المعلومات",
+      "إعادة تقييم مبررات الأعمال مع الراعي والحوكمة",
+      "الاستمرار لأن الإنفاق السابق كبير"
+    ],
+    "options_en": [
+      "Alter return data to retain approval",
+      "Withhold the information",
+      "Reassess the business justification with the sponsor and governance",
+      "Continue because much has already been spent"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "القرار يستند إلى القيمة المستقبلية ومبررات الأعمال الحالية؛ الإنفاق السابق لا يكفي لتبرير الاستمرار.",
+    "explanation_en": "Decisions rely on future value and current business justification; sunk costs alone do not justify continuation.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-012",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "طلبت جهة صغيرة تطبيق جميع إجراءات مشروع ضخم سابق. ما الذي ينبغي فعله؟",
+    "question_en": "A small initiative is asked to apply every procedure from a previous large project. What should be done?",
+    "options_ar": [
+      "نسخ الإجراءات دون مراجعة",
+      "إلغاء جميع الضوابط",
+      "إضافة إجراءات أكثر احتياطًا",
+      "تكييف الإجراءات بحسب المخاطر والتعقيد والحوكمة"
+    ],
+    "options_en": [
+      "Copy all procedures without review",
+      "Remove all controls",
+      "Add more procedures automatically",
+      "Tailor procedures to risk, complexity and governance"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التكييف يختار القدر المناسب من الممارسات مع الحفاظ على الضوابط اللازمة.",
+    "explanation_en": "Tailoring selects appropriate practices while retaining required controls.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-013",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يطلب الراعي من مدير المشروع تعديل هدف استراتيجي للمؤسسة كي يناسب المشروع. ما الرد المناسب؟",
+    "question_en": "The sponsor asks the project manager to change an organizational strategic objective to fit the project. What is appropriate?",
+    "options_ar": [
+      "عرض عدم المواءمة وخيارات المشروع على أصحاب الصلاحية",
+      "تعديل الاستراتيجية منفردًا",
+      "تجاهل الاستراتيجية",
+      "إخفاء عدم المواءمة"
+    ],
+    "options_en": [
+      "Present the misalignment and project options to authorized leaders",
+      "Change strategy alone",
+      "Ignore strategy",
+      "Conceal the misalignment"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "مدير المشروع يدعم المواءمة ويقدم توصيات؛ تعديل الاستراتيجية يعود للقيادة المخولة.",
+    "explanation_en": "The project manager supports alignment and recommends options; strategy changes belong to authorized leadership.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-014",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "أعد الفريق قائمة مخرجات دون تحديد كيفية قبولها. ما الذي ينقصه؟",
+    "question_en": "The team listed deliverables but did not define how they will be accepted. What is missing?",
+    "options_ar": [
+      "إخفاء التفاصيل عن العميل",
+      "معايير قبول قابلة للتحقق ومتفق عليها",
+      "اسم جديد للمشروع",
+      "زيادة ميزانية التسويق"
+    ],
+    "options_en": [
+      "Withhold details from the customer",
+      "Agreed verifiable acceptance criteria",
+      "A new project name",
+      "More marketing budget"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "معايير القبول تحدد ما يلزم لإقرار ملاءمة المخرج وتمنع اختلاف التوقعات.",
+    "explanation_en": "Acceptance criteria establish what is required to accept a deliverable and reduce expectation gaps.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-015",
+    "topic": "Project Management Framework",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "متدرب جديد لا يفهم لماذا تُنفذ خدمة معينة. أي تصرف يدعم رؤية المشروع؟",
+    "question_en": "A new team member does not understand why a service is being built. What supports the project vision?",
+    "options_ar": [
+      "منعه من طرح الأسئلة",
+      "إحالته إلى الجدول فقط",
+      "شرح الحاجة والقيمة وربط عمله بالنتائج المطلوبة",
+      "إعطاؤه مهام دون سياق"
+    ],
+    "options_en": [
+      "Prevent questions",
+      "Refer them only to the schedule",
+      "Explain the need and value and connect their work to outcomes",
+      "Assign tasks without context"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "إبقاء الرؤية واضحة للفريق يساعد قراراته اليومية ويعزز فهم القيمة.",
+    "explanation_en": "Keeping the vision clear helps daily decisions and understanding of value.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-016",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يعرض الفريق دورة حياة المشروع باعتبارها مرادفة للنهج التنبؤي. ما التصحيح المناسب؟",
+    "question_en": "The team equates the project life cycle with a predictive approach. What is the appropriate correction?",
+    "options_ar": [
+      "كل دورة حياة تنبؤية",
+      "الرشيق لا يحتوي على دورة حياة",
+      "النهج هو اسم الراعي",
+      "دورة الحياة تصف تطور المشروع، والنهج يحدد كيفية تطوير المخرجات"
+    ],
+    "options_en": [
+      "Every life cycle is predictive",
+      "Agile has no life cycle",
+      "The approach is the sponsor’s name",
+      "The life cycle describes project progression; the approach shapes how outputs are developed"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "يجب التمييز بين مراحل حياة المشروع وطريقة تطوير وتسليم المخرجات؛ تُكيف العلاقة بينهما.",
+    "explanation_en": "Distinguish project life-cycle phases from development and delivery methods; their relationship can be tailored.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-017",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "closing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تم إطلاق منصة، لكن الفوائد تتحقق بعد ستة أشهر من الإغلاق. ما الذي يلزم؟",
+    "question_en": "A platform has launched, but benefits emerge six months after project closure. What is needed?",
+    "options_ar": [
+      "تحديد مسؤول متابعة الفوائد ومقاييسها بعد التسليم",
+      "اعتبار جميع الفوائد متحققة يوم الإطلاق",
+      "إلغاء القياس عند الإغلاق",
+      "تمديد المشروع إلى الأبد"
+    ],
+    "options_en": [
+      "Assign benefit ownership and measures after handover",
+      "Declare all benefits realized at launch",
+      "Stop measurement at closure",
+      "Extend the project indefinitely"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الفوائد قد تستمر بعد المشروع؛ يجب تحديد الملكية وآلية المتابعة خلال الانتقال.",
+    "explanation_en": "Benefits may continue beyond the project; establish ownership and monitoring during transition.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-018",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "closing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يريد مدير المشروع إغلاق المبادرة دون نقل دعم النظام إلى التشغيل. ما الإجراء الأهم؟",
+    "question_en": "The manager wants to close without transferring system support to operations. What matters most?",
+    "options_ar": [
+      "حذف الدروس المستفادة",
+      "تأكيد جاهزية التسليم والمسؤوليات والدعم",
+      "إغلاق جميع الملفات فورًا",
+      "تجاهل مستخدمي النظام"
+    ],
+    "options_en": [
+      "Delete lessons learned",
+      "Confirm handover readiness, responsibilities and support",
+      "Close all files immediately",
+      "Ignore system users"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "الانتقال المنظم إلى التشغيل يدعم استدامة النتائج ويمنع فجوات المسؤولية.",
+    "explanation_en": "An orderly transition to operations sustains outcomes and avoids responsibility gaps.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-019",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "وصلت معلومات جديدة غيرت تقدير مدة العمل. كيف يتعامل مدير المشروع معها؟",
+    "question_en": "New information changes the estimated duration of work. How should it be handled?",
+    "options_ar": [
+      "تغيير الخط المرجعي دون اعتماد",
+      "إلغاء جميع التقديرات",
+      "تحديث التوقعات وتقييم الأثر وفق آلية التغيير المعتمدة",
+      "إخفاؤها للحفاظ على الخطة"
+    ],
+    "options_en": [
+      "Change the baseline without authorization",
+      "Discard all estimates",
+      "Update forecasts and assess impacts through agreed change procedures",
+      "Hide it to preserve the plan"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التوقعات تتحدث مع المعرفة الجديدة؛ تغيير الخطوط المرجعية يتبع الصلاحيات والإجراءات المعتمدة.",
+    "explanation_en": "Forecasts evolve with new knowledge; baseline changes follow authorized procedures.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-020",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يقيس التقرير النجاح بالتكلفة والوقت فقط رغم هدف تحسين تجربة المستخدم. ما التحسين الأنسب؟",
+    "question_en": "A report measures only cost and time despite a goal of improving user experience. What is best?",
+    "options_ar": [
+      "زيادة عدد صفحات التقرير",
+      "إلغاء مقاييس الأداء كلها",
+      "قياس ساعات العمل فقط",
+      "إضافة مقياس تجربة المستخدم وتحقيق القيمة"
+    ],
+    "options_en": [
+      "Increase page count",
+      "Remove all performance measures",
+      "Measure work hours only",
+      "Add measures of user experience and value realization"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "معايير النجاح ينبغي أن تشمل القيمة والنتائج ذات الصلة إلى جانب قيود الأداء.",
+    "explanation_en": "Success criteria should include relevant value and outcomes alongside performance constraints.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-021",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يُسند المدير مهام السبرنت لكل مطور دون نقاش. ما الممارسة الأنسب لفريق ذاتي الإدارة؟",
+    "question_en": "A manager assigns every sprint task without discussion. What better supports a self-managing team?",
+    "options_ar": [
+      "ترك الفريق ينظم العمل ويتعاون على الهدف",
+      "زيادة الأوامر اليومية",
+      "منع التعاون",
+      "جعل الراعي يوزع كل مهمة"
+    ],
+    "options_en": [
+      "Let the team organize work and collaborate toward the goal",
+      "Increase daily orders",
+      "Prevent collaboration",
+      "Have the sponsor assign every task"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الفريق ذاتي الإدارة يقرر تنظيم العمل لتحقيق الهدف ضمن الحدود المتفق عليها.",
+    "explanation_en": "A self-managing team decides how to organize work toward the goal within agreed boundaries.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-022",
+    "topic": "Agile",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "توجد ميزتان: الأولى عالية القيمة وقابلة للتجربة سريعًا والثانية منخفضة القيمة وكبيرة. ما الأولوية المناسبة؟",
+    "question_en": "Two features are proposed: a high-value feature that can be tested quickly and a large low-value feature. What is appropriate?",
+    "options_ar": [
+      "تنفيذهما بلا ترتيب",
+      "ترتيب القائمة بالتعاون مع مالك المنتج بحسب القيمة والمخاطر",
+      "بدء الأكبر دائمًا",
+      "اختيار الأسهل دون النظر للقيمة"
+    ],
+    "options_en": [
+      "Build both without ordering",
+      "Order the backlog with the product owner considering value and risk",
+      "Always start the largest",
+      "Choose only by ease"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "ترتيب قائمة المنتج يدعم القيمة والتعلم ويأخذ المخاطر والاعتماديات في الحسبان.",
+    "explanation_en": "Backlog ordering supports value and learning while considering risk and dependencies.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-023",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "عنصر في قائمة المنتج واسع وغامض قبل اختياره للسبرنت. ما التصرف الأفضل؟",
+    "question_en": "A backlog item is broad and unclear before selection for a sprint. What is best?",
+    "options_ar": [
+      "تأجيل جميع التخطيط",
+      "فرض مدة ثابتة بلا فهم",
+      "تنقيحه وتقسيمه وتوضيح معايير قبوله",
+      "اختياره دون توضيح"
+    ],
+    "options_en": [
+      "Defer all planning",
+      "Impose a duration without understanding",
+      "Refine and split it and clarify acceptance criteria",
+      "Select it without clarification"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التنقيح يبني فهمًا كافيًا للعناصر ويجعلها قابلة للتقدير والتنفيذ.",
+    "explanation_en": "Refinement builds enough understanding for items to be estimated and implemented.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-024",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "طلب العميل ميزة جديدة أثناء السبرنت لا تخدم هدفه. ما الأفضل؟",
+    "question_en": "A customer requests a new feature during a sprint that does not serve its goal. What is best?",
+    "options_ar": [
+      "إدخالها فورًا بلا نقاش",
+      "رفض أي تغيير مستقبلًا",
+      "إلغاء السبرنت تلقائيًا",
+      "مناقشة الطلب مع مالك المنتج وترتيبه دون تعريض هدف السبرنت للخطر"
+    ],
+    "options_en": [
+      "Add it immediately without discussion",
+      "Reject all future changes",
+      "Automatically cancel the sprint",
+      "Discuss and order the request with the product owner without endangering the sprint goal"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التغيير يناقش ويُرتب؛ لا ينبغي إدخال ما يهدد هدف السبرنت بصورة عشوائية.",
+    "explanation_en": "Changes are discussed and ordered; additions should not arbitrarily endanger the sprint goal.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-025",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يحول الفريق الاجتماع اليومي إلى تقرير للمدير. ما الهدف الأنسب للاجتماع؟",
+    "question_en": "The daily meeting has become a status report to the manager. What is its better purpose?",
+    "options_ar": [
+      "فحص التقدم نحو هدف السبرنت وتكييف خطة العمل",
+      "تقييم رواتب الأفراد",
+      "اعتماد موازنة المؤسسة",
+      "عرض المنتج النهائي للعميل"
+    ],
+    "options_en": [
+      "Inspect progress toward the sprint goal and adapt the work plan",
+      "Evaluate individual pay",
+      "Approve the organizational budget",
+      "Present the final product to the customer"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الاجتماع اليومي يدعم تنسيق الفريق والتكيف لتحقيق الهدف، وليس تقريرًا إداريًا للأفراد.",
+    "explanation_en": "The daily meeting supports team coordination and adaptation toward the goal, rather than individual reporting to management.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-026",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "في مراجعة السبرنت، اكتشف الفريق أن المستخدمين لا يحتاجون جزءًا مخططًا. ماذا يفعل؟",
+    "question_en": "At sprint review, the team learns users do not need a planned component. What should happen?",
+    "options_ar": [
+      "منع حضور المستخدمين لاحقًا",
+      "استخدام التغذية الراجعة لتكييف قائمة المنتج",
+      "تجاهل الملاحظة لأن الخطة قديمة",
+      "تنفيذ الجزء لحماية ساعات التقدير"
+    ],
+    "options_en": [
+      "Exclude users from future reviews",
+      "Use feedback to adapt the product backlog",
+      "Ignore it because a plan already exists",
+      "Build it to protect estimation hours"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "المراجعة تفحص المخرج مع المعنيين وتستفيد من التعلم لتكييف العمل القادم.",
+    "explanation_en": "The review inspects the increment with stakeholders and uses learning to adapt future work.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-027",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يتكرر تأخر الاختبار بسبب تسليم العمل في آخر يوم. ما المكان الأنسب لاتفاق تحسين طريقة العمل؟",
+    "question_en": "Testing repeatedly arrives on the last day. Where should the team agree a process improvement?",
+    "options_ar": [
+      "مراجعة المنتج فقط دون نقاش العملية",
+      "انتظار نهاية جميع السبرنتات",
+      "اجتماع الاستعراض الاستعادي",
+      "اجتماع اعتماد العقد"
+    ],
+    "options_en": [
+      "Product review only, without discussing the process",
+      "Wait until all sprints finish",
+      "The retrospective",
+      "Contract approval meeting"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "الاستعراض الاستعادي يركز على تحسين الفاعلية وطريقة العمل، ويمكن اختيار إجراء ملموس للتكرار التالي.",
+    "explanation_en": "A retrospective improves effectiveness and working practices, selecting a concrete action for the next iteration.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-028",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "البرمجية تعمل لكنها لم تجتز الاختبار الأمني المشمول بتعريف الإنجاز. هل تعد منجزة؟",
+    "question_en": "Software runs but has not passed security testing required by the Definition of Done. Is it done?",
+    "options_ar": [
+      "نعم، إذا انتهى الوقت",
+      "نعم، إذا أعجب الراعي بالشكل",
+      "نعم، مع إخفاء الاختبار",
+      "لا، يلزم استيفاء تعريف الإنجاز"
+    ],
+    "options_en": [
+      "Yes, if time is over",
+      "Yes, if the sponsor likes the appearance",
+      "Yes, by hiding the test",
+      "No; it must meet the Definition of Done"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "تعريف الإنجاز يحدد الجودة اللازمة؛ انتهاء الوقت أو عمل الشاشة لا يكفي.",
+    "explanation_en": "The Definition of Done establishes required quality; elapsed time or a working screen is insufficient.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-029",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "كتب الفريق «كمستخدم أريد حفظ طلب غير مكتمل حتى أعود إليه لاحقًا». ماذا يوضح الجزء الأخير؟",
+    "question_en": "The team writes “As a user, I want to save an unfinished request so I can return later.” What does the final part express?",
+    "options_ar": [
+      "القيمة أو الغرض الذي يريده المستخدم",
+      "اسم قاعدة البيانات",
+      "موعد العقد",
+      "عدد المطورين"
+    ],
+    "options_en": [
+      "The user’s value or purpose",
+      "The database name",
+      "The contract date",
+      "The developer count"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "قصة المستخدم تربط المستفيد بالحاجة والغرض؛ التفصيل التقني يناقش عند الحاجة.",
+    "explanation_en": "A user story links the beneficiary, need and purpose; technical details can be discussed as needed.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-030",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يختلف الفريق في معنى «تحميل سريع» ضمن قصة مستخدم. ما الأفضل؟",
+    "question_en": "The team disagrees on what “fast loading” means in a user story. What is best?",
+    "options_ar": [
+      "حذف اختبار الأداء",
+      "تحديد معيار قبول قابل للقياس مع المعنيين",
+      "ترك العبارة غامضة",
+      "اعتماد رأي كل مطور منفردًا"
+    ],
+    "options_en": [
+      "Remove performance testing",
+      "Agree a measurable acceptance criterion with stakeholders",
+      "Leave it vague",
+      "Let each developer decide separately"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "معيار قبول قابل للتحقق يحول الوصف الغامض إلى توقع مشترك يمكن اختباره.",
+    "explanation_en": "A verifiable acceptance criterion turns ambiguity into a shared testable expectation.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-031",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يمنع تأخر صلاحية الوصول الفريق من إكمال العمل. ما دور القائد الخادم؟",
+    "question_en": "Delayed access permissions block the team’s work. What should a servant leader do?",
+    "options_ar": [
+      "تولي جميع البرمجة بنفسه",
+      "إخفاء العائق",
+      "مساعدة الفريق على إزالة العائق والتنسيق مع المسؤول",
+      "لوم الفريق يوميًا"
+    ],
+    "options_en": [
+      "Do all coding personally",
+      "Hide the impediment",
+      "Help remove the impediment and coordinate with the owner",
+      "Blame the team daily"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "القيادة الخادمة تدعم تمكين الفريق وإزالة العوائق دون سلب استقلاله.",
+    "explanation_en": "Servant leadership empowers the team and helps remove impediments without taking away autonomy.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-032",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "تتراكم مهام كثيرة قيد التنفيذ ولا يكتمل إلا القليل. ما التحسين المناسب في كانبان؟",
+    "question_en": "Many tasks are in progress but few finish. What improvement fits Kanban?",
+    "options_ar": [
+      "بدء مهام أكثر",
+      "إخفاء اللوحة",
+      "تقييم الأفراد بعدد المهام المفتوحة",
+      "تقليل العمل الجاري ومساعدة الفريق على إكماله"
+    ],
+    "options_en": [
+      "Start more tasks",
+      "Hide the board",
+      "Rate individuals by open tasks",
+      "Limit work in progress and help finish existing work"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "حدود العمل الجاري تساعد التدفق وتكشف الاختناقات؛ كثرة البدء لا تعني كثرة الإنجاز.",
+    "explanation_en": "WIP limits support flow and expose bottlenecks; more starts do not imply more completions.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-033",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "زمن دورة العناصر ازداد رغم ثبات الطلب. ما أول خطوة مناسبة؟",
+    "question_en": "Item cycle time increased despite steady demand. What is a suitable first step?",
+    "options_ar": [
+      "فحص التدفق والاختناقات باستخدام بيانات اللوحة",
+      "زيادة الالتزامات دون تحليل",
+      "استبدال جميع الفريق",
+      "إلغاء القياس"
+    ],
+    "options_en": [
+      "Inspect flow and bottlenecks using board data",
+      "Increase commitments without analysis",
+      "Replace the entire team",
+      "Stop measurement"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "تحليل تدفق العمل يحدد موضع التأخر ويقود تحسينًا قائمًا على الأدلة.",
+    "explanation_en": "Flow analysis identifies delays and supports evidence-based improvement.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-034",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "حقق فريق 30 نقطة وفريق آخر 45 نقطة. ماذا نستنتج عن الإنتاجية؟",
+    "question_en": "One team completed 30 points and another 45. What can be concluded about productivity?",
+    "options_ar": [
+      "النقاط تعادل ساعات ثابتة دائمًا",
+      "لا تجوز المقارنة المباشرة لأن مقاييس التقدير محلية للفريق",
+      "الثاني أفضل بنسبة 50% حتمًا",
+      "الأول يجب معاقبته"
+    ],
+    "options_en": [
+      "Points always equal fixed hours",
+      "Direct comparison is inappropriate because estimation scales are team-specific",
+      "The second must be 50% better",
+      "The first should be penalized"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "نقاط القصص تقدير نسبي ضمن سياق الفريق؛ السرعة ليست معيارًا موحدًا للمقارنة بين الفرق.",
+    "explanation_en": "Story points are relative estimates within a team; velocity is not a universal cross-team productivity measure.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-035",
+    "topic": "Agile",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يريد الفريق اختبار حاجة السوق قبل بناء جميع الميزات. ما الخيار الأنسب؟",
+    "question_en": "The team wants to test a market need before building all features. What fits best?",
+    "options_ar": [
+      "إطلاق منتج بلا جودة أساسية",
+      "تجنب المستخدمين",
+      "نسخة صغيرة قابلة للاختبار تحقق التعلم المطلوب",
+      "تطوير جميع الميزات أولًا"
+    ],
+    "options_en": [
+      "Release without essential quality",
+      "Avoid users",
+      "A small testable version providing the needed learning",
+      "Build all features first"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "المنتج الأولي القابل للتجربة يختبر الفرضيات بأقل نطاق مناسب؛ لا يبرر إهمال الجودة المطلوبة.",
+    "explanation_en": "A minimum viable product tests assumptions with an appropriate small scope; it does not justify neglecting essential quality.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-036",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "انخفض العمل المتبقي ثم ارتفع بعد اكتشاف عمل إضافي. كيف تقرأ مخطط الاحتراق التنازلي؟",
+    "question_en": "Remaining work fell, then rose after additional work was discovered. How should the burndown be read?",
+    "options_ar": [
+      "اعتبار الارتفاع دليل كسل حتمي",
+      "حذف العمل المكتشف",
+      "تغيير الأرقام لإظهار انخفاض مستمر",
+      "تحليل تغير النطاق والتقديرات بدل افتراض فشل الأفراد"
+    ],
+    "options_en": [
+      "Treat the rise as definite laziness",
+      "Delete discovered work",
+      "Alter numbers to show continuous decline",
+      "Analyze scope and estimate changes rather than assume individual failure"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "المخطط يعرض العمل المتبقي؛ تغيره يحتاج سياقًا مثل اكتشاف عمل أو تعديل التقدير.",
+    "explanation_en": "The chart shows remaining work; changes need context such as discovered work or revised estimates.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-037",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يعتمد فريقان على واجهة تكامل مشتركة ويتأخر تسليمها. ما الأفضل؟",
+    "question_en": "Two teams depend on a shared integration interface that is delayed. What is best?",
+    "options_ar": [
+      "إظهار الاعتمادية والتنسيق على خطة تكامل مشتركة",
+      "إخفاء الاعتمادية في كل قائمة",
+      "منع التعاون بين الفريقين",
+      "الانتظار دون متابعة"
+    ],
+    "options_en": [
+      "Make the dependency visible and coordinate an integration plan",
+      "Hide it in each backlog",
+      "Prevent collaboration",
+      "Wait without follow-up"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الشفافية والتنسيق يقللان مخاطر الاعتماديات ويحافظان على تدفق القيمة.",
+    "explanation_en": "Transparency and coordination reduce dependency risks and sustain value flow.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-038",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "اتفق الفريق في الاستعراض الاستعادي على إجراء تحسين، لكنه لا يعرف هل نجح. ما الأنسب؟",
+    "question_en": "The team agreed a retrospective action but cannot tell whether it worked. What is best?",
+    "options_ar": [
+      "اعتباره ناجحًا لأنه مكتوب",
+      "تحديد مسؤول ومقياس ومراجعة نتيجة التجربة",
+      "إضافة عشرة إجراءات جديدة",
+      "إيقاف الاستعراضات"
+    ],
+    "options_en": [
+      "Assume success because it was written",
+      "Assign ownership and a measure and review the experiment’s result",
+      "Add ten new actions",
+      "Stop retrospectives"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "التحسين يحتاج تجربة ومتابعة دليل، لا مجرد قائمة إجراءات.",
+    "explanation_en": "Improvement requires experimentation and evidence-based follow-up, not merely an action list.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-039",
+    "topic": "Agile",
+    "domain": "business",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "بدأ الفريق الرشيق اعتبار التوثيق غير ضروري رغم متطلبات الامتثال. ما التصحيح؟",
+    "question_en": "An agile team considers documentation unnecessary despite compliance requirements. What is the correction?",
+    "options_ar": [
+      "توثيق كل شيء قبل أي تعلم",
+      "نقل الامتثال للمستخدم دون اتفاق",
+      "إعداد التوثيق اللازم للقيمة والامتثال دون إفراط",
+      "إلغاء التوثيق كله"
+    ],
+    "options_en": [
+      "Document everything before any learning",
+      "Transfer compliance to users without agreement",
+      "Produce documentation needed for value and compliance without excess",
+      "Eliminate all documentation"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "الرشاقة لا تلغي التوثيق؛ يُختار القدر المناسب الذي يدعم المنتج والحوكمة.",
+    "explanation_en": "Agility does not eliminate documentation; use the appropriate amount supporting the product and governance.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-040",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يخطط الفريق لثلاثة أشهر رغم تغير الأولويات أسبوعيًا. كيف يحسن التخطيط؟",
+    "question_en": "The team plans three months in detail although priorities change weekly. How should planning improve?",
+    "options_ar": [
+      "إلغاء التخطيط كله",
+      "تجميد الأولويات ثلاثة أشهر",
+      "منع التغذية الراجعة",
+      "تفصيل القريب وتحديث الأبعد تدريجيًا بالتعلم"
+    ],
+    "options_en": [
+      "Remove all planning",
+      "Freeze priorities for three months",
+      "Prevent feedback",
+      "Detail near-term work and progressively update later plans through learning"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التخطيط المتدرج يوازن التوجيه مع المرونة والمعرفة الجديدة؛ لا يعني غياب الخطة.",
+    "explanation_en": "Progressive planning balances direction with flexibility and new knowledge; it does not mean no plan.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  }
+]
