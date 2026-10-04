@@ -4493,7 +4493,7 @@ function learn(id) {
   const readinessPct=ov ? ov.v : pr.exams?.full?.score != null && Number.isFinite(fullScore) ? fullScore : null;
   const assessed = c.domains.filter(d => Number.isFinite(Number(scores[d.k])) && scores[d.k] !== undefined).length;
   const kinds = p.kinds || [];
-  const tabs = [['plan', 'الخطة'],
+  const tabs = [['plan', 'الخطة'], ['workspace', siteEnglish()?'Learning workspace':'التعلم والتطبيق'],
     ...(kinds.includes('video') || kinds.includes('material') ? [['content', 'المحتوى والفيديو']] : []),
     ...(kinds.includes('download') ? [['resources', 'الملفات']] : []),
     ...(kinds.includes('flash') ? [['flash', 'Flash Cards']] : []),
@@ -4534,7 +4534,7 @@ function learn(id) {
 
     <div class="tabs">${tabs.map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
-    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
+    <div id="lnBody" style="padding-bottom:60px">${learnTab === 'workspace' ? `<div class="card pad stack"><span class="eyebrow">ALSAEED · Learning workspace</span><h2>${siteEnglish()?'Content, application and reports':'المحتوى والتطبيق والتقارير'}</h2><p>${siteEnglish()?'Published videos, connected workshops, practical tools, assisted drafts, interviews and supervisor review — scoped to this package.':'الفيديوهات المنشورة والورش المترابطة والأدوات والتعبئة المساعدة والمقابلة ومراجعة المشرف، مرتبطة بهذه الباقة.'}</p><a class="btn p lg" href="/workspace/${encodeURIComponent(p.id)}/">${siteEnglish()?'Open learning workspace':'فتح مساحة التعلم والتطبيق'}</a></div>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
   </div>`;
 }
 

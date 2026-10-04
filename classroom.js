@@ -21,7 +21,15 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const CLASSROOM_PACKAGE = process.env.CLASSROOM_PACKAGE || 'rmp-private-classroom';
 const GRANT_DAYS = Number(process.env.CLASSROOM_DAYS || 365);
 
-export function mountClassroom(app, { db, JWT_SECRET }) {
+export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACKAGE, basePath = '/classroom', workspace = false, getPackage = null }) {
+  const CLASSROOM_PACKAGE = packageId;
+  // Each package gets independent tables, indexes, groups, reviews and progress.
+  // Existing private-classroom tables keep their original names.
+  if (workspace) {
+    const original = db, prefix = 'ws_' + crypto.createHash('sha256').update(packageId).digest('hex').slice(0,16) + '_';
+    const scoped = sql => sql.replace(/\bcls_([a-z_]+)\b/g, (_, name) => prefix + name).replace(/\bix_cls_([a-z_]+)\b/g, (_, name) => prefix + 'ix_' + name);
+    db = { prepare: sql => original.prepare(scoped(sql)), exec: sql => original.exec(scoped(sql)) };
+  }
   if (!db || !JWT_SECRET) { console.error('[classroom] disabled: db/JWT_SECRET missing'); return; }
   db.exec(`
   CREATE TABLE IF NOT EXISTS cls_staff (user_id TEXT PRIMARY KEY, role TEXT NOT NULL DEFAULT 'trainer', created INTEGER NOT NULL);
@@ -115,7 +123,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.use((req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
   // ---------------------------------------------------------------- me / progress
-  r.get('/me', auth, (req, res) => res.json({ user: pub(req.user, req.user.role), groups: userGroups(req.user.id), package: CLASSROOM_PACKAGE }));
+  r.get('/me', auth, (req, res) => res.json({ user: pub(req.user, req.user.role), groups: userGroups(req.user.id), package: CLASSROOM_PACKAGE, course: getPackage?.() || null }));
   r.get('/schedule', auth, (req, res) => res.json({ released: releasedDay(req.user), dates: courseDates, timeZone: 'Asia/Riyadh', serverTime: now() }));
   r.get('/progress', auth, (req, res) => { const p = q1('SELECT data, updated FROM cls_progress WHERE user_id = ?', req.user.id); res.json({ data: J(p?.data), updated: p?.updated || 0 }); });
   r.put('/progress', auth, (req, res) => {
@@ -179,7 +187,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     try {
       const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Header, Footer, PageNumber } = await import('docx');
       const para = (text, extra = {}) => new Paragraph({ bidirectional: true, alignment: AlignmentType.RIGHT, spacing: { after: 140 }, ...extra, children: [new TextRun({ text, font: 'Arial', size: extra.heading ? 32 : 24, bold: !!extra.heading, color: extra.heading ? '087D91' : '17364B', rightToLeft: true })] });
-      const children = [para('ALSAEED · تقرير تطبيقي لإدارة المخاطر', { heading: HeadingLevel.TITLE }), para(title, { heading: HeadingLevel.HEADING_1 }), para(str(req.user.name, 120) + ' · ' + new Date().toLocaleDateString('ar-SA'))];
+      const children = [para('ALSAEED · تقرير التطبيق العملي', { heading: HeadingLevel.TITLE }), para(title, { heading: HeadingLevel.HEADING_1 }), para(str(req.user.name, 120) + ' · ' + new Date().toLocaleDateString('ar-SA'))];
       for (const sec of sections) { children.push(para(str(sec?.title, 120), { heading: HeadingLevel.HEADING_1 })); for (const line of (str(sec?.body, 70000) || 'لم تُسجّل بيانات').split('\n')) children.push(para(line)); }
       children.push(para('تقرير تدريبي. التوصيات تحتاج مراجعة المسؤول المختص.'));
       const doc = new Document({ creator: 'ALSAEED', title, styles: { default: { document: { run: { font: 'Arial', size: 24, color: '17364B' }, paragraph: { bidirectional: true } } } }, sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, headers: { default: new Header({ children: [para('ALSAEED · ' + title)] }) }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT] })] })] }) }, children }] });
@@ -189,7 +197,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.post('/my/report.pptx', auth, async (req, res) => {
     const b = req.body || {}, title = str(b.title, 180), sections = Array.isArray(b.sections) ? b.sections.slice(0, 12) : [];
     if (!title || !sections.length) return bad(res, 'عنوان التقرير وأقسامه مطلوبة');
-    const P = new pptxgen(); P.layout = 'LAYOUT_WIDE'; P.author = 'ALSAEED'; P.subject = 'تقرير تدريبي تطبيقي لإدارة المخاطر'; P.title = title;
+    const P = new pptxgen(); P.layout = 'LAYOUT_WIDE'; P.author = 'ALSAEED'; P.subject = 'تقرير تدريبي تطبيقي'; P.title = title;
     const navy = '123B5D', teal = '087D91', gold = 'E8A23A', pale = 'EAF4F7', ink = '17364B';
     const addBase = (caption, n) => {
       const slide = P.addSlide(); slide.background = { color: 'F7FAFC' };
@@ -203,7 +211,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     };
     const cover = addBase('Risk management · Practical report', 1);
     cover.addShape(P.ShapeType.roundRect, { x: .8, y: 1.25, w: 11.7, h: 4.9, rectRadius: .2, line: { color: navy }, fill: { color: navy } });
-    cover.addText('تقرير إدارة المخاطر', { x: 1.3, y: 1.8, w: 10.5, h: .55, fontFace: 'Arial', fontSize: 27, bold: true, color: 'FFFFFF', align: 'right', rtlMode: true });
+    cover.addText('تقرير التطبيق العملي', { x: 1.3, y: 1.8, w: 10.5, h: .55, fontFace: 'Arial', fontSize: 27, bold: true, color: 'FFFFFF', align: 'right', rtlMode: true });
     cover.addText(title, { x: 1.3, y: 2.55, w: 10.5, h: 1.4, fontFace: 'Arial', fontSize: 26, bold: true, color: 'FFFFFF', align: 'right', rtlMode: true, breakLine: false });
     cover.addShape(P.ShapeType.rect, { x: 9.7, y: 4.23, w: 2.1, h: .06, line: { color: gold }, fill: { color: gold } });
     cover.addText(`${str(req.user.name, 120)}  ·  ${new Date().toLocaleDateString('ar-EG')}`, { x: 1.4, y: 4.65, w: 10.35, h: .45, fontFace: 'Arial', fontSize: 15, color: 'D3EDF1', align: 'right', rtlMode: true });
@@ -220,7 +228,7 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
     });
     const end = addBase('Action & follow-up', ++pageNo);
     end.addText('خطوات المتابعة', { x: .9, y: 1.15, w: 11.5, h: .7, fontFace: 'Arial', fontSize: 25, bold: true, color: navy, align: 'right', rtlMode: true });
-    ['تأكيد مالك كل خطر وإجراء استجابة', 'مراجعة الأدلة والافتراضات وحدود الثقة', 'اعتماد القرار من صاحب الصلاحية وتحديد موعد المتابعة'].forEach((t, i) => {
+    ['تأكيد مالك كل إجراء ومسؤوليات التنفيذ', 'مراجعة الأدلة والافتراضات وحدود الثقة', 'اعتماد القرار من صاحب الصلاحية وتحديد موعد المتابعة'].forEach((t, i) => {
       end.addShape(P.ShapeType.roundRect, { x: 1, y: 2.1 + i * 1.27, w: 11.25, h: .95, rectRadius: .1, line: { color: 'C9DFE5' }, fill: { color: i % 2 ? 'FFFFFF' : pale } });
       end.addText(t, { x: 1.4, y: 2.36 + i * 1.27, w: 10.3, h: .4, fontFace: 'Arial', fontSize: 17, color: ink, align: 'right', rtlMode: true });
     });
@@ -702,12 +710,12 @@ export function mountClassroom(app, { db, JWT_SECRET }) {
   r.use((req, res) => bad(res, 'not found', 404));
   r.use((err, req, res, next) => { console.error('[classroom]', err); bad(res, 'خطأ في الخادم', 500); });
 
-  app.use('/classroom/api', r);
+  app.use(basePath + '/api', r);
   // the page itself: /classroom and /classroom/ → public/classroom/index.html (served by express.static)
-  app.get(['/classroom', '/classroom/', '/classroom/index.html'], (req, res) => {
-    if (!req.originalUrl.split('?')[0].endsWith('/') && !req.originalUrl.includes('index.html')) return res.redirect(302, '/classroom/');
+  app.get([basePath, basePath + '/', basePath + '/index.html'], (req, res) => {
+    if (!req.originalUrl.split('?')[0].endsWith('/') && !req.originalUrl.includes('index.html')) return res.redirect(302, (basePath || req.baseUrl) + '/');
     res.setHeader('Cache-Control', 'no-cache'); res.setHeader('X-Robots-Tag', 'noindex, nofollow');
-    res.sendFile(path.join(HERE, 'public', 'classroom', 'index.html'));
+    res.sendFile(path.join(HERE, 'public', 'classroom', workspace ? 'workspace.html' : 'index.html'));
   });
-  console.log(`[classroom] mounted at /classroom (hidden package: ${CLASSROOM_PACKAGE})`);
+  console.log(`[classroom] mounted at ${basePath} (package: ${CLASSROOM_PACKAGE})`);
 }

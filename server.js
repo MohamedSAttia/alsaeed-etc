@@ -350,7 +350,8 @@ app.get('/api/lessons/:pkg', (req, res) => {
       const p = jwt.verify(h.slice(7), JWT_SECRET);
       const subscription = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?')
         .get(p.id, req.params.pkg);
-      enrolled = !!subscription && (!subscription.expires || subscription.expires > Date.now());
+      const user = db.prepare('SELECT role,active FROM users WHERE id=?').get(p.id);
+      enrolled = !!user && user.active !== 0 && (user?.role === 'admin' || (!!subscription && (!subscription.expires || subscription.expires > Date.now())));
     } catch (e) {}
   }
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */
@@ -1190,6 +1191,25 @@ const PANEL = mountAdmin(app, db, {
 /* الملفات الثابتة */
 /* الفصل الخاص — باقة مخفية: /classroom */
 mountClassroom(app, { db, JWT_SECRET });
+// Reuse the classroom engine per published package without granting private-classroom access.
+const learningWorkspaces = new Map();
+app.use('/workspace/:pkg', (req, res, next) => {
+  const pkg = req.params.pkg;
+  if (!/^[A-Za-z0-9_-]{1,100}$/.test(pkg)) return res.status(404).json({ error: 'الباقة غير موجودة' });
+  const current = () => {
+    const packages = readList('content_packages'), p = packages.find(x => x.id === pkg);
+    if (!p) return null;
+    const course = readList('content_courses').find(x => x.id === p.course);
+    return { id: p.id, ar: p.ar, en: p.en, course: p.course, lang: p.lang, domains: course?.domains || [], code: course?.code || p.course };
+  };
+  if (!current()) return res.status(404).json({ error: 'الباقة غير موجودة' });
+  if (!learningWorkspaces.has(pkg)) {
+    const router = express.Router();
+    mountClassroom(router, { db, JWT_SECRET, packageId: pkg, basePath: '', workspace: true, getPackage: current });
+    learningWorkspaces.set(pkg, router);
+  }
+  learningWorkspaces.get(pkg)(req, res, next);
+});
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 app.get('/verify/:no', (req, res) => res.sendFile(path.join(__dirname, 'public', 'verify.html')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
