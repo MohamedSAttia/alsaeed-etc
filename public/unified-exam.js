@@ -35,7 +35,7 @@ async function open(pid,eid,config={}){
    if(!bank.length)throw Error('لا توجد أسئلة نشطة في هذه الباقة');
    let target=config.items?bank.length:eid==='full'?Number(c.questions||bank.length):eid&&eid.startsWith('dom_')?Math.max(10,Math.round(Number(c.questions||100)/2)):Math.min(30,bank.length);
    target=Math.min(target,bank.length);if(c.id==='pmp'&&eid==='full')target=Math.min(180,bank.length);
-   bank=bank.sort(()=>Math.random()-.5).slice(0,target);if(isFull&&bank.length!==Number(c.questions))throw Error('لا تكفي الأسئلة المنشورة لإصدار محاكاة كاملة.');
+   bank=bank.sort(()=>Math.random()-.5).slice(0,target);if(isFull&&bank.length!==(c.id==='pmp'?180:Number(c.questions)))throw Error('لا تكفي الأسئلة المنشورة لإصدار محاكاة كاملة.');
    S={pid,eid,config,p,c,course:c,items:bank,idx:0,lang:p.lang==='en'?'en':'ar',answers:{},flags:new Set(JSON.parse(localStorage.getItem('ux-gold-'+c.id)||'[]')),started:Date.now(),left:(config.minutes||(isFull?Number(c.examMin||240):Math.max(20,Math.round(bank.length*1.3))))*60,practice:!isFull,notice:fallbackNote,breaks:c.id==='pmp'&&isFull?[10,94]:[],breakDone:new Set()};render();startTimer();
  }catch(e){if(ticket!==generation||!$('#ux'))return;$('#ux').innerHTML='<div class="ux-loading"><div><h2>تعذر فتح الاختبار</h2><p>'+esc(e.message)+'</p><button class="btn p" id="uxRetry">إعادة المحاولة</button> <button class="btn" id="uxBack">عودة</button></div></div>';$('#uxRetry').onclick=()=>{close();open(pid,eid,config)};$('#uxBack').onclick=close}
 }
