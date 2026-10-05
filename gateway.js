@@ -512,7 +512,7 @@ function handleLearnerQuestionBank(req,res,url){
     options_ar:o.ar,options_en:o.en,
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
-    phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
+    meta:parseJson(q.meta,{}),phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }});
   return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions});
 }
