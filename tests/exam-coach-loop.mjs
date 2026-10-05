@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const src=fs.readFileSync('public/exam-ai-v19.js','utf8');
+let writes=0,value='AI helper';
+const button={get textContent(){return value},set textContent(v){writes++;value=v}};
+const context={document:{querySelector:()=>button}};
+vm.createContext(context);
+vm.runInContext(src.match(/function relabel\(\)\{[^\n]+/)[0],context);
+for(let i=0;i<100;i++)vm.runInContext('relabel()',context);
+assert.equal(writes,1,'Observer refresh must not mutate unchanged label');
+console.log('PASS: repeated observer refresh writes label once, preventing self-triggered mutation loop');
