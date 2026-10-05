@@ -1,0 +1,11 @@
+
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ax{stroke:#75857c;stroke-width:2}.lb{font:12.5px Tahoma;fill:#5c7167}.bl{font:bold 14px Tahoma;fill:#0d5a43}</style>
+<line class="ax" x1="60" y1="280" x2="690" y2="280"/><line class="ax" x1="60" y1="280" x2="60" y2="20"/>
+<text class="lb" x="375" y="315" text-anchor="middle">الزمن (أسابيع) ←</text>
+<text class="lb" x="30" y="150" transform="rotate(-90 30 150)" text-anchor="middle">عدد بنود العمل</text>
+<g class="hot" data-r="done"><path d="M60 280 L200 268 L340 252 L480 234 L620 214 L690 204 L690 280 Z" fill="#bfe3cd" stroke="#1e8e4e" stroke-width="2"/></g>
+<g class="hot" data-r="wip"><path d="M60 280 L200 268 L340 252 L480 234 L620 214 L690 204 L690 96 L620 112 L480 148 L340 190 L200 232 L60 262 Z" fill="#f7dfae" stroke="#c9a13b" stroke-width="2"/></g>
+<g class="hot" data-r="todo"><path d="M60 262 L200 232 L340 190 L480 148 L620 112 L690 96 L690 30 L620 40 L480 56 L340 74 L200 92 L60 104 Z" fill="#cfe9db" stroke="#0e7a55" stroke-width="2"/></g>
+<text class="bl" x="600" y="250">مكتمل</text><text class="bl" x="540" y="175">قيد التنفيذ</text><text class="bl" x="520" y="70">قائمة الانتظار</text>
+</svg>

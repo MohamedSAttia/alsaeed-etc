@@ -1,0 +1,13 @@
+
+<svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" style="max-width:720px">
+<style>.sb{fill:#fff;stroke:#0e7a55;stroke-width:2}.st{font:bold 13.5px Tahoma;fill:#0d5a43;text-anchor:middle}.ar{stroke:#9bbfae;stroke-width:2.5;fill:none;marker-end:url(#ah)}</style>
+<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#9bbfae"/></marker></defs>
+<circle cx="380" cy="165" r="62" fill="#ecf6f0" stroke="#0e7a55" stroke-width="2" stroke-dasharray="6 4"/>
+<text class="st" x="380" y="160">السبرنت</text><text class="st" x="380" y="180">(1 – 4 أسابيع)</text>
+<g class="hot" data-r="backlog"><rect class="sb" x="20" y="130" width="150" height="66" rx="12"/><text class="st" x="95" y="158">قائمة أعمال</text><text class="st" x="95" y="177">المنتج Backlog</text></g>
+<g class="hot" data-r="plan"><rect class="sb" x="215" y="25" width="150" height="56" rx="12"/><text class="st" x="290" y="58">تخطيط السبرنت</text></g>
+<g class="hot" data-r="daily"><rect class="sb" x="470" y="25" width="160" height="56" rx="12"/><text class="st" x="550" y="58">الاجتماع اليومي</text></g>
+<g class="hot" data-r="review"><rect class="sb" x="560" y="150" width="160" height="56" rx="12"/><text class="st" x="640" y="183">مراجعة السبرنت</text></g>
+<g class="hot" data-r="retro"><rect class="sb" x="380" y="248" width="190" height="60" rx="12"/><text class="st" x="475" y="273">الأثر الرجعي</text><text class="st" x="475" y="292">Retrospective</text></g>
+<path class="ar" d="M170 160 H300"/><path class="ar" d="M300 81 Q330 105 355 125"/><path class="ar" d="M420 115 Q445 80 468 62"/><path class="ar" d="M600 81 Q625 110 635 148"/><path class="ar" d="M615 206 Q580 235 570 248"/><path class="ar" d="M380 278 Q250 260 200 196"/>
+</svg>

@@ -1,0 +1,11 @@
+
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.qd{stroke:#fff;stroke-width:4}.qt{font:bold 15px Tahoma;fill:#0d5a43;text-anchor:middle}.qs{font:12px Tahoma;fill:#5c7167;text-anchor:middle}.axl{font:bold 13.5px Tahoma;fill:#0b4034;text-anchor:middle}</style>
+<text x="390" y="24" text-anchor="middle" style="font:bold 15px Tahoma" fill="#0b4034">شبكة القوة / الاهتمام — انقر على الربع المطلوب</text>
+<g class="hot" data-r="ks"><rect class="qd" x="110" y="45" width="280" height="130" fill="#e9f2ec" rx="10"/><text class="qt" x="250" y="102">أبقِه راضيًا</text><text class="qs" x="250" y="126">Keep Satisfied</text></g>
+<g class="hot" data-r="mc"><rect class="qd" x="390" y="45" width="280" height="130" fill="#f7e9c8" rx="10"/><text class="qt" x="530" y="102">أدِر عن قرب</text><text class="qs" x="530" y="126">Manage Closely</text></g>
+<g class="hot" data-r="mo"><rect class="qd" x="110" y="175" width="280" height="130" fill="#f2f6f3" rx="10"/><text class="qt" x="250" y="232">راقب</text><text class="qs" x="250" y="256">Monitor</text></g>
+<g class="hot" data-r="ki"><rect class="qd" x="390" y="175" width="280" height="130" fill="#e9f2ec" rx="10"/><text class="qt" x="530" y="232">أبقِه مطلعًا</text><text class="qs" x="530" y="256">Keep Informed</text></g>
+<text class="axl" x="60" y="175" transform="rotate(-90 60 175)">القوة / التأثير ↑</text>
+<text class="axl" x="390" y="338">الاهتمام ←</text>
+</svg>

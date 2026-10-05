@@ -1,0 +1,16 @@
+
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ax{stroke:#75857c;stroke-width:2}.lb{font:12.5px Tahoma;fill:#5c7167}.lg{font:bold 13px Tahoma}</style>
+<text x="370" y="24" text-anchor="middle" style="font:bold 15px Tahoma" fill="#0b4034">منحنى S — القيمة المخططة والمكتسبة والتكلفة الفعلية</text>
+<line class="ax" x1="65" y1="300" x2="690" y2="300"/><line class="ax" x1="65" y1="300" x2="65" y2="45"/>
+<text class="lb" x="375" y="330" text-anchor="middle">أشهر المشروع ←</text>
+<text class="lb" x="32" y="175" transform="rotate(-90 32 175)" text-anchor="middle">القيمة التراكمية (مليون)</text>
+<path d="M65 300 C 180 292, 260 250, 360 185 C 470 115, 580 75, 690 60" fill="none" stroke="#0d5a43" stroke-width="3"/>
+<path d="M65 300 C 175 296, 258 272, 340 235 C 385 214, 402 210, 415 205" fill="none" stroke="#1e8e4e" stroke-width="3.5"/>
+<path d="M65 300 C 165 290, 245 252, 330 200 C 380 170, 400 158, 415 150" fill="none" stroke="#b3261e" stroke-width="3.5"/>
+<line x1="415" y1="300" x2="415" y2="55" stroke="#c9a13b" stroke-width="2.5" stroke-dasharray="6 5"/>
+<text style="font:bold 12.5px Tahoma" fill="#a07f24" x="415" y="46" text-anchor="middle">شهر المراجعة</text>
+<circle cx="415" cy="183" r="5" fill="#0d5a43"/><text class="lg" fill="#0d5a43" x="432" y="186">PV (المخطط)</text>
+<circle cx="415" cy="205" r="5" fill="#1e8e4e"/><text class="lg" fill="#1e8e4e" x="432" y="226">EV (المكتسب)</text>
+<circle cx="415" cy="150" r="5" fill="#b3261e"/><text class="lg" fill="#b3261e" x="432" y="140">AC (الفعلي)</text>
+</svg>

@@ -1,0 +1,11 @@
+
+<svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" style="max-width:720px">
+<style>.rb{fill:#fff;stroke:#0e7a55;stroke-width:2}.rt{font:bold 13.5px Tahoma;fill:#0d5a43;text-anchor:middle}.rs{font:12px Tahoma;fill:#5c7167;text-anchor:middle}</style>
+<line x1="40" y1="200" x2="730" y2="200" stroke="#9bbfae" stroke-width="3"/>
+<circle cx="125" cy="200" r="7" fill="#c9a13b"/><circle cx="311" cy="200" r="7" fill="#c9a13b"/><circle cx="497" cy="200" r="7" fill="#c9a13b"/><circle cx="683" cy="200" r="7" fill="#c9a13b"/>
+<text class="rs" x="125" y="228">الربع 1</text><text class="rs" x="311" y="228">الربع 2</text><text class="rs" x="497" y="228">الربع 3</text><text class="rs" x="683" y="228">الربع 4</text>
+<g class="hot" data-r="mvp"><rect class="rb" x="50" y="70" width="150" height="90" rx="12"/><text class="rt" x="125" y="102">الإطلاق الأول</text><text class="rt" x="125" y="124">أقل الميزات الكافية</text><text class="rs" x="125" y="146">لتحقيق قيمة وتعلّم</text></g>
+<g class="hot" data-r="r2"><rect class="rb" x="236" y="70" width="150" height="90" rx="12"/><text class="rt" x="311" y="106">الإصدار 2</text><text class="rs" x="311" y="132">ميزات إضافية</text></g>
+<g class="hot" data-r="r3"><rect class="rb" x="422" y="70" width="150" height="90" rx="12"/><text class="rt" x="497" y="106">الإصدار 3</text><text class="rs" x="497" y="132">تكاملات وتقارير</text></g>
+<g class="hot" data-r="scale"><rect class="rb" x="608" y="70" width="150" height="90" rx="12"/><text class="rt" x="683" y="106">التوسع</text><text class="rs" x="683" y="132">انتشار إقليمي</text></g>
+</svg>

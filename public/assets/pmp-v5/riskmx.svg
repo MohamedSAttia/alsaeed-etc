@@ -1,0 +1,18 @@
+
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ct{font:bold 13px Tahoma;text-anchor:middle}.hd{font:bold 13.5px Tahoma;fill:#0b4034;text-anchor:middle}.cell{stroke:#fff;stroke-width:3}</style>
+<text x="390" y="26" text-anchor="middle" style="font:bold 15px Tahoma" fill="#0b4034">مصفوفة الاحتمالية × الأثر — انقر على الخلية المطلوبة</text>
+<text class="hd" x="200" y="330">أثر منخفض</text><text class="hd" x="390" y="330">أثر متوسط</text><text class="hd" x="580" y="330">أثر عالٍ</text>
+<text class="hd" x="60" y="100" transform="rotate(-90 60 100)">احتمالية عالية</text>
+<text class="hd" x="60" y="190" transform="rotate(-90 60 190)">احتمالية متوسطة</text>
+<text class="hd" x="60" y="280" transform="rotate(-90 60 280)">احتمالية منخفضة</text>
+<g class="hot" data-r="hl"><rect class="cell" x="110" y="55" width="180" height="84" fill="#f2d98c"/><text class="ct" x="200" y="102" fill="#6d5518">متوسط</text></g>
+<g class="hot" data-r="hm"><rect class="cell" x="300" y="55" width="180" height="84" fill="#eda06a"/><text class="ct" x="390" y="102" fill="#6e3a12">مرتفع</text></g>
+<g class="hot" data-r="hh"><rect class="cell" x="490" y="55" width="180" height="84" fill="#d95b4e"/><text class="ct" x="580" y="102" fill="#fff">حرج جدًا</text></g>
+<g class="hot" data-r="ml"><rect class="cell" x="110" y="145" width="180" height="84" fill="#bfe3cd"/><text class="ct" x="200" y="192" fill="#14522b">منخفض</text></g>
+<g class="hot" data-r="mm"><rect class="cell" x="300" y="145" width="180" height="84" fill="#f2d98c"/><text class="ct" x="390" y="192" fill="#6d5518">متوسط</text></g>
+<g class="hot" data-r="mh"><rect class="cell" x="490" y="145" width="180" height="84" fill="#eda06a"/><text class="ct" x="580" y="192" fill="#6e3a12">مرتفع</text></g>
+<g class="hot" data-r="ll"><rect class="cell" x="110" y="235" width="180" height="84" fill="#dff0e6"/><text class="ct" x="200" y="282" fill="#2f6d49">ضئيل</text></g>
+<g class="hot" data-r="lm"><rect class="cell" x="300" y="235" width="180" height="84" fill="#bfe3cd"/><text class="ct" x="390" y="282" fill="#14522b">منخفض</text></g>
+<g class="hot" data-r="lh"><rect class="cell" x="490" y="235" width="180" height="84" fill="#f2d98c"/><text class="ct" x="580" y="282" fill="#6d5518">متوسط</text></g>
+</svg>

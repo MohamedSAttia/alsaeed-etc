@@ -1,0 +1,12 @@
+
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="max-width:720px">
+<style>.nb{fill:#fff;stroke:#0e7a55;stroke-width:2}.nt{font:bold 14px Tahoma;fill:#0d5a43;text-anchor:middle}.ft{font:12.5px Tahoma;fill:#5c7167;text-anchor:middle}.ar{stroke:#9bbfae;stroke-width:2.5;fill:none;marker-end:url(#ah2)}.se{fill:#0d5a43}</style>
+<defs><marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#9bbfae"/></marker></defs>
+<circle class="se" cx="60" cy="150" r="30"/><text x="60" y="156" text-anchor="middle" style="font:bold 13px Tahoma" fill="#fff">بداية</text>
+<circle class="se" cx="700" cy="150" r="30"/><text x="700" y="156" text-anchor="middle" style="font:bold 13px Tahoma" fill="#fff">نهاية</text>
+<g class="hot" data-r="a"><rect class="nb" x="180" y="45" width="140" height="66" rx="10"/><text class="nt" x="250" y="73">النشاط A</text><text class="ft" x="250" y="95">الفائض = يومان</text></g>
+<g class="hot" data-r="c"><rect class="nb" x="440" y="45" width="140" height="66" rx="10"/><text class="nt" x="510" y="73">النشاط C</text><text class="ft" x="510" y="95">الفائض = 3 أيام</text></g>
+<g class="hot" data-r="b"><rect class="nb" x="180" y="190" width="140" height="66" rx="10"/><text class="nt" x="250" y="218">النشاط B</text><text class="ft" x="250" y="240">الفائض = يوم واحد</text></g>
+<g class="hot" data-r="d"><rect class="nb" x="440" y="190" width="140" height="66" rx="10"/><text class="nt" x="510" y="218">النشاط D</text><text class="ft" x="510" y="240">الفائض = صفر</text></g>
+<path class="ar" d="M85 130 Q120 90 178 80"/><path class="ar" d="M85 170 Q120 210 178 222"/><path class="ar" d="M320 78 H438"/><path class="ar" d="M320 223 H438"/><path class="ar" d="M580 80 Q640 95 678 132"/><path class="ar" d="M580 222 Q640 210 678 168"/>
+</svg>

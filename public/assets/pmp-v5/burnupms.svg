@@ -1,0 +1,15 @@
+
+<svg viewBox="0 0 720 350" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ax{stroke:#75857c;stroke-width:2}.lb{font:12.5px Tahoma;fill:#5c7167}</style>
+<line class="ax" x1="60" y1="290" x2="690" y2="290"/><line class="ax" x1="60" y1="290" x2="60" y2="20"/>
+<text class="lb" x="121" y="308" text-anchor="middle">1</text><text class="lb" x="182" y="308" text-anchor="middle">2</text><text class="lb" x="243" y="308" text-anchor="middle">3</text><text class="lb" x="304" y="308" text-anchor="middle">4</text><text class="lb" x="365" y="308" text-anchor="middle">5</text><text class="lb" x="426" y="308" text-anchor="middle">6</text><text class="lb" x="487" y="308" text-anchor="middle">7</text><text class="lb" x="548" y="308" text-anchor="middle">8</text><text class="lb" x="609" y="308" text-anchor="middle">9</text><text class="lb" x="670" y="308" text-anchor="middle">10</text>
+<text class="lb" x="375" y="330" text-anchor="middle">السبرنتات</text>
+<text class="lb" x="26" y="155" transform="rotate(-90 26 155)" text-anchor="middle">نقاط القصة</text>
+<polyline points="60,70 243,70 243,58 690,58" fill="none" stroke="#0d5a43" stroke-width="2.5"/>
+<text style="font:bold 12.5px Tahoma" fill="#0d5a43" x="80" y="52">النطاق الكلي</text>
+<polyline points="60,290 121,272 182,257 243,244 304,230 365,218" fill="none" stroke="#1e8e4e" stroke-width="3.5"/>
+<line x1="365" y1="218" x2="690" y2="128" stroke="#1e8e4e" stroke-width="2.5" stroke-dasharray="7 6"/>
+<text style="font:bold 12.5px Tahoma" fill="#1e8e4e" x="230" y="265">الإنجاز المتراكم</text>
+<line x1="548" y1="290" x2="548" y2="30" stroke="#b3261e" stroke-width="2.5" stroke-dasharray="4 4"/>
+<text style="font:bold 12.5px Tahoma" fill="#b3261e" x="548" y="24" text-anchor="middle">المعلم التعاقدي (سبرنت 8)</text>
+</svg>

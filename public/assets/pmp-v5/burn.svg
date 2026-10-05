@@ -1,0 +1,15 @@
+
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ax{stroke:#75857c;stroke-width:2}.lb{font:12.5px Tahoma;fill:#5c7167}.gl{stroke:#e6efe9;stroke-width:1}</style>
+<line class="ax" x1="60" y1="280" x2="690" y2="280"/><line class="ax" x1="60" y1="280" x2="60" y2="20"/>
+<g class="gl"><line x1="121" y1="280" x2="121" y2="30"/><line x1="182" y1="280" x2="182" y2="30"/><line x1="243" y1="280" x2="243" y2="30"/><line x1="304" y1="280" x2="304" y2="30"/><line x1="365" y1="280" x2="365" y2="30"/><line x1="426" y1="280" x2="426" y2="30"/><line x1="487" y1="280" x2="487" y2="30"/><line x1="548" y1="280" x2="548" y2="30"/><line x1="609" y1="280" x2="609" y2="30"/><line x1="670" y1="280" x2="670" y2="30"/></g>
+<text class="lb" x="60" y="298" text-anchor="middle">0</text><text class="lb" x="121" y="298" text-anchor="middle">1</text><text class="lb" x="182" y="298" text-anchor="middle">2</text><text class="lb" x="243" y="298" text-anchor="middle">3</text><text class="lb" x="304" y="298" text-anchor="middle">4</text><text class="lb" x="365" y="298" text-anchor="middle">5</text><text class="lb" x="426" y="298" text-anchor="middle">6</text><text class="lb" x="487" y="298" text-anchor="middle">7</text><text class="lb" x="548" y="298" text-anchor="middle">8</text><text class="lb" x="609" y="298" text-anchor="middle">9</text><text class="lb" x="670" y="298" text-anchor="middle">10</text>
+<text class="lb" x="375" y="322" text-anchor="middle">أيام السبرنت</text>
+<text class="lb" x="26" y="150" transform="rotate(-90 26 150)" text-anchor="middle">النقاط المتبقية</text>
+<text class="lb" x="52" y="45" text-anchor="end">50</text><text class="lb" x="52" y="285" text-anchor="end">0</text>
+<line x1="60" y1="40" x2="670" y2="280" stroke="#9bbfae" stroke-width="2.5" stroke-dasharray="8 6"/>
+<polyline points="60,40 121,40 182,55 243,74 304,74 365,98 426,120 487,132" fill="none" stroke="#b3261e" stroke-width="3.5"/>
+<circle cx="487" cy="132" r="5" fill="#b3261e"/>
+<text style="font:bold 13px Tahoma" fill="#b3261e" x="500" y="126">الفعلي (اليوم 7)</text>
+<text style="font:bold 13px Tahoma" fill="#5c8474" x="560" y="235">المثالي</text>
+</svg>

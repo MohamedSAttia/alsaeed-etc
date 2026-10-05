@@ -1,0 +1,11 @@
+
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.kb{fill:#fff;stroke:#0e7a55;stroke-width:2}.kt{font:bold 15px Tahoma;fill:#0d5a43;text-anchor:middle}.kv{font:bold 26px Tahoma;text-anchor:middle}.ks{font:12px Tahoma;fill:#75857c;text-anchor:middle}</style>
+<text x="360" y="34" text-anchor="middle" style="font:bold 16px Tahoma" fill="#0b4034">لوحة مؤشرات القيمة المكتسبة — شهر المراجعة</text>
+<g class="hot" data-r="spi"><rect class="kb" x="20" y="60" width="160" height="120" rx="14"/><text class="kt" x="100" y="90">مؤشر أداء الجدول</text><text class="kt" x="100" y="110">SPI</text><text class="kv" x="100" y="150" fill="#1e8e4e">1.10</text><text class="ks" x="100" y="170">EV ÷ PV</text></g>
+<g class="hot" data-r="cpi"><rect class="kb" x="200" y="60" width="160" height="120" rx="14"/><text class="kt" x="280" y="90">مؤشر أداء التكلفة</text><text class="kt" x="280" y="110">CPI</text><text class="kv" x="280" y="150" fill="#b3261e">0.83</text><text class="ks" x="280" y="170">EV ÷ AC</text></g>
+<g class="hot" data-r="eac"><rect class="kb" x="380" y="60" width="160" height="120" rx="14"/><text class="kt" x="460" y="90">التقدير عند الاكتمال</text><text class="kt" x="460" y="110">EAC</text><text class="kv" x="460" y="150" fill="#a07f24">9.6م</text><text class="ks" x="460" y="170">BAC ÷ CPI</text></g>
+<g class="hot" data-r="bac"><rect class="kb" x="560" y="60" width="140" height="120" rx="14"/><text class="kt" x="630" y="90">الميزانية عند</text><text class="kt" x="630" y="110">الاكتمال BAC</text><text class="kv" x="630" y="150" fill="#0d5a43">8.0م</text><text class="ks" x="630" y="170">خط الأساس</text></g>
+<text x="360" y="235" text-anchor="middle" style="font:12.5px Tahoma" fill="#75857c">EV = 3.0م • AC = 3.6م • PV = 2.73م</text>
+<text x="360" y="265" text-anchor="middle" style="font:12.5px Tahoma" fill="#75857c">انقر على المؤشر المطلوب</text>
+</svg>

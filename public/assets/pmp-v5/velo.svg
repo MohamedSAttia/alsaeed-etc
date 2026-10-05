@@ -1,0 +1,12 @@
+
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" style="max-width:680px">
+<style>.ax{stroke:#75857c;stroke-width:2}.lb{font:13px Tahoma;fill:#5c7167}.vl{font:bold 16px Tahoma;fill:#0d5a43;text-anchor:middle}</style>
+<line class="ax" x1="70" y1="270" x2="680" y2="270"/><line class="ax" x1="70" y1="270" x2="70" y2="20"/>
+<rect x="120" y="102" width="90" height="168" fill="#0e7a55" rx="6"/><text class="vl" x="165" y="92">28</text><text class="lb" x="165" y="292" text-anchor="middle">سبرنت 1</text>
+<rect x="255" y="78" width="90" height="192" fill="#0e7a55" rx="6"/><text class="vl" x="300" y="68">32</text><text class="lb" x="300" y="292" text-anchor="middle">سبرنت 2</text>
+<rect x="390" y="90" width="90" height="180" fill="#0e7a55" rx="6"/><text class="vl" x="435" y="80">30</text><text class="lb" x="435" y="292" text-anchor="middle">سبرنت 3</text>
+<rect x="525" y="90" width="90" height="180" fill="#0e7a55" rx="6"/><text class="vl" x="570" y="80">30</text><text class="lb" x="570" y="292" text-anchor="middle">سبرنت 4</text>
+<line x1="70" y1="90" x2="680" y2="90" stroke="#c9a13b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<text style="font:bold 12.5px Tahoma" fill="#a07f24" x="675" y="82" text-anchor="end">المتوسط = 30 نقطة</text>
+<text class="lb" x="30" y="150" transform="rotate(-90 30 150)" text-anchor="middle">نقاط القصة المنجزة</text>
+</svg>
