@@ -1158,5 +1158,585 @@
     "explanation_ar": "التخطيط المتدرج يوازن التوجيه مع المرونة والمعرفة الجديدة؛ لا يعني غياب الخطة.",
     "explanation_en": "Progressive planning balances direction with flexibility and new knowledge; it does not mean no plan.",
     "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-041",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "اقترح الراعي شراء نظام قبل توضيح المشكلة التي سيحلها. ما البداية الأنسب؟",
+    "question_en": "The sponsor proposes buying a system before clarifying the problem it solves. What should come first?",
+    "options_ar": [
+      "تحديد الحاجة والنتائج والقيمة المتوقعة",
+      "توقيع عقد الشراء فورًا",
+      "اختيار اللون والشعار",
+      "تقليد نظام مؤسسة أخرى"
+    ],
+    "options_en": [
+      "Clarify the need, outcomes and expected value",
+      "Sign the purchase contract immediately",
+      "Choose colours and a logo",
+      "Copy another organization’s system"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "توضيح الحاجة يمنع اختيار حل لا يدعم الهدف. الشراء المبكر والتقليد والشكل لا تثبت القيمة.",
+    "explanation_en": "Clarifying the need prevents selecting a solution that does not serve the objective. Early purchasing, imitation and appearance do not establish value.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-042",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "طُلب إطلاق الخدمة بتاريخ ثابت قانونيًا. كيف يتعامل الفريق مع ذلك؟",
+    "question_en": "A service must launch on a legally fixed date. How should the team treat this?",
+    "options_ar": [
+      "تغيير القانون في الجدول",
+      "توثيق قيد الموعد وتقييم أثره وبدائل الالتزام",
+      "اعتبار الموعد افتراضًا قابلًا للتجاهل",
+      "إخفاء القيد عن الفريق"
+    ],
+    "options_en": [
+      "Change the law in the schedule",
+      "Document the date constraint and assess its impacts and feasible options",
+      "Treat the date as an assumption that can be ignored",
+      "Hide the constraint from the team"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "الموعد الملزم قيد يجب التخطيط ضمنه وتحليل آثاره؛ لا يعد افتراضًا اختياريًا.",
+    "explanation_en": "A mandatory date is a constraint to plan within and analyze; it is not an optional assumption.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-043",
+    "topic": "Project Management Framework",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تولى عضوان مسؤولية اعتماد المخرج وكل منهما ينتظر الآخر. ما الإجراء الأنسب؟",
+    "question_en": "Two members share responsibility for accepting a deliverable, and each waits for the other. What is best?",
+    "options_ar": [
+      "القبول دون مراجعة",
+      "إلقاء اللوم فقط",
+      "توضيح الأدوار وصلاحية الاعتماد والتواصل بشأنها",
+      "إضافة شخص ثالث دون تحديد دوره"
+    ],
+    "options_en": [
+      "Accept without review",
+      "Only assign blame",
+      "Clarify roles and acceptance authority and communicate them",
+      "Add a third person without defining their role"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "وضوح المسؤوليات وصلاحية القرار يعالج فجوة الانتظار؛ إضافة أشخاص دون تعريف لا تحلها.",
+    "explanation_en": "Clear responsibilities and decision authority resolve the waiting gap; adding undefined roles does not.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-044",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تشير مؤشرات التسليم إلى تقدم جيد لكن المستخدمين لا يعتمدون الخدمة. ما الذي ينبغي فعله؟",
+    "question_en": "Delivery indicators look good, but users are not adopting the service. What should be done?",
+    "options_ar": [
+      "إعلان النجاح بالجدول فقط",
+      "حذف مؤشر التبني",
+      "زيادة المخرجات دون تحليل",
+      "تحليل أسباب ضعف التبني وتحديث إجراءات تحقيق النتائج"
+    ],
+    "options_en": [
+      "Declare success based only on schedule",
+      "Remove the adoption indicator",
+      "Add deliverables without analysis",
+      "Analyze adoption barriers and adapt outcome-realization actions"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التبني يؤثر في تحقق القيمة؛ تقدم التسليم وحده لا يكفي لإثبات نجاح النتيجة.",
+    "explanation_en": "Adoption affects value realization; delivery progress alone does not prove outcome success.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-045",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تُظهر مشروعات متعددة أن المورد نفسه مصدر تأخر متكرر. ما الأفضل؟",
+    "question_en": "Several projects show repeated delays from the same supplier. What is best?",
+    "options_ar": [
+      "تجميع الأدلة والتنسيق على معالجة الترابط بالمستوى المناسب",
+      "عزل المعلومات داخل كل مشروع",
+      "افتراض استقلال جميع التأخيرات",
+      "حذف المورد من التقارير"
+    ],
+    "options_en": [
+      "Aggregate evidence and coordinate dependency treatment at the appropriate level",
+      "Keep evidence isolated in each project",
+      "Assume all delays are independent",
+      "Remove the supplier from reports"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "المصدر المشترك قد يتطلب تنسيقًا يتجاوز مشروعًا واحدًا؛ تجميع الأدلة يدعم القرار المناسب.",
+    "explanation_en": "A shared source may require coordination beyond one project; aggregated evidence supports the appropriate decision.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-046",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "أراد الفريق قياس فائدة تقليل زمن الخدمة، لكن لم يسجل الزمن الحالي. ما الخطوة المناسبة؟",
+    "question_en": "The team wants to measure reduced service time but has not recorded current performance. What is appropriate?",
+    "options_ar": [
+      "تأجيل تعريف القياس لما بعد الإغلاق",
+      "تحديد خط أساس للقياس وطريقة جمع البيانات",
+      "إعلان نسبة تحسن تقديرية كحقيقة",
+      "قياس عدد الاجتماعات بدلًا منه"
+    ],
+    "options_en": [
+      "Defer measurement design until after closure",
+      "Establish a measurement baseline and data collection method",
+      "Declare an estimated improvement as fact",
+      "Measure meeting count instead"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "قياس التحسن يحتاج مرجعًا وطريقة متسقة؛ البدائل لا تثبت تحقق الفائدة.",
+    "explanation_en": "Measuring improvement needs a reference and a consistent method; the alternatives do not demonstrate benefits.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-047",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "executing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "وجد الفريق حلًا يوفر الوقت لكنه يتجاوز ضابطًا تنظيميًا إلزاميًا. ما القرار الأنسب؟",
+    "question_en": "A time-saving solution bypasses a mandatory organizational control. What is best?",
+    "options_ar": [
+      "اعتبار السرعة مبررًا كافيًا",
+      "إخفاء الأثر في التقرير",
+      "البحث عن بديل ملتزم ورفع الحاجة إلى استثناء للجهة المخولة إن أمكن",
+      "تجاوز الضابط سرًا"
+    ],
+    "options_en": [
+      "Treat speed as sufficient justification",
+      "Hide the impact in the report",
+      "Find a compliant alternative and refer any possible exception to authorized governance",
+      "Bypass the control secretly"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التكييف لا يمنح صلاحية تجاوز الضوابط؛ الاستثناء إن كان مسموحًا يتبع الحوكمة.",
+    "explanation_en": "Tailoring does not authorize bypassing controls; a permitted exception follows governance.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-048",
+    "topic": "Project Management Framework",
+    "domain": "people",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تطلب فئة معنيين تقريرًا تقنيًا مفصلًا وأخرى ملخصًا للقرار. كيف تُصمم الاتصالات؟",
+    "question_en": "One stakeholder group needs technical detail, another a decision summary. How should communication be designed?",
+    "options_ar": [
+      "إرسال نسخة تقنية واحدة للجميع",
+      "إلغاء التواصل مع المجموعة الثانية",
+      "زيادة الرسائل دون تخصيص",
+      "تكييف الرسالة والتفصيل والقناة بحسب الاحتياجات"
+    ],
+    "options_en": [
+      "Send the same technical version to everyone",
+      "Stop communicating with the second group",
+      "Increase messages without tailoring",
+      "Tailor message, detail and channel to stakeholder needs"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "احتياجات المعنيين تحدد شكل الاتصال؛ زيادة الحجم أو التوحيد لا تضمن الفهم.",
+    "explanation_en": "Stakeholder needs shape communication; greater volume or uniformity does not ensure understanding.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-049",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "closing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "بدأ الفريق الجديد التخطيط دون الاطلاع على مشكلات مشروع مشابه. ما الذي يضيف قيمة؟",
+    "question_en": "A new team starts planning without reviewing issues from a similar project. What adds value?",
+    "options_ar": [
+      "مراجعة الدروس ذات الصلة والتحقق من ملاءمتها للسياق",
+      "نسخ جميع القرارات السابقة بلا تقييم",
+      "تجاهل المعرفة السابقة لأنها قديمة",
+      "تطبيق الدروس عند الإغلاق فقط"
+    ],
+    "options_en": [
+      "Review relevant lessons and validate their applicability",
+      "Copy all earlier decisions without assessment",
+      "Ignore prior knowledge because it is old",
+      "Use lessons only at closure"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الدروس تدعم التخطيط عندما تُراجع وتُكيف للسياق؛ النسخ الأعمى أو التأخير يهدر التعلم.",
+    "explanation_en": "Lessons support planning when reviewed and tailored to context; blind copying or delay wastes learning.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-050",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تغيرت لائحة تؤثر في نموذج تقديم الخدمة أثناء المشروع. ما التصرف الأفضل؟",
+    "question_en": "A regulation affecting the service delivery model changes during the project. What is best?",
+    "options_ar": [
+      "حذف المتطلبات التنظيمية",
+      "تحليل أثر التغيير على الامتثال والقيمة والخطة واتخاذ قرار مخول",
+      "الالتزام بالنسخة القديمة مهما تغيرت",
+      "إيقاف كل المشروعات تلقائيًا"
+    ],
+    "options_en": [
+      "Remove regulatory requirements",
+      "Analyze impacts on compliance, value and the plan and obtain an authorized decision",
+      "Follow the old version regardless",
+      "Automatically stop every project"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "تغير البيئة يستدعي تقييمًا متكاملًا وتكيفًا معتمدًا؛ لا يبرر تجاهل الامتثال.",
+    "explanation_en": "Environmental change requires integrated assessment and authorized adaptation; it does not justify ignoring compliance.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-051",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "لا يستطيع الفريق الاتفاق على تقدير قصة لأن فهم التكامل مختلف. ما الخطوة الأولى؟",
+    "question_en": "The team cannot agree on a story estimate because integration assumptions differ. What should happen first?",
+    "options_ar": [
+      "ترك التقدير للمدير وحده",
+      "زيادة النقاط دائمًا",
+      "كشف الافتراضات ومناقشة العمل قبل إعادة التقدير",
+      "فرض متوسط الأرقام دون نقاش"
+    ],
+    "options_en": [
+      "Leave estimation solely to the manager",
+      "Always increase points",
+      "Expose assumptions and discuss the work before re-estimating",
+      "Impose the average without discussion"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "الاختلاف قد يكشف فجوة فهم؛ النقاش يسبق تقديرًا مشتركًا أكثر اتساقًا.",
+    "explanation_en": "Divergence may reveal a knowledge gap; discussion precedes a more consistent shared estimate.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-052",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "التقنية الجديدة غير مفهومة بما يكفي لتقدير الحل. ما الإجراء المناسب؟",
+    "question_en": "A new technology is insufficiently understood to estimate the solution. What is appropriate?",
+    "options_ar": [
+      "التزام نهائي دون معرفة",
+      "تجربة مفتوحة بلا نهاية",
+      "إخفاء عدم اليقين",
+      "تجربة استكشافية محدودة الزمن بهدف تعلم واضح"
+    ],
+    "options_en": [
+      "Make a final commitment without knowledge",
+      "An unbounded experiment",
+      "Hide uncertainty",
+      "A time-boxed exploration with a clear learning objective"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "الاستكشاف المحدود يقلل عدم اليقين ويولد معرفة؛ ينبغي تحديد الغرض والحدود والمخرجات.",
+    "explanation_en": "Bounded exploration reduces uncertainty and generates knowledge; define its purpose, limits and outputs.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-053",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يتضمن السبرنت عطلات مخططة لمطورين. كيف يُحدد مقدار العمل المختار؟",
+    "question_en": "Two developers have planned leave during a sprint. How should selected work be determined?",
+    "options_ar": [
+      "مراعاة السعة الفعلية وهدف السبرنت والخبرة السابقة",
+      "اختيار حجم السبرنت السابق آليًا",
+      "تجاهل العطلات",
+      "التعهد بكل القائمة"
+    ],
+    "options_en": [
+      "Consider actual capacity, the sprint goal and past experience",
+      "Automatically select the previous sprint’s volume",
+      "Ignore the leave",
+      "Commit to the entire backlog"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "التخطيط يأخذ التوافر الحالي في الحسبان؛ السرعة السابقة مرجع لا تعهد ثابت.",
+    "explanation_en": "Planning considers current availability; past velocity is a reference, not a fixed commitment.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-054",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "وصل عنصر عاجل للوحة كانبان مع امتلاء حد العمل الجاري. ما الأفضل؟",
+    "question_en": "An urgent item arrives on a Kanban board already at its WIP limit. What is best?",
+    "options_ar": [
+      "إخفاء العمل المتوقف",
+      "اتباع سياسة التعامل مع العاجل وإظهار أثره على التدفق",
+      "إدخاله سرًا خارج اللوحة",
+      "تجاوز جميع الحدود دائمًا"
+    ],
+    "options_en": [
+      "Hide paused work",
+      "Follow the explicit urgent-work policy and make its flow impact visible",
+      "Add it secretly outside the board",
+      "Always bypass all limits"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "السياسات الصريحة تتيح قرارًا شفافًا بشأن العمل العاجل وآثاره بدل تجاوز الحدود اعتباطيًا.",
+    "explanation_en": "Explicit policies allow transparent urgent-work decisions and impact management rather than arbitrary limit bypasses.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-055",
+    "topic": "Agile",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "أنجز الفريق ميزات كثيرة، لكن المستخدمين لا يستفيدون منها. ما المقياس المكمل الأهم؟",
+    "question_en": "The team delivered many features, but users gain little benefit. What is the most useful complementary measure?",
+    "options_ar": [
+      "عدد اجتماعات الفريق",
+      "عدد أسطر الشفرة فقط",
+      "نتائج الاستخدام والقيمة المتحققة للمستخدم",
+      "عدد المهام المفتوحة"
+    ],
+    "options_en": [
+      "Team meeting count",
+      "Only lines of code",
+      "Usage outcomes and realized user value",
+      "Open-task count"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التسليم المتكرر وسيلة للقيمة؛ عد الميزات وحده لا يبين تحققها.",
+    "explanation_en": "Frequent delivery is a means to value; feature counts alone do not demonstrate it.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-056",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "أظهرت مراجعة السبرنت تغير حاجة العميل، بينما كشف الاستعراض الاستعادي بطء الاختبار. أين تنعكس النتيجتان؟",
+    "question_en": "Sprint review reveals a changed customer need; retrospective reveals slow testing. Where should these findings be reflected?",
+    "options_ar": [
+      "تغيير المنتج فقط وتجاهل العملية",
+      "تغيير العملية فقط وتجاهل الحاجة",
+      "عدم تغيير أي شيء",
+      "تحديث قائمة المنتج وتحسين طريقة عمل الفريق"
+    ],
+    "options_en": [
+      "Change only the product and ignore the process",
+      "Change only the process and ignore the need",
+      "Change nothing",
+      "Adapt the product backlog and improve the team’s working practices"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "المراجعة تدعم تكييف المنتج؛ الاستعراض الاستعادي يدعم تحسين الفاعلية والعمل.",
+    "explanation_en": "Review supports product adaptation; retrospective supports improved effectiveness and working practices.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-057",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "قصة واحدة تتضمن التسجيل والدفع والتقارير ولا يمكن إكمالها في السبرنت. كيف تُقسم؟",
+    "question_en": "One story includes registration, payment and reporting and cannot finish within a sprint. How should it be split?",
+    "options_ar": [
+      "إلى شرائح صغيرة قابلة للاختبار وتحقق قيمة",
+      "إلى تحليل فقط ثم تطوير فقط دون قيمة قابلة للفحص",
+      "إبقاء القصة كبيرة دائمًا",
+      "إلغاء معايير القبول لتصغيرها"
+    ],
+    "options_en": [
+      "Into small testable slices delivering value",
+      "Into analysis-only then coding-only pieces without inspectable value",
+      "Always keep it large",
+      "Remove acceptance criteria to shrink it"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الشرائح التي تحقق قيمة وتُختبر تتيح تغذية راجعة مبكرة؛ التقسيم الوظيفي المجرد قد يؤخر التعلم.",
+    "explanation_en": "Testable value slices enable early feedback; purely functional decomposition may delay learning.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-058",
+    "topic": "Agile",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "بدأ الفريق يحل كل اختلاف برفعه للراعي فورًا. ما الأفضل للخلافات ضمن صلاحياته؟",
+    "question_en": "The team escalates every disagreement immediately to the sponsor. What is better for matters within its authority?",
+    "options_ar": [
+      "ترك القرار للأعلى صوتًا",
+      "مناقشة الخلاف واحترام قواعد الفريق والبحث عن حل مشترك",
+      "تجاهل الخلاف حتى يتفاقم",
+      "حظر الآراء المختلفة"
+    ],
+    "options_en": [
+      "Let the loudest person decide",
+      "Discuss the conflict, follow team agreements and seek a shared solution",
+      "Ignore it until it worsens",
+      "Ban different opinions"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "الفريق الممكن يعالج الخلافات المناسبة ضمن صلاحياته؛ يصعد ما يتجاوزها عند الحاجة.",
+    "explanation_en": "An empowered team handles appropriate conflicts within its authority and escalates beyond it when needed.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-059",
+    "topic": "Agile",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "لا تسمح المتطلبات النظامية بإطلاق المنتج إلا بعد الاعتماد، لكن الفريق يريد تعلمًا مبكرًا. ما النهج المناسب؟",
+    "question_en": "Regulatory requirements prevent release before approval, but the team needs early learning. What is appropriate?",
+    "options_ar": [
+      "منع كل تغذية راجعة قبل الإطلاق",
+      "إلغاء المتطلبات النظامية",
+      "تكرارات داخلية وتجارب مسموحة مع التخطيط للاعتماد قبل الإطلاق",
+      "الإطلاق دون اعتماد باسم الرشاقة"
+    ],
+    "options_en": [
+      "Prevent all feedback before release",
+      "Remove regulatory requirements",
+      "Use internal iterations and permitted tests, planning approval before release",
+      "Release without approval in the name of agility"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التطوير التكراري لا يعني إطلاقًا غير ملتزم؛ يمكن التعلم ضمن القيود والتخطيط للاعتماد.",
+    "explanation_en": "Iterative development does not mean noncompliant release; learning can occur within constraints while approval is planned.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-060",
+    "topic": "Agile",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "يقترح الفريق إعادة تصميم العملية بالكامل بسبب تأخر واحد دون تحليل. ما البديل الأنسب؟",
+    "question_en": "The team proposes redesigning its entire process after one delay without analysis. What is better?",
+    "options_ar": [
+      "تغيير كل شيء فورًا",
+      "إيقاف القياس",
+      "تجاهل التأخر دائمًا",
+      "فحص السبب وتجربة تحسين صغيرة وقياس أثرها"
+    ],
+    "options_en": [
+      "Change everything immediately",
+      "Stop measurement",
+      "Always ignore delays",
+      "Inspect the cause, test a small improvement and measure its effect"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التحسين التجريبي القائم على الأدلة يقلل التغيير العشوائي ويساعد التعلم.",
+    "explanation_en": "Evidence-based incremental experiments reduce arbitrary change and support learning.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
   }
 ]
