@@ -498,6 +498,10 @@ function handleLearnerQuestionBank(req,res,url){
   const sourcePackageId=questionSourcePackageId(packageId,true);
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
+  // Learners see the current PMP source cohorts; legacy imports remain available to administrators for editorial review.
+  const pmpQualityGate=sourcePackageId===pmp.packageId||getPackages().some(p=>p.id===packageId&&String(p.course).toLowerCase()==='pmp');
+  if(pmpQualityGate){filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
+
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
   if(domain){
