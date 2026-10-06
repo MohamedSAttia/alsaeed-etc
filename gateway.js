@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
 import { createPmpEngine } from './pmp-engine.js';
-import { seedPmpTopics, seedPmpSource } from './pmp-topic-seed.js';
+import { seedPmpTopics, seedPmpSource, seedPmpReference } from './pmp-topic-seed.js';
 import { createAiAssistant } from './ai-assistant.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -262,6 +262,7 @@ const topicQuestions=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-
 const topicPackages=[pmp.packageId,...getPackages().filter(p=>String(p.course).toLowerCase()==='pmp').map(p=>questionSourcePackageId(p.id))];
 console.log('PMP topic practice added:',seedPmpTopics(db,topicQuestions,topicPackages));
 console.log('PMP uploaded questions added:',seedPmpSource(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-v5-import.json'),'utf8')),topicPackages));
+console.log('PMP reference questions added:',seedPmpReference(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-pmi-reference-2026.json'),'utf8')),topicPackages));
 const aiAssistant = createAiAssistant({ dbPath: DB_PATH, jwtSecret: JWT_SECRET });
 
 function courseIdForPackage(packageId) {
