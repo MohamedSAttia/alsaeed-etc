@@ -1,0 +1,240 @@
+[
+  {
+    "id": "c0",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "A colleague preparing for the PMI-RMP® asks how many of the exam questions actually count toward the final score. What is the correct answer?",
+      "ar": "يسأل زميل يستعد لاختبار PMI-RMP® عن عدد الأسئلة التي تُحتسب فعلًا في النتيجة النهائية. ما الإجابة الصحيحة؟"
+    },
+    "o": {
+      "en": [
+        "All 115 questions",
+        "100 questions; 15 are unscored pretest items",
+        "85 questions; 30 are pretest items",
+        "150 questions, one per minute"
+      ],
+      "ar": [
+        "كل الأسئلة (115 سؤالًا)",
+        "100 سؤال؛ و15 سؤالًا أوليًا غير محتسب",
+        "85 سؤالًا؛ و30 سؤالًا أوليًا",
+        "150 سؤالًا، سؤال لكل دقيقة"
+      ]
+    },
+    "c": [
+      1
+    ],
+    "x": {
+      "en": "The exam has 115 questions: 100 scored and 15 pretest items placed randomly; pretest items do not affect the score. A ignores the pretest items. (RMP ECO p. 15)",
+      "ar": "يتكون الاختبار من 115 سؤالًا: 100 محتسبة و15 أولية موزعة عشوائيًا لا تؤثر في النتيجة. الخيار A يتجاهل الأسئلة الأولية. (مخطط RMP، ص 15)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c1",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "Nora holds a (non-GAC) bachelor’s degree, has 30 months of project risk experience in the last five years and 20 contact hours of formal risk training. She wants to apply for the PMI-RMP®. What should she do FIRST?",
+      "ar": "نورة تحمل بكالوريوس (غير معتمد من GAC)، ولديها 30 شهرًا من الخبرة في مخاطر المشاريع خلال السنوات الخمس الأخيرة، و20 ساعة تواصل مباشر في تدريب رسمي على المخاطر. تريد التقدم لشهادة PMI-RMP®. ما الذي يجب أن تفعله أولًا؟"
+    },
+    "o": {
+      "en": [
+        "Apply now, since her experience exceeds the requirement",
+        "Record the hours she spent reading the Risk Standard",
+        "Wait until she has 36 months of risk experience",
+        "Complete at least 10 more contact hours of formal risk education"
+      ],
+      "ar": [
+        "التقدم الآن لأن خبرتها تتجاوز المطلوب",
+        "تسجيل الساعات التي قضتها في قراءة معيار المخاطر",
+        "الانتظار حتى تكمل 36 شهرًا من الخبرة",
+        "إكمال 10 ساعات تواصل مباشر إضافية على الأقل في تعليم المخاطر الرسمي"
+      ]
+    },
+    "c": [
+      3
+    ],
+    "x": {
+      "en": "The four-year-degree path needs 24 months of risk experience and 30 contact hours; she lacks 10 hours. Self-directed reading (B) does not count, and 36 months (C) applies to the secondary-diploma path. (RMP ECO p. 11)",
+      "ar": "مسار الشهادة الجامعية يتطلب 24 شهرًا و30 ساعة؛ ينقصها 10 ساعات. القراءة الذاتية (B) لا تُحتسب، و36 شهرًا (C) لمسار الشهادة الثانوية. (مخطط RMP، ص 11)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c2",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "During the exam, Khalid finishes the first section, reviews his answers and starts the optional break. After the break he remembers a question from the first section he wants to change. Which statement is correct?",
+      "ar": "خلال الاختبار أنهى خالد القسم الأول وراجع إجاباته وبدأ الاستراحة الاختيارية. بعد الاستراحة تذكّر سؤالًا من القسم الأول يريد تغيير إجابته. أي العبارات صحيحة؟"
+    },
+    "o": {
+      "en": [
+        "He cannot return to questions from the first section",
+        "He can return during the last 10 minutes of the exam",
+        "The proctor can reopen the section on request",
+        "He can change it, but the change will not be scored"
+      ],
+      "ar": [
+        "لا يمكنه العودة إلى أسئلة القسم الأول",
+        "يمكنه العودة في آخر 10 دقائق من الاختبار",
+        "يمكن للمراقب إعادة فتح القسم عند الطلب",
+        "يمكنه تغييرها لكن التغيير لن يُحتسب"
+      ]
+    },
+    "c": [
+      0
+    ],
+    "x": {
+      "en": "Once you have reviewed your responses and started the break, you cannot return to the previous section. No proctor exception exists (C). (RMP ECO p. 15)",
+      "ar": "بعد مراجعة الإجابات وبدء الاستراحة لا يمكن الرجوع إلى القسم السابق، ولا يوجد استثناء من المراقب (C). (مخطط RMP، ص 15)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c3",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "A study group is deciding how much time to spend on each ECO domain. Which domain carries the LOWEST share of exam items?",
+      "ar": "تحدد مجموعة مذاكرة الوقت المخصص لكل مجال من مجالات المخطط. أي المجالات له أقل نسبة من أسئلة الاختبار؟"
+    },
+    "o": {
+      "en": [
+        "Risk Analysis",
+        "Monitor and Close Risks",
+        "Risk Response",
+        "Risk Strategy and Planning"
+      ],
+      "ar": [
+        "تحليل المخاطر",
+        "متابعة المخاطر وإغلاقها",
+        "الاستجابة للمخاطر",
+        "استراتيجية المخاطر والتخطيط"
+      ]
+    },
+    "c": [
+      2
+    ],
+    "x": {
+      "en": "Risk Response is 13%; Monitor and Close is 19%, Strategy and Planning 22%, Identification and Analysis 23% each. Lowest weight still means about 13 scored items — do not skip it. (RMP ECO p. 3)",
+      "ar": "الاستجابة 13%، والمتابعة والإغلاق 19%، والاستراتيجية والتخطيط 22%، والتحديد والتحليل 23% لكل منهما. أقل وزن ما زال يعني نحو 13 سؤالًا — لا تتجاهله. (مخطط RMP، ص 3)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c4",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "A study partner says: “If a technique is not listed as an enabler in the RMP ECO, it will not appear on the exam.” What is the BEST response?",
+      "ar": "يقول زميل مذاكرة: «إذا لم يُذكر أسلوب ما ضمن العوامل المساعدة في مخطط RMP فلن يظهر في الاختبار». ما أفضل رد؟"
+    },
+    "o": {
+      "en": [
+        "Agree; the enablers define the complete exam scope",
+        "Agree, but only for Domains I and II",
+        "Disagree; enablers are illustrative examples, and tasks define the scope",
+        "Disagree; the exam is based only on the PMBOK® Guide"
+      ],
+      "ar": [
+        "الموافقة؛ فالعوامل المساعدة تحدد نطاق الاختبار كاملًا",
+        "الموافقة، ولكن للمجالين الأول والثاني فقط",
+        "الاعتراض؛ فالعوامل المساعدة أمثلة توضيحية والمهام تحدد النطاق",
+        "الاعتراض؛ فالاختبار مبني على دليل PMBOK® فقط"
+      ]
+    },
+    "c": [
+      2
+    ],
+    "x": {
+      "en": "The ECO states that enablers are not an exhaustive list but examples of the work a task covers; every exam includes all tasks. D is wrong: the exam is not based on a single reference. (RMP ECO p. 4)",
+      "ar": "ينص المخطط على أن العوامل المساعدة ليست قائمة شاملة بل أمثلة على عمل المهمة، وكل اختبار يشمل جميع المهام. الخيار D خاطئ: الاختبار لا يعتمد على مرجع واحد. (مخطط RMP، ص 4)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c6",
+    "src": "course",
+    "d": 1,
+    "t": "1.3",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "A candidate plans to study only predictive techniques, saying agile content belongs to other PMI exams. What should the instructor advise?",
+      "ar": "يخطط مرشح لمذاكرة الأساليب التنبؤية فقط، قائلًا إن المحتوى الرشيق يخص اختبارات PMI أخرى. بماذا ينصحه المدرّب؟"
+    },
+    "o": {
+      "en": [
+        "Focus on Domain III only, where agile appears",
+        "Skip agile, since it is limited to about 10% of items",
+        "Study agile only if he has agile work experience",
+        "Study predictive, agile and hybrid approaches, which appear across all domains"
+      ],
+      "ar": [
+        "التركيز على المجال الثالث فقط حيث يظهر الرشيق",
+        "تجاوز الرشيق لأنه محدود بنحو 10% من الأسئلة",
+        "مذاكرة الرشيق فقط إن كانت لديه خبرة عملية فيه",
+        "مذاكرة المناهج التنبؤية والرشيقة والهجينة لأنها تظهر في جميع المجالات"
+      ]
+    },
+    "c": [
+      3
+    ],
+    "x": {
+      "en": "The ECO states that predictive, agile and hybrid approaches are found throughout the five domains and are not isolated to any domain or task. No fixed agile percentage is published (B). (RMP ECO p. 3)",
+      "ar": "ينص المخطط على أن المناهج التنبؤية والرشيقة والهجينة موجودة في المجالات الخمسة ولا تقتصر على مجال أو مهمة. ولا توجد نسبة ثابتة منشورة للرشيق (B). (مخطط RMP، ص 3)"
+    },
+    "ref": "Practice — The PMI-RMP® Exam & Risk Basics"
+  },
+  {
+    "id": "c201",
+    "src": "course",
+    "d": 4,
+    "t": "4.1",
+    "ch": "fw",
+    "day": 1,
+    "q": {
+      "en": "In two mock exams, a candidate averages 100 seconds per question — about 78 are available. The real exam is in five weeks. Which response is BEST?",
+      "ar": "في اختبارين تجريبيين، يستغرق مرشح 100 ثانية للسؤال في المتوسط — والمتاح نحو 78 ثانية. الاختبار الحقيقي بعد خمسة أسابيع. أي استجابة هي الأفضل؟"
+    },
+    "o": {
+      "en": [
+        "Accept the risk and hope the real questions are shorter",
+        "Postpone the exam until timing is no longer an issue",
+        "Skip the optional break to gain ten minutes",
+        "Practise timed question sets, flag long calculations and track pace weekly"
+      ],
+      "ar": [
+        "قبول الخطر على أمل أن تكون الأسئلة الحقيقية أقصر",
+        "تأجيل الاختبار حتى لا يعود التوقيت مشكلة",
+        "تخطي الاستراحة الاختيارية لكسب عشر دقائق",
+        "التدرب على مجموعات أسئلة موقوتة وتعليم الحسابات الطويلة وتتبع الإيقاع أسبوعيًا"
+      ]
+    },
+    "c": [
+      3
+    ],
+    "x": {
+      "en": "Mitigation reduces the probability of running out of time with measurable follow-up — a proactive response with a clear owner (ECO 4.1). Passive acceptance (A) ignores a known threat; avoidance (B) is premature; C gains little and adds fatigue.",
+      "ar": "التخفيف يقلل احتمال نفاد الوقت مع متابعة قابلة للقياس — استجابة استباقية بصاحب واضح (المهمة 4.1). القبول السلبي (أ) يتجاهل تهديدًا معروفًا؛ والتجنب (ب) سابق لأوانه؛ و(ج) مكسبه ضئيل ويزيد الإرهاق."
+    },
+    "ref": "Exam Check 1_2"
+  }
+]

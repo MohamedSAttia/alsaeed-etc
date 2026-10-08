@@ -544,11 +544,16 @@ function lessonsOf(day, sec) { return LESSONS.filter(l => l.day === day && (sec 
 const ACT = new Map(D.acts.map(a => [a.id, a]));
 const BASE_Q = D.q.slice(), BASE_ACT = D.acts.slice(); let CUSTOM_GAMES = [];
 let CONTENT = [];
+function questionFigure(q) {
+  const f = q.figure;
+  if (!f || !/^\/classroom\/figures\/rmp-sim-\d{3}\.svg$/.test(f.src)) return '';
+  return `<figure class="question-figure" dir="ltr"><img src="${esc(f.src)}" alt="${esc((f.alt || {}).en || 'Risk analysis chart')}" style="display:block;width:100%;max-width:900px;margin:auto;height:auto;background:white;border:1px solid #d9e1e8;border-radius:12px;padding:10px" /></figure>`;
+}
 function applyContent(rows) {
   CONTENT = rows || [];
   const merge = (base, kind) => { const m = new Map(base.map(x => [x.id, x])); for (const r of CONTENT.filter(x => x.kind === kind)) { if (r.active) m.set(r.id, r.data); else m.delete(r.id); } return [...m.values()]; };
   D.q = merge(BASE_Q, 'question'); D.acts = merge(BASE_ACT, 'activity'); CUSTOM_GAMES = CONTENT.filter(x => x.kind === 'game' && x.active).map(x => x.data);
-  QBY.clear(); D.q.forEach(x => QBY.set(x.id, x));
+  QBY.clear(); BASE_Q.forEach(x => QBY.set(x.id, x)); CONTENT.filter(r => r.kind === 'question').forEach(r => QBY.set(r.id, r.data)); D.q.forEach(x => QBY.set(x.id, x));
   ACT.clear(); D.acts.forEach(x => ACT.set(x.id, x));
 }
 
@@ -557,7 +562,7 @@ function qstat() {
   const byD = {}, byCh = {}, byT = {};
   let n = 0, r = 0;
   for (const [id, v] of Object.entries(S.qs)) {
-    const q = QBY.get(id); if (!q) continue;
+    const q = QBY.get(id); if (!q || !D.q.some(item => item.id === id)) continue;
     n++; if (v.last) r++;
     for (const [m, k] of [[byD, q.d], [byCh, q.ch], [byT, q.t]]) { if (!k) continue; m[k] = m[k] || [0, 0]; m[k][1]++; if (v.last) m[k][0]++; }
   }
@@ -1348,7 +1353,7 @@ const TYPES = {
   ch: k => { const c = D.chapters.find(x => x.k === k); return { label: 'اختبار فصل — ' + c.t.ar, qs: pickQs(D.q.filter(q => q.ch === k), 25), min: 33 }; },
   dom: n => { const d = D.domains[n - 1]; return { label: 'اختبار المجال ' + DN[n] + ' — ' + d.t.ar, qs: pickQs(D.q.filter(q => q.d === +n), 30), min: 40 }; },
   task: id => ({ label: 'اختبار المهمة ' + id, qs: pickQs(D.q.filter(q => q.t === id), 15), min: 20 }),
-  advanced: () => ({label:'PMI-RMP® — محاكاة متقدمة للأمانة العامة · 115 سؤالًا',qs:pickQs(D.q.filter(q=>q.src==='advanced2026'),115),min:150,full:true}),
+  advanced: () => ({label:'PMI-RMP® — محاكاة متقدمة بحالات دولية متنوعة · 115 سؤالًا',qs:pickQs(D.q.filter(q=>q.src==='advanced2026'),115),min:150,full:true}),
   full: () => ({ label: 'اختبار PMI-RMP® الكامل — محاكاة', qs: weighted(D.q.filter(q => q.src !== 'qc'), 115), min: 150, full: true }),
   mini: () => ({ label: 'اختبار مصغّر — 50 سؤالًا', qs: weighted(D.q, 50), min: 65 }),
   scen: n => ({ label: 'سيناريوهات حقيبة المدرب' + (+n ? ' — اليوم ' + DN[n] : ''), qs: D.q.filter(q => q.src === 'deck' && (!+n || q.day === +n)), min: 16 }),
@@ -1485,7 +1490,7 @@ routes.run = () => {
           ${TL.calc ? `<button class="xt" id="tCalc">🖩 <span class="en">Calculator</span></button>` : ''}
           ${TL.ai ? `<button class="xt" id="tAi" ${!practice ? 'disabled title="متاح بعد التسليم في وضع الاختبار"' : (!shown ? 'disabled title="اكشف الإجابة أولًا"' : '')}>✦ <span class="en">AI</span></button>` : ''}
           ${TL.tr ? `<button class="xt ${showTr ? 'on' : ''}" id="tTr">🌐 <span class="en">${L2.toUpperCase()}</span></button>` : ''}
-          ${TL.check && practice ? `<button class="xt" id="tChk" ${a.length && !shown ? '' : 'disabled'}>✓ تحقّق</button>` : ''}
+          ${TL.check && practice ? `<button class="xt" id="tChk" ${a.length === q.c.length && !shown ? '' : 'disabled'}>✓ تحقّق</button>` : ''}
           <span class="xt fsz"><button id="fsP" aria-label="تكبير">+A</button><span class="num">${X.fs}px</span><button id="fsM" aria-label="تصغير">−A</button></span>
           ${TL.flag ? `<button class="xt ${X.fl[X.i] ? 'flag' : ''}" id="tFl">⚑ <span class="en">Flag</span></button>` : ''}
         </div>
@@ -1495,7 +1500,7 @@ routes.run = () => {
         <article class="xm-card" ${L1 === 'en' ? 'dir="ltr"' : ''}>
           <div class="row" style="gap:8px"><span class="xm-n num">${X.i + 1}</span><span class="chip">${multi ? 'اختيار متعدد — اختر ' + q.c.length : 'اختيار من متعدد'}</span><span class="chip" style="color:${DOMC[q.d]}">${esc(D.domains[q.d - 1].t.ar)}</span>${q.src === 'deck' ? `<span class="chip">${esc(q.scen || '')}</span>` : ''}</div>
           ${locked ? '<div class="nrc">هذا السؤال في القسم الأول وقد أُقفل بعد الاستراحة — كما في الاختبار الحقيقي.</div>' : ''}
-          <div class="xm-stem" id="stem">${hlWrap(pick(q.q, L1))}</div>
+          <div class="xm-stem" id="stem">${hlWrap(pick(q.q, L1))}</div>${questionFigure(q)}
           ${showTr ? `<div class="xm-tr" dir="${L2 === 'ar' ? 'rtl' : 'ltr'}">${esc(pick(q.q, L2))}</div>` : ''}
           <div class="xm-opts">${it.ord.map((k, j) => {
             let cls = a.includes(k) ? 'sel' : '';
@@ -1523,7 +1528,7 @@ routes.run = () => {
     $$('.xo', view).forEach(o => o.onclick = e => {
       if (e.target.closest('.strk') || shown || locked) return;
       const k = +o.dataset.k; let cur = (X.ans[X.i] || []).slice();
-      if (multi) { cur = cur.includes(k) ? cur.filter(x => x !== k) : cur.concat(k); if (cur.length > q.c.length) cur.shift(); } else cur = [k];
+      if (multi) { if (!cur.includes(k) && cur.length >= q.c.length) return; cur = cur.includes(k) ? cur.filter(x => x !== k) : cur.concat(k); } else cur = [k];
       X.ans[X.i] = cur; if (!cur.length) delete X.ans[X.i]; save(); draw();
     });
     $$('.xo', view).forEach(o => o.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); o.click(); } });
@@ -1537,7 +1542,7 @@ routes.run = () => {
     const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
     on('#tFl', () => { X.fl[X.i] = !X.fl[X.i]; save(); draw(); });
     on('#tTr', () => { X.tr[X.i] = !X.tr[X.i]; save(); draw(); });
-    on('#tChk', () => { X.shown[X.i] = true; if (QBY.get(q.id)) record(q.id, sameSet(X.ans[X.i] || [], q.c)); save(); draw(); });
+    on('#tChk', () => { if ((X.ans[X.i] || []).length !== q.c.length) return; X.shown[X.i] = true; if (QBY.get(q.id)) record(q.id, sameSet(X.ans[X.i] || [], q.c)); save(); draw(); });
     on('#tAi', () => aiExplain(q, it, a));
     on('#fsP', () => { X.fs = Math.min(24, X.fs + 1); save(); draw(); });
     on('#fsM', () => { X.fs = Math.max(13, X.fs - 1); save(); draw(); });
@@ -1549,6 +1554,7 @@ routes.run = () => {
     $$('#pNav .navgrid button').forEach(b => b.onclick = () => { X.i = +b.dataset.j; panel.nav = false; save(); draw(); });
     on('#prev', () => { if (X.i > 0) { X.i--; save(); draw(); } });
     on('#next', () => {
+      if (multi && a.length > 0 && a.length !== q.c.length) { alert(L1 === 'en' ? 'Select exactly ' + q.c.length + ' answers, or clear your choices to skip.' : 'اختر ' + q.c.length + ' إجابات، أو ألغِ الاختيارات لتجاوز السؤال.'); return; }
       if (X.i === Q.length - 1) return reviewScreen();
       if (X.full && X.i === 57 && !X.brk && !X.breakSkipped) return breakScreen();
       X.i++; save(); draw();
@@ -1693,7 +1699,7 @@ routes.result = (id) => {
       ${h.proctor === 'cam' ? `<h3>Proctoring record</h3>${viol.length ? `<div class="scroll"><table><thead><tr><th>Time</th><th>Event</th></tr></thead><tbody>${viol.map(v => `<tr><td class="num small">${new Date(v.t).toLocaleTimeString('en-GB')}</td><td>${esc(v.m)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="chip ok">No events recorded</div>'}${(h.viol || []).some(v => v.k === 'cam') ? '<div class="tiny muted">Camera unavailable; browser activity was monitored.</div>' : ''}` : ''}
       <div class="row"><button class="btn g" id="examPdf">Save PDF report</button><button class="btn g" id="examWord">Download Word</button><button class="btn" data-start="${h.spec}">Retake similar exam</button><button class="btn o" data-start="wrong">Review mistakes</button><button class="btn g" id="advise">AI study plan</button></div><div id="advOut"></div></div>
     ${X ? `<h2 lang="en" dir="ltr">Answer review</h2><div class="stack">${X.items.map((it, k) => { const q = QBY.get(it.id) || (X.ai || {})[it.id]; if (!q) return ''; const a = X.ans[k] || []; const ok = sameSet(a, q.c); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc((q.q.ar || q.q.en).slice(0, 140))}${(q.q.ar || q.q.en).length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
-      <div class="stack" style="margin-top:10px"><div>${bi(q.q)}</div><div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${bi({ ar: q.o.ar[o], en: q.o.en[o] })}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${bi(q.x)}${q.ref ? `<div class="tiny muted">Reference: ${esc(q.ref)}</div>` : ''}</div></div></details>`; }).join('')}</div>` : '<p class="muted">Detailed answer review is retained for the most recent six exams.</p>'}</div>`;
+      <div class="stack" style="margin-top:10px"><div>${bi(q.q)}</div>${questionFigure(q)}<div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${bi({ ar: q.o.ar[o], en: q.o.en[o] })}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${bi(q.x)}${q.ref ? `<div class="tiny muted">Reference: ${esc(q.ref)}</div>` : ''}</div></div></details>`; }).join('')}</div>` : '<p class="muted">Detailed answer review is retained for the most recent six exams.</p>'}</div>`;
   const examReport = () => `<!doctype html><html lang="en" dir="ltr"><meta charset="utf-8"><title>ALSAEED | Training Exam Report</title><style>body{font:15px Arial,sans-serif;color:#173552;line-height:1.55;margin:30px auto;max-width:850px}.score-sheet{border:1px solid #cbdde9}.score-head{display:flex;justify-content:space-between;align-items:center;padding:22px 28px;background:#f2f8fc;border-bottom:2px solid #c6dbe8}.score-brand{font-size:25px;font-weight:900;letter-spacing:2px;color:#155275}.score-head-title{font-size:20px;font-weight:800}.score-body{padding:26px 30px}.score-meta,.score-domain-table{width:100%;border-collapse:collapse}.score-meta{margin:12px 0 28px}.score-sheet[dir="ltr"] .score-meta td,.score-sheet[dir="ltr"] .score-domain-table th,.score-sheet[dir="ltr"] .score-domain-table td{text-align:left}.score-meta td{width:50%;padding:11px 14px;border:1px solid #ccdae4}.score-meta small{display:block;color:#58748a}.score-result{font-size:23px;font-weight:800;border-top:2px solid #acc9dc;padding-top:18px}.score-result strong,.score-domain-table td:last-child{color:#087a88}.score-sub,.score-foot{color:#58748a}.score-track-labels{display:flex;justify-content:space-between;direction:ltr;font-size:12px;color:#56738a;margin:9px 0}.score-track{display:flex;height:34px;direction:ltr}.s1{width:50%}.s2,.s3{width:15%}.s4{width:20%}.s1{background:#eab9c3}.s2{background:#f4e4a2}.s3{background:#a9ddd8}.s4{background:#087f8f}.score-pointer{height:38px;position:relative}.score-pointer span{position:absolute;left:clamp(2%,var(--score),98%);transform:translateX(-50%);text-align:center;font-size:11px;font-weight:bold;white-space:nowrap}.score-domain-title{color:#174b68}.score-domain-table th,.score-domain-table td{border:1px solid #cbdde9;padding:10px;text-align:left}.score-domain-table th{background:#e9f4fa}.score-foot{font-size:12px;border-top:1px solid #d7e5ed;padding-top:12px;margin-top:20px}@media print{body{margin:0}.score-head,.score-track span,.score-domain-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>${scoreSheet(h,I)}<h2>Study plan</h2>${I.weak.length ? `<ol>${I.weak.map(d=>`<li>Review ${esc(d.t.en)}, then retake a domain practice exam. Current score: ${d.p}%; training goal: ${DAY_TARGET}%.</li>`).join('')}</ol>` : '<p>Continue practicing across all domains to maintain your performance.</p>'}${I.unmeasured.length ? `<p>More questions are needed to assess: ${I.unmeasured.map(d=>esc(d.t.en)).join(', ')}.</p>` : ''}</html>`;
   $('#examPdf').onclick = () => printReport(examReport());
   $('#examWord').onclick = () => exportWord('ALSAEED-RMP-report.doc',examReport());
