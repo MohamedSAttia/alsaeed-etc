@@ -1740,25 +1740,25 @@
     "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-061",
+    "id": "ALSAEED-PMP-2026-FA-101",
     "topic": "Introduction",
     "domain": "business",
     "phase": "initiating",
     "approach": "general",
     "type": "single",
-    "question_ar": "تدير جهة خدمة مستمرة للمستفيدين، وتريد إنشاء قناة رقمية جديدة خلال ستة أشهر. ما التصنيف الأنسب للعمل؟",
-    "question_en": "An organization runs an ongoing service and plans to create a new digital channel in six months. How should the work be classified?",
+    "question_ar": "تقدم أمانة عامة تقارير متابعة شهرية منذ سنوات. طلب الراعي إنشاء بوابة موحدة خلال ستة أشهر، بينما يستمر فريق التشغيل في إصدار التقارير أثناء التطوير. اقترح أحد المديرين إدارة العمل كله كتشغيل لتجنب إجراءات اعتماد المشروع. ما أفضل توصية لمدير المشروع؟",
+    "question_en": "A secretariat has issued monthly monitoring reports for years. A sponsor requests a unified portal within six months, while operations continues reporting during development. A manager proposes treating everything as operations to avoid project authorization. What should the project manager recommend?",
     "options_ar": [
-      "إنشاء القناة مشروع، وتشغيل الخدمة عمل تشغيلي",
-      "كلاهما مشروع لأنهما يستهلكان الموارد",
-      "كلاهما تشغيل لأن العميل واحد",
-      "إنشاء القناة برنامج بالضرورة"
+      "إدارة إنشاء البوابة كمشروع مؤقت مع تنسيق انتقالها إلى التشغيل المستمر",
+      "ضم البوابة إلى التشغيل الحالي وإعادة تحديد موعدها في كل دورة شهرية",
+      "إنشاء برنامج مستقل للتقارير والبوابة قبل تقييم الترابط والفوائد",
+      "فصل فريق التقارير عن التطوير إلى ما بعد الإطلاق لتجنب تضارب الأولويات"
     ],
     "options_en": [
-      "Creating the channel is a project; running the service is operations",
-      "Both are projects because they consume resources",
-      "Both are operations because they serve one customer",
-      "Creating the channel must be a program"
+      "Manage portal creation as a temporary project and coordinate its transition into ongoing operations",
+      "Absorb the portal into current operations and reset its date each month",
+      "Create a separate program for reporting and the portal before assessing interdependencies and benefits",
+      "Separate reporting staff from development until launch to avoid priority conflicts"
     ],
     "correct": "A",
     "correct_json": [
@@ -1769,25 +1769,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-062",
+    "id": "ALSAEED-PMP-2026-FA-102",
     "topic": "Introduction",
     "domain": "business",
     "phase": "initiating",
     "approach": "general",
     "type": "single",
-    "question_ar": "طلب راعٍ البدء في تنفيذ منصة قبل الاتفاق على الحاجة التي ستعالجها. ما الخطوة الأولى الأنسب؟",
-    "question_en": "A sponsor asks to start building a platform before agreeing on the need it addresses. What is the best first step?",
+    "question_ar": "وافق الراعي على تمويل منصة خدمة جديدة، وحدد موعد الإطلاق. يعتقد فريق التقنية أن الهدف تقليل زمن المعالجة، بينما يريد مدير الخدمة تقليل الأخطاء حتى لو لم يتحسن الزمن. طُلب من مدير المشروع إعداد الجدول فورًا. ما الذي ينبغي أن يفعله أولًا؟",
+    "question_en": "A sponsor funds a service platform and sets a launch date. Technology staff expect it to reduce processing time, while the service director wants fewer errors even if time does not improve. The project manager is asked to prepare the schedule immediately. What should they do first?",
     "options_ar": [
-      "اختيار المورد الأسرع فورًا",
-      "توضيح الحاجة والقيمة ومعايير النجاح مع الراعي",
-      "اعتماد قائمة خصائص المنافس",
-      "إعداد جدول تفصيلي قبل تحديد الهدف"
+      "إعداد الجدول وفق افتراض فريق التقنية ثم اعتماد المتطلبات أثناء التنفيذ",
+      "تيسير اتفاق مع الراعي والمعنيين على الحاجة والنتائج ومعايير النجاح",
+      "اعتماد مؤشرات مدير الخدمة لأن إدارته ستتولى تشغيل المنصة",
+      "طلب المورد إعداد نطاق العمل لحسم الاختلاف بين الإدارتين"
     ],
     "options_en": [
-      "Immediately select the fastest supplier",
-      "Clarify the need, value and success criteria with the sponsor",
-      "Adopt a competitor’s feature list",
-      "Create a detailed schedule before defining the objective"
+      "Schedule around the technology team’s assumption and approve requirements during execution",
+      "Facilitate agreement with the sponsor and stakeholders on the need, outcomes and success criteria",
+      "Adopt the service director’s measures because that department will operate the platform",
+      "Ask the supplier to define the scope to resolve the departmental disagreement"
     ],
     "correct": "B",
     "correct_json": [
@@ -1798,25 +1798,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-063",
+    "id": "ALSAEED-PMP-2026-FA-103",
     "topic": "Introduction",
     "domain": "process",
     "phase": "planning",
     "approach": "general",
     "type": "single",
-    "question_ar": "رفض الفريق نموذجًا إداريًا طويلًا لا يناسب مشروعًا صغيرًا. كيف يتصرف مدير المشروع؟",
-    "question_en": "The team rejects a lengthy management template that does not fit a small project. What should the project manager do?",
+    "question_ar": "يستخدم مركز التدريب نموذجًا موحدًا من أربعين صفحة لجميع المشاريع. يطلب فريق مشروع صغير تبسيطه، لكن مسؤول الحوكمة يشترط الاحتفاظ بموافقة الإنفاق وتوثيق المخاطر والقبول. ما أفضل إجراء؟",
+    "question_en": "A training centre uses a forty-page template for every project. A small project team requests simplification, while governance requires spending authorization, risk documentation and acceptance records. What is the best action?",
     "options_ar": [
-      "إلغاء التوثيق بالكامل",
-      "فرض جميع حقول النموذج دون تقييم",
-      "تكييف الممارسات مع السياق مع الحفاظ على الضوابط المطلوبة",
-      "نسخ نموذج أكبر مشروع سابق"
+      "استبدال النموذج باجتماعات شفهية مع إرسال ملخص عند الإغلاق",
+      "استخدام النموذج كاملًا لضمان اتساق جميع المشاريع دون استثناء",
+      "تكييف النموذج بالتعاون مع الحوكمة مع الاحتفاظ بالضوابط الإلزامية",
+      "تقليل النموذج بقرار من الفريق وتأجيل موافقة الحوكمة إلى مراجعة المرحلة"
     ],
     "options_en": [
-      "Eliminate all documentation",
-      "Enforce every template field without assessment",
-      "Tailor practices to the context while retaining required controls",
-      "Copy the largest previous project’s template"
+      "Replace the template with verbal meetings and send a summary at closure",
+      "Use the entire template to ensure consistency across all projects without exceptions",
+      "Tailor the template with governance while retaining mandatory controls",
+      "Shorten the template by team decision and defer governance approval until the phase review"
     ],
     "correct": "C",
     "correct_json": [
@@ -1827,25 +1827,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-064",
+    "id": "ALSAEED-PMP-2026-FA-104",
     "topic": "Introduction",
     "domain": "people",
     "phase": "executing",
     "approach": "general",
     "type": "single",
-    "question_ar": "واجه فريق متعدد التخصصات خلافًا بشأن توقعات الجودة. ما الإجراء الأنسب قبل إعادة توزيع الأدوار؟",
-    "question_en": "A multidisciplinary team disagrees about quality expectations. What is the best action before reassigning roles?",
+    "question_ar": "في مشروع بوابة تسجيل، يرى فريق التقنية أن الجودة تعني عدم وجود عيوب برمجية، بينما ترفض إدارة القبول النسخة لأن المستفيد يحتاج خطوات كثيرة لإكمال الطلب. طلب الراعي تغيير قائد الفريق. ماذا ينبغي لمدير المشروع أن يفعل أولًا؟",
+    "question_en": "In a registration portal project, technology staff define quality as having no software defects. Admissions rejects the release because beneficiaries must complete too many steps. The sponsor asks to replace the team lead. What should the project manager do first?",
     "options_ar": [
-      "تأجيل الخلاف إلى التسليم",
-      "استبعاد الأقل خبرة من المناقشة",
-      "تعيين صاحب أعلى منصب لاتخاذ القرار منفردًا",
-      "تيسير فهم مشترك للمتطلبات ومعايير القبول"
+      "تصعيد خلاف الجودة إلى الراعي لاتخاذ قرار نهائي دون جلسة مشتركة",
+      "تغيير قائد الفريق ثم مطالبة الفريق الجديد بإعادة الاختبارات التقنية",
+      "عرض تقارير خلو النسخة من العيوب لإقناع إدارة القبول باستلامها",
+      "جمع الفريق وإدارة القبول لتوضيح المتطلبات ومعايير القبول وتحديد الفجوة"
     ],
     "options_en": [
-      "Postpone the disagreement until delivery",
-      "Exclude less experienced members from the discussion",
-      "Let the most senior person decide alone",
-      "Facilitate shared understanding of requirements and acceptance criteria"
+      "Escalate the quality disagreement for a final sponsor decision without a joint discussion",
+      "Replace the team lead and ask the new team to repeat technical testing",
+      "Present defect-free test reports to persuade admissions to accept the release",
+      "Bring the team and admissions together to clarify requirements and acceptance criteria and identify the gap"
     ],
     "correct": "D",
     "correct_json": [
@@ -1856,141 +1856,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-065",
-    "topic": "PMP exam structure",
-    "domain": "process",
-    "phase": "planning",
-    "approach": "general",
-    "type": "single",
-    "question_ar": "يستعد متدرب للمحاكاة الكاملة ويجد صعوبة في توزيع الوقت على الأسئلة. ما أفضل إجراء تحضيري؟",
-    "question_en": "A learner struggles to allocate time during a full mock exam. What is the best preparation step?",
-    "options_ar": [
-      "تجربة محاكاة مؤقتة وتحليل الزمن لكل قسم",
-      "حفظ ترتيب الخيارات في البنك",
-      "التدرب دون مؤقت فقط",
-      "تجاهل تعليمات المراجعة والاستراحة"
-    ],
-    "options_en": [
-      "Take a timed mock and analyze time used in each section",
-      "Memorize option positions in the bank",
-      "Practice only without a timer",
-      "Ignore review and break instructions"
-    ],
-    "correct": "A",
-    "correct_json": [
-      0
-    ],
-    "explanation_ar": "المحاكاة المؤقتة تكشف نمط استهلاك الوقت وتساعد في ضبط خطة الإجابة.",
-    "explanation_en": "A timed mock reveals time-use patterns and helps refine the answering plan.",
-    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
-  },
-  {
-    "id": "ALSAEED-PMP-2026-FA-066",
-    "topic": "PMP exam structure",
-    "domain": "process",
-    "phase": "monitoring",
-    "approach": "general",
-    "type": "single",
-    "question_ar": "ظهر سؤال يطلب اختيار إجابتين في المحاكاة، بينما اختار المتدرب إجابة واحدة فقط. ما الإجراء الصحيح؟",
-    "question_en": "A mock question asks for two answers, but the learner has selected only one. What is the appropriate action?",
-    "options_ar": [
-      "الانتقال لأن إجابة واحدة تكفي دائمًا",
-      "استكمال العدد المطلوب بعد مراجعة كل خيار",
-      "اختيار كل الخيارات للاحتياط",
-      "تغيير لغة السؤال دون إكمال الإجابة"
-    ],
-    "options_en": [
-      "Move on because one answer always suffices",
-      "Review all options and complete the required number of selections",
-      "Select every option as a precaution",
-      "Change the language without completing the answer"
-    ],
-    "correct": "B",
-    "correct_json": [
-      1
-    ],
-    "explanation_ar": "تعليمات السؤال تحدد عدد الاختيارات؛ فهم المحتوى لا يغني عن استكمال العدد المطلوب.",
-    "explanation_en": "Question instructions specify the number of selections; understanding the content does not replace completing the required response.",
-    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
-  },
-  {
-    "id": "ALSAEED-PMP-2026-FA-067",
-    "topic": "PMP exam structure",
-    "domain": "process",
-    "phase": "monitoring",
-    "approach": "general",
-    "type": "single",
-    "question_ar": "تتيح المحاكاة مراجعة القسم قبل الاستراحة وتمنع العودة إليه بعد اعتماد الاستراحة. لدى المتدرب أسئلة معلّمة. ماذا يفعل؟",
-    "question_en": "A mock allows section review before a break and prevents returning after the break is confirmed. The learner has flagged questions. What should they do?",
-    "options_ar": [
-      "ترك جميع الأسئلة المعلّمة دون مراجعة",
-      "اعتماد الاستراحة ثم العودة للقسم السابق",
-      "مراجعة الأسئلة المعلّمة قبل اعتماد الاستراحة",
-      "إعادة تشغيل الاختبار للاحتفاظ بالوقت"
-    ],
-    "options_en": [
-      "Leave every flagged question unreviewed",
-      "Confirm the break and then return to the previous section",
-      "Review flagged questions before confirming the break",
-      "Restart the exam to preserve the time"
-    ],
-    "correct": "C",
-    "correct_json": [
-      2
-    ],
-    "explanation_ar": "يجب التعامل مع حدود الأقسام وفق تعليمات المحاكاة ومراجعة القسم قبل إقفاله.",
-    "explanation_en": "Follow the mock’s section boundaries and review the section before it is locked.",
-    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
-  },
-  {
-    "id": "ALSAEED-PMP-2026-FA-068",
-    "topic": "PMP exam structure",
-    "domain": "process",
-    "phase": "closing",
-    "approach": "general",
-    "type": "single",
-    "question_ar": "حصل متدرب على PASS في محاكاة السعيد وفق حدها التدريبي. كيف ينبغي تفسير النتيجة؟",
-    "question_en": "A learner receives PASS under AlSaeed’s training threshold. How should the result be interpreted?",
-    "options_ar": [
-      "دليل أن كل الإجابات صحيحة",
-      "ضمان أن PMI تستخدم النسبة نفسها",
-      "بديل عن التقدم للاختبار الدولي",
-      "مؤشر تدريبي يُراجع مع أداء المجالات، وليس إثباتًا للاجتياز الرسمي"
-    ],
-    "options_en": [
-      "Proof that all answers were correct",
-      "A guarantee that PMI uses the same percentage",
-      "A substitute for taking the certification exam",
-      "A training indicator to review alongside domain performance, not proof of official certification"
-    ],
-    "correct": "D",
-    "correct_json": [
-      3
-    ],
-    "explanation_ar": "نتيجة المحاكاة تساعد في خطة الاستعداد؛ قواعد التصحيح الرسمية منفصلة عن الحد التدريبي للمنصة.",
-    "explanation_en": "The mock result supports preparation planning; official scoring is separate from the platform’s training threshold.",
-    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
-  },
-  {
-    "id": "ALSAEED-PMP-2026-FA-069",
+    "id": "ALSAEED-PMP-2026-FA-105",
     "topic": "Value delivery system",
     "domain": "business",
     "phase": "monitoring",
     "approach": "general",
     "type": "single",
-    "question_ar": "سُلّمت بوابة في الموعد، لكن نسبة استخدام المستفيدين منخفضة. ما الأولوية؟",
-    "question_en": "A portal was delivered on time, but beneficiary adoption is low. What is the priority?",
+    "question_ar": "سُلّمت منصة الموافقات في الموعد واجتازت اختبارات الوظائف. بعد شهر، ما زال أغلب المستخدمين يرسلون الطلبات بالبريد، ولم ينخفض زمن المعالجة المتوقع. يطلب الراعي إضافة لوحة تقارير جديدة. ما أفضل خطوة قبل الالتزام بإضافة الميزة؟",
+    "question_en": "An approval platform was delivered on time and passed functional tests. A month later most users still email requests, and expected processing-time improvements have not occurred. The sponsor asks for a new reporting dashboard. What is the best step before committing to the feature?",
     "options_ar": [
-      "تقييم عوائق الاستخدام وأثرها على النتائج والفوائد",
-      "اعتبار التسليم في الموعد دليلًا كافيًا على القيمة",
-      "إضافة خصائص دون تحليل الحاجة",
-      "زيادة عدد تقارير الإنجاز فقط"
+      "تحليل عوائق الاستخدام مع المستخدمين ومالك الفوائد وتقييم أثرها على النتائج",
+      "إضافة اللوحة سريعًا لأن الراعي يرى أنها ستزيد الإقبال على النظام",
+      "إغلاق مسؤولية فريق المشروع لأن المخرجات قُبلت رسميًا",
+      "إعادة تقدير زمن التطوير للوحة ثم طلب تمويل إضافي"
     ],
     "options_en": [
-      "Assess adoption barriers and their impact on outcomes and benefits",
-      "Treat on-time delivery as sufficient proof of value",
-      "Add features without analyzing the need",
-      "Only increase the number of completion reports"
+      "Analyze adoption barriers with users and the benefit owner and assess their effect on outcomes",
+      "Add the dashboard quickly because the sponsor believes it will increase adoption",
+      "Close the project team’s responsibility because deliverables were formally accepted",
+      "Re-estimate dashboard development time and request more funding"
     ],
     "correct": "A",
     "correct_json": [
@@ -2001,25 +1885,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-070",
+    "id": "ALSAEED-PMP-2026-FA-106",
     "topic": "Value delivery system",
     "domain": "business",
     "phase": "planning",
     "approach": "general",
     "type": "single",
-    "question_ar": "لدى مؤسسة مبادرتان تتنافسان على مورد حرج. إحداهما تقدم أثرًا استراتيجيًا أعلى. كيف يُدعَم قرار الأولوية؟",
-    "question_en": "Two initiatives compete for a critical resource. One offers greater strategic impact. How should the prioritization decision be supported?",
+    "question_ar": "تحتاج مبادرتان إلى محلل بيانات واحد خلال الفترة نفسها. المبادرة الأولى أقدم وأكثر تقدمًا، والثانية مرتبطة بالتزام استراتيجي جديد. يخشى مدير الأولى فقدان موعده، ويطلب مدير الثانية أولوية فورية. كيف يدعم مدير المشروع قرار التخصيص؟",
+    "question_en": "Two initiatives need the same data analyst during the same period. The first is older and further advanced; the second supports a new strategic commitment. The first manager fears missing a deadline, while the second requests immediate priority. How should the project manager support allocation?",
     "options_ar": [
-      "تفضيل المبادرة الأقدم تلقائيًا",
-      "تحليل القيمة والتوافق الاستراتيجي والمخاطر والاعتماديات",
-      "تخصيص المورد لمن يطلبه بصوت أعلى",
-      "تجاهل أثر القرارات على المبادرات الأخرى"
+      "إبقاء المحلل في المبادرة الأولى احترامًا للأولوية الزمنية السابقة",
+      "تقديم تحليل للقيمة والتوافق الاستراتيجي والمخاطر والاعتماديات للجهة المخولة",
+      "نقل المحلل إلى المبادرة الثانية لأن الالتزام الاستراتيجي أحدث",
+      "تقسيم وقت المحلل بالتساوي قبل تقييم أثر ذلك على مواعيد المبادرتين"
     ],
     "options_en": [
-      "Automatically prefer the oldest initiative",
-      "Analyze value, strategic alignment, risks and dependencies",
-      "Give the resource to whoever asks most forcefully",
-      "Ignore effects on other initiatives"
+      "Keep the analyst on the first initiative to honor its earlier scheduling priority",
+      "Provide value, strategic alignment, risk and dependency analysis to the authorized decision body",
+      "Transfer the analyst to the second initiative because its strategic commitment is newer",
+      "Split the analyst’s time equally before assessing effects on both deadlines"
     ],
     "correct": "B",
     "correct_json": [
@@ -2030,25 +1914,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-071",
+    "id": "ALSAEED-PMP-2026-FA-107",
     "topic": "Value delivery system",
     "domain": "business",
     "phase": "closing",
     "approach": "general",
     "type": "single",
-    "question_ar": "ستنتهي مسؤولية فريق المشروع قبل أن تظهر الفائدة المتوقعة بعد التشغيل. ما الذي يجب ترتيبه؟",
-    "question_en": "The project team’s responsibility ends before a benefit is expected to emerge during operations. What should be arranged?",
+    "question_ar": "اكتمل نظام إدارة الطلبات، لكن الوفر المتوقع سيظهر بعد ثلاثة أشهر من التشغيل. سينتقل فريق المشروع إلى مبادرة أخرى خلال أسبوعين، ولا توجد جهة محددة لمتابعة الوفر. ما أهم إجراء ضمن التسليم؟",
+    "question_en": "A request-management system is complete, but expected savings will emerge after three months of operation. The project team moves to another initiative in two weeks, and no one is assigned to monitor savings. What is the most important handover action?",
     "options_ar": [
-      "تحميل المورد كل مسؤولية الفوائد دون اتفاق",
-      "إلغاء قياس الفائدة بمجرد إغلاق المشروع",
-      "تحديد مالك الفائدة ومؤشرات القياس وآلية التسليم والمتابعة",
-      "اعتبار الفائدة متحققة عند توقيع القبول"
+      "تمديد جميع عقود فريق المشروع حتى تظهر الوفورات الفعلية",
+      "تسجيل الوفورات المتوقعة كفوائد متحققة بناءً على قبول النظام",
+      "الاتفاق على مالك الفائدة ومؤشرات القياس وخط الأساس وآلية المتابعة التشغيلية",
+      "إسناد متابعة الوفورات إلى المورد ضمن تقرير الإغلاق دون اتفاق مع التشغيل"
     ],
     "options_en": [
-      "Assign all benefits responsibility to the supplier without agreement",
-      "Stop measuring the benefit when the project closes",
-      "Identify a benefit owner, measurement indicators and handover and follow-up arrangements",
-      "Treat acceptance signing as proof of benefit realization"
+      "Extend all project team contracts until actual savings appear",
+      "Record expected savings as realized benefits based on system acceptance",
+      "Agree on a benefit owner, measurement indicators, baseline and operational follow-up arrangements",
+      "Assign savings monitoring to the supplier in the closure report without agreement with operations"
     ],
     "correct": "C",
     "correct_json": [
@@ -2059,25 +1943,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-072",
+    "id": "ALSAEED-PMP-2026-FA-108",
     "topic": "Value delivery system",
     "domain": "business",
     "phase": "executing",
     "approach": "agile",
     "type": "single",
-    "question_ar": "أظهرت تجربة مبكرة أن المستخدمين لا يحتاجون ميزة مرتفعة التكلفة. ما القرار الأنسب؟",
-    "question_en": "An early experiment shows users do not need an expensive feature. What is the best decision?",
+    "question_ar": "خُصصت ميزانية كبيرة لميزة في تطبيق، وأُنجز تصميمها. أظهرت تجربة مبكرة أن المستخدمين يفضلون حلًا أبسط وأقل تكلفة يحقق النتيجة المطلوبة. يتمسك الراعي بالتصميم لأن جهدًا كبيرًا صُرف عليه. ما أفضل استجابة؟",
+    "question_en": "A feature has a large budget and its design is complete. An early experiment shows users prefer a simpler, cheaper solution that achieves the intended outcome. The sponsor insists on the design because substantial effort was spent on it. What is the best response?",
     "options_ar": [
-      "منع جمع أي ملاحظات أخرى",
-      "تنفيذ الميزة لأن التقدير استغرق وقتًا",
-      "حذف كل المتطلبات دون التشاور",
-      "مراجعة الأولوية مع مالك المنتج وفق الدليل والقيمة"
+      "تكرار التجربة فقط مع مستخدمين يفضلون التصميم الحالي",
+      "إكمال التصميم المعتمد للحفاظ على الاستثمار السابق ثم تجربة الحل الأبسط لاحقًا",
+      "استبدال الميزة مباشرة بالحل الأبسط لتجنب التأثير في الجدول",
+      "مراجعة الأولوية والبدائل مع مالك المنتج والراعي باستخدام دليل التجربة والقيمة المتوقعة"
     ],
     "options_en": [
-      "Stop collecting further feedback",
-      "Implement it because estimating it took time",
-      "Delete all requirements without consultation",
-      "Review its priority with the product owner using evidence and value"
+      "Repeat the experiment only with users who prefer the current design",
+      "Complete the approved design to preserve prior investment and try the simpler solution later",
+      "Immediately replace the feature with the simpler solution to avoid schedule impact",
+      "Review priority and alternatives with the product owner and sponsor using experiment evidence and expected value"
     ],
     "correct": "D",
     "correct_json": [
@@ -2088,25 +1972,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-073",
+    "id": "ALSAEED-PMP-2026-FA-109",
     "topic": "Project management principles",
     "domain": "people",
     "phase": "executing",
     "approach": "general",
     "type": "single",
-    "question_ar": "لاحظ المدير أن أعضاء الفريق يتجنبون الإبلاغ عن الأخطاء خوفًا من اللوم. ما الإجراء الأنسب؟",
-    "question_en": "The manager notices that team members avoid reporting errors because they fear blame. What is the best action?",
+    "question_ar": "تأخر اكتشاف عيب لأن عضوين في الفريق كانا يخشيان الإبلاغ عنه بعد أن وُبخ زميل سابق أمام الجميع. يطلب الراعي تقريرًا عن المسؤول عن التأخير. ما الإجراء الأفضل لمدير المشروع؟",
+    "question_en": "A defect was discovered late because two team members feared reporting it after a colleague had been reprimanded publicly. The sponsor requests a report identifying who caused the delay. What should the project manager do?",
     "options_ar": [
-      "تهيئة بيئة آمنة لمناقشة الأخطاء والتعلم مع مسؤولية واضحة",
-      "معاقبة أول من يعلن خطأ",
-      "إخفاء الأخطاء عن المعنيين دائمًا",
-      "إلغاء مراجعات الجودة"
+      "معالجة أثر العيب وتيسير مراجعة آمنة للسبب وإجراءات المنع مع توضيح المسؤوليات",
+      "إرسال أسماء العضوين أولًا لإظهار جدية المساءلة ثم مناقشة سبب العيب",
+      "إلغاء توثيق المسؤوليات حتى يشعر الأعضاء بالأمان في الإبلاغ",
+      "نقل البلاغات إلى قناة مجهولة فقط دون مراجعة سلوك القيادة"
     ],
     "options_en": [
-      "Create a safe environment for discussing and learning from errors with clear accountability",
-      "Punish the first person who reports an error",
-      "Always conceal errors from stakeholders",
-      "Cancel quality reviews"
+      "Address the defect’s impact and facilitate a safe review of causes and preventive actions with clear responsibilities",
+      "Send the two members’ names first to demonstrate accountability, then discuss the cause",
+      "Stop documenting responsibilities so members feel safe reporting issues",
+      "Move reports to an anonymous channel only, without reviewing leadership behavior"
     ],
     "correct": "A",
     "correct_json": [
@@ -2117,25 +2001,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-074",
+    "id": "ALSAEED-PMP-2026-FA-110",
     "topic": "Project management principles",
     "domain": "process",
     "phase": "planning",
     "approach": "general",
     "type": "single",
-    "question_ar": "يريد الفريق تأجيل التفكير في الجودة إلى الاختبار النهائي. ماذا ينبغي للمدير أن يوضح؟",
-    "question_en": "The team wants to postpone quality considerations until final testing. What should the manager explain?",
+    "question_ar": "يضغط موعد التسليم على فريق بوابة خدمات. اقترح قائد التطوير إكمال جميع الوظائف ثم اختبار الجودة في الأسبوع الأخير. تتضمن معايير القبول سهولة الاستخدام وأمن البيانات، ويتوقع مدير المشروع أن أي إعادة عمل متأخرة ستؤخر الإطلاق. ما الأفضل؟",
+    "question_en": "A service portal team faces a tight deadline. The development lead proposes completing all functions and testing quality in the final week. Acceptance criteria include usability and data security, and late rework is expected to delay launch. What is the best action?",
     "options_ar": [
-      "أن الجودة مسؤولية المختبر فقط",
-      "ضرورة دمج الجودة ومعايير القبول في العمل منذ التخطيط",
-      "أن قبول الراعي يغني عن أي معيار",
-      "أن العيوب مقبولة إذا كان الجدول متقدمًا"
+      "قبول الاقتراح مع إضافة احتياطي زمني للاختبار النهائي فقط",
+      "دمج التحقق من الجودة ومعايير القبول في مراحل العمل ومراجعة الجدول مع الفريق",
+      "تقليل اختبارات سهولة الاستخدام للحفاظ على موعد التسليم",
+      "طلب توقيع الراعي على قبول المخاطر بدل تعديل أسلوب العمل"
     ],
     "options_en": [
-      "Quality belongs only to the tester",
-      "Build quality and acceptance criteria into the work from planning onward",
-      "Sponsor acceptance eliminates the need for criteria",
-      "Defects are acceptable whenever the schedule is ahead"
+      "Accept the proposal and add contingency only for final testing",
+      "Integrate quality verification and acceptance criteria throughout the work and review the schedule with the team",
+      "Reduce usability testing to preserve the delivery date",
+      "Ask the sponsor to accept the risks instead of changing the working approach"
     ],
     "correct": "B",
     "correct_json": [
@@ -2146,25 +2030,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-075",
+    "id": "ALSAEED-PMP-2026-FA-111",
     "topic": "Project management principles",
     "domain": "business",
     "phase": "planning",
     "approach": "general",
     "type": "single",
-    "question_ar": "يخفض بديل تكلفة المشروع لكنه يرفع تكلفة تشغيل الخدمة لسنوات. كيف يُقيّم؟",
-    "question_en": "An alternative reduces project cost but increases service operating costs for years. How should it be evaluated?",
+    "question_ar": "يعرض مورّدان حلين متكافئين وظيفيًا. الأول أقل في سعر التنفيذ لكنه يحتاج رسومًا سنوية مرتفعة، والثاني أعلى في التنفيذ وأقل في التشغيل. اقترح مسؤول المشتريات اختيار الأول لتجنب تجاوز ميزانية المشروع. ما التوصية الأنسب؟",
+    "question_en": "Two suppliers offer functionally equivalent solutions. The first has a lower implementation price but high annual fees; the second costs more to implement and less to operate. Procurement proposes the first to avoid exceeding the project budget. What is the best recommendation?",
     "options_ar": [
-      "تجاهل التشغيل لأنه بعد الإغلاق",
-      "اختياره تلقائيًا لأن تكلفة المشروع أقل",
-      "تحليل أثره على القيمة والتكلفة طوال دورة الاستخدام",
-      "ترك القرار للفريق دون بيانات"
+      "اختيار الأقل في التشغيل فورًا حتى لو تجاوز الصلاحية المالية",
+      "اختيار الأقل في التنفيذ لأن فريق التشغيل يملك ميزانية منفصلة",
+      "مقارنة التكلفة خلال الاستخدام والقيمة والمخاطر مع أصحاب صلاحية التمويل",
+      "تأجيل تقييم التشغيل إلى ما بعد توقيع العقد لتسريع التوريد"
     ],
     "options_en": [
-      "Ignore operations because they occur after closure",
-      "Choose it automatically because project cost is lower",
-      "Analyze its effect on value and costs throughout the service’s use",
-      "Leave the decision to the team without data"
+      "Immediately choose the cheaper operation even if it exceeds financial authority",
+      "Choose the cheaper implementation because operations has a separate budget",
+      "Compare costs throughout use, value and risks with the authorized funding stakeholders",
+      "Defer operating-cost assessment until after contract signing to speed procurement"
     ],
     "correct": "C",
     "correct_json": [
@@ -2175,25 +2059,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-076",
+    "id": "ALSAEED-PMP-2026-FA-112",
     "topic": "Project management principles",
     "domain": "process",
     "phase": "executing",
     "approach": "hybrid",
     "type": "single",
-    "question_ar": "تغير قيد تنظيمي وأصبح الحل المخطط غير مناسب. ما التصرف الأنسب؟",
-    "question_en": "A regulatory constraint changes and the planned solution is no longer suitable. What is the best response?",
+    "question_ar": "صدر أثناء التنفيذ شرط تنظيمي جديد يؤثر على حفظ بيانات المستفيدين. يرى الفريق أن تعديل الحل سيؤخر التسليم أسبوعين، ويطلب الراعي الاستمرار مؤقتًا ثم المعالجة بعد الإطلاق. ما الإجراء الأنسب؟",
+    "question_en": "During execution, a new regulatory requirement affects beneficiary data storage. The team estimates that adapting the solution will delay delivery by two weeks. The sponsor asks to continue temporarily and address it after launch. What is the best action?",
     "options_ar": [
-      "إلغاء المشروع فورًا دون تحليل",
-      "الاستمرار بالخطة دون مراجعة",
-      "تغيير الحل سرًا لتجنب التأخير",
-      "تقييم الأثر وتكييف الحل عبر الحوكمة المناسبة"
+      "إيقاف المشروع نهائيًا لأن الجدول المعتمد لم يعد قابلًا للتحقيق",
+      "الاستمرار وفق توجيه الراعي وتسجيل الشرط كمشكلة بعد الإطلاق",
+      "اعتماد تعديل الفريق مباشرة دون مراجعة صلاحيات القرار",
+      "التحقق من انطباق الشرط وتقييم الأثر والبدائل وعرض القرار عبر الحوكمة المطلوبة"
     ],
     "options_en": [
-      "Immediately cancel without analysis",
-      "Continue the plan without review",
-      "Change the solution secretly to avoid delay",
-      "Assess the impact and adapt the solution through appropriate governance"
+      "Permanently stop the project because the approved schedule is no longer achievable",
+      "Continue as directed by the sponsor and log the requirement as an issue after launch",
+      "Approve the team’s change immediately without reviewing decision authority",
+      "Verify applicability, assess impacts and alternatives, and route the decision through required governance"
     ],
     "correct": "D",
     "correct_json": [
@@ -2204,25 +2088,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-077",
+    "id": "ALSAEED-PMP-2026-FA-113",
     "topic": "Project life cycles",
     "domain": "process",
     "phase": "planning",
     "approach": "predictive",
     "type": "single",
-    "question_ar": "متطلبات منتج مستقرة والتغييرات مكلفة بعد التصنيع. أي نهج أنسب كنقطة بدء للتقييم؟",
-    "question_en": "Product requirements are stable and changes become costly after manufacturing. Which approach is the most suitable starting point for assessment?",
+    "question_ar": "تعد مؤسسة مشروع تصنيع معدات ذات مواصفات معتمدة. يصعب تعديل التصميم بعد بدء التصنيع، وتتطلب الجهة الرقابية تتبع التغييرات. اقترح مدير جديد استخدام الرشيق في كل العمل لأنه اعتاد عليه. ما أفضل إجراء عند اختيار النهج؟",
+    "question_en": "An organization plans to manufacture equipment with approved specifications. Design changes are costly after manufacturing starts, and the regulator requires change traceability. A new manager proposes agile for all work because they are familiar with it. What is the best action when selecting the approach?",
     "options_ar": [
-      "نهج تنبؤي مع تخطيط وضبط تغييرات مناسبين",
-      "نهج رشيق لمجرد أنه أحدث",
-      "تطوير دون تخطيط أو مراجعة",
-      "اختيار النهج حسب تفضيل المدير فقط"
+      "تقييم استقرار المتطلبات وكلفة التغيير والضوابط؛ يرجح ذلك التنبؤي للأجزاء التصنيعية",
+      "اختيار الرشيق لكل الأجزاء ثم معالجة الضوابط عند التسليم",
+      "اختيار النهج الذي يفضله المدير لضمان سرعة اتخاذ القرار",
+      "اختيار المختلط تلقائيًا دون تحديد الأجزاء التي تحتاج أساليب مختلفة"
     ],
     "options_en": [
-      "A predictive approach with appropriate planning and change control",
-      "Agile solely because it is newer",
-      "Development without planning or review",
-      "Select the approach only from the manager’s preference"
+      "Assess requirement stability, change costs and controls; these favor predictive work for manufacturing components",
+      "Use agile for every component and handle controls at delivery",
+      "Select the manager’s preferred approach to speed decision making",
+      "Automatically select hybrid without identifying components requiring different methods"
     ],
     "correct": "A",
     "correct_json": [
@@ -2233,25 +2117,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-078",
+    "id": "ALSAEED-PMP-2026-FA-114",
     "topic": "Project life cycles",
     "domain": "process",
     "phase": "planning",
     "approach": "agile",
     "type": "single",
-    "question_ar": "لا يستطيع المستخدمون تحديد تفاصيل الواجهة قبل تجربتها، ويمكن تقديم أجزاء نافعة تدريجيًا. ما النهج الأنسب؟",
-    "question_en": "Users cannot define interface details before trying it, and useful portions can be delivered gradually. Which approach fits best?",
+    "question_ar": "يختلف المستفيدون حول تفاصيل واجهة منصة جديدة، لكنهم يتفقون على الهدف الأساسي. يمكن للفريق إصدار نسخة نافعة محدودة ثم تحسينها، ولا تمنع العقود ذلك. يريد الراعي تثبيت جميع التفاصيل الآن لمنع الخلاف. ما أفضل توصية؟",
+    "question_en": "Beneficiaries disagree about interface details for a new platform but agree on its core objective. The team can release a useful limited version and improve it, and contracts allow this. The sponsor wants all details fixed now to prevent disagreement. What is the best recommendation?",
     "options_ar": [
-      "تجميد كل التفاصيل قبل أي تجربة",
-      "نهج تكيفي بتكرارات وتغذية راجعة",
-      "الامتناع عن إشراك المستخدمين",
-      "تسليم كل شيء مرة واحدة دون اختبار"
+      "إكمال تحليل شامل لكل تفاصيل الواجهة قبل السماح بأي تجربة",
+      "تطوير تكراري مع تسليمات تدريجية وتغذية راجعة لترتيب الأولويات",
+      "تسليم نسخة واحدة نهائية ثم جمع الملاحظات لمشروع لاحق",
+      "البدء في التطوير دون إشراك المستخدمين حتى تستقر آراء الفريق"
     ],
     "options_en": [
-      "Freeze every detail before any experiment",
-      "An adaptive approach with iterations and feedback",
-      "Avoid involving users",
-      "Deliver everything once without testing"
+      "Complete comprehensive analysis of every interface detail before any experiment",
+      "Use iterative development with incremental releases and feedback to prioritize work",
+      "Deliver one final version and collect feedback for a later project",
+      "Begin development without users until the team’s views stabilize"
     ],
     "correct": "B",
     "correct_json": [
@@ -2262,25 +2146,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-079",
+    "id": "ALSAEED-PMP-2026-FA-115",
     "topic": "Project life cycles",
     "domain": "process",
     "phase": "planning",
     "approach": "hybrid",
     "type": "single",
-    "question_ar": "يتطلب المشروع اعتمادًا تنظيميًا مسبقًا، بينما يمكن تطوير الواجهة تدريجيًا. ما الخيار الأنسب؟",
-    "question_en": "A project requires prior regulatory approval, while its interface can be developed incrementally. What is the best option?",
+    "question_ar": "يجمع مشروع منصة صحية تجهيزًا ماديًا يخضع لاعتماد مسبق وواجهة رقمية تتغير احتياجاتها بعد تجربة المستخدمين. يخطط كل فريق بمعزل عن الآخر، وتأخر الاعتماد قد يؤخر إطلاق الخدمة. ما أفضل تنظيم للعمل؟",
+    "question_en": "A health platform project combines physical equipment requiring prior approval with a digital interface whose needs evolve through user trials. Teams plan separately, and delayed approval could delay service launch. What is the best organization of the work?",
     "options_ar": [
-      "منع أي تغذية راجعة على الواجهة",
-      "إلغاء الاعتماد لتطبيق الرشيق",
-      "نهج مختلط يوضح واجهات العمل والاعتماد بين الجزأين",
-      "تطبيق نموذج واحد على كل العمل دون تقييم"
+      "تثبيت تفاصيل الواجهة كاملة حتى تتطابق خطتها مع التجهيز المادي",
+      "تطبيق الرشيق على التجهيز المادي لإلغاء الحاجة إلى الاعتماد المسبق",
+      "نهج مختلط مع تخطيط الاعتماديات ونقاط التكامل والقرارات بين مساري العمل",
+      "الإبقاء على الخطتين منفصلتين والتنسيق فقط قبل موعد الإطلاق"
     ],
     "options_en": [
-      "Prevent all interface feedback",
-      "Remove approval to use agile",
-      "A hybrid approach that clarifies interfaces and dependencies between the two parts",
-      "Apply one model to all work without assessment"
+      "Freeze every interface detail so its plan matches physical preparation",
+      "Apply agile to physical equipment to eliminate prior approval",
+      "Use a hybrid approach with dependencies, integration points and decisions coordinated across workstreams",
+      "Keep plans separate and coordinate only shortly before launch"
     ],
     "correct": "C",
     "correct_json": [
@@ -2291,25 +2175,25 @@
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   },
   {
-    "id": "ALSAEED-PMP-2026-FA-080",
+    "id": "ALSAEED-PMP-2026-FA-116",
     "topic": "Project life cycles",
     "domain": "process",
     "phase": "monitoring",
     "approach": "general",
     "type": "single",
-    "question_ar": "عند مراجعة الانتقال إلى مرحلة جديدة، ما أساس القرار الأفضل؟",
-    "question_en": "At a review for moving into a new phase, what is the best basis for the decision?",
+    "question_ar": "وصل المشروع إلى موعد الانتقال من التصميم إلى التنفيذ. اكتملت معظم المخرجات، لكن اختبارًا إلزاميًا لم ينتهِ وظهرت مخاطرة جديدة في المورد. يطلب الفريق الانتقال للحفاظ على الجدول. ما الأساس الأنسب للقرار؟",
+    "question_en": "The project reaches the scheduled transition from design to execution. Most deliverables are complete, but a mandatory test remains unfinished and a new supplier risk has emerged. The team requests transition to preserve the schedule. What is the best decision basis?",
     "options_ar": [
-      "اكتمال الإنفاق دون النظر للمخرجات",
-      "مرور التاريخ المخطط فقط",
-      "ضغط الفريق لإنهاء الاجتماع",
-      "أدلة الجاهزية والمخاطر ومعايير الانتقال المعتمدة"
+      "رفض الانتقال تلقائيًا وإعادة التصميم بالكامل",
+      "الموافقة لأن غالبية المخرجات اكتملت وتاريخ المرحلة وصل",
+      "الموافقة مع نقل الاختبار إلى التنفيذ دون مراجعة أثر القرار",
+      "مراجعة أدلة الجاهزية والاختبار والمخاطرة مقابل معايير الانتقال مع الجهة المخولة"
     ],
     "options_en": [
-      "Completing expenditure regardless of deliverables",
-      "Only reaching the planned date",
-      "Team pressure to end the meeting",
-      "Readiness evidence, risks and approved transition criteria"
+      "Automatically reject transition and redo the entire design",
+      "Approve because most deliverables are complete and the transition date has arrived",
+      "Approve and move testing into execution without assessing decision impact",
+      "Review readiness, testing and risk evidence against transition criteria with the authorized body"
     ],
     "correct": "D",
     "correct_json": [
