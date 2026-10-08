@@ -1738,5 +1738,585 @@
     "explanation_ar": "التحسين التجريبي القائم على الأدلة يقلل التغيير العشوائي ويساعد التعلم.",
     "explanation_en": "Evidence-based incremental experiments reduce arbitrary change and support learning.",
     "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-061",
+    "topic": "Introduction",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تدير جهة خدمة مستمرة للمستفيدين، وتريد إنشاء قناة رقمية جديدة خلال ستة أشهر. ما التصنيف الأنسب للعمل؟",
+    "question_en": "An organization runs an ongoing service and plans to create a new digital channel in six months. How should the work be classified?",
+    "options_ar": [
+      "إنشاء القناة مشروع، وتشغيل الخدمة عمل تشغيلي",
+      "كلاهما مشروع لأنهما يستهلكان الموارد",
+      "كلاهما تشغيل لأن العميل واحد",
+      "إنشاء القناة برنامج بالضرورة"
+    ],
+    "options_en": [
+      "Creating the channel is a project; running the service is operations",
+      "Both are projects because they consume resources",
+      "Both are operations because they serve one customer",
+      "Creating the channel must be a program"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "المشروع مؤقت وينتج نتيجة فريدة؛ استمرار تقديم الخدمة يمثل عمليات مستمرة.",
+    "explanation_en": "A project is temporary and produces a unique result; providing the ongoing service is operations.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-062",
+    "topic": "Introduction",
+    "domain": "business",
+    "phase": "initiating",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "طلب راعٍ البدء في تنفيذ منصة قبل الاتفاق على الحاجة التي ستعالجها. ما الخطوة الأولى الأنسب؟",
+    "question_en": "A sponsor asks to start building a platform before agreeing on the need it addresses. What is the best first step?",
+    "options_ar": [
+      "اختيار المورد الأسرع فورًا",
+      "توضيح الحاجة والقيمة ومعايير النجاح مع الراعي",
+      "اعتماد قائمة خصائص المنافس",
+      "إعداد جدول تفصيلي قبل تحديد الهدف"
+    ],
+    "options_en": [
+      "Immediately select the fastest supplier",
+      "Clarify the need, value and success criteria with the sponsor",
+      "Adopt a competitor’s feature list",
+      "Create a detailed schedule before defining the objective"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "توضيح الغرض يوجه القرارات التالية ويمنع تنفيذ مخرج لا يعالج الحاجة.",
+    "explanation_en": "Clarifying purpose guides subsequent decisions and helps avoid delivering an output that does not address the need.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-063",
+    "topic": "Introduction",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "رفض الفريق نموذجًا إداريًا طويلًا لا يناسب مشروعًا صغيرًا. كيف يتصرف مدير المشروع؟",
+    "question_en": "The team rejects a lengthy management template that does not fit a small project. What should the project manager do?",
+    "options_ar": [
+      "إلغاء التوثيق بالكامل",
+      "فرض جميع حقول النموذج دون تقييم",
+      "تكييف الممارسات مع السياق مع الحفاظ على الضوابط المطلوبة",
+      "نسخ نموذج أكبر مشروع سابق"
+    ],
+    "options_en": [
+      "Eliminate all documentation",
+      "Enforce every template field without assessment",
+      "Tailor practices to the context while retaining required controls",
+      "Copy the largest previous project’s template"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "التكييف يوازن مستوى التنظيم مع حجم المشروع وبيئته ومتطلبات الحوكمة.",
+    "explanation_en": "Tailoring balances the level of management with project size, context and governance requirements.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-064",
+    "topic": "Introduction",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "واجه فريق متعدد التخصصات خلافًا بشأن توقعات الجودة. ما الإجراء الأنسب قبل إعادة توزيع الأدوار؟",
+    "question_en": "A multidisciplinary team disagrees about quality expectations. What is the best action before reassigning roles?",
+    "options_ar": [
+      "تأجيل الخلاف إلى التسليم",
+      "استبعاد الأقل خبرة من المناقشة",
+      "تعيين صاحب أعلى منصب لاتخاذ القرار منفردًا",
+      "تيسير فهم مشترك للمتطلبات ومعايير القبول"
+    ],
+    "options_en": [
+      "Postpone the disagreement until delivery",
+      "Exclude less experienced members from the discussion",
+      "Let the most senior person decide alone",
+      "Facilitate shared understanding of requirements and acceptance criteria"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "الفهم المشترك للهدف ومعايير القبول يعالج سبب الخلاف قبل تغيير تنظيم الفريق.",
+    "explanation_en": "Shared understanding of objectives and acceptance criteria addresses the disagreement before changing team organization.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-065",
+    "topic": "PMP exam structure",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يستعد متدرب للمحاكاة الكاملة ويجد صعوبة في توزيع الوقت على الأسئلة. ما أفضل إجراء تحضيري؟",
+    "question_en": "A learner struggles to allocate time during a full mock exam. What is the best preparation step?",
+    "options_ar": [
+      "تجربة محاكاة مؤقتة وتحليل الزمن لكل قسم",
+      "حفظ ترتيب الخيارات في البنك",
+      "التدرب دون مؤقت فقط",
+      "تجاهل تعليمات المراجعة والاستراحة"
+    ],
+    "options_en": [
+      "Take a timed mock and analyze time used in each section",
+      "Memorize option positions in the bank",
+      "Practice only without a timer",
+      "Ignore review and break instructions"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "المحاكاة المؤقتة تكشف نمط استهلاك الوقت وتساعد في ضبط خطة الإجابة.",
+    "explanation_en": "A timed mock reveals time-use patterns and helps refine the answering plan.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-066",
+    "topic": "PMP exam structure",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "ظهر سؤال يطلب اختيار إجابتين في المحاكاة، بينما اختار المتدرب إجابة واحدة فقط. ما الإجراء الصحيح؟",
+    "question_en": "A mock question asks for two answers, but the learner has selected only one. What is the appropriate action?",
+    "options_ar": [
+      "الانتقال لأن إجابة واحدة تكفي دائمًا",
+      "استكمال العدد المطلوب بعد مراجعة كل خيار",
+      "اختيار كل الخيارات للاحتياط",
+      "تغيير لغة السؤال دون إكمال الإجابة"
+    ],
+    "options_en": [
+      "Move on because one answer always suffices",
+      "Review all options and complete the required number of selections",
+      "Select every option as a precaution",
+      "Change the language without completing the answer"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "تعليمات السؤال تحدد عدد الاختيارات؛ فهم المحتوى لا يغني عن استكمال العدد المطلوب.",
+    "explanation_en": "Question instructions specify the number of selections; understanding the content does not replace completing the required response.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-067",
+    "topic": "PMP exam structure",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تتيح المحاكاة مراجعة القسم قبل الاستراحة وتمنع العودة إليه بعد اعتماد الاستراحة. لدى المتدرب أسئلة معلّمة. ماذا يفعل؟",
+    "question_en": "A mock allows section review before a break and prevents returning after the break is confirmed. The learner has flagged questions. What should they do?",
+    "options_ar": [
+      "ترك جميع الأسئلة المعلّمة دون مراجعة",
+      "اعتماد الاستراحة ثم العودة للقسم السابق",
+      "مراجعة الأسئلة المعلّمة قبل اعتماد الاستراحة",
+      "إعادة تشغيل الاختبار للاحتفاظ بالوقت"
+    ],
+    "options_en": [
+      "Leave every flagged question unreviewed",
+      "Confirm the break and then return to the previous section",
+      "Review flagged questions before confirming the break",
+      "Restart the exam to preserve the time"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "يجب التعامل مع حدود الأقسام وفق تعليمات المحاكاة ومراجعة القسم قبل إقفاله.",
+    "explanation_en": "Follow the mock’s section boundaries and review the section before it is locked.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-068",
+    "topic": "PMP exam structure",
+    "domain": "process",
+    "phase": "closing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "حصل متدرب على PASS في محاكاة السعيد وفق حدها التدريبي. كيف ينبغي تفسير النتيجة؟",
+    "question_en": "A learner receives PASS under AlSaeed’s training threshold. How should the result be interpreted?",
+    "options_ar": [
+      "دليل أن كل الإجابات صحيحة",
+      "ضمان أن PMI تستخدم النسبة نفسها",
+      "بديل عن التقدم للاختبار الدولي",
+      "مؤشر تدريبي يُراجع مع أداء المجالات، وليس إثباتًا للاجتياز الرسمي"
+    ],
+    "options_en": [
+      "Proof that all answers were correct",
+      "A guarantee that PMI uses the same percentage",
+      "A substitute for taking the certification exam",
+      "A training indicator to review alongside domain performance, not proof of official certification"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "نتيجة المحاكاة تساعد في خطة الاستعداد؛ قواعد التصحيح الرسمية منفصلة عن الحد التدريبي للمنصة.",
+    "explanation_en": "The mock result supports preparation planning; official scoring is separate from the platform’s training threshold.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-069",
+    "topic": "Value delivery system",
+    "domain": "business",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "سُلّمت بوابة في الموعد، لكن نسبة استخدام المستفيدين منخفضة. ما الأولوية؟",
+    "question_en": "A portal was delivered on time, but beneficiary adoption is low. What is the priority?",
+    "options_ar": [
+      "تقييم عوائق الاستخدام وأثرها على النتائج والفوائد",
+      "اعتبار التسليم في الموعد دليلًا كافيًا على القيمة",
+      "إضافة خصائص دون تحليل الحاجة",
+      "زيادة عدد تقارير الإنجاز فقط"
+    ],
+    "options_en": [
+      "Assess adoption barriers and their impact on outcomes and benefits",
+      "Treat on-time delivery as sufficient proof of value",
+      "Add features without analyzing the need",
+      "Only increase the number of completion reports"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "القيمة ترتبط بالنتائج والفوائد والاستخدام، وليس فقط بإتمام المخرج.",
+    "explanation_en": "Value depends on outcomes, benefits and adoption, rather than merely completing the output.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-070",
+    "topic": "Value delivery system",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "لدى مؤسسة مبادرتان تتنافسان على مورد حرج. إحداهما تقدم أثرًا استراتيجيًا أعلى. كيف يُدعَم قرار الأولوية؟",
+    "question_en": "Two initiatives compete for a critical resource. One offers greater strategic impact. How should the prioritization decision be supported?",
+    "options_ar": [
+      "تفضيل المبادرة الأقدم تلقائيًا",
+      "تحليل القيمة والتوافق الاستراتيجي والمخاطر والاعتماديات",
+      "تخصيص المورد لمن يطلبه بصوت أعلى",
+      "تجاهل أثر القرارات على المبادرات الأخرى"
+    ],
+    "options_en": [
+      "Automatically prefer the oldest initiative",
+      "Analyze value, strategic alignment, risks and dependencies",
+      "Give the resource to whoever asks most forcefully",
+      "Ignore effects on other initiatives"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "نظام تسليم القيمة يربط اختيار المبادرات وتخصيص الموارد بالاستراتيجية ويأخذ الترابط في الحسبان.",
+    "explanation_en": "A value delivery system links initiative selection and resource allocation to strategy while considering interdependencies.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-071",
+    "topic": "Value delivery system",
+    "domain": "business",
+    "phase": "closing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "ستنتهي مسؤولية فريق المشروع قبل أن تظهر الفائدة المتوقعة بعد التشغيل. ما الذي يجب ترتيبه؟",
+    "question_en": "The project team’s responsibility ends before a benefit is expected to emerge during operations. What should be arranged?",
+    "options_ar": [
+      "تحميل المورد كل مسؤولية الفوائد دون اتفاق",
+      "إلغاء قياس الفائدة بمجرد إغلاق المشروع",
+      "تحديد مالك الفائدة ومؤشرات القياس وآلية التسليم والمتابعة",
+      "اعتبار الفائدة متحققة عند توقيع القبول"
+    ],
+    "options_en": [
+      "Assign all benefits responsibility to the supplier without agreement",
+      "Stop measuring the benefit when the project closes",
+      "Identify a benefit owner, measurement indicators and handover and follow-up arrangements",
+      "Treat acceptance signing as proof of benefit realization"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "قد تتحقق الفوائد بعد المشروع؛ يجب توضيح ملكيتها ومتابعتها ضمن التسليم إلى التشغيل.",
+    "explanation_en": "Benefits may emerge after the project; their ownership and monitoring should be clarified during operational handover.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-072",
+    "topic": "Value delivery system",
+    "domain": "business",
+    "phase": "executing",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "أظهرت تجربة مبكرة أن المستخدمين لا يحتاجون ميزة مرتفعة التكلفة. ما القرار الأنسب؟",
+    "question_en": "An early experiment shows users do not need an expensive feature. What is the best decision?",
+    "options_ar": [
+      "منع جمع أي ملاحظات أخرى",
+      "تنفيذ الميزة لأن التقدير استغرق وقتًا",
+      "حذف كل المتطلبات دون التشاور",
+      "مراجعة الأولوية مع مالك المنتج وفق الدليل والقيمة"
+    ],
+    "options_en": [
+      "Stop collecting further feedback",
+      "Implement it because estimating it took time",
+      "Delete all requirements without consultation",
+      "Review its priority with the product owner using evidence and value"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التغذية الراجعة تدعم إعادة توجيه العمل نحو القيمة بدل الاستمرار بسبب الجهد المنفق.",
+    "explanation_en": "Feedback supports redirecting work toward value instead of continuing solely because effort has already been spent.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-073",
+    "topic": "Project management principles",
+    "domain": "people",
+    "phase": "executing",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "لاحظ المدير أن أعضاء الفريق يتجنبون الإبلاغ عن الأخطاء خوفًا من اللوم. ما الإجراء الأنسب؟",
+    "question_en": "The manager notices that team members avoid reporting errors because they fear blame. What is the best action?",
+    "options_ar": [
+      "تهيئة بيئة آمنة لمناقشة الأخطاء والتعلم مع مسؤولية واضحة",
+      "معاقبة أول من يعلن خطأ",
+      "إخفاء الأخطاء عن المعنيين دائمًا",
+      "إلغاء مراجعات الجودة"
+    ],
+    "options_en": [
+      "Create a safe environment for discussing and learning from errors with clear accountability",
+      "Punish the first person who reports an error",
+      "Always conceal errors from stakeholders",
+      "Cancel quality reviews"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "الثقافة المسؤولة تشجع الشفافية والتعلم ولا تلغي المساءلة عن العمل.",
+    "explanation_en": "A responsible culture encourages transparency and learning without removing accountability.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-074",
+    "topic": "Project management principles",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يريد الفريق تأجيل التفكير في الجودة إلى الاختبار النهائي. ماذا ينبغي للمدير أن يوضح؟",
+    "question_en": "The team wants to postpone quality considerations until final testing. What should the manager explain?",
+    "options_ar": [
+      "أن الجودة مسؤولية المختبر فقط",
+      "ضرورة دمج الجودة ومعايير القبول في العمل منذ التخطيط",
+      "أن قبول الراعي يغني عن أي معيار",
+      "أن العيوب مقبولة إذا كان الجدول متقدمًا"
+    ],
+    "options_en": [
+      "Quality belongs only to the tester",
+      "Build quality and acceptance criteria into the work from planning onward",
+      "Sponsor acceptance eliminates the need for criteria",
+      "Defects are acceptable whenever the schedule is ahead"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "دمج الجودة مبكرًا يدعم اتساق النتائج ويقلل إعادة العمل بدل الاعتماد على الفحص النهائي فقط.",
+    "explanation_en": "Building quality in early supports consistent results and reduces rework rather than relying solely on final inspection.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-075",
+    "topic": "Project management principles",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يخفض بديل تكلفة المشروع لكنه يرفع تكلفة تشغيل الخدمة لسنوات. كيف يُقيّم؟",
+    "question_en": "An alternative reduces project cost but increases service operating costs for years. How should it be evaluated?",
+    "options_ar": [
+      "تجاهل التشغيل لأنه بعد الإغلاق",
+      "اختياره تلقائيًا لأن تكلفة المشروع أقل",
+      "تحليل أثره على القيمة والتكلفة طوال دورة الاستخدام",
+      "ترك القرار للفريق دون بيانات"
+    ],
+    "options_en": [
+      "Ignore operations because they occur after closure",
+      "Choose it automatically because project cost is lower",
+      "Analyze its effect on value and costs throughout the service’s use",
+      "Leave the decision to the team without data"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "النظر الشامل للقيمة يراعي آثار القرار التي تتجاوز حدود تنفيذ المشروع.",
+    "explanation_en": "A holistic view of value considers decision effects beyond project execution.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-076",
+    "topic": "Project management principles",
+    "domain": "process",
+    "phase": "executing",
+    "approach": "hybrid",
+    "type": "single",
+    "question_ar": "تغير قيد تنظيمي وأصبح الحل المخطط غير مناسب. ما التصرف الأنسب؟",
+    "question_en": "A regulatory constraint changes and the planned solution is no longer suitable. What is the best response?",
+    "options_ar": [
+      "إلغاء المشروع فورًا دون تحليل",
+      "الاستمرار بالخطة دون مراجعة",
+      "تغيير الحل سرًا لتجنب التأخير",
+      "تقييم الأثر وتكييف الحل عبر الحوكمة المناسبة"
+    ],
+    "options_en": [
+      "Immediately cancel without analysis",
+      "Continue the plan without review",
+      "Change the solution secretly to avoid delay",
+      "Assess the impact and adapt the solution through appropriate governance"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "التكيف مع السياق يحتاج تحليل أثر وتنسيق القرارات ضمن الصلاحيات المطلوبة.",
+    "explanation_en": "Adapting to context requires impact analysis and coordinated decisions within the required authority.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-077",
+    "topic": "Project life cycles",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "predictive",
+    "type": "single",
+    "question_ar": "متطلبات منتج مستقرة والتغييرات مكلفة بعد التصنيع. أي نهج أنسب كنقطة بدء للتقييم؟",
+    "question_en": "Product requirements are stable and changes become costly after manufacturing. Which approach is the most suitable starting point for assessment?",
+    "options_ar": [
+      "نهج تنبؤي مع تخطيط وضبط تغييرات مناسبين",
+      "نهج رشيق لمجرد أنه أحدث",
+      "تطوير دون تخطيط أو مراجعة",
+      "اختيار النهج حسب تفضيل المدير فقط"
+    ],
+    "options_en": [
+      "A predictive approach with appropriate planning and change control",
+      "Agile solely because it is newer",
+      "Development without planning or review",
+      "Select the approach only from the manager’s preference"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "استقرار المتطلبات وكلفة التغيير يدعمان التنبؤي، مع ضرورة التحقق من بقية عوامل السياق.",
+    "explanation_en": "Stable requirements and costly changes support predictive work, while other contextual factors still need assessment.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-078",
+    "topic": "Project life cycles",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "agile",
+    "type": "single",
+    "question_ar": "لا يستطيع المستخدمون تحديد تفاصيل الواجهة قبل تجربتها، ويمكن تقديم أجزاء نافعة تدريجيًا. ما النهج الأنسب؟",
+    "question_en": "Users cannot define interface details before trying it, and useful portions can be delivered gradually. Which approach fits best?",
+    "options_ar": [
+      "تجميد كل التفاصيل قبل أي تجربة",
+      "نهج تكيفي بتكرارات وتغذية راجعة",
+      "الامتناع عن إشراك المستخدمين",
+      "تسليم كل شيء مرة واحدة دون اختبار"
+    ],
+    "options_en": [
+      "Freeze every detail before any experiment",
+      "An adaptive approach with iterations and feedback",
+      "Avoid involving users",
+      "Deliver everything once without testing"
+    ],
+    "correct": "B",
+    "correct_json": [
+      1
+    ],
+    "explanation_ar": "التكرارات والتغذية الراجعة تساعد في اكتشاف المتطلبات وتعديل الأولويات مع عدم اليقين.",
+    "explanation_en": "Iterations and feedback help discover requirements and adjust priorities under uncertainty.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-079",
+    "topic": "Project life cycles",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "hybrid",
+    "type": "single",
+    "question_ar": "يتطلب المشروع اعتمادًا تنظيميًا مسبقًا، بينما يمكن تطوير الواجهة تدريجيًا. ما الخيار الأنسب؟",
+    "question_en": "A project requires prior regulatory approval, while its interface can be developed incrementally. What is the best option?",
+    "options_ar": [
+      "منع أي تغذية راجعة على الواجهة",
+      "إلغاء الاعتماد لتطبيق الرشيق",
+      "نهج مختلط يوضح واجهات العمل والاعتماد بين الجزأين",
+      "تطبيق نموذج واحد على كل العمل دون تقييم"
+    ],
+    "options_en": [
+      "Prevent all interface feedback",
+      "Remove approval to use agile",
+      "A hybrid approach that clarifies interfaces and dependencies between the two parts",
+      "Apply one model to all work without assessment"
+    ],
+    "correct": "C",
+    "correct_json": [
+      2
+    ],
+    "explanation_ar": "النهج المختلط يجمع ممارسات مناسبة لطبيعة الأجزاء ويحتاج تنسيق الاعتماديات والحوكمة.",
+    "explanation_en": "Hybrid work combines practices suited to different components and requires coordinated dependencies and governance.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-080",
+    "topic": "Project life cycles",
+    "domain": "process",
+    "phase": "monitoring",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "عند مراجعة الانتقال إلى مرحلة جديدة، ما أساس القرار الأفضل؟",
+    "question_en": "At a review for moving into a new phase, what is the best basis for the decision?",
+    "options_ar": [
+      "اكتمال الإنفاق دون النظر للمخرجات",
+      "مرور التاريخ المخطط فقط",
+      "ضغط الفريق لإنهاء الاجتماع",
+      "أدلة الجاهزية والمخاطر ومعايير الانتقال المعتمدة"
+    ],
+    "options_en": [
+      "Completing expenditure regardless of deliverables",
+      "Only reaching the planned date",
+      "Team pressure to end the meeting",
+      "Readiness evidence, risks and approved transition criteria"
+    ],
+    "correct": "D",
+    "correct_json": [
+      3
+    ],
+    "explanation_ar": "الانتقال بين المراحل قرار مبني على الجاهزية والمعايير وليس على الوقت المنقضي فقط.",
+    "explanation_en": "Phase transition is based on readiness and criteria rather than elapsed time alone.",
+    "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
   }
 ]
