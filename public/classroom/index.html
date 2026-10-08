@@ -1550,7 +1550,7 @@ routes.run = () => {
     on('#prev', () => { if (X.i > 0) { X.i--; save(); draw(); } });
     on('#next', () => {
       if (X.i === Q.length - 1) return reviewScreen();
-      if (X.full && X.i === 57 && !X.brk) return breakScreen();
+      if (X.full && X.i === 57 && !X.brk && !X.breakSkipped) return breakScreen();
       X.i++; save(); draw();
     });
     on('#endX', () => reviewScreen());
@@ -1570,13 +1570,19 @@ routes.run = () => {
     $('#wbClr').onclick = () => { ctx.clearRect(0, 0, c.width, c.height); X.wb = null; save(); };
   }
   const breakScreen = () => {
-    X.paused = true; save();
-    view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>استراحة اختيارية — 10 دقائق</h2><p class="muted">أنهيت القسم الأول (58 سؤالًا). بعد الاستراحة لن تستطيع العودة لأسئلة القسم الأول. مؤقّت الاختبار متوقف أثناء الاستراحة.</p>
-      <div class="timer" id="brkT" style="align-self:center">10:00</div><div class="row" style="justify-content:center"><button class="btn" id="goOn">متابعة إلى القسم الثاني</button><button class="btn g" id="back1">مراجعة القسم الأول قبل الاستراحة</button></div></div>`;
-    let b = 600; const bt = setInterval(() => { b--; const el = $('#brkT'); if (el) el.textContent = fmtTime(b); if (b <= 0) cont(); }, 1000);
-    const cont = () => { clearInterval(bt); X.paused = false; X.brk = true; X.i = 58; save(); draw(); };
-    $('#goOn').onclick = cont;
-    $('#back1').onclick = () => { clearInterval(bt); X.paused = false; save(); draw(); };
+    // Showing the choice does not start a break or lock earlier answers.
+    X.paused = false; save();
+    view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>أنهيت 58 سؤالًا — هل تريد استراحة؟</h2><p class="muted">يمكنك المتابعة بدون راحة مع إمكانية مراجعة جميع الأسئلة. عند بدء الاستراحة فقط يُغلق القسم الأول ويتوقف مؤقّت الاختبار لمدة 10 دقائق.</p><div class="row" style="justify-content:center"><button class="btn" id="goOn">متابعة بدون راحة — مع إتاحة المراجعة</button><button class="btn g" id="back1">مراجعة الأسئلة السابقة</button><button class="btn acc" id="takeBreak">بدء الاستراحة وإغلاق القسم الأول</button></div></div>`;
+    $('#goOn').onclick = () => { X.breakSkipped = true; X.paused = false; X.i = 58; save(); draw(); };
+    $('#back1').onclick = () => { save(); draw(); };
+    $('#takeBreak').onclick = () => {
+      X.brk = true; X.paused = true; X.i = 58; save();
+      view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>استراحة — 10 دقائق</h2><p class="muted">بدأت الاستراحة وأُغلق القسم الأول. يمكنك استئناف القسم الثاني الآن أو بعد انتهاء الاستراحة.</p><div class="timer" id="brkT" style="align-self:center">10:00</div><button class="btn" id="resumeExam">استئناف القسم الثاني</button></div>`;
+      let remaining = 600;
+      const resume = () => { clearInterval(bt); X.paused = false; save(); draw(); };
+      const bt = setInterval(() => { remaining--; const el = $('#brkT'); if (el) el.textContent = fmtTime(remaining); if (remaining <= 0) resume(); }, 1000);
+      $('#resumeExam').onclick = resume;
+    };
   };
   const reviewScreen = () => {
     const un = Q.map((_, k) => k).filter(k => !X.ans[k]), fl = Q.map((_, k) => k).filter(k => X.fl[k]);
