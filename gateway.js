@@ -258,6 +258,7 @@ function savePackages(list) {
 }
 
 const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
+const pmpEditorialHolds=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-editorial-holds-2026.json'),'utf8')).items.map(x=>x.id);
 const topicQuestions=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-framework-agile-2026.json'),'utf8'));
 const topicPackages=[pmp.packageId,...getPackages().filter(p=>String(p.course).toLowerCase()==='pmp').map(p=>questionSourcePackageId(p.id))];
 console.log('PMP topic practice added:',seedPmpTopics(db,topicQuestions,topicPackages));
@@ -500,7 +501,7 @@ function handleLearnerQuestionBank(req,res,url){
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
   // Learners see the current PMP source cohorts; legacy imports remain available to administrators for editorial review.
   const pmpQualityGate=sourcePackageId===pmp.packageId||getPackages().some(p=>p.id===packageId&&String(p.course).toLowerCase()==='pmp');
-  if(pmpQualityGate){filters.push("COALESCE(topic,'') != 'PMP exam structure' AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
+  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') != 'PMP exam structure' AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
 
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
