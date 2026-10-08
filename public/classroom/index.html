@@ -241,9 +241,9 @@ body.in-exam #view{max-width:none;padding:0}
 .xo:hover{border-color:var(--brand)}
 .xo .en{font-weight:700;margin-top:1px}
 .xr{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);margin-top:4px;display:grid;place-items:center}
-.xr.sq{border-radius:5px}
+.xr.xr-square{width:20px;height:20px;min-width:20px;max-width:20px;min-height:20px;max-height:20px;padding:0;border-radius:2px;box-sizing:border-box;display:grid;place-items:center;aspect-ratio:1;flex:none;line-height:1;background:transparent}
 .xo.sel{border-color:var(--brand);background:var(--brand-soft)} .xo.sel .xr{border-color:var(--brand);background:var(--brand);box-shadow:inset 0 0 0 3px var(--surface)}
-.xo.sel .xr.sq{box-shadow:none} .xo.sel .xr.sq::after{content:"✓";color:#fff;font-size:13px;font-weight:700;line-height:1}
+.xo.sel .xr.xr-square{box-shadow:none} .xo.sel .xr.xr-square::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
 .xo.right{border-color:var(--ok);background:var(--ok-soft)} .xo.right .xr{border-color:var(--ok);background:var(--ok)}
 .xo.wrong{border-color:var(--bad);background:var(--bad-soft)} .xo.wrong .xr{border-color:var(--bad);background:var(--bad)}
 .xo.strike .txt{text-decoration:line-through;opacity:.45}
@@ -544,6 +544,12 @@ function lessonsOf(day, sec) { return LESSONS.filter(l => l.day === day && (sec 
 const ACT = new Map(D.acts.map(a => [a.id, a]));
 const BASE_Q = D.q.slice(), BASE_ACT = D.acts.slice(); let CUSTOM_GAMES = [];
 let CONTENT = [];
+function examQuestion(exam, item) {
+  return exam.questions?.[item.id] || (exam.ai || {})[item.id] || QBY.get(item.id);
+}
+function isLegacyFullExam(exam) {
+  return !!exam && ['advanced', 'full'].includes(exam.spec) && exam.items.some(it => !it.id.startsWith('RMPSIM22-'));
+}
 function questionFigure(q) {
   const f = q.figure;
   if (!f || !/^\/classroom\/figures\/rmp-sim-\d{3}\.svg$/.test(f.src)) return '';
@@ -1353,8 +1359,8 @@ const TYPES = {
   ch: k => { const c = D.chapters.find(x => x.k === k); return { label: 'اختبار فصل — ' + c.t.ar, qs: pickQs(D.q.filter(q => q.ch === k), 25), min: 33 }; },
   dom: n => { const d = D.domains[n - 1]; return { label: 'اختبار المجال ' + DN[n] + ' — ' + d.t.ar, qs: pickQs(D.q.filter(q => q.d === +n), 30), min: 40 }; },
   task: id => ({ label: 'اختبار المهمة ' + id, qs: pickQs(D.q.filter(q => q.t === id), 15), min: 20 }),
-  advanced: () => ({label:'PMI-RMP® — محاكاة متقدمة بحالات دولية متنوعة · 115 سؤالًا',qs:pickQs(D.q.filter(q=>q.src==='advanced2026'),115),min:150,full:true}),
-  full: () => ({ label: 'اختبار PMI-RMP® الكامل — محاكاة', qs: weighted(D.q.filter(q => q.src !== 'qc'), 115), min: 150, full: true }),
+  advanced: () => ({label:'PMI-RMP® — محاكاة متقدمة بحالات دولية متنوعة · 115 سؤالًا',qs:pickQs(D.q.filter(q=>q.src==='advanced2026' && q.revision==='eco2022-simulation-v2'),115),min:150,full:true}),
+  full: () => ({ label: 'اختبار PMI-RMP® الكامل — البنك المحدّث', qs: pickQs(D.q.filter(q => q.src === 'advanced2026' && q.revision === 'eco2022-simulation-v2'), 115), min: 150, full: true }),
   mini: () => ({ label: 'اختبار مصغّر — 50 سؤالًا', qs: weighted(D.q, 50), min: 65 }),
   scen: n => ({ label: 'سيناريوهات حقيبة المدرب' + (+n ? ' — اليوم ' + DN[n] : ''), qs: D.q.filter(q => q.src === 'deck' && (!+n || q.day === +n)), min: 16 }),
   qc: n => ({ label: 'أسئلة الأمانة التفاعلية — اليوم ' + DN[n], qs: D.q.filter(q => q.src === 'qc' && q.day === +n), min: 8 }),
@@ -1407,6 +1413,7 @@ routes.setup = (...args) => {
   $('#goExam').onclick = async () => {
     if (!def.qs.length) return toast('لا توجد أسئلة كافية لهذا الاختبار');
     S.cur = { spec, label: def.label, mode: P.mode, full: !!def.full, name: P.name || 'المتدرب', lang: P.lang, tools: Object.assign({}, P.tools), proctor: P.proctor,
+      bankRevision: 'eco2022-simulation-v2', questions: Object.fromEntries(def.qs.map(q => [q.id, JSON.parse(JSON.stringify(q))])),
       items: def.qs.map(q => ({ id: q.id, ord: (NOSHUF.test(q.o.en.concat(q.o.ar).join(' ')) ? q.o.en.map((_, i) => i) : shuffle(q.o.en.map((_, i) => i))) })),
       ans: {}, fl: {}, sk: {}, hl: {}, tr: {}, i: 0, start: Date.now(), dur: def.min * 60, used: 0, brk: false, shown: {}, viol: [], fs: 16, aid: window.__pendingAid ? window.__pendingAid(spec) : null };
     if (P.mode === 'practice') S.cur.dur = def.min * 60;
@@ -1466,11 +1473,15 @@ routes.exams = () => {
 let tick = null;
 routes.run = () => {
   const X = S.cur; if (!X || X.done) return go('#exams');
+  if (isLegacyFullExam(X)) {
+    view.innerHTML = `<div class="card pad stack"><h2>هذه محاولة محفوظة من بنك سابق</h2><p>لم نحذف إجاباتك. لفتح البنك المحدّث ابدأ محاولة جديدة؛ المراجعة السابقة تخص أسئلة محاولتك الأصلية.</p><div class="row"><a class="btn acc" href="#exams">فتح الاختبارات المحدّثة</a><button class="btn g" id="continueLegacy">استكمال المحاولة السابقة</button></div></div>`;
+    if (!X.legacyAcknowledged) { $('#continueLegacy').onclick = () => { X.legacyAcknowledged = true; save(); routes.run(); }; return; }
+  }
   X.hl = X.hl || {}; X.tr = X.tr || {}; X.viol = X.viol || []; X.tools = X.tools || { tr: 1, flag: 1, strike: 1, calc: 1, wb: 1, hl: 1, check: 1, ai: 1 }; X.fs = X.fs || 16; X.lang = X.lang || 'ar'; X.name = X.name || (S.prefs && S.prefs.name) || 'المتدرب'; if (!X.dur) X.dur = X.items.length * 80;
   clearInterval(tick);
   document.body.classList.add('in-exam');
   const Q = X.items, TL = X.tools, practice = X.mode === 'practice';
-  const qOf = it => QBY.get(it.id) || (X.ai || {})[it.id];
+  const qOf = it => examQuestion(X, it);
   const panel = { calc: false, wb: false, nav: false };
   const draw = () => {
     const it = Q[X.i], q = qOf(it), multi = q.c.length > 1, a = X.ans[X.i] || [];
@@ -1506,7 +1517,7 @@ routes.run = () => {
             let cls = a.includes(k) ? 'sel' : '';
             if (shown) cls = q.c.includes(k) ? 'right' : a.includes(k) ? 'wrong' : '';
             const stk = (X.sk[X.i] || []).includes(k);
-            return `<div class="xo ${cls} ${stk ? 'strike' : ''}" data-k="${k}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${a.includes(k)}" tabindex="0"><span class="xr ${multi ? 'sq' : ''}"></span><b class="en">${LET[j]}.</b><span class="txt">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L1))}${showTr ? `<span class="xm-tr sm" dir="${L2 === 'ar' ? 'rtl' : 'ltr'}">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L2))}</span>` : ''}</span>${TL.strike ? `<button class="strk" data-s="${k}" title="شطب">✕</button>` : ''}</div>`;
+            return `<div class="xo ${cls} ${stk ? 'strike' : ''}" data-k="${k}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${a.includes(k)}" tabindex="0"><span class="xr ${multi ? 'xr-square' : ''}"></span><b class="en">${LET[j]}.</b><span class="txt">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L1))}${showTr ? `<span class="xm-tr sm" dir="${L2 === 'ar' ? 'rtl' : 'ltr'}">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L2))}</span>` : ''}</span>${TL.strike ? `<button class="strk" data-s="${k}" title="شطب">✕</button>` : ''}</div>`;
           }).join('')}</div>
           ${shown ? explain(q, it, a) : ''}
           ${TL.hl ? '<div class="tiny muted" style="margin-top:10px">للتظليل: حدّد نصًا في السؤال. اضغط على النص المظلَّل لإزالته.</div>' : ''}
@@ -1698,7 +1709,7 @@ routes.result = (id) => {
       <div class="blk stack"><h3>Performance analysis and next steps</h3>${I.weak.length ? I.weak.map(d => `<p class="small">Review <b>${esc(d.t.en)}</b> (${d.correct}/${d.total} · ${d.p}%). Study this domain and retake the practice exam; aim for at least ${DAY_TARGET}%.</p>`).join('') : '<p class="small">No measured domain is below the study goal. Continue practice exams to confirm consistency.</p>'}${I.unmeasured.length ? `<p class="small muted">More questions needed: ${I.unmeasured.map(d => esc(d.t.en)).join(', ')}.</p>` : ''}<a class="btn sm o" href="#plan-post">Open the study plan</a></div>
       ${h.proctor === 'cam' ? `<h3>Proctoring record</h3>${viol.length ? `<div class="scroll"><table><thead><tr><th>Time</th><th>Event</th></tr></thead><tbody>${viol.map(v => `<tr><td class="num small">${new Date(v.t).toLocaleTimeString('en-GB')}</td><td>${esc(v.m)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="chip ok">No events recorded</div>'}${(h.viol || []).some(v => v.k === 'cam') ? '<div class="tiny muted">Camera unavailable; browser activity was monitored.</div>' : ''}` : ''}
       <div class="row"><button class="btn g" id="examPdf">Save PDF report</button><button class="btn g" id="examWord">Download Word</button><button class="btn" data-start="${h.spec}">Retake similar exam</button><button class="btn o" data-start="wrong">Review mistakes</button><button class="btn g" id="advise">AI study plan</button></div><div id="advOut"></div></div>
-    ${X ? `<h2 lang="en" dir="ltr">Answer review</h2><div class="stack">${X.items.map((it, k) => { const q = QBY.get(it.id) || (X.ai || {})[it.id]; if (!q) return ''; const a = X.ans[k] || []; const ok = sameSet(a, q.c); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc((q.q.ar || q.q.en).slice(0, 140))}${(q.q.ar || q.q.en).length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
+    ${X ? `${isLegacyFullExam(X) ? '<div class="blk">هذه نتيجة محاولة سابقة من البنك القديم. الأسئلة أدناه هي الأسئلة التي أُجيبت في تلك المحاولة. افتح الاختبارات لبدء البنك المحدّث.</div>' : ''}<h2 lang="en" dir="ltr">Answer review</h2><div class="stack">${X.items.map((it, k) => { const q = examQuestion(X, it); if (!q) return ''; const a = X.ans[k] || []; const ok = sameSet(a, q.c); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc((q.q.ar || q.q.en).slice(0, 140))}${(q.q.ar || q.q.en).length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
       <div class="stack" style="margin-top:10px"><div>${bi(q.q)}</div>${questionFigure(q)}<div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${bi({ ar: q.o.ar[o], en: q.o.en[o] })}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${bi(q.x)}${q.ref ? `<div class="tiny muted">Reference: ${esc(q.ref)}</div>` : ''}</div></div></details>`; }).join('')}</div>` : '<p class="muted">Detailed answer review is retained for the most recent six exams.</p>'}</div>`;
   const examReport = () => `<!doctype html><html lang="en" dir="ltr"><meta charset="utf-8"><title>ALSAEED | Training Exam Report</title><style>body{font:15px Arial,sans-serif;color:#173552;line-height:1.55;margin:30px auto;max-width:850px}.score-sheet{border:1px solid #cbdde9}.score-head{display:flex;justify-content:space-between;align-items:center;padding:22px 28px;background:#f2f8fc;border-bottom:2px solid #c6dbe8}.score-brand{font-size:25px;font-weight:900;letter-spacing:2px;color:#155275}.score-head-title{font-size:20px;font-weight:800}.score-body{padding:26px 30px}.score-meta,.score-domain-table{width:100%;border-collapse:collapse}.score-meta{margin:12px 0 28px}.score-sheet[dir="ltr"] .score-meta td,.score-sheet[dir="ltr"] .score-domain-table th,.score-sheet[dir="ltr"] .score-domain-table td{text-align:left}.score-meta td{width:50%;padding:11px 14px;border:1px solid #ccdae4}.score-meta small{display:block;color:#58748a}.score-result{font-size:23px;font-weight:800;border-top:2px solid #acc9dc;padding-top:18px}.score-result strong,.score-domain-table td:last-child{color:#087a88}.score-sub,.score-foot{color:#58748a}.score-track-labels{display:flex;justify-content:space-between;direction:ltr;font-size:12px;color:#56738a;margin:9px 0}.score-track{display:flex;height:34px;direction:ltr}.s1{width:50%}.s2,.s3{width:15%}.s4{width:20%}.s1{background:#eab9c3}.s2{background:#f4e4a2}.s3{background:#a9ddd8}.s4{background:#087f8f}.score-pointer{height:38px;position:relative}.score-pointer span{position:absolute;left:clamp(2%,var(--score),98%);transform:translateX(-50%);text-align:center;font-size:11px;font-weight:bold;white-space:nowrap}.score-domain-title{color:#174b68}.score-domain-table th,.score-domain-table td{border:1px solid #cbdde9;padding:10px;text-align:left}.score-domain-table th{background:#e9f4fa}.score-foot{font-size:12px;border-top:1px solid #d7e5ed;padding-top:12px;margin-top:20px}@media print{body{margin:0}.score-head,.score-track span,.score-domain-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>${scoreSheet(h,I)}<h2>Study plan</h2>${I.weak.length ? `<ol>${I.weak.map(d=>`<li>Review ${esc(d.t.en)}, then retake a domain practice exam. Current score: ${d.p}%; training goal: ${DAY_TARGET}%.</li>`).join('')}</ol>` : '<p>Continue practicing across all domains to maintain your performance.</p>'}${I.unmeasured.length ? `<p>More questions are needed to assess: ${I.unmeasured.map(d=>esc(d.t.en)).join(', ')}.</p>` : ''}</html>`;
   $('#examPdf').onclick = () => printReport(examReport());

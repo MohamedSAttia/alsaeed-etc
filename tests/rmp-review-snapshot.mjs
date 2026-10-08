@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+const html=fs.readFileSync('public/classroom/index.html','utf8');
+const code=html.slice(html.indexOf('function examQuestion('),html.indexOf('function questionFigure('));
+const QBY=new Map([['same',{q:'updated current bank'}],['old',{q:'historic bank'}]]);
+const context={QBY};vm.createContext(context);vm.runInContext(code,context);
+assert.equal(context.examQuestion({questions:{same:{q:'as answered'}}},{id:'same'}).q,'as answered');
+assert.equal(context.examQuestion({ai:{same:{q:'generated for attempt'}}},{id:'same'}).q,'generated for attempt');
+assert.equal(context.examQuestion({},{id:'old'}).q,'historic bank');
+assert.equal(context.isLegacyFullExam({spec:'full',items:[{id:'RMPADV-001'}]}),true);
+assert.equal(context.isLegacyFullExam({spec:'full',items:[{id:'RMPSIM22-001'}]}),false);
+assert.match(html,/full:.*q\.revision === 'eco2022-simulation-v2'/);
+assert.ok(!html.includes('.xr.sq'));assert.ok(html.includes('min-width:20px;max-width:20px'));
+console.log('PASS: review uses attempt snapshots; full exam excludes archived bank; checkbox CSS cannot collide with game squares.');
