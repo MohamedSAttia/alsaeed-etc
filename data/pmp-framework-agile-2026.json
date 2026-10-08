@@ -2202,5 +2202,237 @@
     "explanation_ar": "الانتقال بين المراحل قرار مبني على الجاهزية والمعايير وليس على الوقت المنقضي فقط.",
     "explanation_en": "Phase transition is based on readiness and criteria rather than elapsed time alone.",
     "reference": "Original AlSaeed learning practice; PMBOK Guide Eighth Edition concepts. Exam-structure items concern training preparation, not official PMI scoring rules."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-121",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تشارك فرق تقنية وتشغيلية في مشروع واحد، لكن كل فريق يخطط بمعزل عن تبعيات الآخر. تتأخر موافقات التشغيل رغم اكتمال البناء. ما أفضل خطوة؟",
+    "question_en": "Technology and operations teams plan the same project separately. Operational approvals delay deployment despite completed development. What should the project manager do?",
+    "options_ar": [
+      "دمج الخطط والتبعيات وآلية التنسيق مع الفريقين",
+      "إضافة وقت احتياطي دون مناقشة التبعيات",
+      "تسليم عمل التقنية وإسناد التأخير للتشغيل",
+      "إلغاء مراجعات التشغيل لتسريع التسليم"
+    ],
+    "options_en": [
+      "Integrate the plans, dependencies and coordination with both teams",
+      "Add a buffer without discussing dependencies",
+      "Hand over the technical work and blame operations",
+      "Cancel operational reviews to accelerate deployment"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "إدارة المشروع تتطلب تكامل العمل والتبعيات بين الفرق، وليس تحسين خطة فريق بمعزل عن الآخر.",
+    "explanation_en": "Project management requires integration of work and dependencies across teams. Optimizing one team alone does not resolve coordination gaps.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-122",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تدير مؤسسة خدمة شهرية مستقرة ومبادرة مؤقتة لتغيير نموذج الخدمة. طلب المدير دمج تقارير العملين بلا تمييز. ما النهج الأنسب؟",
+    "question_en": "An organization runs a stable monthly service and a temporary initiative to redesign it. A manager requests one undifferentiated report. What is the best approach?",
+    "options_ar": [
+      "تمييز التشغيل عن المشروع وربط نقاط الانتقال بينهما",
+      "تسمية كل أعمال الخدمة مشروعات مستقلة",
+      "إلغاء قياس التشغيل حتى ينتهي المشروع",
+      "اعتبار المبادرة تشغيلًا لأنها تدعم خدمة قائمة"
+    ],
+    "options_en": [
+      "Distinguish operations from the project and coordinate their transition points",
+      "Label all service work as separate projects",
+      "Stop operational measurement until the project ends",
+      "Treat the initiative as operations because it supports a service"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "المشروع مؤقت لإحداث تغيير، والتشغيل مستمر؛ يجب تنسيق الواجهات مع الحفاظ على طبيعة كل عمل.",
+    "explanation_en": "A project is temporary change work, while operations sustain ongoing service. Their interfaces should be coordinated without confusing their purposes.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-123",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "وجد مدير مشروع أن الاعتماد التنظيمي الجديد يؤثر في عدة خطط فرعية. يريد الراعي تعديل خطة واحدة فقط لتوفير الوقت. ماذا يفعل المدير؟",
+    "question_en": "A new organizational requirement affects several subsidiary plans. The sponsor wants to update only one to save time. What should the manager do?",
+    "options_ar": [
+      "تقييم التأثير المتكامل وتحديث الخطط المتأثرة وفق الإجراء المعتمد",
+      "تعديل خطة واحدة وإبقاء التناقضات",
+      "إعادة بدء المشروع دون تحليل",
+      "ترك الفرق تعالج التأثير بصورة منفصلة"
+    ],
+    "options_en": [
+      "Assess the integrated impact and update affected plans through the approved process",
+      "Update one plan and leave inconsistencies",
+      "Restart the project without analysis",
+      "Let teams address the impact independently"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "تتفاعل الخطط الفرعية؛ التعديل يحتاج تقييمًا متكاملًا يمنع التناقضات.",
+    "explanation_en": "Subsidiary plans interact. An integrated impact assessment prevents inconsistent assumptions and decisions.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-124",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "انتقل مدير إلى مؤسسة تختلف فيها الصلاحيات والعمليات عن مشروعه السابق. يريد استخدام إطار العمل السابق فورًا. ما الإجراء الأول؟",
+    "question_en": "A manager joins an organization with different authority and processes and wants to reuse the previous project framework immediately. What should happen first?",
+    "options_ar": [
+      "تقييم السياق والأصول التنظيمية وتكييف إطار العمل",
+      "نسخ جميع الإجراءات دون مراجعة",
+      "البدء دون تحديد الأدوار",
+      "انتظار مشكلة لتحديد العمليات"
+    ],
+    "options_en": [
+      "Assess the context and organizational assets and tailor the framework",
+      "Copy every procedure without review",
+      "Start without defining roles",
+      "Wait for a problem before defining processes"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "يجب مواءمة إطار العمل مع سياق المؤسسة وطبيعة المشروع قبل اعتماده.",
+    "explanation_en": "The framework should fit the organizational context and project characteristics before adoption.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-125",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تغيرت تبعية خارجية أثناء التنفيذ وأصبحت تؤثر في عدة فرق. كل فريق يحدث جدوله وحده، فتظهر تواريخ تسليم متعارضة. ما التصرف الأنسب؟",
+    "question_en": "An external dependency changes during execution. Teams update their schedules independently, producing conflicting delivery dates. What is the best action?",
+    "options_ar": [
+      "إجراء مراجعة مشتركة للتبعيات وتوحيد الخطة المتكاملة",
+      "اعتماد تاريخ أول فريق يرفع تقريره",
+      "السماح باستمرار التواريخ المتعارضة",
+      "تجميد جميع التحديثات حتى نهاية المشروع"
+    ],
+    "options_en": [
+      "Review dependencies jointly and reconcile the integrated plan",
+      "Use the date from the first reporting team",
+      "Allow conflicting dates to remain",
+      "Freeze all updates until project completion"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "التغيير في التبعيات يحتاج تنسيقًا عبر المشروع للحفاظ على خطة متسقة.",
+    "explanation_en": "Dependency changes require project-wide coordination to maintain a coherent plan.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-126",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "تتشارك ثلاثة مشروعات موارد محدودة، لكن أهدافها وفوائدها غير مترابطة. تريد الإدارة اختيار الاستثمارات حسب الاستراتيجية. ما الترتيب الأنسب؟",
+    "question_en": "Three projects share limited resources but have unrelated objectives and benefits. Management wants to select investments against strategy. What arrangement is most appropriate?",
+    "options_ar": [
+      "إدارة الاختيار والأولويات على مستوى المحفظة مع إدارة كل مشروع",
+      "تشكيل برنامج لمجرد مشاركة الموارد",
+      "إلغاء إدارة المشروعات والاكتفاء بالتشغيل",
+      "توزيع التمويل بالتساوي دون تقييم"
+    ],
+    "options_en": [
+      "Manage selection and priorities at portfolio level while managing each project",
+      "Form a program solely because resources are shared",
+      "Replace project management with operations",
+      "Allocate equal funding without evaluation"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "المحفظة تربط اختيار الاستثمارات بالاستراتيجية؛ مشاركة الموارد وحدها لا تثبت وجود برنامج.",
+    "explanation_en": "Portfolio management links investment selection to strategy. Shared resources alone do not establish a program.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-127",
+    "topic": "Project Management Framework",
+    "domain": "process",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "مخرجات مشروعات هوية رقمية وتوقيع إلكتروني مترابطة، ولا تتحقق الفائدة المشتركة إلا بتنسيقها. ما الإجراء الأنسب؟",
+    "question_en": "Digital identity and electronic signature projects have interdependent outputs. Their shared benefit requires coordination. What is the best action?",
+    "options_ar": [
+      "تنسيق الفوائد والتبعيات على مستوى البرنامج مع إدارة المشروعات",
+      "مراجعة كل مشروع منفردًا فقط",
+      "تسمية العمل تشغيلًا رغم كونه مؤقتًا",
+      "اختيار مشروع واحد وإلغاء الباقي دون تقييم"
+    ],
+    "options_en": [
+      "Coordinate benefits and dependencies at program level while managing the projects",
+      "Review each project only in isolation",
+      "Call the temporary work operations",
+      "Choose one project and cancel the others without assessment"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "البرنامج يدعم الفوائد التي تتطلب إدارة منسقة للمكونات المترابطة.",
+    "explanation_en": "A program coordinates related components to realize benefits that isolated management cannot achieve.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
+  },
+  {
+    "id": "ALSAEED-PMP-2026-FA-128",
+    "topic": "Project Management Framework",
+    "domain": "business",
+    "phase": "planning",
+    "approach": "general",
+    "type": "single",
+    "question_ar": "يسأل عضو جديد أين يجد حدود الصلاحيات وهدف المبادرة وطريقة تنسيق الخطط. تنتشر الإجابات في رسائل متضاربة. ما الذي ينبغي فعله؟",
+    "question_en": "A new team member asks where to find authority boundaries, the initiative purpose and plan coordination arrangements. Conflicting messages circulate. What should be done?",
+    "options_ar": [
+      "توحيد الوثائق المعتمدة وتوضيح علاقاتها ومصادرها للفريق",
+      "إرسال أحدث رسالة دون التحقق",
+      "ترك كل فريق يحتفظ بتفسيره",
+      "إعداد وثائق جديدة دون مراجعة المعتمد"
+    ],
+    "options_en": [
+      "Consolidate access to approved documents and explain their relationships and sources",
+      "Forward the latest message without validation",
+      "Let each team keep its own interpretation",
+      "Create new documents without checking approved records"
+    ],
+    "correct": "A",
+    "correct_json": [
+      0
+    ],
+    "explanation_ar": "العمل المتكامل يعتمد على معلومات ووثائق معتمدة ومفهومة ومرتبطة، لا تفسيرات متعارضة.",
+    "explanation_en": "Integrated work depends on approved, accessible and understood documents with clear relationships rather than conflicting interpretations.",
+    "reference": "Original AlSaeed practice item; concepts aligned to PMP ECO July 2026 and PMBOK Guide 8. Not an official PMI exam question."
   }
 ]

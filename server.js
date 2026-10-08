@@ -680,7 +680,8 @@ function progressSummary(userId, packageId, enrollmentCreated) {
   const avgExam = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
   const weeksDone = Object.values(data.weeks || {}).filter(Boolean).length;
   let progress = lessonTotal ? Math.round(Math.min(1, lessonDone/lessonTotal)*100) : Math.min(100, weeksDone*10 + exams.filter(x=>x.passed).length*10);
-  return { progress, avgExam:Math.round(avgExam*10)/10, lessonDone, lessonTotal, examsAttempted:exams.length, lastActivity:(row&&row.updated)||enrollmentCreated||0 };
+  const activityDetails={weeksDone,lessons:lessonDone,lessonTotal,activities:Object.values(data.activities||{}).filter(Boolean).length,downloads:Object.keys(data.downloads||{}).length,reports:Object.keys(data.applicationReports||{}).length,games:Object.keys(data.games||{}).length,exams:Object.entries(data.exams||{}).filter(([,x])=>x&&typeof x==='object').map(([id,x])=>({id,score:Number.isFinite(Number(x.score))?Number(x.score):null,passed:typeof x.passed==='boolean'?x.passed:null,at:Number(x.at)||0,total:Number(x.total||x.autoCount)||0}))};
+  return { activityDetails, progress, avgExam:Math.round(avgExam*10)/10, lessonDone, lessonTotal, examsAttempted:exams.length, lastActivity:(row&&row.updated)||enrollmentCreated||0 };
 }
 
 app.get('/api/admin/overview', auth, admin, (req, res) => {

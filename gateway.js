@@ -258,6 +258,7 @@ function savePackages(list) {
 }
 
 const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
+const pmpTopicRouting=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-topic-routing-2026.json'),'utf8'));
 const pmpEditorialHolds=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-editorial-holds-2026.json'),'utf8')).items.map(x=>x.id);
 const topicQuestions=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-framework-agile-2026.json'),'utf8'));
 const topicPackages=[pmp.packageId,...getPackages().filter(p=>String(p.course).toLowerCase()==='pmp').map(p=>questionSourcePackageId(p.id))];
@@ -501,7 +502,7 @@ function handleLearnerQuestionBank(req,res,url){
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
   // Learners see the current PMP source cohorts; legacy imports remain available to administrators for editorial review.
   const pmpQualityGate=sourcePackageId===pmp.packageId||getPackages().some(p=>p.id===packageId&&String(p.course).toLowerCase()==='pmp');
-  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') != 'PMP exam structure' AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
+  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') NOT IN ('PMP exam structure','Introduction') AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
 
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
@@ -519,7 +520,7 @@ function handleLearnerQuestionBank(req,res,url){
     options_ar:o.ar,options_en:o.en,
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
-    meta:parseJson(q.meta,{}),phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
+    meta:{...parseJson(q.meta,{}),...(pmpQualityGate&&pmpTopicRouting[q.source_id]?{primaryTopic:pmpTopicRouting[q.source_id]}:{})},phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }});
   return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions});
 }
