@@ -1,8 +1,8 @@
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
 const context={window:{},MutationObserver:class{observe(){}},document:{body:{}},APP:{esc:String}};vm.createContext(context);vm.runInContext(fs.readFileSync('public/course-assessments.js','utf8'),context);
 const a=context.window.CourseAssessments;const source=fs.readFileSync('public/assets/pmp-bank.js','utf8');const raw=JSON.parse(source.slice(source.indexOf('[')).replace(/;\s*$/,''));const bank=raw.map(q=>({id:q.id,domain:q.dm,topic:q.ch,approach:q.ap}));
-const mocks=a.models(bank);assert.deepEqual(Array.from(mocks,x=>x.length),[180,180,180]);assert.equal(new Set(mocks.flat().map(q=>q.id)).size,540);for(const m of mocks){assert.equal(m.filter(q=>q.domain==='people').length,59);assert.equal(m.filter(q=>q.domain==='process').length,74);assert.equal(m.filter(q=>q.domain==='business').length,47)}
+const mocks=a.models(bank);assert.deepEqual(Array.from(mocks,x=>x.length),[180,180,180,180,180]);assert(mocks.every(m=>new Set(m.map(q=>q.id)).size===180));for(const m of mocks){assert.equal(m.filter(q=>q.domain==='people').length,59);assert.equal(m.filter(q=>q.domain==='process').length,74);assert.equal(m.filter(q=>q.domain==='business').length,47)}
 assert(a.match({topic:'Risk',approach:'predictive'},{topic:'risk',approach:'predictive'}));assert(!a.match({topic:'Scope',approach:'predictive'},{topic:'risk'}));assert(!a.match({topic:'Risk'},{phase:'planning'}));assert(a.match({phase:'planning'},{phase:'planning'}));assert.equal(a.models(bank.slice(0,40))[0].length,0);
-console.log('PASS: three distinct 180-question models, domain distribution, exact classified filters and no invented phase');
+console.log('PASS: five 180-question models, no duplicates within a model, domain distribution, exact classified filters and no invented phase');
 
 assert.equal(a.chapterRows([{topic:'Schedule'},{topic:'Risk'},{topic:'عنوان فصل خاص'}],'الجدول الزمني').length,1);assert.equal(a.chapterRows([{topic:'عنوان فصل خاص'}],'عنوان فصل خاص').length,1);
