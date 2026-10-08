@@ -10,6 +10,8 @@
 //   and routes are untouched). The page is public/classroom/index.html.
 // =====================================================================
 import express from 'express';
+import fs from 'node:fs';
+import {seedRmpAdvanced} from './rmp-advanced-seed.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'node:crypto';
@@ -63,6 +65,7 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
     if (!submissionColumns.has(name)) db.exec(`ALTER TABLE cls_submissions ADD COLUMN ${name} ${type}`);
   }
   db.exec('CREATE TABLE IF NOT EXISTS cls_submission_reviews(id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL, status TEXT NOT NULL, feedback TEXT, rubric TEXT, grade REAL, reviewer TEXT NOT NULL, created INTEGER NOT NULL)');
+  if(!workspace)seedRmpAdvanced(db,JSON.parse(fs.readFileSync(path.join(HERE,'data/rmp-private-advanced-115.json'),'utf8')));
   const q1 = (sql, ...a) => db.prepare(sql).get(...a);
   const qa = (sql, ...a) => db.prepare(sql).all(...a);
   const run = (sql, ...a) => db.prepare(sql).run(...a);

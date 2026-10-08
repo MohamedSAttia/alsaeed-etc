@@ -151,7 +151,7 @@ function connectPlayer(){
     instance.on('timeupdate',e=>{if(V===target&&V.lessonIdx===index)V.t=e.seconds});
     instance.on('ended',()=>{
       if(V!==target||V.lessonIdx!==index)return;
-      const pr=window.APP.prog(V.pkgId);pr.lessons[index]=true;window.APP.save();window.APP.render();
+      const pr=window.APP.prog(V.pkgId);pr.lessons[index]=true;window.APP.save();
       if(V.autoNext)nextVideo();
       else window.APP.toast(T('اكتمل الفيديو. شغّل التالي عندما تريد.','Video completed. Play the next when ready.'));
     });

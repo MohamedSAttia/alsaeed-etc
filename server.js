@@ -275,7 +275,7 @@ async function deliverStudyReminders() {
         const variant=packages.find(p=>p.id===c.package_id);
         const source=variant?.sourcePackageId && packages.some(p=>p.id===variant.sourcePackageId)
           ? variant.sourcePackageId : c.package_id;
-        const videos=db.prepare("SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(source);
+        const videos=db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(source);
         if(!videos.length) return false;
         let progress={};try{progress=JSON.parse(c.data||'{}')}catch{}
         return videos.some(l=>!progress.lessons?.[l.idx]);
@@ -627,7 +627,7 @@ app.post('/api/certificate/:pkg', auth, (req, res) => {
     .get(req.user.id, req.params.pkg);
   const p = pr ? JSON.parse(pr.data) : {};
   const total = db.prepare('SELECT COUNT(*) c FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').get(req.params.pkg).c;
-  const watched = db.prepare('SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').all(req.params.pkg);
+  const watched = db.prepare('SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').all(req.params.pkg);
   if (!total || !watched.every(l => p.lessons?.[l.idx]))
     return res.status(400).json({ error: 'يلزم إكمال مشاهدة جميع الفيديوهات أولاً' });
 
@@ -672,7 +672,7 @@ function progressSummary(userId, packageId, enrollmentCreated) {
   const row = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
   let data = { lessons:{}, weeks:{}, exams:{} };
   if (row) { try { data = JSON.parse(row.data); } catch (e) {} }
-  const videoRows = db.prepare("SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
+  const videoRows = db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
   const lessonTotal = videoRows.length;
   const lessonDone = videoRows.filter(l => data.lessons?.[l.idx]).length;
   const exams = Object.values(data.exams || {}).filter(Boolean);
@@ -680,7 +680,8 @@ function progressSummary(userId, packageId, enrollmentCreated) {
   const avgExam = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
   const weeksDone = Object.values(data.weeks || {}).filter(Boolean).length;
   let progress = lessonTotal ? Math.round(Math.min(1, lessonDone/lessonTotal)*100) : Math.min(100, weeksDone*10 + exams.filter(x=>x.passed).length*10);
-  const activityDetails={weeksDone,lessons:lessonDone,lessonTotal,activities:Object.values(data.activities||{}).filter(Boolean).length,downloads:Object.keys(data.downloads||{}).length,reports:Object.keys(data.applicationReports||{}).length,games:Object.keys(data.games||{}).length,exams:Object.entries(data.exams||{}).filter(([,x])=>x&&typeof x==='object').map(([id,x])=>({id,score:Number.isFinite(Number(x.score))?Number(x.score):null,passed:typeof x.passed==='boolean'?x.passed:null,at:Number(x.at)||0,total:Number(x.total||x.autoCount)||0}))};
+  const chapterGroups=new Map();for(const l of videoRows){const key=String(l.chapter??'');if(!chapterGroups.has(key))chapterGroups.set(key,{title:key||'المحتوى',done:0,total:0});const g=chapterGroups.get(key);g.total++;if(data.lessons?.[l.idx])g.done++;}
+  const activityDetails={chapters:[...chapterGroups.values()],weeksDone,lessons:lessonDone,lessonTotal,activities:Object.values(data.activities||{}).filter(Boolean).length,downloads:Object.keys(data.downloads||{}).length,reports:Object.keys(data.applicationReports||{}).length,games:Object.keys(data.games||{}).length,exams:Object.entries(data.exams||{}).filter(([,x])=>x&&typeof x==='object').map(([id,x])=>({id,score:Number.isFinite(Number(x.score))?Number(x.score):null,passed:typeof x.passed==='boolean'?x.passed:null,at:Number(x.at)||0,total:Number(x.total||x.autoCount)||0}))};
   return { activityDetails, progress, avgExam:Math.round(avgExam*10)/10, lessonDone, lessonTotal, examsAttempted:exams.length, lastActivity:(row&&row.updated)||enrollmentCreated||0 };
 }
 
@@ -698,7 +699,7 @@ app.get('/api/admin/overview', auth, admin, (req, res) => {
     const avgExam=examVals.length?Math.round(examVals.reduce((a,b)=>a+b,0)/examVals.length):0;
     const lastActivity=Math.max(u.created,...details.map(x=>x.lastActivity||0));
     const future=ens.map(x=>x.expires).filter(x=>x&&x>now).sort((a,b)=>a-b);
-    return { ...u, enrollments:ens.length, progress, avgExam, lastActivity, nearestExpiry:future[0]||null };
+    return { ...u, learningPackages:details, enrollments:ens.length, progress, avgExam, lastActivity, nearestExpiry:future[0]||null };
   });
   const orders=db.prepare(`SELECT o.*,u.name user_name,u.email user_email FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 20`).all().map(o=>({...o,package_name:names.get(o.package_id)||o.package_id}));
   const activeEnrollments=enrollments.filter(e=>!e.expires||e.expires>now).length;
