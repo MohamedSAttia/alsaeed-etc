@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/unified-exam.css?v=20261008-1">
+<link rel="stylesheet" href="/unified-exam.css?v=20261008-2">
 <link rel="stylesheet" href="/learning-v20.css?v=20.0">
 <link rel="stylesheet" href="/ui-v21.css?v=21.1">
 <link rel="stylesheet" href="/platform-v22.css?v=22.0">
@@ -1084,7 +1084,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=2">
+<link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=4">
 </head>
 <body>
 
@@ -3130,6 +3130,7 @@ function render() {
   else if (head === 'pkg') html = V.pkg(arg);
   else if (head === 'learn') html = owns(arg) ? V.learn(arg) : V.locked(arg);
   else if (head === 'dash') html = me() ? V.dash() : V.needLogin();
+  else if (head === 'trainer') html = isAdmin() ? V.trainer() : V.needLogin(true);
   else if (head === 'admin') html = isAdmin() ? V.admin(arg) : V.needLogin(true);
   else if (head === 'about') html = V.about();
   else if (head === 'contact') html = V.contact();
@@ -3158,7 +3159,7 @@ function renderNav() {
     <a href="#blog" class="${on('blog') ? 'on' : ''}" data-r="blog">${T.blog}</a>
     <a href="#contact" class="${on('contact') ? 'on' : ''}" data-r="contact">${T.contact}</a>
     ${u ? `<a href="#dash" class="${on('dash') ? 'on' : ''}" data-r="dash">${T.dash}</a>` : ''}
-    ${isAdmin() ? `<a href="#admin" class="${on('admin') ? 'on' : ''}" data-r="admin">${T.admin}</a>` : ''}`;
+    ${isAdmin() ? `<a href="#trainer" data-r="trainer">صفحة المدرب</a><a href="#admin" class="${on('admin') ? 'on' : ''}" data-r="admin">${T.admin}</a>` : ''}`;
 
   $('#hdrAct').innerHTML = `
     <div class="lang"><button class="lang-b" id="langBtn">🌐 ${esc(L.k.toUpperCase())} ▾</button>
@@ -4366,7 +4367,7 @@ function pkgTab(p, c, has) {
 
   if (pkTab === 'content') {
     const ls = window.LESSONS[p.id] || [];
-    if (!ls.length) return `<div class="empty"><div class="ic">🎬</div>
+    if (!ls.length && c.id!=='pmp') return `<div class="empty"><div class="ic">🎬</div>
       <b>المحتوى قيد الرفع</b><p class="muted">سيظهر هنا فور رفعه من لوحة الإدارة.</p></div>`;
     const pr = has ? A().prog(p.id) : { lessons: {} };
     const videoNumbers = new Map(ls.map((l, i) => ({ l, i }))
@@ -4382,6 +4383,7 @@ function pkgTab(p, c, has) {
       ${groups.map((group,ci) => `<details class="ch-blk learning-chapter" ${ci===0?'open':''}>
         <summary class="ch-h"><b>${esc(siteEnglish()?(group.en||group.title):group.title)}</b>
           <span>${group.items.length} ${siteEnglish()?'lessons':'دروس'} · ${group.items.filter(l=>pr.lessons[l.i]).length} ✓</span></summary>
+        ${has&&c.id==='pmp'&&window.PmpReading?PmpReading.markup(group.key):''}
         ${group.items.map(l => `<article class="learning-lesson"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
@@ -4391,8 +4393,8 @@ function pkgTab(p, c, has) {
           ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:l.notes)||l.notes||l.notes_en)}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
-      ${has&&group.items.length?`<button class="btn p" data-learning-chapter="${esc(group.title)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'اختبر فهمك لهذا المحور'}</button>`:''}${!group.items.length?`<p class="empty">${siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.'}</p>`:''}</details>`).join('')}`;
+        </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
+      ${has&&!['intro','exam','journey','review'].includes(group.key)&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${!group.items.length?`<p class="empty">${siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.'}</p>`:''}</details>`).join('')}`;
   }
 
   if (pkTab === 'resources') {
@@ -4500,12 +4502,13 @@ function learn(id) {
   const kinds = p.kinds || [];
   const tabs = [['plan', siteEnglish()?'Passing plan & follow-up':'خطة الاجتياز والمتابعة'],
     ...(kinds.includes('video') || kinds.includes('material') ? [['content', siteEnglish()?'Content':'المحتوى']] : []),
+    ...(kinds.includes('quiz') || kinds.includes('exam') ? [['exams', siteEnglish()?'Assessments':'الاختبارات']] : []),
     ...(kinds.includes('download') ? [['resources', 'الملفات']] : []),
     ...(kinds.includes('flash') ? [['flash', 'Flash Cards']] : []),
     ...(kinds.includes('activity') ? [['activities', 'الأنشطة']] : []),
     ...(kinds.includes('game') ? [['games', 'الألعاب']] : []),
     ['workspace', siteEnglish()?'Practical system':'النظام التطبيقي'],
-    ...(kinds.includes('quiz') || kinds.includes('exam') ? [['exams', 'الاختبارات']] : []),
+
 
     ...(p.cert ? [['cert', 'الشهادة']] : [])];
   if (!tabs.some(x => x[0] === learnTab)) learnTab = tabs[0][0];
@@ -4539,7 +4542,7 @@ function learn(id) {
         `<span class="k"><i style="background:${A().BAND[k].c}"></i>${A().BAND[k].ar}</span>`).join('')}</div>
     </div>` : ''}
 
-    <div class="card pad mb"><h3>${siteEnglish()?'My learning dashboard':'لوحة تقدمي في الباقة'}</h3><p>${siteEnglish()?'Follow the steps below. Completion counts reflect recorded activity.':'تابع الخطوات التالية. الأعداد تعكس ما سجلته فعليًا في هذه الباقة.'}</p><div class="learner-steps">${[['plan',siteEnglish()?'Plan':'الخطة',Object.values(pr.weeks||{}).filter(Boolean).length],['content',siteEnglish()?'Reading & video':'الشرح والفيديو',ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length],['resources',siteEnglish()?'Files':'الملفات',Object.keys(pr.downloads||{}).length],['activities',siteEnglish()?'Exercises':'التمارين',Object.values(pr.activities||{}).filter(Boolean).length],['workspace',siteEnglish()?'Application':'التطبيق',Object.keys(pr.applicationReports||{}).length],['exams',siteEnglish()?'Tests':'الاختبارات',Object.keys(pr.exams||{}).length]].filter(([id])=>tabs.some(t=>t[0]===id)).map(([id,t,n],i)=>`<button class="learner-step ${learnTab===id?'on':''} ${n?'done':''}" data-lt="${id}"><strong>${i+1} · ${t}</strong><small>${n} ${siteEnglish()?'recorded':'مسجل'}</small></button>`).join('')}</div></div>
+    <div class="card pad mb"><h3>${siteEnglish()?'My learning dashboard':'لوحة تقدمي في الباقة'}</h3><p>${siteEnglish()?'Follow the steps below. Completion counts reflect recorded activity.':'تابع الخطوات التالية. الأعداد تعكس ما سجلته فعليًا في هذه الباقة.'}</p><div class="learner-steps">${[['plan',siteEnglish()?'Plan':'الخطة',Object.values(pr.weeks||{}).filter(Boolean).length],['content',siteEnglish()?'Reading & video':'الشرح والفيديو',ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length],['exams',siteEnglish()?'Tests':'الاختبارات',Object.keys(pr.exams||{}).length],['resources',siteEnglish()?'Files':'الملفات',Object.keys(pr.downloads||{}).length],['activities',siteEnglish()?'Exercises':'التمارين',Object.values(pr.activities||{}).filter(Boolean).length],['workspace',siteEnglish()?'Application':'التطبيق',Object.keys(pr.applicationReports||{}).length]].filter(([id])=>tabs.some(t=>t[0]===id)).map(([id,t,n],i)=>`<button class="learner-step ${learnTab===id?'on':''} ${n?'done':''}" data-lt="${id}"><strong>${i+1} · ${t}</strong><small>${n} ${siteEnglish()?'recorded':'مسجل'}</small></button>`).join('')}</div></div>
     <div class="tabs">${tabs.filter(([k])=>!['plan','content','resources','activities','workspace','exams'].includes(k)).map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
     <div id="lnBody" class="learning-content-frame" style="padding-bottom:60px">${learnTab === 'workspace' ? `<section class="package-application" data-native-workspace="${esc(p.id)}"><div class="card pad">${siteEnglish()?'Loading applications…':'جارٍ تحميل التطبيق…'}</div></section>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
@@ -5333,7 +5336,7 @@ function playLesson(pid, idx) {
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
-    ${String(l.notes||l.notes_en||'').trim()?`<div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Lesson reading':'شرح الدرس'}</b><p>${esc((siteEnglish()?l.notes_en:l.notes)||l.notes_en||l.notes)}</p></div>`:''}
+    ${String(l.notes||l.notes_en||'').trim()?`<div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Lesson reading':'شرح الدرس'}</b><p>${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></div>`:''}
     <p>${l.dur} · درس ${idx + 1} من ${ls.length}</p>
     <div class="player">
       ${l.vimeo
@@ -5530,6 +5533,11 @@ function drawCert(pid, no, verify, englishName) {
 }
 
 /* ═══════════ الربط ═══════════ */
+function trainer(){
+ const O=A().adminOverview||localOverview(),students=O.students||[];
+ return `<section class="dash-hd learning-hero"><div class="wrap"><h1>${siteEnglish()?'Trainer · learner progress':'صفحة المدرب · متابعة المتدربين'}</h1><p>${siteEnglish()?'Open a learner to review recorded lessons, activities, application reports and exam results.':'افتح ملف المتدرب لمتابعة الدروس والأنشطة وتقارير التطبيق ونتائج الاختبارات المسجلة.'}</p></div></section><div class="wrap trainer-progress-page"><div class="card pad"><div class="grid g2"><label>${siteEnglish()?'Search learner':'بحث عن متدرب'}<input id="studentSearch" type="search" placeholder="${siteEnglish()?'Name or email':'الاسم أو البريد الإلكتروني'}"></label><button class="btn p" id="refreshTrainerProgress">${siteEnglish()?'Refresh progress':'تحديث التقدم'}</button></div></div><div class="grid g3" style="margin-top:20px">${students.map(u=>`<article class="card pad" data-student-row="${esc((u.name+' '+u.email).toLowerCase())}"><h3>${esc(u.name)}</h3><p>${esc(u.email)}</p><div class="mini-progress"><i style="width:${Math.max(0,Math.min(100,u.progress||0))}%"></i></div><p>${siteEnglish()?'Learning progress':'تقدم التعلم'}: <b>${u.progress||0}%</b></p><p>${siteEnglish()?'Average assessment score':'متوسط نتائج الاختبارات'}: <b>${u.avgExam||0}%</b></p><small>${siteEnglish()?'Last activity':'آخر نشاط'}: ${u.lastActivity?new Date(u.lastActivity).toLocaleDateString(siteEnglish()?'en-GB':'ar-SA'):'—'}</small><button class="btn p full" data-student="${esc(u.id)}">${siteEnglish()?'View learning and assessment details':'تفاصيل التعلم والاختبارات'}</button></article>`).join('')||`<p>${siteEnglish()?'No learner records loaded. Use Refresh progress.':'لا توجد بيانات محملة. اضغط تحديث التقدم.'}</p>`}</div></div>`;
+}
+
 async function viewStudent(id){
   let d=null;
   if(A().live){try{d=await A().api('/admin/users/'+encodeURIComponent(id)+'/activity');}catch(e){A().toast(e.message);return;}}
@@ -5885,6 +5893,7 @@ function bind() {
   const auq=$('#admAddUserQuick'); if(auq)auq.onclick=addUser;
   const agq=$('#admGrantQuick'); if(agq)agq.onclick=grantPkg;
   $$('[data-student]').forEach(b=>b.onclick=()=>viewStudent(b.dataset.student));
+  const refreshTrainer=$('#refreshTrainerProgress');if(refreshTrainer)refreshTrainer.onclick=async()=>{refreshTrainer.disabled=true;try{await A().syncAdminData();A().render()}catch(e){A().toast(e.message)}finally{refreshTrainer.disabled=false}};
   const exs=$('#exportStudents'); if(exs)exs.onclick=exportStudentsCSV;
   const ss=$('#studentSearch'); if(ss)ss.oninput=()=>{const q=ss.value.trim().toLowerCase(); $$('[data-student-row]').forEach(r=>r.style.display=!q||r.dataset.studentRow.includes(q)?'':'none');};
   const ag = $('#admGrant'); if (ag) ag.onclick = grantPkg;
@@ -6735,7 +6744,7 @@ function grantPkg() {
 function closeMega() { window.__mega = false; }
 
 return { home, courses, programs, closeMega, systems, library, blog, academic, degree, consulting, megaMenu,
-  course: courseView, pkg: pkgView, learn, dash, admin,
+  course: courseView, pkg: pkgView, learn, dash, admin, trainer,
   about, contact, locked, needLogin, bind };
 })();
 </script>
@@ -7031,7 +7040,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261008-3"></script><script src="/course-roadmap.js?v=1"></script><script src="/course-assessments.js?v=12"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261008-4"></script><script src="/course-roadmap.js?v=1"></script><script src="/pmp-reading.js?v=1"></script><script src="/course-assessments.js?v=14"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20.1"></script>
