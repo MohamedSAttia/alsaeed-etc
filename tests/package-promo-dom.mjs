@@ -219,6 +219,15 @@ try {
   const pmp = APP.pack('pmp-full');
   delete pmp.promoVideo; delete pmp.promoUseCoursePreview;
   await render(pmp);
+  assert.equal(document.querySelectorAll('.package-exp-promo').length, 1, 'Exactly one PMP video area');
+  assert.ok(document.querySelector('.v43-package-layout > .package-exp-promo-in-hero'), 'Video replaces the illustrated hero position');
+  assert.equal(document.querySelector('.v43-package-layout .package-exp-hero-art'), null, 'Original PMP hero illustration is removed');
+  assert.equal(document.querySelector('.pd-hero .package-exp-promo'), null, 'No duplicate lower promo section');
+  const suppliedLogo = document.querySelector('.package-exp-promo-logo');
+  assert.equal(suppliedLogo?.getAttribute('src'), '/assets/certifications/pmp-promo-logo.png');
+  assert.ok(suppliedLogo.alt.includes('PMP'));
+  assert.equal(suppliedLogo.width, suppliedLogo.height, 'Supplied logo retains square proportions');
+  assert.ok(existsSync('public' + suppliedLogo.getAttribute('src')));
   const poster = document.querySelector('.package-exp-promo-poster img');
   assert.equal(poster?.getAttribute('src'), '/assets/promos/pmp-intro-poster.webp');
   assert.ok(existsSync('public' + poster.getAttribute('src')));
@@ -234,7 +243,8 @@ try {
   document.querySelector('#pPromoVideo').value = ''; await save();
   assert.equal(pmp.promoVideo, '', 'Explicitly clearing published default persists a hide override');
   await render(pmp); assert.equal(document.querySelector('.package-exp-promo'), null);
+  assert.ok(document.querySelector('.package-exp-hero-art'), 'Hiding the video restores the ordinary hero illustration');
   console.log('PASS: real admin validation, full-only fields, no false fallback, awaited save, failure rollback, clear and persistence payload');
-  console.log('PASS: all package artwork assets, supplied PMP poster/media mapping, no eager MP4 loading, and explicit hide override');
+  console.log('PASS: all package artwork assets, PMP video replaces the hero image once with supplied logo, no eager MP4 loading, and explicit hide override');
   assert.deepEqual(errors, [], 'No page script errors');
 } finally { dispose(); }

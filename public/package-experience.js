@@ -75,7 +75,7 @@
     return { ...source, coursePreview: !own, poster };
   }
 
-  function addPromo(main, pkg) {
+  function addPromo(main, pkg, hero) {
     const source = promoSource(pkg, window.APP?.course(pkg?.course));
     if (!source) return;
     const card = make('section', 'package-exp-promo');
@@ -138,7 +138,20 @@
     const actions = make('div', 'package-exp-promo-actions');
     actions.append(play, close, external);
     card.append(heading, make('p', '', text('يُحمّل مشغّل الفيديو عند الضغط فقط، دون تشغيل تلقائي.', 'The player loads only when selected, without autoplay.')), player, actions);
-    main.prepend(card);
+    const preset = window.PACKAGE_PROMOS?.[pkg.id];
+    const heroSlot = preset?.placement === 'hero' ? hero?.querySelector('.package-exp-hero-art') : null;
+    if (heroSlot) {
+      card.classList.add('package-exp-promo-in-hero');
+      const title = make('div', 'package-exp-promo-heading');
+      if (/^\/assets\/certifications\/[a-z0-9_-]+\.(?:png|jpe?g|webp)$/i.test(preset.logo || '')) {
+        const logo = make('img', 'package-exp-promo-logo');
+        logo.src = preset.logo; logo.alt = text('شعار PMP', 'PMP logo'); logo.width = 225; logo.height = 225;
+        title.append(logo);
+      }
+      title.append(heading);
+      card.prepend(title);
+      heroSlot.replaceWith(card);
+    } else main.prepend(card);
   }
 
   function scrollToSection(target) {
@@ -165,13 +178,13 @@
       value.classList.toggle('package-exp-text-value', /[\u0621-\u064A]/.test(value.textContent));
     });
     const main = detail.firstElementChild;
-    addPromo(main, window.APP?.pack(hero.dataset.languagePackage));
+    addPromo(main, window.APP?.pack(hero.dataset.languagePackage), hero);
     const headings = [...main.children].filter(node => /^H[2-4]$/.test(node.tagName));
     const navWrap = make('div', 'wrap package-exp-overview');
     const nav = make('nav', 'package-exp-outline');
     nav.setAttribute('aria-label', text('أقسام تفاصيل الباقة', 'Package details sections'));
     navWrap.append(make('p', 'package-exp-eyebrow', text('استكشف الباقة', 'EXPLORE THIS PACKAGE')), nav);
-    const promo = main.querySelector('.package-exp-promo');
+    const promo = app.querySelector('.package-exp-promo');
     if (promo) addJump(nav, promo.querySelector('h2'), promo.querySelector('h2').textContent);
     headings.forEach((heading, index) => {
       heading.id ||= 'package-detail-section-' + index;

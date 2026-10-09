@@ -34,6 +34,13 @@
 .package-exp-promo-poster span::before { content: ''; display: inline-block; width: 0; height: 0; margin-inline-end: 10px; border-block: 7px solid transparent; border-inline-start: 11px solid currentColor; }
 .package-exp-promo-actions a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; }
 .package-exp-promo [hidden] { display: none !important; }
+.package-exp-promo-in-hero { width: 100%; min-width: 0; margin: 0; padding: clamp(14px, 2vw, 22px); border-color: #ffffff40; background: #f4f7fa; box-shadow: 0 22px 60px #020f2433; }
+.package-exp-promo-in-hero > p { display: none; }
+.package-exp-promo-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.package-exp-promo-heading h2 { margin: 0; font-size: clamp(1rem, 1.7vw, 1.25rem); }
+.package-exp-promo-logo { flex: 0 0 64px; width: 64px; height: 64px; object-fit: contain; border-radius: 50%; }
+.package-exp-promo-in-hero .package-exp-promo-actions a { color: #225777; }
+.package-exp-promo :focus-visible { outline: 3px solid #bf621c; outline-offset: 3px; }
 .package-exp-detail .pd-spec { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .package-exp-detail .pd-s { min-width: 0; overflow-wrap: anywhere; }
 .package-exp-detail .pd-s b { line-height: 1.6; }
