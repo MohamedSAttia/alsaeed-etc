@@ -1,0 +1,77 @@
+/* Shared presentation; scope excludes the classroom, admin, payment and exam engines. */
+#app[data-package-experience] { --package-border: #d9e3ec; --package-muted: #526780; }
+#app[data-package-experience] .wrap { min-width: 0; }
+.package-exp-overview { padding-block: 25px 0; }
+.package-exp-eyebrow { color: #985020; font-weight: 800; font-size: .75rem; letter-spacing: .035em; margin-bottom: 10px; }
+.package-exp-outline { display: flex; flex-wrap: wrap; gap: 8px; }
+.package-exp-jump { min-height: 44px; padding: 9px 14px; border: 1px solid var(--package-border); background: #fff; color: #183955; border-radius: 12px; font: 700 .85rem var(--fb, sans-serif); line-height: 1.6; text-align: start; }
+.package-exp-jump:hover { background: #edf3f7; border-color: #9db3c7; }
+.package-exp-detail { grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); }
+.package-exp-detail > * { min-width: 0; }
+.package-exp-detail .pd-spec { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.package-exp-detail .pd-s { min-width: 0; overflow-wrap: anywhere; }
+.package-exp-detail .pd-s b { line-height: 1.6; }
+.package-exp-detail .kind-g, .package-exp-detail .chap-g { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.package-exp-detail .kind, .package-exp-detail .chap-c { min-width: 0; }
+.package-exp-detail .obj { align-items: start; }
+.package-exp-detail .obj p { min-width: 0; }
+.package-exp-detail .qtype-row { flex-wrap: wrap; }
+.package-exp-detail [role="link"] { border-radius: 8px; }
+.package-exp-detail [role="link"]:hover { background: #f1f5f9; }
+.package-exp-heading, #package-detail-compare, #package-learning-progress, .package-exp-workspace { scroll-margin-top: calc(var(--hdr, 82px) + 24px); }
+#app[data-package-experience] .v32-compare-scroll { overscroll-behavior-inline: contain; }
+#app[data-package-experience] .v32-compare th, #app[data-package-experience] .v32-compare td { overflow-wrap: break-word; }
+.package-exp-workspace { display: grid; grid-template-columns: 244px minmax(0, 1fr); gap: 22px; align-items: start; margin-block: 24px 44px; }
+.package-exp-navigation.card { position: sticky; top: calc(var(--hdr, 82px) + 18px); max-height: calc(100vh - var(--hdr, 82px) - 36px); max-height: calc(100dvh - var(--hdr, 82px) - 36px); overflow-y: auto; scrollbar-width: thin; padding: 18px; margin: 0; border: 1px solid var(--package-border); border-radius: 20px; background: #fff; }
+.package-exp-navigation > h3 { font-size: 1.05rem; line-height: 1.6; color: #193a56; }
+.package-exp-navigation > p { font-size: .78rem; color: var(--package-muted); margin: 7px 0 16px; line-height: 1.8; }
+.package-exp-nav { display: grid; gap: 7px; }
+.package-exp-nav .package-exp-step { display: flex; align-items: center; flex-direction: row; gap: 10px; width: 100%; min-width: 0; min-height: 64px; padding: 11px; border: 1px solid #e1e8ef; border-radius: 12px; background: #f8fafc; color: #183955; text-align: start; box-shadow: none; }
+.package-exp-nav .package-exp-step:hover { background: #eef4f8; border-color: #aac0d2; }
+.package-exp-nav .package-exp-step[aria-current="true"] { background: #153c58; border-color: #153c58; color: #fff; box-shadow: inset 3px 0 0 #ed9b55; }
+[dir="rtl"] .package-exp-nav .package-exp-step[aria-current="true"] { box-shadow: inset -3px 0 0 #ed9b55; }
+.package-exp-step-number { display: inline-grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; font: 600 .7rem var(--fm, monospace); border: 1px solid currentColor; border-radius: 8px; opacity: .8; }
+.package-exp-step-copy { min-width: 0; display: grid; gap: 3px; }
+.package-exp-step-copy strong { font-size: .86rem; line-height: 1.6; overflow-wrap: anywhere; }
+.package-exp-step-copy small { font-size: .7rem; line-height: 1.5; opacity: .87; }
+.package-exp-step.done:not([aria-current="true"]) .package-exp-step-number { color: #14684a; background: #e9f6ee; }
+.package-exp-nav .package-exp-progress-jump { margin-top: 6px; color: #215a78; background: #edf5f8; text-align: center; }
+.package-exp-workspace > .learning-content-frame { margin: 0; min-width: 0; padding: 22px; border-radius: 20px; }
+.package-exp-workspace > .learning-content-frame > .card:first-child { margin-top: 0; }
+.package-exp-workspace .passing-roadmap { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.package-exp-workspace .passing-roadmap .wk { min-width: 0; }
+.package-exp-workspace .wk-b { min-width: 0; overflow-wrap: anywhere; }
+.package-exp-workspace .resource-row { flex-wrap: wrap; min-width: 0; }
+.package-exp-workspace .learning-chapter .ch-h { gap: 12px; flex-wrap: wrap; }
+.package-exp-workspace .learning-lesson .ls-t { min-width: 0; overflow-wrap: anywhere; }
+.package-exp-outline :focus-visible, .package-exp-nav :focus-visible, .package-exp-detail :focus-visible, #app[data-package-experience] .v32-compare-scroll:focus-visible { outline: 3px solid #bf621c; outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .package-exp-workspace { grid-template-columns: minmax(0, 1fr); }
+  .package-exp-navigation.card { position: static; max-height: none; overflow: visible; }
+  .package-exp-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .package-exp-nav .package-exp-progress-jump { margin-top: 0; }
+}
+@media (max-width: 900px) {
+  .package-exp-detail { grid-template-columns: minmax(0, 1fr); }
+  .package-exp-detail > .side { position: static; }
+  .package-exp-detail > .side > .card { position: static; }
+}
+@media (max-width: 640px) {
+  .package-exp-overview { padding-block-start: 18px; }
+  .package-exp-outline { gap: 6px; }
+  .package-exp-outline .package-exp-jump { font-size: .78rem; padding: 8px 11px; }
+  .package-exp-detail .pd-spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .package-exp-detail .kind-g, .package-exp-detail .chap-g { grid-template-columns: minmax(0, 1fr); }
+  .package-exp-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .package-exp-nav .package-exp-step { gap: 7px; padding: 9px; min-height: 70px; }
+  .package-exp-navigation.card { padding: 14px; }
+  .package-exp-step-number { flex-basis: 25px; width: 25px; height: 25px; font-size: .65rem; }
+  .package-exp-step-copy strong { font-size: .78rem; }
+  .package-exp-workspace > .learning-content-frame { padding: 12px; border-radius: 16px; }
+  .package-exp-workspace .learning-lesson { padding: 10px; }
+  .package-exp-workspace .learning-lesson .ls { flex-wrap: wrap; padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app[data-package-experience] { scroll-behavior: auto; }
+  .package-exp-nav *, .package-exp-outline * { transition: none !important; }
+}

@@ -69,29 +69,7 @@
   }
 
   function bindCourseSearch() {
-    const input = $('#v22CourseSearch');
-    const results = $('#v22SearchResults');
-    if (!input || !results || input.dataset.bound === '1') return;
-    input.dataset.bound = '1';
-    const render = () => {
-      const q = input.value.trim().toLocaleLowerCase('ar');
-      if (!q) { results.hidden = true; results.innerHTML = ''; return; }
-      const matches = (window.COURSES || []).filter(c =>
-        [c.code,c.ar,c.en,c.blurb].filter(Boolean).join(' ').toLocaleLowerCase('ar').includes(q)
-      ).slice(0,6);
-      results.innerHTML = matches.length ? matches.map(c => `<button class="v22-search-item" data-v22-course="${esc(c.id)}"><span>${esc(c.code||'')}</span><span><b>${esc(c.ar||'')}</b><small>${esc(c.en||c.blurb||'')}</small></span><em>عرض ←</em></button>`).join('') : '<div class="v22-search-empty">لا توجد نتائج مطابقة. جرّب اسم الشهادة أو رمزها.</div>';
-      results.hidden = false;
-    };
-    input.addEventListener('input', render);
-    input.addEventListener('keydown', event => {
-      if (event.key === 'Escape') { results.hidden = true; input.blur(); }
-      if (event.key === 'Enter') { const first = $('[data-v22-course]', results); if (first) location.hash = `#course/${first.dataset.v22Course}`; }
-    });
-    results.addEventListener('click', event => {
-      const item = event.target.closest('[data-v22-course]');
-      if (item) location.hash = `#course/${item.dataset.v22Course}`;
-    });
-    document.addEventListener('click', event => { if (!event.target.closest('.v22-course-search')) results.hidden = true; });
+    window.PUBLIC_EXPERIENCE?.bindHomeSearch();
   }
 
   function enhance() { setRouteClass(); addLanguageChooser(); bindCourseSearch(); }

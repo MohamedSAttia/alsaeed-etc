@@ -1085,6 +1085,8 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
 <link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=5">
+<link rel="stylesheet" href="/public-experience.css?v=20261008">
+<link rel="stylesheet" href="/package-experience.css?v=20261008">
 </head>
 <body>
 
@@ -1093,12 +1095,12 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
     <a href="#home" data-r="home" id="logoLink"></a>
     <nav class="nav" id="nav"></nav>
     <div class="hdr-act" id="hdrAct"></div>
-    <button class="burger" id="burger" aria-label="القائمة">☰</button>
+    <button class="burger" id="burger" type="button" aria-controls="nav" aria-expanded="false" aria-label="القائمة">☰</button>
   </div>
 </header>
 
 <div id="megaHost"></div>
-<main id="app"></main>
+<main id="app" tabindex="-1"></main>
 
 <a class="wa" href="https://wa.me/201221732898" target="_blank" rel="noopener" aria-label="واتساب">
   <span class="ic">💬</span><span class="tx">تحدّث معنا</span>
@@ -1126,7 +1128,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
         <a href="#systems" data-r="systems">الأنظمة والأدوات</a>
       </div>
       <div>
-        <h4>موارد</h4>
+        <h4 data-public-footer="resources">موارد</h4>
         <a href="#library" data-r="library">المكتبة الرقمية</a>
         <a href="#blog" data-r="blog">المدونة</a>
         <a href="#about" data-r="about">من نحن</a>
@@ -1141,7 +1143,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
       </div>
     </div>
     <div class="ftr-bot">
-      <span>© <span class="num">2026</span> السعيد للتعليم والتدريب والخدمات الاستشارية — جميع الحقوق محفوظة</span>
+      <span data-public-footer="copyright">© 2026 السعيد للتعليم والتدريب والخدمات الاستشارية. جميع الحقوق محفوظة.</span>
       <span>فضول · وضوح · نزاهة · شراكة · شمول</span>
     </div>
   </div>
@@ -3110,11 +3112,15 @@ function closeModal() { const o = $('#ov'); if (o) o.remove(); }
 let ROUTE = 'home';
 function go(r) {
   if (window.VIEWS && window.VIEWS.closeMega) window.VIEWS.closeMega();
+  document.getElementById('nav')?.classList.remove('open');
   ROUTE = r; location.hash = r; window.scrollTo(0, 0); render();
+}
+function replaceRoute(r) {
+  ROUTE = r; history.replaceState(history.state, '', '#' + r);
 }
 function render() {
   const V = window.VIEWS;
-  const [head, arg] = ROUTE.split('/');
+  const [head, arg] = ROUTE.split('?')[0].split('/');
   if (head === 'pkg' || head === 'learn') { loadLessonsFor(arg); loadProgressFor(arg); }
   if (head === 'admin' && isAdmin()) loadAdminLessons(window.__vidPk || 'grcp-full');
   let html = '';
@@ -3278,6 +3284,7 @@ function bindAll() {
   $$('.reveal').forEach(el => io.observe(el));
   if (window.VIEWS.bind) window.VIEWS.bind();
   if (window.I18) I18.sweep(document.body);
+  window.PUBLIC_EXPERIENCE?.refresh();
 }
 
 /* ═══ الإقلاع ═══ */
@@ -3327,7 +3334,7 @@ async function boot() {
   render();
 }
 
-return { boot, go, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
+return { boot, go, replaceRoute, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
   loadAdminLessons, adminLessonsReady: pid => adminLessonsReady.has(pid),
   get token() { return API.token; },
   me, isAdmin, owns, course, pack, prog, pct, certReady, studyPlan, examSet,
@@ -3406,7 +3413,11 @@ function courseCover(c, big){
   </div>`;
 }
 function courseShowcase(c){
-  const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false); const lead=pkgs.find(p=>p.featured||p.badge)||pkgs[0];
+  const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false);
+  const minimums = Object.values(pkgs.reduce((groups,p) => {
+    if(Number.isFinite(Number(p.price)) && (!groups[p.currency] || Number(p.price)<Number(groups[p.currency].price))) groups[p.currency]=p;
+    return groups;
+  }, {}));
   const modes=(c.modes||[]).map(k=>window.MODES.find(m=>m.k===k)).filter(m=>m&&pkgs.some(p=>p.mode===m.k)).slice(0,3);
   const next=(window.CMS.sessions||[]).filter(s=>s.course===c.id&&s.published!==false&&s.date&&Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   return `<article class="course-vcard reveal">
@@ -3417,7 +3428,7 @@ function courseShowcase(c){
       <p>${esc(siteEnglish()?(c.blurb_en||c.desc_en||'Explore the course, learning outcomes and available study options.'):c.blurb||'')}</p>
       <div class="course-vmeta"><span><b>${c.hours}</b> ${siteEnglish()?'hours':'ساعة'}</span><span><b>${c.questions}</b> ${siteEnglish()?'questions':'سؤال'}</span><span><b>${pkgs.length}</b> ${siteEnglish()?'packages':'باقة'}</span></div>
       <div class="course-vactions"><button class="btn n sm" data-r="course/${c.id}">${siteEnglish()?'Details':'التفاصيل'}</button>${c.previewVimeo?`<button class="btn o sm" data-course-preview="${c.id}">${siteEnglish()?'Watch preview':'شاهد المعاينة'}</button>`:''}</div>
-      ${lead?`<div style="font-size:.72rem;color:var(--dim)">${siteEnglish()?'From':'تبدأ من'} <b class="num" style="color:var(--orange)">${money(lead.price)}</b> ${esc(lead.currency)}</div>`:''}
+      ${minimums.length?`<div class="public-from-price">${siteEnglish()?'Packages from':'الباقات تبدأ من'} ${minimums.map(p=>`<bdi dir="ltr"><b class="num">${money(p.price)}</b> ${esc(p.currency)}</bdi>`).join(' · ')}</div>`:''}
     </div>
   </article>`;
 }
@@ -3535,16 +3546,16 @@ function home() {
         <span class="v23-kicker">${copy.kicker}</span>
         <h1>${copy.title}</h1>
         <p class="hero-p">${copy.lead}</p>
-        <div class="hero-cta"><button class="btn p lg" data-r="programs">${copy.programs} <span aria-hidden="true">↗</span></button><a class="btn v23-outline lg" href="#intro-film">${english?'Watch our introduction':'شاهد الفيديو التعريفي'} ▶</a></div>
+        <div class="hero-cta"><button class="btn p lg" data-r="programs">${copy.programs} <svg class="public-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></button><a class="btn v23-outline lg" href="#intro-film">${english?'Watch our introduction':'شاهد الفيديو التعريفي'} ▶</a></div>
         <a class="v24-consult-link" href="https://wa.me/${B.whatsapp}" target="_blank" rel="noopener noreferrer">${copy.advise} ↗</a>
-        <div class="v23-hero-note"><span>01 / 03</span><span>PMP® · GRCP™ · Lean Six Sigma</span></div>
+        <div class="v23-hero-note"><span>${english?'YOUR LEARNING JOURNEY':'رحلتك المهنية'}</span><span>PMP® · GRCP™ · Lean Six Sigma</span></div>
       </div>
       <div class="v23-hero-image v24-carousel" aria-label="${english?'Global learning and consulting':'التعليم والتدريب والاستشارات حول العالم'}">
         <div class="v24-slide is-current"><img src="/assets/hero/alsaeed-global-learning-v22.webp" alt="${copy.image}" width="1672" height="941" fetchpriority="high"></div>
         <div class="v24-slide"><img src="/assets/hero/alsaeed-global-1-v24.webp" alt="${english?'International professionals working together':'محترفون من دول مختلفة يتعلمون معًا'}" width="1672" height="941" loading="lazy"></div>
         <div class="v24-slide"><img src="/assets/hero/alsaeed-global-2-v24.webp" alt="${english?'A diverse consulting team exploring solutions':'فريق استشاري عالمي يناقش حلولًا عملية'}" width="1672" height="941" loading="lazy"></div>
         <div class="v23-image-label"><span>${copy.imageTag}</span><strong>${copy.imageSub}</strong></div>
-        <div class="v24-controls"><button type="button" data-v24-prev aria-label="${english?'Previous image':'الصورة السابقة'}">‹</button><span class="v24-count" aria-live="polite">01 / 03</span><button type="button" data-v24-next aria-label="${english?'Next image':'الصورة التالية'}">›</button><button type="button" class="v36-pause" data-v24-toggle aria-label="${english?'Pause slideshow':'إيقاف عرض الصور مؤقتًا'}" aria-pressed="false">Ⅱ</button><span class="v36-progress" aria-hidden="true"><i></i></span></div>
+        <div class="v24-controls"><button type="button" data-v24-prev aria-label="${english?'Previous image':'الصورة السابقة'}">‹</button><span class="v24-count" dir="ltr">01 / 03</span><button type="button" data-v24-next aria-label="${english?'Next image':'الصورة التالية'}">›</button><button type="button" class="v36-pause" data-v24-toggle aria-label="${english?'Pause slideshow':'إيقاف عرض الصور مؤقتًا'}" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button><span class="v36-progress" aria-hidden="true"><i></i></span></div>
       </div>
     </div>
   </section>
@@ -3764,7 +3775,15 @@ function catalogFutureDetail(c) {
   if(!g)return '';
   return `<div class="v43-future-detail"><div class="v43-future-visual" style="background-image:url('${catalogArtwork(c.id)}')">${catalogCertMark(c.id)}<b dir="ltr">${esc(c.code)}</b></div><div class="v43-future-copy"><span class="eyebrow">${en?'CERTIFICATION PATHWAY':'مسار الشهادة'}</span><h2>${esc(publicTitle(c))}</h2><p>${esc(g.value[en?1:0])}</p><div class="v43-future-points"><div><b>${en?'Who it is for':'لمن تناسب؟'}</b><span>${esc(g.who[en?1:0])}</span></div><div><b>${en?'Preparation focus':'محور الاستعداد'}</b><span>${esc(g.practice[en?1:0])}</span></div></div><p class="v43-future-status">${en?'Training packages are in preparation. The certification exam and credential are administered by PMI.':'باقات التدريب قيد الإعداد. الاختبار وإصدار الشهادة يتمان لدى PMI وفق شروطها.'}</p><div class="v43-future-actions"><a class="btn o" href="${esc(g.url)}" target="_blank" rel="noopener noreferrer">${en?'PMI certification details':'التفاصيل الرسمية لدى PMI'} ↗</a><a class="btn p" href="#contact">${en?'Ask about training availability':'استفسر عن موعد التدريب'} ↗</a></div></div></div>`;
 }
+function catalogRoute(changes) {
+  const params=new URLSearchParams(location.hash.split('?')[1]||'');
+  Object.entries(changes).forEach(([key,value])=>value?params.set(key,value):params.delete(key));
+  A().go('programs'+(params.size?'?'+params.toString():''));
+}
 function programs() {
+  const params=new URLSearchParams(location.hash.split('?')[1]||'');
+  catalogFamily=params.get('family')||'';
+  catalogCertificate=params.get('cert')||'';
   const en=siteEnglish();
   let pk=window.PACKAGES.filter(p=>p.active!==false);
   const scheduled=(Array.isArray(window.CMS.sessions)?window.CMS.sessions:[])
@@ -3777,9 +3796,10 @@ function programs() {
   const heading=cert?publicTitle(cert):family?(en?family.en:family.ar):(en?'Professional training':'التدريب المهني');
   return `<section class="pg-hero v38-hero"><div class="wrap"><div class="crumb"><a href="#home" data-r="home">${en?'Home':'الرئيسية'}</a> ← <button type="button" data-creset>${en?'Catalog':'الكتالوج'}</button>${family?` ← <button type="button" data-cback>${esc(en?family.en:family.ar)}</button>`:''}${cert?` ← ${esc(cert.code)}`:''}</div><h1>${esc(heading)}</h1><p>${cert?(pk.length?(en?'Compare the packages published for this certification.':'قارن الباقات المنشورة لهذه الشهادة.'):(en?'Explore the certification and ask about upcoming training.':'تعرّف على الشهادة واستفسر عن التدريب القادم.')):family?(en?'Select a certification to see its available packages.':'اختر الشهادة لعرض باقاتها المتاحة.'):(en?'Choose a field, then a certification, then the package that suits your goal.':'اختر المجال، ثم الشهادة، ثم الباقة التي تناسب هدفك.')}</p></div></section>
   <section class="sec"><div class="wrap v38-catalog">
+    <div id="publicCatalogMount"></div><div data-catalog-browse>
     ${!family?`<div class="v38-stage"><span>01</span><div><h2>${en?'Choose a field':'اختر المجال'}</h2><p>${en?'Explore the available certification families.':'استكشف مجالات الشهادات المتاحة.'}</p></div></div><div class="v38-families">${CATALOG_FAMILIES.map(f=>catalogFamilyCard(f,pk)).join('')}</div>`:!cert?`<div class="v38-stage"><span>02</span><div><h2>${en?'Choose a certification':'اختر الشهادة'}</h2><p>${en?'Programs without published packages are clearly marked.':'الشهادات التي لم تُنشر لها باقات مميزة بوضوح.'}</p></div></div><div class="v38-certificates">${family.courseIds.map(id=>catalogCertificateCard(id,pk)).join('')}</div>`:pk.length?`<div class="v38-stage"><span>03</span><div><h2>${en?'Choose your package':'اختر باقتك'}</h2><p>${en?'Open any package to review its content and enrollment details.':'افتح أي باقة لمراجعة محتواها وتفاصيل الاشتراك.'}</p></div></div><div class="v38-cert-summary"><div class="v42-cert-summary-visual" style="background-image:url('${catalogArtwork(catalogCertificate)}')">${catalogCertMark(catalogCertificate)}</div><div><span dir="ltr">${esc(cert.code)}</span><h2>${esc(publicTitle(cert))}</h2>${catalogIssuerLink(catalogCertificate)}${catalogInstructorBadge(catalogCertificate,true)}<p>${catalogCount(pk.length)}</p><button type="button" class="btn o sm" data-cback>${en?'Other certifications':'شهادات أخرى'}</button></div></div><div class="grid g3 v38-packages">${pk.map(pkgCard).join('')}</div>`:catalogFutureDetail(cert)}
     ${!family?`<p class="v38-marks-note">${en?'Certification names identify their respective owners. Alsaeed artwork is original and does not imply endorsement by those organizations.':'أسماء الشهادات مملوكة لجهاتها. الرسوم البصرية من تصميم السعيد ولا تعني اعتمادًا أو تأييدًا من تلك الجهات.'}</p>`:''}
-    <section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
+    </div><section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
       <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
       ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Time & zone','Format','Language','Location','Details']:['البرنامج','التاريخ','الوقت والمنطقة','النمط','اللغة','المدينة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(siteEnglish()?(c.en||c.ar):c.ar):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.time?`${s.time} · ${s.timezone||'Africa/Cairo'}`:(siteEnglish()?'Time to be confirmed':'الوقت قيد التأكيد'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(({ar:siteEnglish()?'Arabic':'عربي',en:siteEnglish()?'English':'إنجليزي',both:siteEnglish()?'Arabic & English':'عربي/إنجليزي'})[s.language]||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
@@ -5576,10 +5596,10 @@ function bind() {
   /* روابط القائمة تُغلقها */
   $$('#mega [data-r]').forEach(a2 => a2.addEventListener('click', () => { window.__mega = false; }));
   $$('[data-fm]').forEach(b => b.onclick = () => { fMode = b.dataset.fm; A().render(); });
-  $$('[data-cfamily]').forEach(b => b.onclick = () => { catalogFamily=b.dataset.cfamily;catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
-  $$('[data-ccert]').forEach(b => b.onclick = () => { catalogCertificate=b.dataset.ccert;A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
-  $$('[data-cback]').forEach(b => b.onclick = () => { catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
-  $$('[data-creset]').forEach(b => b.onclick = () => { catalogFamily='';catalogCertificate='';A().render();document.querySelector('.v38-hero')?.scrollIntoView(); });
+  $$('[data-cfamily]').forEach(b => b.onclick = () => { catalogRoute({family:b.dataset.cfamily,cert:''}); });
+  $$('[data-ccert]').forEach(b => b.onclick = () => { catalogRoute({cert:b.dataset.ccert}); });
+  $$('[data-cback]').forEach(b => b.onclick = () => { catalogRoute({cert:''}); });
+  $$('[data-creset]').forEach(b => b.onclick = () => { A().go('programs'); });
   $$('[data-ft]').forEach(b => b.onclick = () => { fTrack = b.dataset.ft; A().render(); });
   $$('[data-fl]').forEach(b => b.onclick = () => { fLevel = b.dataset.fl; A().render(); });
   $$('[data-fpl]').forEach(b => b.onclick = () => { fLang = b.dataset.fpl; A().render(); });
@@ -5587,7 +5607,7 @@ function bind() {
     if (e) e.onclick = () => { fMode = fTrack = fLevel = fLang = ''; A().render(); }; });
   $$('[data-r^="programs?"]').forEach(b => b.onclick = e => {
     e.preventDefault(); const q = b.dataset.r.split('mode=')[1];
-    fMode = q || ''; fTrack = ''; fLevel = ''; A().go('programs');
+    fMode = q || ''; fTrack = ''; fLevel = ''; A().go('programs?mode='+encodeURIComponent(q||''));
   });
   $$('[data-actab]').forEach(b => b.onclick = () => { window.__acTab = b.dataset.actab; A().render(); });
   const pg2 = $('#promoGo');
@@ -7065,8 +7085,10 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/hotfix-v18.js?v=18.1"></script>
 <script src="/exam-ai-v19.js?v=20261005-loopfix"></script>
 <script src="/ui-v21.js?v=21.0"></script>
-<script src="/platform-v22.js?v=22.1"></script>
-<script src="/experience-v24.js?v=38.0"></script>
-<script src="/experience-v31.js?v=31.0"></script>
+<script src="/platform-v22.js?v=20261008"></script>
+<script src="/experience-v24.js?v=20261008"></script>
+<script src="/experience-v31.js?v=20261008"></script>
+<script src="/public-experience.js?v=20261008"></script>
+<script src="/package-experience.js?v=20261008"></script>
 </body>
 </html>
