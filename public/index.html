@@ -5983,10 +5983,10 @@ function bind() {
   $$('[data-vid],[data-ld]').forEach(x => x.onchange = harvest);
   $$('[data-lt],[data-lten]').forEach(x => x.onchange = () => { harvest(); saveLessons(true); });
   async function fillVimeoDuration(input, durationInput) {
-    const id = input.value.trim().match(/(?:^|\/)(\d{6,12})(?:\?.*)?$/)?.[1];
+    const id = window.LessonVideo.storedValue(input.value);
     if (!id || durationInput.value.trim()) return;
     try {
-      const info = await A().api('/admin/vimeo/' + id);
+      const info = await A().api('/admin/vimeo/' + encodeURIComponent(id));
       if (info.seconds && !durationInput.value.trim()) {
         durationInput.value = info.duration;
         harvest();

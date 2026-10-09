@@ -892,13 +892,27 @@ app.post('/api/admin/lesson-files/:pkg', auth, admin, (req, res) => {
     .run(id, req.params.pkg, path.basename(name).slice(0, 180), mime, bytes, Date.now());
   res.json({ id, name: path.basename(name).slice(0, 180) });
 });
+// Preserve the access hash required by unlisted Vimeo videos in storage and metadata requests.
+function normalizeVimeoReference(value) {
+  const raw=String(value||'').trim();let id,hash='';
+  const match=raw.match(/^(\d{6,12})(?:\?h=([a-zA-Z0-9]+))?$/);
+  if(match){id=match[1];hash=match[2]||'';}
+  else {try{
+    const url=new URL(raw);
+    if(!['https:','http:'].includes(url.protocol)||!['vimeo.com','www.vimeo.com','player.vimeo.com'].includes(url.hostname))return null;
+    const parts=url.pathname.split('/').filter(Boolean),i=parts.findIndex(x=>/^\d{6,12}$/.test(x));
+    if(i<0)return null;id=parts[i];hash=url.searchParams.get('h')||parts[i+1]||'';
+  }catch{return null;}}
+  if(hash&&!/^[a-zA-Z0-9]+$/.test(hash))return null;
+  return {id,stored:id+(hash?'?h='+hash:''),url:'https://vimeo.com/'+id+(hash?'/'+hash:'')};
+}
 app.get('/api/admin/vimeo/:id', auth, admin, async (req, res) => {
-  const id = String(req.params.id || '').replace(/\D/g, '');
-  if (!/^\d{6,12}$/.test(id)) return res.status(400).json({ error: 'رقم Vimeo غير صحيح' });
+  const reference = normalizeVimeoReference(req.params.id), id=reference?.stored;
+  if (!reference) return res.status(400).json({ error: 'رقم Vimeo غير صحيح' });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
-    const url = 'https://vimeo.com/api/oembed.json?url=' + encodeURIComponent('https://vimeo.com/' + id);
+    const url = 'https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(reference.url);
     const response = await fetch(url, { signal: controller.signal, headers: { accept: 'application/json' } });
     if (!response.ok) return res.status(404).json({ error: 'تعذر قراءة بيانات الفيديو. تأكد أن الفيديو يسمح بالتضمين.' });
     const data = await response.json();
@@ -910,10 +924,11 @@ app.get('/api/admin/vimeo/:id', auth, admin, async (req, res) => {
   } finally { clearTimeout(timer); }
 });
 async function vimeoDuration(id) {
+  const reference=normalizeVimeoReference(id);if(!reference)return '';
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
-    const response = await fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent('https://vimeo.com/' + id), { signal: controller.signal });
+    const response = await fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(reference.url), { signal: controller.signal });
     if (!response.ok) return '';
     const seconds = Number((await response.json()).duration);
     return Number.isFinite(seconds) && seconds > 0
@@ -927,8 +942,8 @@ const saveObservedDuration = db.prepare(`UPDATE lessons SET duration=? WHERE pac
 // their duration after an authorized viewer opens them.
 app.patch('/api/lessons/:pkg/:idx/duration', auth, (req, res) => {
   const pkg = req.params.pkg, idx = Number(req.params.idx);
-  const seconds = Number(req.body?.seconds), id = String(req.body?.vimeo || '');
-  if (!Number.isSafeInteger(idx) || idx < 0 || !Number.isFinite(seconds) || seconds < 1 || seconds > 86400 || !/^\d{6,12}$/.test(id))
+  const seconds = Number(req.body?.seconds), id = normalizeVimeoReference(req.body?.vimeo)?.stored;
+  if (!Number.isSafeInteger(idx) || idx < 0 || !Number.isFinite(seconds) || seconds < 1 || seconds > 86400 || !id)
     return res.status(400).json({ error:'مدة الفيديو غير صحيحة' });
   const catalog = JSON.parse(setting('content_packages') || '[]');
   const variant = catalog.find(p => p.id === pkg);
@@ -947,7 +962,7 @@ app.patch('/api/lessons/:pkg/:idx/duration', auth, (req, res) => {
 async function fillMissingDurations() {
   const missing = db.prepare(`SELECT package_id,idx,vimeo FROM lessons WHERE ${missingDurationSql} AND vimeo GLOB '[0-9]*'`).all();
   for (const lesson of missing) {
-    if (!/^\d{6,12}$/.test(lesson.vimeo)) continue;
+    if (!normalizeVimeoReference(lesson.vimeo)) continue;
     const duration = await vimeoDuration(lesson.vimeo);
     if (duration) saveObservedDuration.run(duration, lesson.package_id, lesson.idx, lesson.vimeo);
   }
@@ -959,7 +974,7 @@ app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res)
     .all(req.params.pkg);
   let updated = 0;
   for (const row of missing) {
-    const id = String(row.vimeo).match(/^\d{6,12}$/)?.[0];
+    const id = normalizeVimeoReference(row.vimeo)?.stored;
     if (!id) continue;
     const duration = await vimeoDuration(id);
     if (duration) {
@@ -980,7 +995,7 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
       existing.find(row => row.title === (lesson.t || lesson.title));
     if (!Array.isArray(lesson.quiz) && old?.quiz) lesson.quiz = JSON.parse(old.quiz);
     if (!lesson.vimeo && old?.vimeo && !lesson.clearVimeo) lesson.vimeo = old.vimeo;
-    const id = String(lesson.vimeo || '').match(/^(?:https?:\/\/(?:www\.)?vimeo\.com\/(?:video\/)?|)(\d{6,12})(?:\?.*)?$/)?.[1];
+    const id = normalizeVimeoReference(lesson.vimeo)?.stored;
     if (!id) continue;
     lesson.vimeo = id;
     const previous = existing.find(row => row.idx === i && row.vimeo === id);
