@@ -40,6 +40,7 @@ window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventLi
 window.IntersectionObserver = class { observe() {} unobserve() {} disconnect() {} };
 window.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 window.HTMLMediaElement.prototype.pause = function () { this.dataset.testPaused = 'true'; };
+window.HTMLMediaElement.prototype.play = function () { this.dataset.testPlayed = 'true'; return Promise.resolve(); };
 window.HTMLMediaElement.prototype.load = function () { this.dataset.testUnloaded = 'true'; };
 const settle = () => new Promise(done => setTimeout(done, 120));
 try {
@@ -127,6 +128,7 @@ try {
   const video = document.querySelector('.package-exp-promo video');
   assert.ok(video.controls && video.playsInline);
   assert.equal(video.preload, 'none'); assert.equal(video.autoplay, false);
+  assert.equal(video.dataset.testPlayed, 'true', 'Explicit click starts playback without a page-load autoplay attribute');
   document.querySelector('.package-exp-promo-actions button:not(.package-exp-promo-play)').click();
   assert.equal(document.querySelector('.package-exp-promo video'), null);
   assert.equal(video.dataset.testPaused, 'true'); assert.equal(video.dataset.testUnloaded, 'true');
@@ -225,6 +227,7 @@ try {
   assert.equal(suppliedVideo.getAttribute('src'), '/assets/promos/pmp-intro.mp4');
   assert.equal(suppliedVideo.getAttribute('poster'), '/assets/promos/pmp-intro-poster.webp');
   assert.equal(suppliedVideo.autoplay, false);
+  assert.equal(suppliedVideo.dataset.testPlayed, 'true');
   openEditor(pmp);
   assert.equal(document.querySelector('#pPromoVideo').value, '/assets/promos/pmp-intro.mp4', 'Admin shows published default');
   document.querySelector('#pPromoVideo').value = ''; await save();

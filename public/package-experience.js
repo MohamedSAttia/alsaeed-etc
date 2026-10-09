@@ -123,6 +123,10 @@
       play.hidden = true;
       play.setAttribute('aria-expanded', 'true');
       close.focus({ preventScroll: true });
+      if (source.kind === 'video') {
+        // This is an explicit poster click, never page-load autoplay. Controls remain available if playback is blocked.
+        try { Promise.resolve(media.play()).catch(() => {}); } catch {}
+      }
     });
     close.addEventListener('click', () => {
       clearPromoMedia();
