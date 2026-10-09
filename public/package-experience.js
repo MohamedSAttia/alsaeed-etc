@@ -104,6 +104,18 @@
     controls.filter(button => !ordered.includes(button)).forEach(button => ordered.push(button));
     const nav = make('nav', 'package-exp-nav');
     nav.setAttribute('aria-label', text('أقسام التعلّم في الباقة', 'Package learning sections'));
+    const groups = [
+      {keys:['plan','content','exams'], ar:'التعلّم والتقييم', en:'Learn & assess'},
+      {keys:['resources','flash','activities','games','workspace'], ar:'الممارسة والأدوات', en:'Practice & tools'},
+      {keys:['cert'], ar:'إتمام البرنامج', en:'Completion'}
+    ];
+    const sections = new Map();
+    groups.forEach(group => {
+      if (!ordered.some(button => group.keys.includes(button.dataset.lt))) return;
+      const section = make('div','package-exp-group');
+      section.append(make('h4','package-exp-group-title',text(group.ar,group.en)));
+      nav.append(section); group.keys.forEach(key => sections.set(key,section));
+    });
     ordered.forEach((button, index) => {
       const key = button.dataset.lt;
       const count = button.querySelector('small');
@@ -120,11 +132,12 @@
       body.append(make('strong', '', name));
       if (count) body.append(count);
       button.replaceChildren(number, body);
-      nav.append(button); // Move, never clone: original handlers and completion counts are retained.
+      (sections.get(key)||nav).append(button); // Move, never clone: original handlers and completion counts are retained.
     });
     steps.replaceWith(nav);
     if (extras && !extras.children.length) extras.remove();
     card.classList.add('package-exp-navigation');
+    const navTitle=card.querySelector('h3');if(navTitle)navTitle.textContent=text('مسار الباقة','Package journey');
     const layout = make('div', 'package-exp-workspace');
     wrap.insertBefore(layout, card);
     layout.append(card, panel);
@@ -136,6 +149,17 @@
       addJump(nav, progress, text('عرض التقدم', 'View progress')).classList.add('package-exp-progress-jump');
     }
     const selected = ordered.find(button => button.classList.contains('on'));
+    // One persistent navigation and one clear title for the current workspace.
+    const header = make('div','package-exp-panel-heading');
+    header.append(make('span','package-exp-eyebrow',text('أنت الآن في','CURRENT SECTION')),
+      make('h2','',selected ? label(selected.dataset.lt,pkg) : text('التعلّم','Learning')));
+    panel.prepend(header);
+    const readiness = wrap.querySelector(':scope > .readiness-explain');
+    if (readiness) {
+      const detail = make('details','package-exp-readiness');
+      detail.append(make('summary','',text('تفاصيل مؤشر الجاهزية','Readiness details')),readiness);
+      progress?.after(detail);
+    }
     panel.setAttribute('role', 'region');
     if (selected) panel.setAttribute('aria-labelledby', selected.id);
     // The plan's existing shortcuts now follow the same ordering as the main navigation.
