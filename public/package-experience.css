@@ -11,7 +11,8 @@
 .package-exp-detail .pd-spec { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .package-exp-detail .pd-s { min-width: 0; overflow-wrap: anywhere; }
 .package-exp-detail .pd-s b { line-height: 1.6; }
-.package-exp-detail .pd-s b:not(.num) { font-family: var(--fb, 'IBM Plex Sans Arabic', sans-serif); letter-spacing: normal; }
+.package-exp-detail .pd-s b:not(.num), .package-exp-detail .pd-s b.package-exp-text-value { font-family: var(--fb, 'IBM Plex Sans Arabic', sans-serif); letter-spacing: normal; }
+.package-exp-detail .pd-s b.package-exp-text-value { direction: inherit; unicode-bidi: plaintext; }
 .package-exp-detail .kind-g, .package-exp-detail .chap-g { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .package-exp-detail .kind, .package-exp-detail .chap-c { min-width: 0; }
 .package-exp-detail .obj { align-items: start; }

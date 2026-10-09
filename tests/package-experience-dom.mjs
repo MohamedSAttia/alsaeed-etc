@@ -75,6 +75,9 @@ try {
       outline.querySelector('button').click();
       assert.equal(window.location.hash, hash);
       assert.ok(document.activeElement.classList.contains('package-exp-heading'));
+      for (const value of document.querySelectorAll('.pd-s b.num')) {
+        assert.equal(value.classList.contains('package-exp-text-value'), /[\u0621-\u064A]/.test(value.textContent), 'Arabic duration units use body typography; numeric-only metrics keep mono');
+      }
       assert.equal(document.querySelector('label[for="promoIn"]').htmlFor, document.querySelector('#promoIn').id);
       assert.equal(document.querySelector('.v32-compare-scroll').tabIndex, 0);
       window.PACKAGE_EXPERIENCE.refresh(); window.PACKAGE_EXPERIENCE.refresh();

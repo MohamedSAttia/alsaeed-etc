@@ -48,6 +48,9 @@
     const detail = app.querySelector('.pd-hero');
     if (!detail) return;
     detail.classList.add('package-exp-detail');
+    detail.querySelectorAll('.pd-s b.num').forEach(value => {
+      value.classList.toggle('package-exp-text-value', /[\u0621-\u064A]/.test(value.textContent));
+    });
     const main = detail.firstElementChild;
     const headings = [...main.children].filter(node => /^H[2-4]$/.test(node.tagName));
     const navWrap = make('div', 'wrap package-exp-overview');
