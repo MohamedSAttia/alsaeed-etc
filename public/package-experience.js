@@ -27,6 +27,115 @@
   };
   let lastHero = null;
   let pendingFocus = null;
+  let promoMedia = null;
+
+  function clearPromoMedia() {
+    if (!promoMedia) return;
+    if (promoMedia.tagName === 'VIDEO') {
+      promoMedia.pause();
+      promoMedia.removeAttribute('src');
+      promoMedia.load();
+    }
+    promoMedia.remove();
+    promoMedia = null;
+  }
+
+  // Only configured, approved assets are shown. Do not infer a promo from lesson videos.
+  function parsePromoVideo(value) {
+    const raw = String(value || '').trim();
+    if (!raw || raw.length > 2048) return null;
+    if (/^\/assets\/promos\/[a-z0-9_-]+\.mp4$/i.test(raw)) return { kind: 'video', src: raw, href: raw };
+    let id = '', hash = '';
+    if (/^[1-9]\d{0,14}$/.test(raw)) id = raw;
+    else {
+      let url;
+      try { url = new URL(raw); } catch { return null; }
+      if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
+      const player = url.hostname === 'player.vimeo.com';
+      if (!player && !['vimeo.com', 'www.vimeo.com'].includes(url.hostname)) return null;
+      const match = url.pathname.match(player ? /^\/video\/([1-9]\d{0,14})\/?$/ : /^\/([1-9]\d{0,14})(?:\/([a-z0-9]{6,64}))?\/?$/i);
+      if (!match) return null;
+      id = match[1];
+      hash = match[2] || url.searchParams.get('h') || '';
+      if (hash && !/^[a-z0-9]{6,64}$/i.test(hash)) return null;
+    }
+    const params = new URLSearchParams({ title: '0', byline: '0', portrait: '0', dnt: '1', autoplay: '0' });
+    if (hash) params.set('h', hash);
+    return { kind: 'iframe', src: 'https://player.vimeo.com/video/' + id + '?' + params,
+      href: 'https://vimeo.com/' + id + (hash ? '/' + hash : '') };
+  }
+
+  function promoSource(pkg, course) {
+    if (!pkg || pkg.active === false || pkg.type !== 'full') return null;
+    const preset = window.PACKAGE_PROMOS?.[pkg.id];
+    const own = String(pkg.promoVideo ?? preset?.video ?? '').trim();
+    const source = own ? parsePromoVideo(own) : pkg.promoUseCoursePreview === true ? parsePromoVideo(course?.previewVimeo) : null;
+    if (!source || (!own && source.kind !== 'iframe')) return null;
+    const poster = own && own === preset?.video && /^\/assets\/promos\/[a-z0-9_-]+\.(?:webp|jpg|png)$/i.test(preset.poster || '') ? preset.poster : '';
+    return { ...source, coursePreview: !own, poster };
+  }
+
+  function addPromo(main, pkg) {
+    const source = promoSource(pkg, window.APP?.course(pkg?.course));
+    if (!source) return;
+    const card = make('section', 'package-exp-promo');
+    const heading = make('h2', 'package-exp-heading', source.coursePreview ? text('فيديو تعريفي بالبرنامج', 'Program introduction') : text('فيديو تعريفي بالباقة', 'Package introduction'));
+    heading.id = 'package-promo-title';
+    card.setAttribute('aria-labelledby', heading.id);
+    const name = english() ? (pkg.en || pkg.ar || pkg.id) : (pkg.ar || pkg.en || pkg.id);
+    const play = make('button', 'btn n package-exp-promo-play', text('شاهد الفيديو التعريفي', 'Watch introduction'));
+    play.type = 'button';
+    play.setAttribute('aria-label', text('شاهد الفيديو التعريفي: ', 'Watch introduction: ') + name);
+    play.setAttribute('aria-controls', 'package-promo-player');
+    play.setAttribute('aria-expanded', 'false');
+    if (source.poster) {
+      play.classList.add('package-exp-promo-poster');
+      const image = make('img'); image.src = source.poster; image.alt = ''; image.width = 1280; image.height = 720;
+      const caption = make('span', '', play.textContent);
+      play.replaceChildren(image, caption);
+    }
+    const player = make('div', 'package-exp-promo-player');
+    player.id = 'package-promo-player';
+    player.hidden = true;
+    const close = make('button', 'btn o', text('إغلاق الفيديو', 'Close video'));
+    close.type = 'button';
+    close.hidden = true;
+    const external = make('a', '', text('افتح الفيديو في نافذة جديدة', 'Open video in a new tab'));
+    external.href = source.href;
+    external.target = '_blank';
+    external.rel = 'noopener noreferrer';
+    external.hidden = true;
+    play.addEventListener('click', () => {
+      if (player.firstChild) return;
+      const media = make(source.kind);
+      promoMedia = media;
+      media.src = source.src;
+      media.title = heading.textContent + ': ' + name;
+      media.setAttribute('aria-label', media.title);
+      if (source.kind === 'iframe') {
+        media.allow = 'fullscreen; picture-in-picture';
+        media.allowFullscreen = true;
+        media.referrerPolicy = 'strict-origin-when-cross-origin';
+      } else { media.controls = true; media.preload = 'none'; media.playsInline = true; if (source.poster) media.poster = source.poster; }
+      player.append(media);
+      player.hidden = false;
+      close.hidden = external.hidden = false;
+      play.hidden = true;
+      play.setAttribute('aria-expanded', 'true');
+      close.focus({ preventScroll: true });
+    });
+    close.addEventListener('click', () => {
+      clearPromoMedia();
+      player.hidden = close.hidden = external.hidden = true;
+      play.hidden = false;
+      play.setAttribute('aria-expanded', 'false');
+      play.focus({ preventScroll: true });
+    });
+    const actions = make('div', 'package-exp-promo-actions');
+    actions.append(play, close, external);
+    card.append(heading, make('p', '', text('يُحمّل مشغّل الفيديو عند الضغط فقط، دون تشغيل تلقائي.', 'The player loads only when selected, without autoplay.')), player, actions);
+    main.prepend(card);
+  }
 
   function scrollToSection(target) {
     if (!target) return;
@@ -52,11 +161,14 @@
       value.classList.toggle('package-exp-text-value', /[\u0621-\u064A]/.test(value.textContent));
     });
     const main = detail.firstElementChild;
+    addPromo(main, window.APP?.pack(hero.dataset.languagePackage));
     const headings = [...main.children].filter(node => /^H[2-4]$/.test(node.tagName));
     const navWrap = make('div', 'wrap package-exp-overview');
     const nav = make('nav', 'package-exp-outline');
     nav.setAttribute('aria-label', text('أقسام تفاصيل الباقة', 'Package details sections'));
     navWrap.append(make('p', 'package-exp-eyebrow', text('استكشف الباقة', 'EXPLORE THIS PACKAGE')), nav);
+    const promo = main.querySelector('.package-exp-promo');
+    if (promo) addJump(nav, promo.querySelector('h2'), promo.querySelector('h2').textContent);
     headings.forEach((heading, index) => {
       heading.id ||= 'package-detail-section-' + index;
       heading.classList.add('package-exp-heading');
@@ -159,12 +271,14 @@
     if (!app) return;
     const hero = app.querySelector('.learning-hero[data-language-package], .v38-package-hero[data-language-package]');
     if (!hero) {
+      clearPromoMedia();
       delete app.dataset.packageExperience;
       lastHero = null;
       pendingFocus = null;
       return;
     }
     if (hero === lastHero) return;
+    clearPromoMedia();
     lastHero = hero;
     const learner = hero.classList.contains('learning-hero');
     app.dataset.packageExperience = learner ? 'learn' : 'detail';
@@ -184,7 +298,7 @@
     new MutationObserver(refresh).observe(app, { childList: true });
     refresh();
   }
-  window.PACKAGE_EXPERIENCE = { refresh };
+  window.PACKAGE_EXPERIENCE = { refresh, parsePromoVideo, promoSource };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();
 })();

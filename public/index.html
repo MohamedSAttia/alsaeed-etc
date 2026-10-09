@@ -1085,8 +1085,8 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
 <link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=5">
-<link rel="stylesheet" href="/public-experience.css?v=20261008">
-<link rel="stylesheet" href="/package-experience.css?v=20261008">
+<link rel="stylesheet" href="/public-experience.css?v=20261009-promo">
+<link rel="stylesheet" href="/package-experience.css?v=20261009-promo">
 </head>
 <body>
 
@@ -3746,6 +3746,7 @@ function catalogArtwork(code,variant='course') {
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
   const key=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const id=Object.keys(colors).find(k=>key.includes(k))||'pmp';
+  if (['full','sim','review','self'].includes(variant) && ['pmp','rmp','pba','acp','grcp','lss','p3o','nebosh','aipro'].includes(id)) return '/assets/packages/' + id + '.svg';
   const [dark,mid,light]=colors[id];
   const type=variant==='course'?0:{full:1,sim:2,review:3,self:4}[variant]||0;
   const motifs=[
@@ -4236,7 +4237,7 @@ function pkgView(id) {
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
   const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
-  return `<section data-language-package="${esc(p.id)}" class="pg-hero v38-package-hero v43-package-hero v44-package-hero v43-type-${esc(p.type)}" style="background-image:linear-gradient(90deg,rgba(8,23,42,.08) 0%,rgba(8,23,42,.43) 42%,rgba(8,23,42,.96) 76%),url('/assets/hero/alsaeed-academy-wide-v44.webp')"><div class="wrap v43-package-layout"><div class="v43-package-copy">
+  return `<section data-language-package="${esc(p.id)}" class="pg-hero v38-package-hero v43-package-hero v44-package-hero package-exp-branded-hero v43-type-${esc(p.type)}"><div class="wrap v43-package-layout"><div class="v43-package-copy">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}"><bdi dir="ltr">${esc(c.code||'')}</bdi></a> ← ${esc(publicTitle(T))}</div>
     <div class="v44-hero-heading">
@@ -4250,7 +4251,7 @@ function pkgView(id) {
     ${catalogInstructorBadge(p.course,true)}
     <div data-language-slot></div>
     <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
-  </div></div></section>
+  </div><figure class="package-exp-hero-art"><img src="${catalogArtwork(c.id||p.course,p.type)}" width="800" height="560" alt=""><figcaption><bdi dir="ltr">${esc(c.code||'')}</bdi><span>${esc(publicTitle(T))}</span></figcaption></figure></div></section>
 
   <section class="sec"><div class="wrap"><div class="pd-hero">
     <div>
@@ -6447,6 +6448,12 @@ function editPkg(id) {
     <label class="f"><span>اسم الباقة بالعربية</span><input id="pAr" value="${esc(p ? p.ar : '')}" placeholder="يُولّد تلقائياً عند تركه فارغاً"></label>
     <label class="f"><span>اسم الباقة بالإنجليزية</span><input class="en" id="pEn" value="${esc(p ? p.en : '')}"></label>
     <label class="f"><span>الوصف</span><textarea id="pDesc" rows="2">${esc(p ? p.desc : '')}</textarea></label>
+    <fieldset id="pPromoFields" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px">
+      <legend>الفيديو التعريفي الاختياري للباقة الكاملة</legend>
+      <label class="f"><span>رابط الفيديو أو معرّف Vimeo</span><input class="en" dir="ltr" id="pPromoVideo" maxlength="2048" aria-describedby="pPromoHelp" value="${esc(p?.promoVideo ?? window.PACKAGE_PROMOS?.[p?.id]?.video ?? '')}"></label>
+      <p class="muted" id="pPromoHelp">أضف الفيديو المعتمد لهذه الباقة فقط: معرّف Vimeo أو رابطه الآمن، أو ملف MP4 مرفوع إلى /assets/promos/. لإخفاء القسم، اترك الرابط فارغًا وألغِ استخدام معاينة الدورة أدناه. لا يُستخدم أي فيديو من الدروس تلقائيًا.</p>
+      <label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px"><input type="checkbox" id="pPromoCourse" ${p?.promoUseCoursePreview===true?'checked':''}><span>استخدام معاينة الدورة عند غياب فيديو الباقة، بعد مراجعة ملاءمتها لهذه الباقة.</span></label>
+    </fieldset>
     <div class="f-row">
       <label class="f"><span>لغة الكورس</span><select id="pLang">${Object.keys(window.LANG_LABEL||{}).map(k=>`<option value="${k}" ${p&&p.lang===k?'selected':''}>${esc(window.LANG_LABEL[k].ar)}</option>`).join('')}</select></label>
       <label class="f"><span>تصنيف الدورة</span><input id="pCat" value="${esc(p ? p.category : '')}"></label>
@@ -6471,11 +6478,29 @@ function editPkg(id) {
     <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pCert" checked disabled><span>شهادة حضور — تُفعّل تلقائياً للكاملة فقط</span></label><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pSys" ${p&&p.hasSystem?'checked':''}><span>تشمل نظاماً تطبيقياً</span></label><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pActive" ${p?.active===false?'':'checked'}><span>متاحة للشراء بعد اعتماد المحتوى والاختبارات باللغة المختارة</span></label></div>
     <div class="mdl-act"><button class="btn p" id="pSave">حفظ</button>
       <button class="btn o" data-close>إلغاء</button></div>`, () => {
+    const promoState = () => { $('#pPromoFields').disabled = $('#pType').value !== 'full'; };
+    $('#pType').addEventListener('change', promoState);
+    promoState();
     $('#pSave').onclick = async () => {
       const id2 = ($('#pId').value || '').trim();
       if (!id2) { A().toast('أكمل المعرّف'); return; }
       if (!p && window.PACKAGES.some(x=>x.id===id2)) { A().toast('المعرّف مستخدم'); return; }
       const courseId=$('#pCourse').value, c=A().course(courseId), type=$('#pType').value;
+      const promoFields = {};
+      if (type === 'full') {
+        const promoVideo = $('#pPromoVideo').value.trim(), useCourse = $('#pPromoCourse').checked;
+        const parse = window.PACKAGE_EXPERIENCE?.parsePromoVideo;
+        $('#pPromoVideo').removeAttribute('aria-invalid');
+        if (promoVideo && !parse?.(promoVideo)) {
+          $('#pPromoVideo').setAttribute('aria-invalid', 'true'); $('#pPromoVideo').focus();
+          A().toast('استخدم معرّف Vimeo أو رابط HTTPS صحيحًا له، أو /assets/promos/package-intro-ar.mp4'); return;
+        }
+        if (useCourse && parse?.(c?.previewVimeo)?.kind !== 'iframe') {
+          $('#pPromoCourse').focus(); A().toast('أضف معاينة Vimeo صالحة للدورة وراجعها أولًا، أو ألغِ استخدام معاينة الدورة.'); return;
+        }
+        if (promoVideo || Object.prototype.hasOwnProperty.call(p || {}, 'promoVideo') || window.PACKAGE_PROMOS?.[p?.id]) promoFields.promoVideo = promoVideo;
+        if (useCourse || Object.prototype.hasOwnProperty.call(p || {}, 'promoUseCoursePreview')) promoFields.promoUseCoursePreview = useCourse;
+      }
       const T=(window.PKG_TYPES||[]).find(x=>x.k===type)||{};
       const kinds=$$('[data-pkind]').filter(x=>x.checked).map(x=>x.dataset.pkind);
       const mode=type==='sim'?'sim':type==='self'?'self':'recorded';
@@ -6484,13 +6509,13 @@ function editPkg(id) {
         hours:+$('#pHours').value||0, category:$('#pCat').value.trim()||((window.TRACKS.find(x=>x.k===c.track)||{}).ar||''), questions:+$('#pQuestions').value||0,
         videos:+$('#pVid').value||0, videoMins:+$('#pVideoMins').value||0, quizzes:+$('#pQz').value||0, shortQuizzes:+$('#pShort').value||0,
         lang:$('#pLang').value, days:+$('#pDays').value||90, hasSystem:$('#pSys').checked, cert:type==='full',active:$('#pActive').checked,
-        sourcePackageId:p?.sourcePackageId||'',
+        sourcePackageId:p?.sourcePackageId||'', ...promoFields,
         kinds:kinds, objectives:$('#pObjectives').value.split('\n').map(x=>x.trim()).filter(Boolean), audience:$('#pAudience').value.trim()||defaultAudience(c), chapters:c.chapters||[],
         questionTypes:[...new Set(((window.QUESTION_BANK||{})[courseId]||[]).map(x=>x.type))], includes:kinds.map(k=>{const x=(window.CONTENT_KINDS||[]).find(y=>y.k===k);return x?x.ar+' — '+x.desc:k;}) };
       const previous=p?{...p}:null;
       if (p) Object.assign(p, obj); else window.PACKAGES.push(obj);
       try { await saveCatalog();A().closeModal();A().render();A().toast('✅ حُفظت الباقة'); }
-      catch(e){if(p)Object.assign(p,previous);else window.PACKAGES=window.PACKAGES.filter(x=>x!==obj);A().toast(e.message);}
+      catch(e){if(p){for(const key of Object.keys(obj))if(!Object.prototype.hasOwnProperty.call(previous,key))delete p[key];Object.assign(p,previous);}else window.PACKAGES=window.PACKAGES.filter(x=>x!==obj);A().toast(e.message);}
     };
   });
 }
@@ -7088,7 +7113,8 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/platform-v22.js?v=20261008"></script>
 <script src="/experience-v24.js?v=20261008"></script>
 <script src="/experience-v31.js?v=20261008"></script>
-<script src="/public-experience.js?v=20261008"></script>
-<script src="/package-experience.js?v=20261008"></script>
+<script src="/public-experience.js?v=20261009-promo"></script>
+<script src="/package-promos.js?v=20261009-promo"></script>
+<script src="/package-experience.js?v=20261009-promo"></script>
 </body>
 </html>

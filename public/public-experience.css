@@ -37,6 +37,7 @@
 .public-results-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:25px}
 .public-result-card{background:#fff;border:1px solid var(--public-border);border-radius:18px;padding:23px;display:flex;flex-direction:column;position:relative;transition:border-color .2s,box-shadow .2s;min-width:0}
 .public-result-card:hover,.public-result-card:focus-within{border-color:#c08454;box-shadow:0 10px 25px #102e4a0d}
+.public-result-art{display:block;width:100%;height:160px;object-fit:contain;border-radius:12px;background:#102a41;margin-bottom:20px}
 .public-result-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:17px}
 .public-result-top>span:first-child{font-family:var(--fm);color:#173b58;font-weight:700;font-size:1.02rem}
 .public-result-top>span:last-child{background:#f1f5f8;border-radius:6px;padding:4px 9px;color:#476276;font-size:.76rem}
