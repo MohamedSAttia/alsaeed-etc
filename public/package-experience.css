@@ -41,6 +41,21 @@
 .package-exp-promo-logo { flex: 0 0 64px; width: 64px; height: 64px; object-fit: contain; border-radius: 50%; }
 .package-exp-promo-in-hero .package-exp-promo-actions a { color: #225777; }
 .package-exp-promo :focus-visible { outline: 3px solid #bf621c; outline-offset: 3px; }
+.package-exp-certificate { margin-block: 32px; padding: clamp(16px, 3vw, 28px); border: 1px solid #d8c69e; border-radius: 18px; background: linear-gradient(135deg, #fffdf8, #f5f2f9); }
+.package-exp-certificate h2 { margin: 0 0 10px; color: #33264f; font-size: 1.2rem; }
+.package-exp-certificate p, .package-exp-certificate-dialog p { color: #596377; line-height: 1.9; margin: 0 0 18px; }
+.package-exp-certificate-preview { display: block; border-radius: 10px; overflow: hidden; background: #33264f; color: #fff; text-align: center; text-decoration: none; box-shadow: 0 12px 26px #33264f14; }
+.package-exp-certificate-preview img { display: block; width: 100%; height: auto; aspect-ratio: 1600 / 1132; object-fit: contain; }
+.package-exp-certificate-preview span { display: block; min-height: 44px; padding: 11px 16px; font-weight: 600; }
+.package-exp-certificate-dialog { box-sizing: border-box; width: min(1200px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: clamp(14px, 3vw, 28px); border: 1px solid #d8c69e; border-radius: 16px; background: #fffdf8; overflow: auto; overscroll-behavior: contain; color: #33264f; }
+.package-exp-certificate-dialog::backdrop { background: #111528bd; }
+.package-exp-certificate-dialog-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px; }
+.package-exp-certificate-dialog-header h2 { margin: 0; font-size: clamp(1rem, 2vw, 1.3rem); }
+.package-exp-certificate-dialog-header button { flex-shrink: 0; min-height: 44px; }
+.package-exp-certificate-dialog > img { display: block; width: 100%; height: auto; }
+.package-exp-certificate-dialog > a { display: inline-flex; align-items: center; min-height: 44px; margin-top: 10px; color: #33264f; text-decoration: underline; }
+.package-exp-certificate :focus-visible { outline: 3px solid #bf621c; outline-offset: 3px; }
+@media (max-width: 480px) { .package-exp-certificate-dialog-header { flex-wrap: wrap; } }
 .package-exp-detail .pd-spec { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .package-exp-detail .pd-s { min-width: 0; overflow-wrap: anywhere; }
 .package-exp-detail .pd-s b { line-height: 1.6; }

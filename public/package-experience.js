@@ -28,6 +28,63 @@
   let lastHero = null;
   let pendingFocus = null;
   let promoMedia = null;
+  let certificateDialog = null;
+
+  function clearCertificateDialog() {
+    if (!certificateDialog) return;
+    if (certificateDialog.open) certificateDialog.close();
+    certificateDialog.remove();
+    certificateDialog = null;
+  }
+
+  function addCertificateSample(main, pkg) {
+    if (pkg?.id !== 'pmp-full' || pkg.course !== 'pmp' || pkg.type !== 'full' || !pkg.cert) return null;
+    const title = text('نموذج شهادة إتمام التدريب', 'Training completion certificate sample');
+    const description = text('نموذج من السعيد بتوقيعين تصميميين للمدرب وللسعيد وختم ذهبي. هذه شهادة إتمام تدريب، وليست اعتماد PMP الصادر من PMI.', 'An AlSaeed sample with decorative instructor and provider signatures and a gold seal. This is a training completion certificate, not a PMI-issued PMP credential.');
+    const imageAlt = text('نموذج شهادة إتمام تدريب PMP من السعيد، مع حقول تجريبية للاسم والتاريخ وتوقيع المدرب محمد عطية وتوقيع السعيد وختم ذهبي، وعلامة نموذج.', 'AlSaeed PMP training completion sample, with participant name and date placeholders, decorative Mohamed Attia and AlSaeed signatures, a gold seal and a SAMPLE mark.');
+    const src = '/assets/certifications/alsaeed-pmp-certificate-sample.svg';
+    const card = make('section', 'package-exp-certificate');
+    const heading = make('h2', 'package-exp-heading', title);
+    heading.id = 'package-certificate-title';
+    card.setAttribute('aria-labelledby', heading.id);
+    const caption = make('p', '', description);
+    const preview = make('a', 'package-exp-certificate-preview');
+    preview.href = src; preview.target = '_blank'; preview.rel = 'noopener';
+    preview.setAttribute('aria-label', text('تكبير نموذج شهادة إتمام التدريب', 'Enlarge the training completion certificate sample'));
+    const illustration = make('img');
+    illustration.src = src; illustration.alt = imageAlt; illustration.width = 1600; illustration.height = 1132;
+    illustration.loading = 'lazy'; illustration.decoding = 'async';
+    preview.append(illustration, make('span', '', text('عرض النموذج بحجم أكبر', 'View larger sample')));
+    if (typeof window.HTMLDialogElement?.prototype.showModal === 'function') {
+      preview.setAttribute('aria-haspopup', 'dialog');
+      preview.addEventListener('click', event => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        if (certificateDialog?.open) return;
+        clearCertificateDialog();
+        const dialog = make('dialog', 'package-exp-certificate-dialog');
+        dialog.id = 'package-certificate-dialog';
+        certificateDialog = dialog;
+        const dialogTitle = make('h2', '', title); dialogTitle.id = 'package-certificate-dialog-title';
+        dialog.setAttribute('aria-labelledby', dialogTitle.id);
+        const close = make('button', 'btn o', text('إغلاق النموذج', 'Close sample')); close.type = 'button'; close.autofocus = true;
+        const top = make('div', 'package-exp-certificate-dialog-header'); top.append(dialogTitle, close);
+        const large = illustration.cloneNode(); large.loading = 'eager';
+        const fullSize = make('a', '', text('افتح الصورة بالحجم الكامل', 'Open full-size image'));
+        fullSize.href = src; fullSize.target = '_blank'; fullSize.rel = 'noopener';
+        dialog.append(top, make('p', '', description), large, fullSize);
+        card.append(dialog);
+        close.addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
+        dialog.addEventListener('close', () => { if (preview.isConnected) preview.focus({ preventScroll: true }); });
+        dialog.showModal();
+      });
+    }
+    card.append(heading, caption, preview);
+    const included = main.querySelector('.kind-g');
+    if (included) included.after(card); else main.append(card);
+    return heading;
+  }
 
   function clearPromoMedia() {
     if (!promoMedia) return;
@@ -178,7 +235,9 @@
       value.classList.toggle('package-exp-text-value', /[\u0621-\u064A]/.test(value.textContent));
     });
     const main = detail.firstElementChild;
-    addPromo(main, window.APP?.pack(hero.dataset.languagePackage), hero);
+    const pkg = window.APP?.pack(hero.dataset.languagePackage);
+    addPromo(main, pkg, hero);
+    const certificate = addCertificateSample(main, pkg);
     const headings = [...main.children].filter(node => /^H[2-4]$/.test(node.tagName));
     const navWrap = make('div', 'wrap package-exp-overview');
     const nav = make('nav', 'package-exp-outline');
@@ -192,6 +251,7 @@
       heading.setAttribute('aria-level', '2');
       addJump(nav, heading, heading.textContent.trim());
     });
+    if (certificate) addJump(nav, certificate, certificate.textContent);
     const compare = app.querySelector('.v32-compare');
     if (compare) {
       compare.id ||= 'package-detail-compare';
@@ -313,6 +373,7 @@
     const hero = app.querySelector('.learning-hero[data-language-package], .v38-package-hero[data-language-package]');
     if (!hero) {
       clearPromoMedia();
+      clearCertificateDialog();
       delete app.dataset.packageExperience;
       lastHero = null;
       pendingFocus = null;
@@ -320,6 +381,7 @@
     }
     if (hero === lastHero) return;
     clearPromoMedia();
+    clearCertificateDialog();
     lastHero = hero;
     const learner = hero.classList.contains('learning-hero');
     app.dataset.packageExperience = learner ? 'learn' : 'detail';
