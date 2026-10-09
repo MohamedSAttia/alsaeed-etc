@@ -1086,7 +1086,9 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
 <link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=5">
 <link rel="stylesheet" href="/public-experience.css?v=20261009-promo">
-<link rel="stylesheet" href="/package-experience.css?v=20261009-promo">
+<link rel="stylesheet" href="/package-experience.css?v=20261009-promo-2">
+<link rel="stylesheet" href="/lesson-video.css?v=20261009-1">
+<script src="/lesson-video.js?v=20261009-1"></script>
 </head>
 <body>
 
@@ -3396,9 +3398,10 @@ function vimeoId(v){
   const m=s.match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m?m[1]:'';
 }
 function vimeoFrame(v,title){
-  const id=vimeoId(v); if(!id)return '';
-  return `<iframe src="https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${esc(title||'Video')}"></iframe>`;
+  const url=window.LessonVideo?.embedUrl(v); if(!url)return '';
+  return `<iframe src="${esc(url)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${esc(title||'Video')}"></iframe>`;
 }
+
 function courseCover(c, big){
   const tv=trackVisual(c);
   const supplied=c.cover&&String(c.cover).trim();
@@ -3746,7 +3749,7 @@ function catalogArtwork(code,variant='course') {
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
   const key=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const id=Object.keys(colors).find(k=>key.includes(k))||'pmp';
-  if (['full','sim','review','self'].includes(variant) && ['pmp','rmp','pba','acp','grcp','lss','p3o','nebosh','aipro'].includes(id)) return '/assets/packages/' + id + '.svg';
+  if (['pmp','rmp','pba','acp','grcp','lss','p3o','nebosh','aipro'].includes(id)) return '/assets/packages/' + id + '.svg';
   const [dark,mid,light]=colors[id];
   const type=variant==='course'?0:{full:1,sim:2,review:3,self:4}[variant]||0;
   const motifs=[
@@ -4372,8 +4375,8 @@ function pkgTab(p, c, has) {
   if (pkTab === 'plan') {
     const plan = A().studyPlan(p.id);
     const pr = has ? A().prog(p.id) : { weeks: {} };
-    return `<div class="card pad mb"><h3>${siteEnglish()?'Your learning journey':'مسارك التعليمي'}</h3><div class="grid g3">${[['content',siteEnglish()?'1 · Reading and video':'1 · الشرح النصي والفيديو'],['resources',siteEnglish()?'2 · Files and templates':'2 · الملفات والقوالب'],['games',siteEnglish()?'3 · Management games':'3 · الألعاب الإدارية'],['activities',siteEnglish()?'4 · Exercises':'4 · الأنشطة والتمارين'],['workspace',siteEnglish()?'5 · Application and reports':'5 · التطبيق والتقارير'],['exams',siteEnglish()?'6 · Chapter tests and mocks':'6 · اختبارات الفصول والمحاكاة']].filter(([id])=>id==='content'?p.kinds?.includes('video')||p.kinds?.includes('material'):id==='resources'?p.kinds?.includes('download'):id==='games'?p.kinds?.includes('game'):id==='activities'?p.kinds?.includes('activity'):id==='exams'?p.kinds?.includes('exam')||p.kinds?.includes('quiz'):true).map(([id,t])=>`<button class="btn o" data-lt="${id}">${esc(t)}</button>`).join('')}</div></div><div class="note info mb"><b>خطة ${plan.length} أسابيع.</b>
-      علّم الأسبوع عند إتمامه ليتحدّث تقدّمك تلقائياً — والخطة قابلة للتعديل حسب وقتك.</div>
+    return `<div class="package-plan-intro"><div><h3>${siteEnglish()?'Your passing plan':'خطة اجتيازك'}</h3><p>${siteEnglish()?'Complete each week, study its content, then assess your understanding.':'أكمل كل أسبوع، وادرس محتواه، ثم اختبر فهمك للموضوع.'}</p></div><button class="btn p" data-lt="${p.kinds?.includes('video')||p.kinds?.includes('material')?'content':'exams'}">${siteEnglish()?'Continue learning':'ابدأ التعلّم'}</button></div><div class="note info mb"><b>${siteEnglish()?plan.length+'-week plan.':'خطة '+plan.length+' أسابيع.'}</b>
+      ${siteEnglish()?'Mark each week complete to update your progress. Adjust the plan to your available time.':'علّم الأسبوع عند إتمامه ليتحدّث تقدّمك تلقائياً — والخطة قابلة للتعديل حسب وقتك.'}</div>
       <div class="plan-w passing-roadmap">${plan.map(w => `
         <div class="wk ${pr.weeks[w.w] ? 'done' : ''}">
           <div class="wk-n"><b class="num">${w.w}</b><span>أسبوع</span></div>
@@ -5354,15 +5357,16 @@ function decisionGame(pid){ openPractice(pid,'game'); }
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
   if (!l || !l.vimeo) return;
+  if(!window.LessonVideo.embedUrl(l.vimeo)){A().toast(siteEnglish()?'The video link is invalid. Please contact the trainer.':'رابط الفيديو غير صالح؛ يرجى إبلاغ المدرب.');return;}
   curLesson = idx;
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
     ${String(l.notes||l.notes_en||'').trim()?`<div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Lesson reading':'شرح الدرس'}</b><p>${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></div>`:''}
-    <p>${l.dur} · درس ${idx + 1} من ${ls.length}</p>
+    <p>${esc(l.dur||'')} · ${siteEnglish()?'Lesson':'درس'} ${idx + 1} / ${ls.length}</p>
     <div class="player">
       ${l.vimeo
-        ? `<iframe id="nativeLessonFrame" src="https://player.vimeo.com/video/${esc(l.vimeo)}?title=0&byline=0&portrait=0"
+        ? `<iframe id="nativeLessonFrame" src="${esc(window.LessonVideo.embedUrl(l.vimeo))}" title="${esc(window.biTitle ? window.biTitle(l) : l.t)}"
              allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
         : `<div class="player-ph"><b>🎬 الفيديو لم يُربَط بعد</b>
              <p>ارفع الدرس على Vimeo وضع رقمه من لوحة الإدارة ← المحتوى والفيديو.
@@ -5371,12 +5375,16 @@ function playLesson(pid, idx) {
     ${(l.files||[]).length?`<div class="lesson-attachments"><h4>${siteEnglish()?'Lesson files':'ملفات الدرس'}</h4>${l.files.map(f=>`<button class="btn o sm" data-player-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
     <div class="mdl-act">
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
-        ${pr.lessons[idx] ? '✓ مكتمل — إلغاء' : 'علّم كمكتمل'}</button>
+        ${pr.lessons[idx] ? (siteEnglish()?'✓ Completed — undo':'✓ مكتمل — إلغاء') : (siteEnglish()?'Mark complete':'علّم كمكتمل')}</button>
       <button class="btn o" id="lessonQuiz">${siteEnglish()?'Test this lesson / chapter':'اختبار هذا الدرس / الفصل'}</button>
-      ${idx + 1 < ls.length ? '<button class="btn o" id="lsNext">الدرس التالي ←</button>' : ''}
-      <button class="btn o" data-close>إغلاق</button>
+      ${ls.some((x,i)=>i>idx&&x.vimeo) ? `<button class="btn o" id="lsNext">${siteEnglish()?'Next video':'الفيديو التالي'}</button>` : ''}
+      <button class="btn o" data-close>${siteEnglish()?'Close':'إغلاق'}</button>
     </div>`, () => {
-    const frame=$('#nativeLessonFrame');if(frame){const attach=()=>{if(!window.Vimeo?.Player||!frame.isConnected)return;const player=new Vimeo.Player(frame);player.on('ended',()=>{if(!frame.isConnected)return;pr.lessons[idx]=true;A().save();const order=ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);const next=order[order.indexOf(idx)+1];if(next!==undefined){A().closeModal();playLesson(pid,next)}else A().toast(siteEnglish()?'All videos completed':'اكتملت الفيديوهات')})};if(window.Vimeo?.Player)attach();else{const sdk=document.createElement('script');sdk.src='https://player.vimeo.com/api/player.js';sdk.onload=attach;document.head.append(sdk)}};
+    const frame=$('#nativeLessonFrame');window.LessonVideo.attach(frame,()=>{
+      pr.lessons[idx]=true;A().save();
+      const order=ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);
+      const next=order[order.indexOf(idx)+1];if(next!==undefined){A().closeModal();playLesson(pid,next)}else A().toast(siteEnglish()?'All videos completed':'اكتملت الفيديوهات');
+    });
     $$('[data-player-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.playerFile),{headers:{Authorization:'Bearer '+A().token}});if(!response.ok)throw Error('تعذر تنزيل الملف');const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;link.download=b.dataset.fileName;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);pr.downloads=pr.downloads||{};pr.downloads[b.dataset.playerFile]={name:b.dataset.fileName,at:Date.now()};A().save()}catch(e){A().toast(e.message)}});
     $('#lsDone').onclick = () => {
       const completed = !pr.lessons[idx]; pr.lessons[idx] = completed; A().save();
@@ -5385,7 +5393,7 @@ function playLesson(pid, idx) {
       if(completed)setTimeout(()=>A().modal(`<h3>${siteEnglish()?'Lesson completed':'أتممت الدرس'}</h3><p>${siteEnglish()?'Apply what you learned, then assess your understanding.':'طبّق ما تعلمته، ثم اختبر فهمك للدرس أو الفصل.'}</p><button class="btn p" id="afterLessonTest">${siteEnglish()?'Start assessment':'ابدأ اختبار الدرس / الفصل'}</button><button class="btn o" data-close>${siteEnglish()?'Continue learning':'متابعة التعلم'}</button>`,()=>{$('#afterLessonTest').onclick=()=>{A().closeModal();PackageJourney.lessonTest(pid,idx)}}),180);
     };
     const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); PackageJourney.lessonTest(pid,idx); };
-    const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, idx + 1); };
+    const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, ls.findIndex((x,i)=>i>idx&&x.vimeo)); };
   });
 }
 
@@ -5949,14 +5957,8 @@ function bind() {
   const curCh = () => { const p = A().pack(curPk()); const c = p && A().course(p.course);
     if (c) { c.chapters = c.chapters || []; return c.chapters; } return []; };
   function videoId(value) {
-    const raw = String(value || '').trim();
-    if (!raw) return '';
-    if (/^\d{6,12}$/.test(raw)) return raw;
-    try {
-      const url = new URL(raw);
-      if (!['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].includes(url.hostname)) return null;
-      return url.pathname.match(/(?:^|\/)(\d{6,12})(?:\/|$)/)?.[1] || null;
-    } catch { return null; }
+    if(!String(value||'').trim())return '';
+    return window.LessonVideo.storedValue(value);
   }
 
   /* اجمع ما في الحقول قبل أي إعادة رسم */
@@ -5982,10 +5984,10 @@ function bind() {
   $$('[data-vid],[data-ld]').forEach(x => x.onchange = harvest);
   $$('[data-lt],[data-lten]').forEach(x => x.onchange = () => { harvest(); saveLessons(true); });
   async function fillVimeoDuration(input, durationInput) {
-    const id = input.value.trim().match(/(?:^|\/)(\d{6,12})(?:\?.*)?$/)?.[1];
+    const id = window.LessonVideo.storedValue(input.value);
     if (!id || durationInput.value.trim()) return;
     try {
-      const info = await A().api('/admin/vimeo/' + id);
+      const info = await A().api('/admin/vimeo/' + encodeURIComponent(id));
       if (info.seconds && !durationInput.value.trim()) {
         durationInput.value = info.duration;
         harvest();
@@ -6234,7 +6236,7 @@ function bind() {
     A().modal(`<h3>معاينة الفيديو</h3>
       <p class="en">vimeo.com/${esc(v)}</p>
       <div class="player">
-        <iframe src="https://player.vimeo.com/video/${esc(v)}?title=0&byline=0&portrait=0"
+        <iframe src="${esc(window.LessonVideo.embedUrl(v))}" title="Video preview"
           allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
       <div class="note info" style="font-size:.83rem">
         إن ظهرت رسالة خطأ فتأكّد من إعداد الخصوصية في Vimeo:
@@ -7088,7 +7090,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261008-4"></script><script src="/course-roadmap.js?v=1"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=1"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20.2"></script>
@@ -7115,6 +7117,6 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/experience-v31.js?v=20261008"></script>
 <script src="/public-experience.js?v=20261009-promo"></script>
 <script src="/package-promos.js?v=20261009-promo"></script>
-<script src="/package-experience.js?v=20261009-promo"></script>
+<script src="/package-experience.js?v=20261009-promo-2"></script>
 </body>
 </html>

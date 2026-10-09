@@ -81,6 +81,7 @@ try {
     window.PACKAGES = content.packages;
     window.COURSES = content.courses;
   }
+  for (const c of window.COURSES) assert.ok(window.VIEWS.course(c.id).includes('/assets/packages/' + c.id + '.svg'), 'Course detail cover uses the same illustration: ' + c.id);
   const originalData = JSON.stringify({ packages: window.PACKAGES, courses: window.COURSES });
   const full = window.PACKAGES.filter(p => p.type === 'full' && p.active !== false);
   const first = full[0], course = APP.course(first.course);

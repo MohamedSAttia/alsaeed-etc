@@ -114,7 +114,11 @@ try {
       window.PACKAGE_EXPERIENCE.refresh();
       assert.equal(JSON.stringify({ packages: window.PACKAGES, courses: window.COURSES, progress: APP.DB.progress }), data);
       const shortcuts = [...document.querySelectorAll('#lnBody .card > .grid > button[data-lt]')].map(button => button.dataset.lt);
-      assert.deepEqual(shortcuts, order.filter(key => shortcuts.includes(key)));
+      assert.equal(shortcuts.length,0,pid+': no duplicate plan grid');
+      assert(document.querySelector('.package-plan-intro button'),pid+': one learning call to action');
+      assert(nav.querySelectorAll('.package-exp-group-title').length>=2);
+      assert(document.querySelector('.package-exp-panel-heading h2'));
+      assert(document.querySelector('.package-exp-readiness summary'));
     }
   }
   console.log('PASS: ' + pids.length + ' actual learner renderers in both languages, conditional section ordering, shortcut order, selected state, unchanged data');
