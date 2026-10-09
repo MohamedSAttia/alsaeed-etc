@@ -58,6 +58,7 @@
 [data-route="home"] .v31-finder-panel{border:1px solid #d6e1ea}
 @media(min-width:1181px) and (max-width:1350px){.hdr-in{padding-inline:20px;gap:10px}.hdr .nav a,.hdr .nav .nb{padding-inline:8px;font-size:.76rem}.hdr .lg-t b{font-size:1rem}.hdr-act{gap:5px}.hdr-act .btn{padding-inline:10px}}
 @media(max-width:1180px){
+  body.public-menu-open #chatHost,body.public-menu-open .wa{visibility:hidden;pointer-events:none}
   .hdr #nav{inset:auto;top:calc(var(--hdr) - 3px);inset-inline:16px;width:auto;max-width:660px;margin-inline-start:auto;padding:18px;gap:8px;border:1px solid #45607b;border-radius:16px;box-shadow:0 22px 45px #051a3b55;max-height:calc(100dvh - var(--hdr) - 20px)}
   .hdr #nav.open{display:grid;grid-template-columns:1fr 1fr}
   .hdr #nav a,.hdr #nav .nb{min-height:48px;padding:11px 14px;font-size:.95rem;white-space:normal;border:1px solid #ffffff0c;background:#ffffff05;border-radius:9px}

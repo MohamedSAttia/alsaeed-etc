@@ -23,6 +23,7 @@
     const nav = $('#nav'), button = $('#burger');
     if (!nav || !button) return;
     nav.classList.toggle('open', open);
+    document.body.classList.toggle('public-menu-open', open);
     button.setAttribute('aria-expanded', String(open));
     button.setAttribute('aria-label', open ? text('إغلاق القائمة','Close menu') : text('فتح القائمة','Open menu'));
     button.textContent = open ? '×' : '☰';
@@ -166,6 +167,17 @@
 
   function refresh() {
     navigation(); bindHomeSearch(); mountCatalog();
+    const advisor = $('.v24-consult-link');
+    if (advisor && !advisor.querySelector('svg.public-arrow')) {
+      const tail = advisor.lastChild;
+      if (tail?.nodeType === Node.TEXT_NODE) tail.textContent = tail.textContent.replace(/\s*↗\s*$/, ' ');
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      arrow.setAttribute('class','public-arrow'); arrow.setAttribute('width','18'); arrow.setAttribute('height','18');
+      arrow.setAttribute('viewBox','0 0 24 24'); arrow.setAttribute('fill','none');
+      arrow.setAttribute('stroke','currentColor'); arrow.setAttribute('stroke-width','1.8'); arrow.setAttribute('aria-hidden','true');
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d','M6 18 18 6M6 6h12v12'); arrow.append(path); advisor.append(arrow);
+    }
     const current = route();
     if (current !== lastRoute) {
       lastRoute = current; setMenu(false);
@@ -174,6 +186,11 @@
     }
   }
   document.addEventListener('click',event=>{
+    const resultLink = event.target.closest('.public-result-card a[href^="#pkg/"]');
+    if (resultLink && !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+      event.preventDefault(); go(resultLink.getAttribute('href').slice(1));
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+    }
     if (!event.target.closest('#nav,#burger')) setMenu(false);
     if (event.target.closest('#nav [data-r]')) setMenu(false);
   });

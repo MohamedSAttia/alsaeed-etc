@@ -34,7 +34,8 @@ function dispose() {
 const errors = [];
 window.addEventListener('error', event => errors.push(event.message));
 window.fetch = async () => ({ ok: false, status: 503, json: async () => ({ error: 'Local presentation fixture' }) });
-window.scrollTo = () => {};
+const scrollCalls=[];
+window.scrollTo = (...args) => { scrollCalls.push(args); };
 window.HTMLElement.prototype.scrollIntoView = function () { this.dataset.testScrolled = 'true'; };
 window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} });
 window.IntersectionObserver = class { observe() {} unobserve() {} disconnect() {} };
@@ -63,10 +64,16 @@ try {
   for (const language of ['ar','en']) {
     window.__lang=language;window.I18.set(language);document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';
     APP.go('home');await settle();
+    const advisor=document.querySelector('.v24-consult-link');
+    assert.equal(advisor.querySelectorAll('svg.public-arrow').length,1,'Advisor uses a reliable SVG arrow');
+    assert.doesNotMatch(advisor.textContent,/↗/);
+    window.PUBLIC_EXPERIENCE.refresh();assert.equal(advisor.querySelectorAll('svg.public-arrow').length,1,'Advisor arrow remains idempotent');
     const homeCard=[...document.querySelectorAll('.course-vcard')].find(el=>el.querySelector('[data-r="course/pmp"]'));
     assert.ok(homeCard);assert.match(homeCard.querySelector('.public-from-price').textContent,/69/,'Actual minimum price');
     const burger=document.querySelector('#burger');burger.style.display='block';burger.click();assert.equal(burger.getAttribute('aria-expanded'),'true');
+    assert.ok(document.body.classList.contains('public-menu-open'),'Menu can suppress competing floating chat controls');
     key(burger,'Escape');assert.equal(burger.getAttribute('aria-expanded'),'false');assert.equal(document.activeElement,burger);
+    assert.equal(document.body.classList.contains('public-menu-open'),false,'Chat controls return after menu dismissal');
     burger.click();document.querySelector('#app').click();assert.equal(burger.getAttribute('aria-expanded'),'false');
     assert.equal(document.querySelectorAll('[data-public-account]').length,2);window.PUBLIC_EXPERIENCE.refresh();assert.equal(document.querySelectorAll('[data-public-account]').length,2);
     const search=input('#v22CourseSearch','PMP');assert.equal(search.getAttribute('aria-expanded'),'true');key(search,'ArrowDown');assert.ok(search.getAttribute('aria-activedescendant'));key(search,'Escape');assert.equal(search.getAttribute('aria-expanded'),'false');
@@ -79,6 +86,12 @@ try {
     window.history.forward();await settle();assert.match(window.location.hash,/cert=pmp/);assert.ok(document.querySelector('.v38-packages'));
     document.querySelector('[data-creset]').click();await settle();assert.equal(window.location.hash,'#programs');assert.ok(document.querySelector('[data-cfamily="pmi"]'));
     input('#publicQuery','PMP');assert.equal(document.querySelector('[data-catalog-browse]').hidden,true);assert.ok(document.querySelectorAll('.public-result-card').length);assert.match(window.location.hash,/q=PMP/);
+    const filteredHash=window.location.hash;scrollCalls.length=0;
+    document.querySelector('.public-result-card .btn').click();await settle();
+    assert.match(window.location.hash,/^#pkg\//);
+    assert.ok(scrollCalls.some(args=>args[0]?.top===0&&args[0]?.behavior==='instant'),'Catalog result starts package at the top after rendering');
+    window.history.back();await settle();assert.equal(window.location.hash,filteredHash,'Back restores the filtered catalog URL');
+    assert.equal(document.querySelector('#publicQuery').value,'PMP');
     assert.equal(APP.route,window.location.hash.slice(1),'URL and router state remain in sync');
     input('#publicMode','sim','change');assert.equal(document.querySelectorAll('.public-result-card').length,window.PACKAGES.filter(p=>p.active!==false&&p.course==='pmp'&&p.mode==='sim').length);
     input('#publicQuery','no-match-zzzz');assert.ok(document.querySelector('.public-empty'));assert.equal(document.querySelectorAll('.public-result-card').length,0);
