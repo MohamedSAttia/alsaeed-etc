@@ -220,7 +220,7 @@ try {
   delete pmp.promoVideo; delete pmp.promoUseCoursePreview;
   await render(pmp);
   assert.equal(document.querySelectorAll('.package-exp-promo').length, 1, 'Exactly one PMP video area');
-  assert.ok(document.querySelector('.v43-package-layout > .package-exp-promo-in-hero'), 'Video replaces the illustrated hero position');
+  assert.ok(document.querySelector('.v43-package-layout > .cd-package-media > .package-exp-promo-in-hero'), 'Video replaces the illustrated hero position');
   assert.equal(document.querySelector('.v43-package-layout .package-exp-hero-art'), null, 'Original PMP hero illustration is removed');
   assert.equal(document.querySelector('.pd-hero .package-exp-promo'), null, 'No duplicate lower promo section');
   const suppliedLogo = document.querySelector('.package-exp-promo-logo');

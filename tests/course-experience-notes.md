@@ -1,0 +1,11 @@
+# Course and catalog decision flow — 2026-10-10
+
+Base: production 89734937bc5a38e5ec560aa98d2208fd03310dc6, tree 4d6a6fe15ba64093c1e216fc1e11a227aecfef7e. Isolated from the paused certificate-logo patch.
+
+The catalog starts with course discovery using actual published package data, per-currency minimum prices, track choices and course links. Package filters, deep links, empty states and restored pagination remain available. Course pages use a split hero, real format/language/topic/schedule facts, in-page navigation, overview/outcomes/topics, package comparison, dates and group enquiry. A desktop price summary and mobile compare action point to published package options. Package details retain their original enrollment controls, video and sample, with clearer sidebar labels and a mobile scroll-to-enrollment action. None of these controls initiate payment automatically.
+
+The requested Saudi contact +966544375447 is displayed in LTR form on Contact and the footer. New group enquiries use its WhatsApp destination with the current course prefilled; the existing Egyptian contact remains. UI labels switch between Arabic and English; course topics retain their published source language where translation is absent.
+
+No payment provider, card collection, price, policy, exam, attempt, progress, issuance or enrollment rules are changed. No payment/approval/accreditation claims were added. The existing certificate generator is byte-identical to the baseline.
+
+Tests: course-experience-dom, public-experience-dom, package-experience-dom, package-promo-dom and package-certificate-dom. These execute real renderers and handlers with isolated read-only fixtures. Tests cover 33 seeded packages plus the current public API fixture with 36 packages and nine courses. Its session list is empty. Image captions distinguish catalog training hours, flexible study days and content access. Synthetic future group fixtures verify dates, explicit training-day counts, missing counts and mode separation without changing catalog data. Visual rendering requires separate preview/live browser QA. Local Chromium is blocked by socket creation restrictions, so browser QA is performed separately on the review deployment.
