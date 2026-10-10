@@ -24,7 +24,7 @@ export const demoLearningRelease={
           "en"
         ],
         "title": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "درس تجريبي: التعلّم بالقراءة",
           "en": "Synthetic lecture"
         },
         "contentRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -40,7 +40,7 @@ export const demoLearningRelease={
           {
             "id": "synthetic-section-1",
             "title": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "القسم التجريبي 1",
               "en": "Synthetic section 1"
             },
             "body": {
@@ -85,7 +85,7 @@ export const demoLearningRelease={
           {
             "id": "synthetic-section-2",
             "title": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "القسم التجريبي 2",
               "en": "Synthetic section 2"
             },
             "body": {
@@ -183,7 +183,7 @@ export const demoLearningRelease={
         "sourceToolId": "TOOL-synthetic-one",
         "element": "L1",
         "title": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "دفتر تجريبي أول",
           "en": "Synthetic workbook one"
         },
         "availableLocales": [
@@ -195,7 +195,7 @@ export const demoLearningRelease={
             "id": "summary",
             "type": "text",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملخص تجريبي",
               "en": "Synthetic summary"
             },
             "required": false
@@ -204,7 +204,7 @@ export const demoLearningRelease={
             "id": "notes",
             "type": "textarea",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملاحظات تجريبية",
               "en": "Synthetic notes"
             },
             "required": false
@@ -213,7 +213,7 @@ export const demoLearningRelease={
             "id": "reviewDate",
             "type": "date",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "تاريخ المراجعة التجريبي",
               "en": "Synthetic date"
             },
             "required": false
@@ -222,7 +222,7 @@ export const demoLearningRelease={
             "id": "rows",
             "type": "table",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "صفوف التدريب",
               "en": "Synthetic rows"
             },
             "minRows": 0,
@@ -231,7 +231,7 @@ export const demoLearningRelease={
                 "id": "entry",
                 "type": "text",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "اسم البند التجريبي",
                   "en": "Synthetic entry"
                 },
                 "required": false
@@ -240,7 +240,7 @@ export const demoLearningRelease={
                 "id": "details",
                 "type": "textarea",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تفاصيل البند التجريبي",
                   "en": "Synthetic details"
                 },
                 "required": false
@@ -249,7 +249,7 @@ export const demoLearningRelease={
                 "id": "date",
                 "type": "date",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تاريخ البند",
                   "en": "Synthetic row date"
                 },
                 "required": false
@@ -282,7 +282,7 @@ export const demoLearningRelease={
           "snapshotRevision": "immutable"
         },
         "demoNotice": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "مثال افتراضي لتجربة الواجهة فقط؛ لا يمثل سجلاً حقيقياً.",
           "en": "Fictional example only."
         },
         "release": {
@@ -297,7 +297,7 @@ export const demoLearningRelease={
         "sourceToolId": "TOOL-synthetic-two",
         "element": "L2",
         "title": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "دفتر تجريبي ثانٍ",
           "en": "Synthetic workbook two"
         },
         "availableLocales": [
@@ -309,7 +309,7 @@ export const demoLearningRelease={
             "id": "summary",
             "type": "text",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملخص تجريبي",
               "en": "Synthetic summary"
             },
             "required": false
@@ -318,7 +318,7 @@ export const demoLearningRelease={
             "id": "notes",
             "type": "textarea",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملاحظات تجريبية",
               "en": "Synthetic notes"
             },
             "required": false
@@ -327,7 +327,7 @@ export const demoLearningRelease={
             "id": "reviewDate",
             "type": "date",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "تاريخ المراجعة التجريبي",
               "en": "Synthetic date"
             },
             "required": false
@@ -336,7 +336,7 @@ export const demoLearningRelease={
             "id": "rows",
             "type": "table",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "صفوف التدريب",
               "en": "Synthetic rows"
             },
             "minRows": 0,
@@ -345,7 +345,7 @@ export const demoLearningRelease={
                 "id": "entry",
                 "type": "text",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "اسم البند التجريبي",
                   "en": "Synthetic entry"
                 },
                 "required": false
@@ -354,7 +354,7 @@ export const demoLearningRelease={
                 "id": "details",
                 "type": "textarea",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تفاصيل البند التجريبي",
                   "en": "Synthetic details"
                 },
                 "required": false
@@ -363,7 +363,7 @@ export const demoLearningRelease={
                 "id": "date",
                 "type": "date",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تاريخ البند",
                   "en": "Synthetic row date"
                 },
                 "required": false
@@ -396,7 +396,7 @@ export const demoLearningRelease={
           "snapshotRevision": "immutable"
         },
         "demoNotice": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "مثال افتراضي لتجربة الواجهة فقط؛ لا يمثل سجلاً حقيقياً.",
           "en": "Fictional example only."
         },
         "release": {
@@ -411,7 +411,7 @@ export const demoLearningRelease={
         "sourceToolId": "TOOL-synthetic-three",
         "element": "L3",
         "title": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "دفتر تجريبي ثالث",
           "en": "Synthetic workbook three"
         },
         "availableLocales": [
@@ -423,7 +423,7 @@ export const demoLearningRelease={
             "id": "summary",
             "type": "text",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملخص تجريبي",
               "en": "Synthetic summary"
             },
             "required": false
@@ -432,7 +432,7 @@ export const demoLearningRelease={
             "id": "notes",
             "type": "textarea",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "ملاحظات تجريبية",
               "en": "Synthetic notes"
             },
             "required": false
@@ -441,7 +441,7 @@ export const demoLearningRelease={
             "id": "reviewDate",
             "type": "date",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "تاريخ المراجعة التجريبي",
               "en": "Synthetic date"
             },
             "required": false
@@ -450,7 +450,7 @@ export const demoLearningRelease={
             "id": "rows",
             "type": "table",
             "label": {
-              "ar": "نص تعليمي تجريبي",
+              "ar": "صفوف التدريب",
               "en": "Synthetic rows"
             },
             "minRows": 0,
@@ -459,7 +459,7 @@ export const demoLearningRelease={
                 "id": "entry",
                 "type": "text",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "اسم البند التجريبي",
                   "en": "Synthetic entry"
                 },
                 "required": false
@@ -468,7 +468,7 @@ export const demoLearningRelease={
                 "id": "details",
                 "type": "textarea",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تفاصيل البند التجريبي",
                   "en": "Synthetic details"
                 },
                 "required": false
@@ -477,7 +477,7 @@ export const demoLearningRelease={
                 "id": "date",
                 "type": "date",
                 "label": {
-                  "ar": "نص تعليمي تجريبي",
+                  "ar": "تاريخ البند",
                   "en": "Synthetic row date"
                 },
                 "required": false
@@ -510,7 +510,7 @@ export const demoLearningRelease={
           "snapshotRevision": "immutable"
         },
         "demoNotice": {
-          "ar": "نص تعليمي تجريبي",
+          "ar": "مثال افتراضي لتجربة الواجهة فقط؛ لا يمثل سجلاً حقيقياً.",
           "en": "Fictional example only."
         },
         "release": {
