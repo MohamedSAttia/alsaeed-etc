@@ -1,0 +1,44 @@
+// Host supplies its existing authenticated API. This client never receives a bank or API key.
+export const themes={alsaeed:{name:'AlSaeed',ar:'السعيد',accent:'#ed7e2b',ink:'#12314b'},trackford:{name:'Trackford',ar:'تراكفورد',accent:'#c99b43',ink:'#0a1b3d'}};
+export function mountGrcWorkspace(root,{api,packageId,brand='alsaeed',locale='ar',onSignIn=null,onAttempt=()=>{},initialAttemptId=null}){
+ if(typeof api!=='function')throw new TypeError('The host authenticated API adapter is required');
+ const doc=root.ownerDocument,theme=themes[brand]||themes.alsaeed;
+ let lang=locale==='en'?'en':'ar',manifest=null,attempt=null,error='',busy=false,disposed=false,selected=new Map();
+ const t=(ar,en)=>lang==='en'?en:ar,b=v=>v?.[lang]||v?.ar||v?.en||'';
+ function el(tag,text,className){const node=doc.createElement(tag);if(text!==undefined)node.textContent=String(text);if(className)node.className=className;return node;}
+ function button(text,click,className='gw-button'){const x=el('button',text,className);x.type='button';x.onclick=click;return x;}
+ async function request(task){if(busy||disposed)return;busy=true;error='';render();try{await task();}catch(e){error=typeof e.message==='string'?e.message:'workspace_unavailable';}finally{busy=false;if(!disposed)render();}}
+ function render(){
+  if(disposed)return;root.replaceChildren();root.className='grc-workspace';root.lang=lang;root.dir=lang==='ar'?'rtl':'ltr';root.style.setProperty('--gw-accent',theme.accent);root.style.setProperty('--gw-ink',theme.ink);
+  const header=el('header',undefined,'gw-header');header.append(el('strong',lang==='ar'?theme.ar:theme.name),el('span',t('مساحة الحوكمة والمخاطر والامتثال','Governance, risk & compliance workspace')));const switcher=button(lang==='ar'?'English':'العربية',()=>{lang=lang==='ar'?'en':'ar';render();},'gw-language');switcher.setAttribute('aria-label',t('Switch to English','التبديل للعربية'));header.append(switcher);root.append(header);
+  const main=el('main',undefined,'gw-main');main.append(el('p',t('تعلّم · طبّق · راجع','LEARN · APPLY · REVIEW'),'gw-eyebrow'),el('h1',manifest?b(manifest.title):t('مساحة تعلّم GRC','GRC learning workspace')));
+  if(error){const invalid=error==='invalid_selection';const note=el('p',invalid?t('اختر إجابة صحيحة الشكل قبل المتابعة.','Choose a valid response before continuing.'):t('تعذّر عرض المحتوى أو حفظه. حاول مجددًا وتحقق من صلاحية الوصول.','The content could not be displayed or saved. Try again and check your access.'),'gw-status');note.role='alert';main.append(note);if(!invalid){if(typeof onSignIn==='function')main.append(button(t('تسجيل الدخول بالحساب الحالي','Use existing sign-in'),onSignIn));main.append(button(t('إعادة المحاولة','Try again'),load));}}
+  if(!manifest&&!error){const status=el('p',t('جارٍ التحقق من صلاحية الوصول…','Checking access…'),'gw-status');status.role='status';main.append(status);}
+  if(manifest){
+   const intro=el('p',t('اختر مسارك، وأكمل التعلّم من حسابك الحالي.','Choose your path and continue with your existing account.'),'gw-lead');main.append(intro);
+   const cards=el('nav',undefined,'gw-modules');cards.setAttribute('aria-label',t('وحدات المساحة','Workspace modules'));
+   for(const m of manifest.modules||[]){const card=button('',()=>{const panel=root.querySelector('.gw-module-description');panel.textContent=lang==='ar'?m.arDescription:m.enDescription;panel.tabIndex=-1;panel.focus();},'gw-module');card.append(el('strong',lang==='ar'?m.ar:m.en),el('span',lang==='ar'?m.arDescription:m.enDescription),el('small',m.status==='available'?t('متاح','Available'):t('غير متاح حاليًا','Currently unavailable')));cards.append(card);}main.append(cards);
+   const moduleDescription=el('p',t('تظهر الوحدات المتاحة وفق باقتك والمحتوى المعتمد.','Available modules follow your package and approved content.'),'gw-module-description');moduleDescription.id='gw-module-description';moduleDescription.setAttribute('aria-live','polite');main.append(moduleDescription);
+   if(manifest.bank.status!=='approved'){const hold=el('p',t('محتوى الأسئلة قيد المراجعة. سيُتاح التدريب بعد اعتماد المحتوى وربطه بباقتك.','Question content is under review. Practice will become available after approval and package integration.'),'gw-status');hold.role='status';main.append(hold);}
+   else if(!attempt){const actions=el('div',undefined,'gw-actions');for(const mode of ['practice','exam']){const start=button(mode==='practice'?t('ابدأ التدريب','Start practice'):t('ابدأ اختبار المراجعة','Start assessment'),()=>request(async()=>{attempt=await api('/grc-workspace/attempts',{method:'POST',body:{packageId,mode,count:Math.min(10,manifest.bank.questionCount)}});selected=new Map();if(!disposed)onAttempt(attempt.attempt.id);}));start.disabled=busy;actions.append(start);}main.append(actions);}
+  }
+  if(attempt){
+   const group=el('section',undefined,'gw-attempt');group.append(el('h2',attempt.attempt.mode==='practice'?t('تدريب المحاور','Topic practice'):t('اختبار المراجعة','Review assessment')));
+   for(const q of attempt.questions){const field=el('fieldset',undefined,'gw-question');field.append(el('legend',b(q.stem)));const picked=selected.get(q.id)||q.selectedOptionIds||[];
+    for(const option of q.options){const label=el('label',undefined,'gw-option'),input=el('input');input.type=q.type==='single'?'radio':'checkbox';input.name='q-'+q.id;input.value=option.id;input.checked=picked.includes(option.id);input.disabled=busy||attempt.attempt.status==='submitted'||!!q.feedback;input.onchange=()=>{let values=selected.get(q.id)||[...(q.selectedOptionIds||[])];values=q.type==='single'?[option.id]:input.checked?[...values,option.id]:values.filter(x=>x!==option.id);selected.set(q.id,values);};label.append(input,el('span',b(option.text)));field.append(label);}
+    if(q.feedback){const feedback=el('div',undefined,'gw-feedback');feedback.append(el('strong',q.feedback.correct?t('إجابة صحيحة','Correct response'):t('راجع الإجابة','Review your response')),el('p',b(q.feedback.explanation)));const correctText=q.options.filter(o=>q.feedback.correctOptionIds.includes(o.id)).map(o=>b(o.text)).join(' · ');feedback.append(el('p',t('الإجابة: ','Answer: ')+correctText));if(q.feedback.citation)feedback.append(el('small',q.feedback.citation));field.append(feedback);}
+    else if(attempt.attempt.status==='in_progress'){const save=button(attempt.attempt.mode==='practice'?t('تحقق من إجابتي','Check my response'):t('حفظ الإجابة','Save response'),()=>request(async()=>{await api('/grc-workspace/attempts/'+encodeURIComponent(attempt.attempt.id)+'/answer',{method:'POST',body:{questionId:q.id,selectedOptionIds:selected.get(q.id)||q.selectedOptionIds||[]}});attempt=await api('/grc-workspace/attempts/'+encodeURIComponent(attempt.attempt.id));}));save.disabled=busy;field.append(save);}group.append(field);
+   }
+   if(attempt.attempt.status==='in_progress'){const submit=button(t('إنهاء المحاولة وعرض النتيجة','Finish and view results'),()=>request(async()=>{attempt=await finish();}));submit.disabled=busy;group.append(submit,el('p',t('تُحفظ اختياراتك عند التسليم. الأسئلة غير المُجابة تُحسب ضمن النتيجة.','Your selected responses are saved on submission. Unanswered questions count toward the result.'),'gw-help'));}
+   else{group.append(el('p',t('النتيجة: ','Result: ')+attempt.result.correct+' / '+attempt.result.total,'gw-result'),button(t('العودة إلى المساحة','Back to workspace'),()=>{attempt=null;selected.clear();render();}));}main.append(group);
+  }
+  root.append(main);root.setAttribute('aria-busy',String(busy));
+ }
+ async function finish(){
+  const path='/grc-workspace/attempts/'+encodeURIComponent(attempt.attempt.id);
+  for(const q of attempt.questions){const values=selected.get(q.id);if(!q.feedback&&values!==undefined){await api(path+'/answer',{method:'POST',body:{questionId:q.id,selectedOptionIds:values}});}}
+  return api(path+'/submit',{method:'POST'});
+ }
+ function load(){return request(async()=>{const loaded=await api('/grc-workspace/manifest?packageId='+encodeURIComponent(packageId));if(!loaded?.bank||!Array.isArray(loaded.modules))throw Error('workspace_unavailable');manifest=loaded;if(initialAttemptId&&!attempt){const resumed=await api('/grc-workspace/attempts/'+encodeURIComponent(initialAttemptId));if(resumed.attempt.packageId!==packageId)throw Error('attempt_package_mismatch');attempt=resumed;}});}
+ render();load();return {retarget(target){root=target;render();},dispose(){disposed=true;root.replaceChildren();},setLanguage(value){lang=value==='en'?'en':'ar';render();}};
+}
