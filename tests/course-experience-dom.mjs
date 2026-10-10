@@ -67,6 +67,7 @@ try {
       assert.equal(document.querySelector('h1').textContent,language==='en'?course.en||course.ar:course.ar||course.en);
       assert.equal(document.querySelector('[data-course-experience]').dataset.courseExperience,course.id);
       assert.ok(document.body.classList.contains('course-design-page-active'));
+      assert.ok(document.documentElement.classList.contains('course-design-document'));
       assert.equal(document.querySelectorAll('.cd-section-nav').length,1);
       const pkgs=window.PACKAGES.filter(p=>p.course===course.id&&p.active!==false);
       assert.equal(document.querySelectorAll('.cd-options .v25-option').length,pkgs.length);
@@ -101,6 +102,7 @@ try {
     assert.equal(document.querySelector('.cd-mobile-action'),null);
     assert.ok(!document.body.classList.contains('package-design-page-active'));
     assert.ok(!document.body.classList.contains('course-design-page-active'));
+    assert.ok(!document.documentElement.classList.contains('course-design-document'));
     const contact=document.querySelector('.cd-saudi-contact');assert.ok(contact);
     assert.equal(contact.querySelector('a').href,'tel:+966544375447');
     assert.equal(contact.querySelector('bdi').dir,'ltr');

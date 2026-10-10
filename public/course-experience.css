@@ -64,3 +64,6 @@ body.package-design-page-active .package-exp-detail>div:first-child>h3:first-chi
 .cd-image-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:0;padding:18px;background:#f3f6f8;color:#183950;text-align:start;border-top:1px solid #dce6ee}
 .cd-image-facts>div{min-width:0}.cd-image-facts dt{font-size:.69rem;color:#5e7688;line-height:1.6;margin-bottom:4px}.cd-image-facts dd{margin:0;font:600 .8rem/1.8 var(--fb);overflow-wrap:anywhere}.cd-image-facts [data-schedule-fact="mode"]{grid-column:1/-1}
 .cd-hero-art .cd-image-facts{border-radius:0 0 13px 13px;background:#173a53;border-color:#ffffff20;color:#fff}.cd-hero-art .cd-image-facts dt{color:#bfd1df}.cd-package-media{min-width:0}.cd-package-media>.cd-image-facts{border-radius:0 0 16px 16px}.cd-package-media>.package-exp-promo,.cd-package-media>.package-exp-hero-art{margin:0;width:100%;max-width:none}
+
+/* Clip horizontal overflow without creating a body scroll container for sticky navigation. */
+html.course-design-document,body.course-design-page-active,body.package-design-page-active{overflow-x:clip;overflow-y:visible}

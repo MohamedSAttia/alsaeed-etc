@@ -23,6 +23,7 @@
     const app=document.getElementById('app');if(!app)return;
     const course=app.querySelector('[data-course-experience]');
     const packageHero=app.querySelector('.v38-package-hero[data-language-package]');
+    document.documentElement.classList.toggle('course-design-document',!!(course||packageHero));
     document.body.classList.toggle('course-design-page-active',!!course);
     document.body.classList.toggle('package-design-page-active',!!packageHero);
     if((course||packageHero)===lastPage)return;
