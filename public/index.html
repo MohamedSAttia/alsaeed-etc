@@ -5577,54 +5577,12 @@ function issueCert(pid) {
   });
 }
 function drawCert(pid, no, verify, englishName) {
-  const u = A().me(), p = A().pack(pid), c = A().course(p.course);
-  if (!u || !A().owns(pid) || !p.cert || !A().certReady(pid)) { A().toast('الشهادة متاحة بعد إتمام الباقة فقط'); return; }
-  const w = window.open('', '_blank');
-  if (!w) { A().toast('اسمح بفتح نافذة الشهادة في المتصفح'); return; }
-  w.document.write(`<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Certificate ${esc(englishName)}</title>
-    <style>@page{size:A4 landscape;margin:0}
-    body{margin:0;font-family:'Tajawal','IBM Plex Sans Arabic',Tahoma,sans-serif;
-      display:flex;align-items:center;justify-content:center;min-height:100vh;background:#EEE}
-    .c{box-sizing:border-box;width:297mm;height:210mm;background:linear-gradient(150deg,#fffefa,#f8f3e9);
-      border:14px solid #C99A3E;position:relative;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;text-align:center;padding:40px 60px 110px}
-    .brand-logo{width:190px;height:72px;object-fit:contain;margin:0 0 16px}
-    .c::before{content:'';position:absolute;inset:16px;border:2px solid #E6BF6A}
-    .seal{width:104px;height:104px;border-radius:50%;background:linear-gradient(140deg,#E6BF6A,#C99A3E);
-      color:#14142B;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      font-weight:800;font-size:.82rem;line-height:1.25;margin-bottom:22px}
-    h1{font-size:2.5rem;color:#14142B;margin:0 0 8px;font-weight:800}
-    .sub{color:#6B6790;font-size:1rem;margin-bottom:28px}
-    .nm{font-size:2.1rem;color:#2A2456;font-weight:800;border-bottom:3px solid #C99A3E;
-      padding-bottom:10px;margin-bottom:22px;min-width:460px;max-width:90%;overflow-wrap:anywhere}
-    .for{font-size:1.05rem;color:#252344;line-height:1.9;max-width:640px}
-    .for b{color:#14142B}
-    .ft{position:absolute;bottom:52px;inset-inline:80px;display:flex;justify-content:space-between;
-      align-items:flex-end;font-size:.82rem;color:#6B6790}
-    .sig{text-align:center}
-    .sig .l{border-top:2px solid #252344;width:200px;margin-bottom:6px}
-    .sig b{color:#14142B;font-size:.92rem}
-    @media print{body{background:#fff}.c{box-shadow:none}}
-    </style><link rel="stylesheet" href="/v18-interface.css?v=18.0">
-</head><body><div class="c">
-      <img class="brand-logo" src="${esc(location.origin)}/assets/al-ltc-logo.svg" alt="Alsaeed Education, Training and Consulting">
-      <h1>Certificate of Completion</h1>
-      <div class="sub">Alsaeed Education, Training &amp; Consulting</div>
-      <div class="nm">${esc(englishName)}</div>
-      <div class="for">Has successfully completed the training program <b>${esc(p.en || c.en || p.ar)}</b><br>
-        (${code(c)} — ${esc(c.edition)}) with <b>${c.hours} training hours</b>.</div>
-      <div class="ft">
-        <div class="sig"><div class="l"></div><b>${esc(siteEnglish()?'Dr Mohamed Attia':B.founder)}</b><br><span>Founder and Certified Trainer</span></div>
-        <div style="text-align:center"><b style="color:#14142B">Certificate number</b><br>
-          <span style="font-family:monospace">${no}</span><br>
-          <span>${new Date().toLocaleDateString('en-GB')}</span>
-          ${verify ? `<br><span style="font-size:.7rem">Verify: ${esc(verify)}</span>` : ''}</div>
-        <div class="sig"><div class="l"></div><b>${esc(B.en || 'Alsaeed')}</b><br><span>Education, Training & Consulting</span></div>
-      </div>
-    </div></body></html>`);
-  w.document.close();
-  const logo=w.document.querySelector('.brand-logo');
-  if (logo && !logo.complete) { logo.onload=()=>w.print(); logo.onerror=()=>A().toast('تعذّر تحميل الشعار؛ يمكنك طباعة الشهادة من النافذة بعد إعادة تحميلها'); } else w.print();
+  const u=A().me(), p=A().pack(pid); if(!u || !p || !A().owns(pid) || !p.cert || !A().certReady(pid)){A().toast('الشهادة متاحة بعد إتمام الباقة فقط');return;}
+  const c=A().course(p.course),w=window.open('','_blank');if(!w){A().toast('اسمح بفتح نافذة الشهادة في المتصفح');return;}
+  const logo=window.LOGO(78),name=englishName||'',program=p.en||c.en||c.code;
+  w.document.write(`<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Certificate ${esc(name)}</title><style>
+  @page{size:A4 landscape;margin:0}*{box-sizing:border-box}body{margin:0;background:#e9edf2;font-family:Arial,Helvetica,sans-serif;color:#17334f}.c{width:297mm;height:210mm;position:relative;background:#fffdf8;border:5mm solid #b38a34;margin:auto;text-align:center;overflow:hidden}.c:before{content:'';position:absolute;inset:4mm;border:1px solid #c9a552;pointer-events:none}.brand{position:absolute;top:12mm;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:15px}.brand svg{width:64px;height:61px;flex-shrink:0}.brand-copy{text-align:left}.brand-copy b{font-size:27px;letter-spacing:2px;display:block}.brand-copy span{display:block;font-size:10px;letter-spacing:1.6px;margin-top:8px;color:#647387}.title{position:absolute;top:43mm;left:0;right:0}.title h1{font-family:Georgia,serif;font-size:40px;font-weight:400;margin:0;letter-spacing:2px}.title p{font-size:11px;letter-spacing:5px;color:#997021;margin:12px 0 0}.recipient{position:absolute;top:76mm;left:18mm;right:18mm}.recipient p{font-size:13px;color:#647387;margin:0 0 12px}.nm{font-family:Georgia,serif;font-size:30px;line-height:1.3;overflow-wrap:anywhere;color:#18314d;border-bottom:1px solid #c9a552;display:inline-block;padding:0 14px 12px;max-width:100%}.program{position:absolute;top:108mm;left:24mm;right:24mm;font-size:13px;color:#647387;line-height:1.8}.program b{display:block;font-size:20px;color:#17334f;margin:7px 0}.program .hours{font-size:13px;color:#17334f}.footer{position:absolute;bottom:15mm;left:16mm;right:16mm;height:43mm}.sig{position:absolute;bottom:0;width:62mm;font-size:11px;border-top:1px solid #304763;padding-top:12px}.sig.left{left:0}.sig.right{right:0}.sig b{display:block;font-size:13px;margin-bottom:6px}.sig span{color:#647387;font-size:10px}.record{position:absolute;left:70mm;right:70mm;bottom:0;font-size:10px;line-height:1.8;color:#647387}.record b{color:#17334f}.record .number{font-family:monospace;display:block}.seal{position:absolute;left:calc(50% - 12mm);top:0;width:24mm;height:24mm;border-radius:50%;border:3px double #8e651a;background:linear-gradient(135deg,#f7e2a3,#c49a40);color:#5b4218;padding-top:7mm;font-size:9px;letter-spacing:1px;font-weight:bold}.verify{position:absolute;bottom:5mm;left:16mm;right:16mm;font-size:8px;color:#647387;overflow-wrap:anywhere}@media print{body{background:white}.c{margin:0}}
+  </style></head><body><div class="c"><div class="brand">${logo}<div class="brand-copy"><b>ALSAEED</b><span>EDUCATION · TRAINING · CONSULTING</span></div></div><div class="title"><h1>Certificate of Completion</h1><p>KNOWLEDGE INTO PRACTICE</p></div><div class="recipient"><p>This certificate is presented to</p><div class="nm">${esc(name)}</div></div><div class="program">For successfully completing the training program<b>${esc(program)}</b><span class="hours">${esc(c.code)} · ${Number(c.hours)||0} training hours</span></div><div class="footer"><div class="sig left"><b>Dr. Mohamed Attia</b><span>Founder &amp; Course Instructor</span></div><div class="seal">COMPLETION</div><div class="record"><b>Certificate number</b><span class="number">${esc(no)}</span><span>${new Date().toLocaleDateString('en-GB')}</span></div><div class="sig right"><b>Alsaeed</b><span>Education, Training &amp; Consulting</span></div></div>${verify?`<div class="verify">Verification: ${esc(verify)}</div>`:''}</div></body></html>`);w.document.close();w.print();
 }
 
 /* ═══════════ الربط ═══════════ */
