@@ -4174,10 +4174,13 @@ function certificationGuide(c) {
 }
 
 /* ═══════════ صفحة الدورة ═══════════ */
+function publicCourseTopics(c) {
+  return window.CourseRoadmap?.topics?.(c) || c.chapters || [];
+}
 function courseTabBody(c) {
   const t=window.__cTab||'about',en=siteEnglish(),tr=(ar,english)=>en?english:ar;
   const pkgs=window.PACKAGES.filter(p=>p.course===c.id&&p.active!==false);
-  const topics=(c.chapters||[]);
+  const topics=publicCourseTopics(c);
   const title=x=>window.biTitle?window.biTitle(x):(typeof x==='object'?(en?x.en||x.ar:x.ar||x.en):x);
   if(t==='out') {
     const outcomes=en?(Array.isArray(c.outcomes_en)&&c.outcomes_en.length?c.outcomes_en:[
@@ -4252,7 +4255,7 @@ function courseView(id) {
   const languages=[...new Set(pkgs.map(p=>p.lang))];
   const langName=k=>({ar:tr('العربية','Arabic'),en:tr('الإنجليزية','English'),both:tr('العربية والإنجليزية','Arabic & English')})[k]||k;
   const guide=CERT_GUIDES[c.id];
-  const topics=c.chapters||[];
+  const topics=publicCourseTopics(c);
   const topicTitle=x=>window.biTitle?window.biTitle(x):(typeof x==='object'?(en?x.en||x.ar:x.ar||x.en):x);
   const summary=en?(c.blurb_en||c.desc_en||guide?.value[1]||'Explore the topics and available learning options for this program.'):(c.blurb||guide?.value[0]||'');
   const outcomes=en?(Array.isArray(c.outcomes_en)?c.outcomes_en:[]):(Array.isArray(c.outcomes)?c.outcomes:[]);
@@ -4289,6 +4292,7 @@ function pkgView(id) {
   const p = A().pack(id);
   if (!p || p.active===false) return programs();
   const c = A().course(p.course) || {};
+  const topics=c.id==='pmp'&&p.type==='full'?publicCourseTopics(c):(p.chapters||[]);
   const T = (window.PKG_TYPES || []).find(x => x.k === p.type) || {};
   const L = (window.LANG_LABEL || {})[p.lang] || {};
   const has = A().owns(id);
@@ -4369,11 +4373,11 @@ function pkgView(id) {
         ${siteEnglish()?'Who is it for?':'الفئة المستهدفة'}</h3>
       <div class="note info" style="margin:0">${esc(p.audience||'')}</div>
 
-      ${(p.chapters||[]).length ? `
+      ${topics.length ? `
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
         ${siteEnglish()?'Topics covered':'محاور الباقة'}</h3>
-      <div class="chap-g">${p.chapters.map((ch,n)=>`<div class="chap-c">
-        <span class="num">${n+1}</span><span>${esc(window.biTitle ? window.biTitle(ch) : ch)}</span></div>`).join('')}</div>` : ''}
+      <div class="chap-g">${topics.map((ch,n)=>`<div class="chap-c">
+        <span class="num">${n+1}</span><span>${esc(window.biTitle ? window.biTitle(ch) : (typeof ch==='object'?(en?ch.en||ch.ar:ch.ar||ch.en):ch))}</span></div>`).join('')}</div>` : ''}
 
       ${p.hasSystem ? `<div class="note ok mt"><b>🛡️ يشمل نظام السعيد GRC التطبيقي</b> —
         تبني به منظومة حوكمة حقيقية لمنظمتك: عشرون عنصراً وثمانٍ وثلاثون أداة.</div>` : ''}
@@ -5560,29 +5564,36 @@ function runExam(pid, eid) {
 /* ═══════════ الشهادة ═══════════ */
 function issueCert(pid) {
   const pkg=A().pack(pid);if(!pkg||!pkg.cert||!A().certReady(pid)){A().toast('أكمل مشاهدة جميع فيديوهات الباقة أولاً');return;}
+  if(!A().live){A().toast('اتصل بالمنصة لإصدار شهادة موثّقة');return;}
   A().modal(`<h3>Certificate name / الاسم على الشهادة</h3>
     <p class="muted">اكتب اسمك بالأحرف الإنجليزية كما تريد ظهوره على الشهادة.</p>
     <label class="f"><span>Full name in English</span><input id="certEnglishName" dir="ltr" autocomplete="name" maxlength="100" placeholder="Mohamed Ahmed"></label>
     <div class="mdl-act"><button class="btn p" id="confirmCert">Issue certificate</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
     $('#confirmCert').onclick=async()=>{
+      const button=$('#confirmCert');
+      if(button.disabled)return;
       const name=$('#certEnglishName').value.trim().replace(/\s+/g,' ');
       if(!/^[A-Za-z][A-Za-z .'-]{2,99}$/.test(name)){A().toast('اكتب الاسم بالإنجليزية فقط');return;}
+      button.disabled=true;
       try{
-        if(A().live) await A().api('/progress/'+encodeURIComponent(pid),{method:'PUT',body:A().prog(pid)});
-        const result=A().live?await A().api('/certificate/'+pid,{method:'POST',body:{englishName:name}}):
-          {no:'AS-'+new Date().getFullYear()+'-'+Date.now().toString(36).toUpperCase().slice(0,6),verify:null,name};
-        A().closeModal();drawCert(pid,result.no,result.verify,result.name||name);
-      }catch(e){A().toast(e.message)}
+        await A().api('/progress/'+encodeURIComponent(pid),{method:'PUT',body:A().prog(pid)});
+        let result=await A().api('/certificate/'+encodeURIComponent(pid),{method:'POST',body:{englishName:name}});
+        // Read the saved record during rolling deployments with an older POST response.
+        if(!result.issued||!result.course)result={...result,...await A().api('/verify/'+encodeURIComponent(result.no))};
+        A().closeModal();await drawCert(pid,result);
+      }catch(e){button.disabled=false;A().toast(e.message)}
     };
   });
 }
-function drawCert(pid, no, verify, englishName) {
-  const u=A().me(), p=A().pack(pid); if(!u || !p || !A().owns(pid) || !p.cert || !A().certReady(pid)){A().toast('الشهادة متاحة بعد إتمام الباقة فقط');return;}
-  const c=A().course(p.course),w=window.open('','_blank');if(!w){A().toast('اسمح بفتح نافذة الشهادة في المتصفح');return;}
-  const logo=window.LOGO(78),name=englishName||'',program=p.en||c.en||c.code;
-  w.document.write(`<html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Certificate ${esc(name)}</title><style>
-  @page{size:A4 landscape;margin:0}*{box-sizing:border-box}body{margin:0;background:#e9edf2;font-family:Arial,Helvetica,sans-serif;color:#17334f}.c{width:297mm;height:210mm;position:relative;background:#fffdf8;border:5mm solid #b38a34;margin:auto;text-align:center;overflow:hidden}.c:before{content:'';position:absolute;inset:4mm;border:1px solid #c9a552;pointer-events:none}.brand{position:absolute;top:12mm;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:15px}.brand svg{width:64px;height:61px;flex-shrink:0}.brand-copy{text-align:left}.brand-copy b{font-size:27px;letter-spacing:2px;display:block}.brand-copy span{display:block;font-size:10px;letter-spacing:1.6px;margin-top:8px;color:#647387}.title{position:absolute;top:43mm;left:0;right:0}.title h1{font-family:Georgia,serif;font-size:40px;font-weight:400;margin:0;letter-spacing:2px}.title p{font-size:11px;letter-spacing:5px;color:#997021;margin:12px 0 0}.recipient{position:absolute;top:76mm;left:18mm;right:18mm}.recipient p{font-size:13px;color:#647387;margin:0 0 12px}.nm{font-family:Georgia,serif;font-size:30px;line-height:1.3;overflow-wrap:anywhere;color:#18314d;border-bottom:1px solid #c9a552;display:inline-block;padding:0 14px 12px;max-width:100%}.program{position:absolute;top:108mm;left:24mm;right:24mm;font-size:13px;color:#647387;line-height:1.8}.program b{display:block;font-size:20px;color:#17334f;margin:7px 0}.program .hours{font-size:13px;color:#17334f}.footer{position:absolute;bottom:15mm;left:16mm;right:16mm;height:43mm}.sig{position:absolute;bottom:0;width:62mm;font-size:11px;border-top:1px solid #304763;padding-top:12px}.sig.left{left:0}.sig.right{right:0}.sig b{display:block;font-size:13px;margin-bottom:6px}.sig span{color:#647387;font-size:10px}.record{position:absolute;left:70mm;right:70mm;bottom:0;font-size:10px;line-height:1.8;color:#647387}.record b{color:#17334f}.record .number{font-family:monospace;display:block}.seal{position:absolute;left:calc(50% - 12mm);top:0;width:24mm;height:24mm;border-radius:50%;border:3px double #8e651a;background:linear-gradient(135deg,#f7e2a3,#c49a40);color:#5b4218;padding-top:7mm;font-size:9px;letter-spacing:1px;font-weight:bold}.verify{position:absolute;bottom:5mm;left:16mm;right:16mm;font-size:8px;color:#647387;overflow-wrap:anywhere}@media print{body{background:white}.c{margin:0}}
-  </style></head><body><div class="c"><div class="brand">${logo}<div class="brand-copy"><b>ALSAEED</b><span>EDUCATION · TRAINING · CONSULTING</span></div></div><div class="title"><h1>Certificate of Completion</h1><p>KNOWLEDGE INTO PRACTICE</p></div><div class="recipient"><p>This certificate is presented to</p><div class="nm">${esc(name)}</div></div><div class="program">For successfully completing the training program<b>${esc(program)}</b><span class="hours">${esc(c.code)} · ${Number(c.hours)||0} training hours</span></div><div class="footer"><div class="sig left"><b>Dr. Mohamed Attia</b><span>Founder &amp; Course Instructor</span></div><div class="seal">COMPLETION</div><div class="record"><b>Certificate number</b><span class="number">${esc(no)}</span><span>${new Date().toLocaleDateString('en-GB')}</span></div><div class="sig right"><b>Alsaeed</b><span>Education, Training &amp; Consulting</span></div></div>${verify?`<div class="verify">Verification: ${esc(verify)}</div>`:''}</div></body></html>`);w.document.close();w.print();
+async function drawCert(pid, certificate) {
+  const u=A().me(),p=A().pack(pid);
+  if(!u||!p||!A().owns(pid)||!p.cert||!A().certReady(pid)){A().toast('الشهادة متاحة بعد إتمام الباقة فقط');return;}
+  if(!window.AlsaeedCertificate){A().toast('أعد تحميل الصفحة لفتح الشهادة');return;}
+  let html;try{html=window.AlsaeedCertificate.render({...certificate,courseId:p.course});}
+  catch(e){A().toast('تعذّر قراءة سجل الشهادة. أعد المحاولة.');return;}
+  const w=window.open('','_blank');if(!w){A().toast('اسمح بفتح نافذة الشهادة في المتصفح');return;}
+  w.document.write(html);w.document.close();
+  try{await window.AlsaeedCertificate.prepare(w);w.print();}catch(e){A().toast('تعذّر تجهيز الطباعة. يمكنك إعادة فتح الشهادة.');}
 }
 
 /* ═══════════ الربط ═══════════ */
@@ -7112,7 +7123,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=1"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261014-public-topics"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20.2"></script>
@@ -7141,6 +7152,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
 <script src="/package-experience.js?v=20261014-completion-only"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
+<script src="/completion-certificate.js?v=20261014-record"></script>
 </body>
 </html>
 

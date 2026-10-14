@@ -631,18 +631,27 @@ app.post('/api/certificate/:pkg', auth, (req, res) => {
   if (!total || !watched.every(l => p.lessons?.[l.idx]))
     return res.status(400).json({ error: 'يلزم إكمال مشاهدة جميع الفيديوهات أولاً' });
 
-  const ex = db.prepare('SELECT no,name FROM certificates WHERE user_id=? AND package_id=?')
+  const ex = db.prepare('SELECT no,name,course,hours,issued FROM certificates WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
-  if (ex) return res.json({ no: ex.no, name: ex.name, verify: `${SITE}/verify/${ex.no}` });
+  if (ex) return res.json({ ...ex, verify: `${SITE}/verify/${ex.no}` });
 
   const englishName = String(req.body?.englishName || '').trim().replace(/\s+/g, ' ');
   if (!/^[A-Za-z][A-Za-z .'-]{2,99}$/.test(englishName))
     return res.status(400).json({ error: 'اكتب اسمك بالإنجليزية كما تريد ظهوره في الشهادة' });
 
-  const no = 'AS-' + new Date().getFullYear() + '-' + uid().toUpperCase().slice(0, 6);
+  // Snapshot certificate presentation fields once; reprints use this saved record.
+  const packages = JSON.parse(setting('content_packages') || '[]');
+  const details = packages.find(x => x.id === req.params.pkg) || pkg;
+  const courseId = String(details.course || req.params.pkg.split('-')[0]);
+  const courses = JSON.parse(setting('content_courses') || '[]');
+  const course = courses.find(x => x.id === courseId) || {};
+  const courseTitle = courseId === 'pmp' ? 'Project Management Professional (PMP) Preparation Course' : (course.en || details.en || pkg.en || pkg.ar || '');
+  const hours = [details.hours, course.hours, pkg.hours].map(Number).find(value => Number.isFinite(value) && value > 0) || 0;
+  const issued = Date.now();
+  const no = 'AS-' + new Date(issued).getFullYear() + '-' + uid().toUpperCase().slice(0, 6);
   db.prepare('INSERT INTO certificates (no,user_id,package_id,name,course,hours,issued) VALUES (?,?,?,?,?,?,?)')
-    .run(no, req.user.id, req.params.pkg, englishName, pkg.en || pkg.ar || '', pkg.hours || 0, Date.now());
-  res.json({ no, name:englishName, verify: `${SITE}/verify/${no}` });
+    .run(no, req.user.id, req.params.pkg, englishName, courseTitle, hours, issued);
+  res.json({ no, name:englishName, course:courseTitle, hours, issued, verify: `${SITE}/verify/${no}` });
 });
 
 /* التحقّق العام — يجعل الشهادة ذات قيمة حقيقية */
