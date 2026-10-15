@@ -72,7 +72,7 @@ for(const live of [false,true]) {
    const branch=w.document.querySelector('.cd-topics > .public-topic-branch');
    assert.deepEqual(Array.from(branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'),el=>el.dataset.publicTopic),['initiating','planning','executing','monitoring','closing']);
    for(const child of branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'))ok(child.querySelectorAll('.public-topic-children > li').length>0,'Source-supported subtopics present in '+child.dataset.publicTopic);
-   eq(w.CourseRoadmap.pmp.length,18,'Learner roadmap remains at18 original headings');
+   eq(w.CourseRoadmap.pmp.length,18,'Legacy assessment taxonomy retains its 18 keys');
    w.APP.go('pkg/pmp-full');await settle();
    eq(title('.v44-hero-heading h1'),exact,'Full-package heading');
    eq(w.document.querySelector('.v44-hero-heading h1').getAttribute('dir'),null,'Original package heading markup restored');

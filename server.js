@@ -16,6 +16,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { mountCorporateWorkflow } from './corporate-workflow.js';
 import { mountClassroom } from './classroom.js'; // الفصل الخاص (باقة مخفية)
+import QRCode from 'qrcode';
+import { initializeInstructorRegistry, mountInstructorRegistry, mountCertificateRoutes, publicInstructors, validatePackageInstructors } from './instructor-certificates.js';
 
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -173,6 +175,9 @@ if ((!savedSystems.length || !savedSystems.every(x => x.schemaVersion === 15)) &
 const savedPromos = readList('content_promos');
 if (!savedPromos.length || !savedPromos.every(x => x.schemaVersion === 15))
   setSetting('content_promos', JSON.stringify(v15Catalog.promos.length ? v15Catalog.promos : DEFAULT_PROMOS_V15));
+
+initializeInstructorRegistry({ db, setting, setSetting });
+mountInstructorRegistry({ app, db, auth, admin, setting, setSetting, uid });
 
 /* ═══════════ الحسابات ═══════════ */
 app.post('/api/auth/register', (req, res) => {
@@ -615,50 +620,9 @@ app.get('/api/orders/:id', auth, (req, res) => {
 });
 
 /* ═══════════ الشهادات ═══════════ */
-app.post('/api/certificate/:pkg', auth, (req, res) => {
-  const owns = db.prepare('SELECT id FROM enrollments WHERE user_id=? AND package_id=?')
-    .get(req.user.id, req.params.pkg);
-  if (!owns) return res.status(403).json({ error: 'لست مشتركاً في هذه الباقة' });
-  const catalog = JSON.parse(setting('catalog') || '[]');
-  const pkg = catalog.find(x => x.id === req.params.pkg) || {};
-  if (!pkg.cert)
-    return res.status(400).json({ error: 'شهادة الحضور متاحة للباقة الكاملة فقط' });
-  const pr = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?')
-    .get(req.user.id, req.params.pkg);
-  const p = pr ? JSON.parse(pr.data) : {};
-  const total = db.prepare('SELECT COUNT(*) c FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').get(req.params.pkg).c;
-  const watched = db.prepare('SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,\'\'))<>\'\'').all(req.params.pkg);
-  if (!total || !watched.every(l => p.lessons?.[l.idx]))
-    return res.status(400).json({ error: 'يلزم إكمال مشاهدة جميع الفيديوهات أولاً' });
-
-  const ex = db.prepare('SELECT no,name,course,hours,issued FROM certificates WHERE user_id=? AND package_id=?')
-    .get(req.user.id, req.params.pkg);
-  if (ex) return res.json({ ...ex, verify: `${SITE}/verify/${ex.no}` });
-
-  const englishName = String(req.body?.englishName || '').trim().replace(/\s+/g, ' ');
-  if (!/^[A-Za-z][A-Za-z .'-]{2,99}$/.test(englishName))
-    return res.status(400).json({ error: 'اكتب اسمك بالإنجليزية كما تريد ظهوره في الشهادة' });
-
-  // Snapshot certificate presentation fields once; reprints use this saved record.
-  const packages = JSON.parse(setting('content_packages') || '[]');
-  const details = packages.find(x => x.id === req.params.pkg) || pkg;
-  const courseId = String(details.course || req.params.pkg.split('-')[0]);
-  const courses = JSON.parse(setting('content_courses') || '[]');
-  const course = courses.find(x => x.id === courseId) || {};
-  const courseTitle = courseId === 'pmp' ? 'Project Management Professional (PMP) Preparation Course' : (course.en || details.en || pkg.en || pkg.ar || '');
-  const hours = [details.hours, course.hours, pkg.hours].map(Number).find(value => Number.isFinite(value) && value > 0) || 0;
-  const issued = Date.now();
-  const no = 'AS-' + new Date(issued).getFullYear() + '-' + uid().toUpperCase().slice(0, 6);
-  db.prepare('INSERT INTO certificates (no,user_id,package_id,name,course,hours,issued) VALUES (?,?,?,?,?,?,?)')
-    .run(no, req.user.id, req.params.pkg, englishName, courseTitle, hours, issued);
-  res.json({ no, name:englishName, course:courseTitle, hours, issued, verify: `${SITE}/verify/${no}` });
-});
-
-/* التحقّق العام — يجعل الشهادة ذات قيمة حقيقية */
-app.get('/api/verify/:no', (req, res) => {
-  const c = db.prepare('SELECT no,name,course,hours,issued FROM certificates WHERE no=?').get(req.params.no);
-  if (!c) return res.status(404).json({ valid: false, error: 'لا توجد شهادة بهذا الرقم' });
-  res.json({ valid: true, ...c, issuedText: new Date(c.issued).toLocaleDateString('ar-SA') });
+mountCertificateRoutes({
+  app, db, auth, setting, uid, site:SITE,
+  createQr:value => QRCode.toDataURL(value, { errorCorrectionLevel:'M', margin:2, width:220 })
 });
 
 /* ═══════════ الإدارة ═══════════ */
@@ -1085,6 +1049,7 @@ app.get('/api/content', (req, res) => {
     const v = setting('content_' + k);
     if (v) { try { out[k] = JSON.parse(v); } catch (e) {} }
   });
+  out.instructors = publicInstructors(setting);
   res.json(out);
 });
 app.put('/api/admin/package-plan/:pkg', auth, admin, (req, res) => {
@@ -1159,6 +1124,8 @@ app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
   if (Array.isArray(body.packages)) {
+    try { validatePackageInstructors(body.packages, setting, readList('content_packages')); }
+    catch (error) { return res.status(error.status || 400).json({ error:error.message }); }
     for (const p of body.packages.filter(x => x.active !== false && x.sourcePackageId)) {
       const source = body.packages.find(x => x.id === p.sourcePackageId && x.course === p.course);
       if (!source) return res.status(422).json({ error: 'مصدر محتوى النسخة اللغوية غير موجود: ' + p.id });

@@ -91,7 +91,11 @@ let hiddenLessons=[];
 let player = null;
 let playerLoader = null;
 function visibleVideoOrder(pkgId) {
-  return ((window.LESSONS && window.LESSONS[pkgId]) || [])
+  const lessons=(window.LESSONS&&window.LESSONS[pkgId])||[];
+  const course=window.APP.course(window.APP.pack(pkgId)?.course);
+  if(course?.id==='pmp'&&window.CourseRoadmap?.videoOrder)return CourseRoadmap.videoOrder(course,lessons)
+    .filter(index=>window.APP.owns(pkgId)||window.APP.isAdmin()||lessons[index].free);
+  return lessons
     .map((lesson, index) => ({ lesson, index }))
     .filter(item => item.lesson.vimeo && (window.APP.owns(pkgId) || window.APP.isAdmin() || item.lesson.free))
     .sort((a, b) => (Number(a.lesson.ch) || 0) - (Number(b.lesson.ch) || 0) || a.index - b.index)

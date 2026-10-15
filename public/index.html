@@ -1094,7 +1094,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v31.css?v=31.0">
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
-<link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=5">
+<link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=20261015-learner-outline">
 <link rel="stylesheet" href="/public-experience.css?v=20261010-design">
 <link rel="stylesheet" href="/package-experience.css?v=20261009-certificate">
 <link rel="stylesheet" href="/course-experience.css?v=20261010-design2">
@@ -2822,6 +2822,7 @@ async function loadContent() {
     window.applyLearningTheme?.();
     if (d.courses && d.courses.length) window.COURSES = d.courses;
     if (d.packages && d.packages.length) window.PACKAGES = d.packages;
+    if (Array.isArray(d.instructors)) window.INSTRUCTORS = d.instructors;
     if (d.academic && d.academic.length) window.ACADEMIC = d.academic;
     if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
     if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
@@ -2981,7 +2982,7 @@ function pct(pid) {
 }
 function certReady(pid) {
   const p = pack(pid); if (!p) return false;
-  if (!p.cert) return false;
+  if (p.type !== 'full' || !p.cert) return false;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
   const videos = ls.map((l, i) => ({l,i})).filter(x => x.l.vimeo);
@@ -3763,6 +3764,7 @@ function pkgCard(p) {
     ${courseImageFacts(c,p)}
     <div class="pk-body">
       <span class="v43-card-kicker">${esc(en?story.en:story.ar)}</span><h3 style="font-size:.98rem;margin-bottom:6px">${esc(publicTitle(c))}</h3>
+      <p class="instructor-card-name">${siteEnglish()?'Instructor':'المدرّب'}: ${esc(window.InstructorDirectory?.name(window.InstructorDirectory.forPackage(p),en)||(en?'To be confirmed':'يُعلن قريبًا'))}</p>
       <p style="font-size:.82rem;margin-bottom:12px">${esc(packageDescription(p,T))}</p>
       <div class="v43-card-points">${(en?story.enPoints:story.arPoints).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
       <div class="pk-facts">
@@ -3773,7 +3775,7 @@ function pkgCard(p) {
         <span class="tg">${L.ic || ''} ${esc(publicTitle(L))}</span>
         ${next&&['onsite','live'].includes(p.mode)?`<span class="tg">◷ ${esc(next.date)} · ${next.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'مباشر')}</span>`:''}
         <span class="tg">⏱ ${p.days} ${siteEnglish()?'days of access':'يوم وصول'}</span>
-        ${p.cert ? `<span class="tg ok">🏅 ${siteEnglish()?'Certificate of attendance':'شهادة حضور'}</span>` : ''}
+        ${p.type==='full'&&p.cert ? `<span class="tg ok">🏅 ${siteEnglish()?'Certificate of attendance':'شهادة حضور'}</span>` : ''}
       </div>
       <div class="pk-price">
         <b class="num">${money(p.price)}</b><span class="cur">${p.currency}</span>
@@ -3822,8 +3824,8 @@ const catalogCourse = id => window.COURSES.find(c=>c.id===id) || CATALOG_FUTURE[
 const catalogFamilyFor = id => CATALOG_FAMILIES.find(f=>f.courseIds.includes(id));
 const catalogIssuer = id => CATALOG_ISSUERS[catalogFamilyFor(id)?.id];
 const catalogIssuerLink = id => { const issuer=catalogIssuer(id); return issuer?`<a class="v39-issuer" href="${id==='pmocp'?'https://www.pmi.org/certifications/pmo-certified-professional-pmi-pmocp':issuer.url}" target="_blank" rel="noopener noreferrer" aria-label="${esc(siteEnglish()?'Certification body: '+issuer.name:'الجهة المانحة: '+issuer.name)}"><span>${siteEnglish()?'Certification body':'الجهة المانحة'}</span><b dir="ltr">${esc(issuer.name)} ↗</b></a>`:''; };
-const catalogInstructorBadge = (id,compact=false) => ['pmp','rmp','acp'].includes(id)
-  ? `<div class="v40-instructor-badge ${compact?'compact':''}">${CATALOG_INSTRUCTOR_BADGES[id]?`<img src="${CATALOG_INSTRUCTOR_BADGES[id]}" alt="${esc(siteEnglish()?`PMI-ATP instructor credential for ${id==='pmp'?'PMP':'PMI-RMP'}`:`اعتماد مدرب PMI-ATP لشهادة ${id==='pmp'?'PMP':'PMI-RMP'}`)}" loading="lazy" width="84" height="86">`:`<span class="v41-credential-mark" aria-hidden="true">ATP</span>`}<div><b>${siteEnglish()?'Dr. Mohamed Attia':'د. محمد عطية'}</b><span>${siteEnglish()?`PMI-ATP Instructor · ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`:`مدرب PMI-ATP معتمد لتأهيل ${id==='acp'?'PMI-ACP':id==='rmp'?'PMI-RMP':'PMP'}`}</span></div></div>` : '';
+const catalogInstructorBadge = (id,compact=false,pkg=null) => window.InstructorDirectory
+  ? (pkg ? window.InstructorDirectory.renderPackage(pkg,siteEnglish(),compact) : window.InstructorDirectory.renderCourse(id,siteEnglish(),compact)) : '';
 const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):(n===1?'باقة':'باقات')}`;
 function catalogArtwork(code,variant='course') {
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
@@ -4296,7 +4298,7 @@ function courseView(id) {
     <section class="cd-section" id="cd-topics" aria-labelledby="cd-topics-title"><div class="cd-section-heading"><div><span class="eyebrow">${tr('خطة المحتوى','COURSE CONTENT')}</span><h2 id="cd-topics-title">${tr('محاور البرنامج','Program topics')}</h2></div><span class="cd-count">${topics.length} ${tr('محاور','topics')}</span></div>${en&&topics.some(x=>typeof x==='string')?'<p class="cd-source-language">Some topic titles are shown in their published source language.</p>':''}<ol class="cd-topics">${topics.map((ch,i)=>`<li class="${ch?.children?.length?'public-topic-branch':''}"><span class="cd-topic-number" aria-hidden="true">${String(i+1).padStart(2,'0')}</span><div class="public-topic-copy">${publicTopicBody(ch)}</div></li>`).join('')}</ol>${c.examMin?`<details class="cd-exam-info"><summary>${tr('الاستعداد للاختبار المهني','Preparing for the professional exam')}</summary><p>${tr('تحقّق من مخطط الاختبار الحالي وشروط الأهلية واللغة والحجز لدى الجهة المانحة.','Check the current exam outline, eligibility, language and booking requirements with the issuing body.')}</p><ul>${(c.domains||[]).map(d=>`<li>${esc(en?d.en||d.ar:d.ar||d.en)}</li>`).join('')}</ul>${catalogIssuerLink(c.id)}</details>`:''}</section>
     ${courseDecision(c,pkgs)}
     <section class="cd-section" id="cd-schedule" aria-labelledby="cd-schedule-title"><span class="eyebrow">${tr('خطّط لوقتك','PLAN YOUR TIME')}</span><h2 id="cd-schedule-title">${tr('المواعيد والمجموعات','Dates & groups')}</h2>${sessions.length?`<div class="cd-schedule-list">${sessions.map(s=>`<article><time datetime="${esc(s.date)}">${esc(dateLabel(s))}</time><div><b>${s.mode==='onsite'?tr('حضوري','In person'):tr('أونلاين مباشر','Live online')}</b><p>${esc(s.time?`${s.time} · ${s.timezone||'Africa/Cairo'}`:tr('الوقت قيد التأكيد','Time to be confirmed'))}${s.city?' · '+esc(s.city):''}</p><span>${esc(langName(s.language||''))}</span></div></article>`).join('')}</div>`:`<div class="cd-schedule-empty"><p>${tr('لا توجد مواعيد مؤكدة منشورة لهذا البرنامج حاليًا. تواصل معنا للاستفسار عن المجموعة القادمة أو تدريب فريقك.','No confirmed dates are published for this program yet. Ask us about the next group or training for your team.')}</p></div>`}<a class="btn o" href="${esc(groupLink)}" target="_blank" rel="noopener noreferrer">${tr('استفسر عن تدريب مجموعة','Ask about group training')}</a></section>
-    <section class="cd-section cd-instructor" aria-labelledby="cd-instructor-title"><div><span class="eyebrow">${tr('تعرّف على من يدرّبك','YOUR TRAINING TEAM')}</span><h2 id="cd-instructor-title">${tr('المدرّب','Instructor')}</h2></div>${catalogInstructorBadge(c.id,true)}${(en?c.trainer_en:c.trainer)?`<p>${esc(en?c.trainer_en:c.trainer)}</p>`:''}<a href="#contact" data-r="contact">${tr('اسأل عن مدرّب الباقة أو المجموعة','Ask about your package or group instructor')}</a></section>
+    <section class="cd-section cd-instructor" aria-labelledby="cd-instructor-title"><div><span class="eyebrow">${tr('تعرّف على من يدرّبك','YOUR TRAINING TEAM')}</span><h2 id="cd-instructor-title">${tr('المدرّب','Instructor')}</h2></div>${catalogInstructorBadge(c.id,true)}<a href="#contact" data-r="contact">${tr('اسأل عن مدرّب الباقة أو المجموعة','Ask about your package or group instructor')}</a></section>
     <section class="cd-section" id="cd-questions" aria-labelledby="cd-questions-title"><span class="eyebrow">${tr('قبل اختيارك','BEFORE YOU CHOOSE')}</span><h2 id="cd-questions-title">${tr('أسئلة تساعدك على الاختيار','Questions before choosing a package')}</h2><div class="cd-faq"><details><summary>${tr('كيف أختار الباقة المناسبة؟','How do I choose a package?')}</summary><p>${tr('قارن طريقة التعلّم ولغة المحتوى ومدة الوصول والسعر، ثم افتح تفاصيل الباقة لمراجعة المواد المتاحة قبل الاشتراك.','Compare the format, content language, access period and price, then open package details to review the available materials before enrolling.')}</p><button class="btn o sm" data-course-jump="v25-choose">${tr('قارن الباقات','Compare packages')}</button></details><details><summary>${tr('هل تغيير لغة الموقع يغيّر لغة المحتوى؟','Does changing the site language change course content?')}</summary><p>${tr('لغة واجهة الموقع منفصلة عن لغة الباقة. تظهر لغة المحتوى في كل خيار منشور؛ اخترها قبل الاشتراك.','The interface language is separate from your package language. Each published option shows its content language so you can choose before enrolling.')}</p></details><details><summary>${tr('كيف أستفسر عن تدريب لفريقي؟','How can I ask about training for my team?')}</summary><p>${tr('استخدم رابط المجموعات للتواصل مع السعيد بخصوص هذا البرنامج والعدد والموعد المناسب لفريقك.','Use the group enquiry link to discuss this program, your team size and preferred dates with AlSaeed.')}</p><a href="${esc(groupLink)}" target="_blank" rel="noopener noreferrer">${tr('استفسار للمجموعات','Group enquiry')}</a></details></div></section>
   </div><aside class="cd-sidebar" aria-label="${tr('اختيار الباقة','Choose a package')}"><div class="cd-price-card"><span class="eyebrow">${tr('ابدأ بخطتك','FIND YOUR STUDY PLAN')}</span><h2>${tr('خيارات تناسب طريقتك','Choose your way to learn')}</h2><p class="cd-price-caption">${tr('الباقات تبدأ من','Packages from')}</p><div class="cd-price-list">${prices||`<p>${tr('استفسر عن الخيارات المتاحة','Ask about available options')}</p>`}</div><p class="cd-price-note">${tr('يختلف السعر والمحتوى حسب الباقة المختارة.','Price and content vary by package.')}</p><ul class="cd-rail-facts"><li><b>${pkgs.length}</b> ${tr('باقات منشورة للمقارنة','published packages to compare')}</li>${modes.map(m=>`<li>${esc(publicTitle(m))}</li>`).join('')}<li>${languages.map(k=>esc(langName(k))).join(' · ')}</li></ul><button class="btn p full" data-course-jump="v25-choose">${tr('اعرض الباقات والأسعار','View packages & prices')}</button><a class="cd-help-link" href="#contact" data-r="contact">${tr('تحتاج إلى مساعدة في الاختيار؟','Need help choosing?')}</a></div><div class="cd-team-card"><span class="eyebrow">${tr('لفريقك ومؤسستك','FOR TEAMS & ORGANIZATIONS')}</span><h3>${tr('نتعلّم ونطوّر المهارات معًا','Build skills together')}</h3><p>${tr('تواصل معنا لمناقشة البرنامج المناسب لفريقك ومواعيد التدريب.','Talk with us about the right program and training dates for your team.')}</p><a href="${esc(groupLink)}" target="_blank" rel="noopener noreferrer">${tr('تواصل بخصوص المجموعات','Enquire about group training')}</a></div></aside></div></section>
   <div class="cd-mobile-action"><div><span>${tr('الباقات تبدأ من','Packages from')}</span>${prices||`<b>${esc(c.code)}</b>`}</div><button class="btn p" data-course-jump="v25-choose">${tr('قارن الباقات','Compare packages')}</button></div>`;
@@ -4336,7 +4338,7 @@ function pkgView(id) {
     <p>${esc(packageDescription(p,T))}</p>
     <div class="v43-package-story"><strong>${esc(en?story.en:story.ar)}</strong><div>${(en?story.enPoints:story.arPoints).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
     <div class="v44-hero-credentials">${catalogCertMark(p.course)}${catalogIssuerLink(p.course)}</div>
-    ${catalogInstructorBadge(p.course,true)}
+    ${catalogInstructorBadge(p.course,true,p)}
     <div data-language-slot></div>
     <p class="v41-package-exam">${siteEnglish()?"This package prepares you for the program. Certification exams, where applicable, are booked with and administered by the issuing body.":"هذه الباقة تؤهلك للبرنامج؛ اختبار الشهادة المهنية، إن وُجد، يُحجز ويُجرى لدى الجهة المانحة وفق شروطها."}</p>
   </div><figure class="package-exp-hero-art"><img src="${catalogArtwork(c.id||p.course,p.type)}" width="800" height="560" alt=""><figcaption><bdi dir="ltr">${esc(c.code||'')}</bdi><span>${esc(publicTitle(T))}</span></figcaption></figure></div></section>
@@ -4354,8 +4356,8 @@ function pkgView(id) {
         <div class="pd-s"><span class="ic">🎯</span><b style="font-size:.88rem">${p.kinds?.includes('exam') || p.kinds?.includes('quiz') ? (siteEnglish()?'Practice and exams':'تدريب ومحاكاة') : '—'}</b><span>${siteEnglish()?'Assessments':'الاختبارات'}</span></div>
         <div class="pd-s"><span class="ic">${L.ic||'🌐'}</span><b style="font-size:.88rem">${esc(publicTitle(L))}</b><span>${siteEnglish()?'Content language':'لغة المحتوى'}</span></div>
         <div class="pd-s"><span class="ic">📅</span><b class="num">${p.days}</b><span>${siteEnglish()?'Days of access':'يوم وصول'}</span></div>
-        <div class="pd-s"><span class="ic">${p.cert?'🏅':'—'}</span>
-          <b style="font-size:.9rem;color:${p.cert?'var(--ok)':'var(--dim)'}">${p.cert?(siteEnglish()?'Yes':'نعم'):(siteEnglish()?'No':'لا')}</b>
+        <div class="pd-s"><span class="ic">${p.type==='full'&&p.cert?'🏅':'—'}</span>
+          <b style="font-size:.9rem;color:${p.type==='full'&&p.cert?'var(--ok)':'var(--dim)'}">${p.type==='full'&&p.cert?(siteEnglish()?'Yes':'نعم'):(siteEnglish()?'No':'لا')}</b>
           <span>${siteEnglish()?'Attendance certificate':'شهادة حضور'}</span></div>
       </div>
 
@@ -4460,7 +4462,8 @@ function pkgTab(p, c, has) {
   if (pkTab === 'plan') {
     const plan = A().studyPlan(p.id);
     const pr = has ? A().prog(p.id) : { weeks: {} };
-    return `<div class="package-plan-intro"><div><h3>${siteEnglish()?'Your passing plan':'خطة اجتيازك'}</h3><p>${siteEnglish()?'Complete each week, study its content, then assess your understanding.':'أكمل كل أسبوع، وادرس محتواه، ثم اختبر فهمك للموضوع.'}</p></div><button class="btn p" data-lt="${p.kinds?.includes('video')||p.kinds?.includes('material')?'content':'exams'}">${siteEnglish()?'Continue learning':'ابدأ التعلّم'}</button></div><div class="note info mb"><b>${siteEnglish()?plan.length+'-week plan.':'خطة '+plan.length+' أسابيع.'}</b>
+    const outline=c.id==='pmp'?`<details class="learner-course-outline card pad mb"><summary>${siteEnglish()?'Course outline':'محاور الدورة'}</summary><ol class="learner-plan-topics">${publicCourseTopics(c).map(t=>`<li data-plan-topic="${esc(t.key)}">${publicTopicBody(t)}</li>`).join('')}</ol>${p.kinds?.some(k=>['video','material'].includes(k))?`<button class="btn o" data-lt="content">${siteEnglish()?'Open course content':'افتح محتوى الدورة'}</button>`:''}</details>`:'';
+    return `${outline}<div class="package-plan-intro"><div><h3>${siteEnglish()?'Your passing plan':'خطة اجتيازك'}</h3><p>${siteEnglish()?'Complete each week, study its content, then assess your understanding.':'أكمل كل أسبوع، وادرس محتواه، ثم اختبر فهمك للموضوع.'}</p></div><button class="btn p" data-lt="${p.kinds?.includes('video')||p.kinds?.includes('material')?'content':'exams'}">${siteEnglish()?'Continue learning':'ابدأ التعلّم'}</button></div><div class="note info mb"><b>${siteEnglish()?plan.length+'-week plan.':'خطة '+plan.length+' أسابيع.'}</b>
       ${siteEnglish()?'Mark each week complete to update your progress. Adjust the plan to your available time.':'علّم الأسبوع عند إتمامه ليتحدّث تقدّمك تلقائياً — والخطة قابلة للتعديل حسب وقتك.'}</div>
       <div class="plan-w passing-roadmap">${plan.map(w => `
         <div class="wk ${pr.weeks[w.w] ? 'done' : ''}">
@@ -4482,18 +4485,15 @@ function pkgTab(p, c, has) {
     const videoNumbers = new Map(ls.map((l, i) => ({ l, i }))
       .filter(x => x.l.vimeo).sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i)
       .map((x, n) => [x.i, n + 1]));
-    const groups=window.CourseRoadmap?CourseRoadmap.groups(c,ls):Object.entries(ls.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([key,items])=>({key,title:c.chapters[key]||'مقدمة',items}));
-    const byCh=Object.fromEntries(groups.map(g=>[g.key,g.items]));
-    let vn=0;groups.forEach(g=>g.items.forEach(l=>{if(l.vimeo)videoNumbers.set(l.i,++vn)}));
-    return `<div class="note ${has ? 'ok' : 'warn'} mb">
-      ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
-            : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
-      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => l.vimeo).length} (${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
-      ${groups.map((group,ci) => `<details class="ch-blk learning-chapter" ${ci===0?'open':''}>
+    const groups=window.CourseRoadmap?(CourseRoadmap.learnerGroups||CourseRoadmap.groups)(c,ls):Object.entries(ls.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([key,items])=>({key,title:c.chapters[key]||'مقدمة',items}));
+    const groupLessons=group=>window.CourseRoadmap?.lessonItems?CourseRoadmap.lessonItems(group):group.items;
+    let vn=0;groups.forEach(g=>groupLessons(g).forEach(l=>{if(l.vimeo)videoNumbers.set(l.i,++vn)}));
+    const renderGroup=(group,ci,depth=0)=>{const all=groupLessons(group),readingKey=Object.hasOwn(group,'readingKey')?group.readingKey:group.key,assessmentKey=Object.hasOwn(group,'assessmentKey')?group.assessmentKey:(!['intro','exam','journey','review'].includes(group.key)?(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title):null);return `<details class="ch-blk learning-chapter" data-learning-group="${esc(group.key)}" data-outline-depth="${depth}" ${ci===0&&depth===0?'open':''}>
         <summary class="ch-h"><b>${esc(siteEnglish()?(group.en||group.title):group.title)}</b>
-          <span>${group.items.length} ${siteEnglish()?'lessons':'دروس'} · ${group.items.filter(l=>pr.lessons[l.i]).length} ✓</span></summary>
-        ${has&&c.id==='pmp'&&window.PmpReading?PmpReading.markup(group.key):''}
-        ${group.items.map(l => `<article class="learning-lesson"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
+          <span>${all.length} ${siteEnglish()?'lessons':'دروس'} · ${all.filter(l=>pr.lessons[l.i]).length} ✓</span></summary>
+        ${group.noteAr?`<p class="note info">${esc(siteEnglish()?group.noteEn:group.noteAr)}</p>`:''}
+        ${has&&c.id==='pmp'&&window.PmpReading&&readingKey?PmpReading.markup(readingKey):''}
+        ${group.items.map(l => `<article class="learning-lesson" data-lesson-index="${l.i}"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
           ${l.vimeo ? `<span class="num" aria-label="${siteEnglish()?'Video':'فيديو'} ${videoNumbers.get(l.i)}">${videoNumbers.get(l.i)}</span>` : ''}
@@ -4503,7 +4503,12 @@ function pkgTab(p, c, has) {
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
         </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
-      ${has&&!['intro','exam','journey','review'].includes(group.key)&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${!group.items.length?`<p class="empty">${siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.'}</p>`:''}</details>`).join('')}`;
+      ${has&&assessmentKey&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${has&&group.resourceKey?`<div class="topic-test-next"><button class="btn o" data-learning-resource="${esc(group.resourceKey)}">${siteEnglish()?'Open shared topic reading and assessment':'افتح شرح الموضوع المشترك واختباره'}</button></div>`:''}${(group.children||[]).length?`<div class="learning-outline-children">${group.children.map((child,i)=>renderGroup(child,i,depth+1)).join('')}</div>`:''}${!all.length&&!(group.children||[]).length?`<p class="empty">${siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.'}</p>`:''}</details>`;};
+    return `<div class="note ${has ? 'ok' : 'warn'} mb">
+      ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
+            : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
+      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => l.vimeo).length} (${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
+      <div class="learning-outline">${groups.map((group,ci)=>renderGroup(group,ci)).join('')}</div>`;
   }
 
   if (pkTab === 'resources') {
@@ -4584,6 +4589,7 @@ function pkgTab(p, c, has) {
   }
 
   if (pkTab === 'cert') {
+    if(p.type!=='full'||!p.cert)return `<div class="note info">${siteEnglish()?'New completion certificates are available for complete packages only. Previously issued certificates remain in My certificates.':'شهادات الإتمام الجديدة للباقات الكاملة فقط. تظل الشهادات السابقة متاحة في شهاداتي.'}</div>`;
     const ready = has && A().certReady(p.id);
     if (!ready) return `<div class="note info" role="status"><b>${siteEnglish()?'Certificate available after completion':'الشهادة متاحة بعد الإتمام'}</b><p>${siteEnglish()?'Complete the package’s video lessons to unlock your personal completion certificate.':'أكمل دروس الفيديو في الباقة لتظهر شهادة الإتمام الخاصة بك.'}</p></div>`;
     return `<section class="card pad" style="text-align:center;border-top:4px solid #b9913e"><img src="/assets/al-ltc-logo.svg" alt="${siteEnglish()?'Alsaeed':'السعيد'}" style="width:170px;height:70px;object-fit:contain;margin:0 auto 20px"><h3>${siteEnglish()?'Your completion certificate is ready':'شهادة إتمامك جاهزة'}</h3><p class="muted">${siteEnglish()?'Issue your personalized English certificate with its verification number.':'أصدر شهادتك الشخصية باللغة الإنجليزية مع رقم التحقق الخاص بها.'}</p><button class="btn p lg" style="margin-top:20px" data-cert="${esc(p.id)}">${siteEnglish()?'Issue my certificate':'أصدر شهادتي'}</button></section>`;
@@ -4613,7 +4619,7 @@ function learn(id) {
     ['workspace', siteEnglish()?'Practical system':'النظام التطبيقي'],
 
 
-    ...(p.cert ? [['cert', 'الشهادة']] : [])];
+    ...(p.type==='full'&&p.cert ? [['cert', 'الشهادة']] : [])];
   if (!tabs.some(x => x[0] === learnTab)) learnTab = tabs[0][0];
 
   return `<section data-language-package="${esc(p.id)}" class="dash-hd learning-hero"><div class="wrap">
@@ -4718,6 +4724,7 @@ function dash() {
     : `<div class="empty"><div class="ic">📚</div><b>لا باقات بعد</b>
         <p class="muted">اختر الشهادة التي تريدها وابدأ رحلتك.</p>
         <button class="btn p mt" data-r="courses">استعرض الدورات</button></div>`}
+    <section class="my-certificates" data-my-certificates></section>
   </div>`;
 }
 
@@ -4735,6 +4742,7 @@ function admin(sub) {
       <div class="akpi hot"><div class="ico">↗</div><h5>الإيراد المسجل</h5><b>${money(S.revenue||0)}</b><small>وفق الطلبات المدفوعة</small></div>
     </div>
     <div class="tabs">${tabs.map(([k,l])=>`<button class="${admTab===k?'on':''}" data-at="${k}">${l}</button>`).join('')}</div>
+    <p><a class="btn o" href="/instructors.html">إدارة المدرّبين والمحاضرين ↗</a></p>
     <div id="admBody">${adminTab()}</div>
   </div>`;
 }
@@ -5435,9 +5443,13 @@ function decisionGame(pid){ openPractice(pid,'game'); }
 /* ═══════════ مشغّل الفيديو ═══════════ */
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
-  if (!l || !l.vimeo) return;
+  const canOpen=lesson=>A().owns(pid)||A().isAdmin()||lesson.free;
+  if (!l || !l.vimeo || !canOpen(l)) return;
   if(!window.LessonVideo.embedUrl(l.vimeo)){A().toast(siteEnglish()?'The video link is invalid. Please contact the trainer.':'رابط الفيديو غير صالح؛ يرجى إبلاغ المدرب.');return;}
   curLesson = idx;
+  const c=A().course(A().pack(pid).course);
+  const outlineOrder=c.id==='pmp'&&window.CourseRoadmap?.videoOrder?CourseRoadmap.videoOrder(c,ls).filter(i=>canOpen(ls[i])):null;
+  const nextIndex=outlineOrder?outlineOrder[outlineOrder.indexOf(idx)+1]:ls.findIndex((x,i)=>i>idx&&x.vimeo&&canOpen(x));
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
@@ -5456,12 +5468,12 @@ function playLesson(pid, idx) {
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
         ${pr.lessons[idx] ? (siteEnglish()?'✓ Completed — undo':'✓ مكتمل — إلغاء') : (siteEnglish()?'Mark complete':'علّم كمكتمل')}</button>
       <button class="btn o" id="lessonQuiz">${siteEnglish()?'Test this lesson / chapter':'اختبار هذا الدرس / الفصل'}</button>
-      ${ls.some((x,i)=>i>idx&&x.vimeo) ? `<button class="btn o" id="lsNext">${siteEnglish()?'Next video':'الفيديو التالي'}</button>` : ''}
+      ${nextIndex!==undefined&&nextIndex>=0 ? `<button class="btn o" id="lsNext">${siteEnglish()?'Next video':'الفيديو التالي'}</button>` : ''}
       <button class="btn o" data-close>${siteEnglish()?'Close':'إغلاق'}</button>
     </div>`, () => {
     const frame=$('#nativeLessonFrame');window.LessonVideo.attach(frame,()=>{
       pr.lessons[idx]=true;A().save();
-      const order=ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);
+      const order=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo&&canOpen(x.l)).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);
       const next=order[order.indexOf(idx)+1];if(next!==undefined){A().closeModal();playLesson(pid,next)}else A().toast(siteEnglish()?'All videos completed':'اكتملت الفيديوهات');
     });
     $$('[data-player-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.playerFile),{headers:{Authorization:'Bearer '+A().token}});if(!response.ok)throw Error('تعذر تنزيل الملف');const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;link.download=b.dataset.fileName;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);pr.downloads=pr.downloads||{};pr.downloads[b.dataset.playerFile]={name:b.dataset.fileName,at:Date.now()};A().save()}catch(e){A().toast(e.message)}});
@@ -5472,7 +5484,7 @@ function playLesson(pid, idx) {
       if(completed)setTimeout(()=>A().modal(`<h3>${siteEnglish()?'Lesson completed':'أتممت الدرس'}</h3><p>${siteEnglish()?'Apply what you learned, then assess your understanding.':'طبّق ما تعلمته، ثم اختبر فهمك للدرس أو الفصل.'}</p><button class="btn p" id="afterLessonTest">${siteEnglish()?'Start assessment':'ابدأ اختبار الدرس / الفصل'}</button><button class="btn o" data-close>${siteEnglish()?'Continue learning':'متابعة التعلم'}</button>`,()=>{$('#afterLessonTest').onclick=()=>{A().closeModal();PackageJourney.lessonTest(pid,idx)}}),180);
     };
     const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); PackageJourney.lessonTest(pid,idx); };
-    const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, ls.findIndex((x,i)=>i>idx&&x.vimeo)); };
+    const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, nextIndex); };
   });
 }
 
@@ -5578,7 +5590,7 @@ function runExam(pid, eid) {
 
 /* ═══════════ الشهادة ═══════════ */
 function issueCert(pid) {
-  const pkg=A().pack(pid);if(!pkg||!pkg.cert||!A().certReady(pid)){A().toast('أكمل مشاهدة جميع فيديوهات الباقة أولاً');return;}
+  const pkg=A().pack(pid);if(!pkg||pkg.type!=='full'||!pkg.cert||!A().certReady(pid)){A().toast('أكمل مشاهدة جميع فيديوهات الباقة أولاً');return;}
   if(!A().live){A().toast('اتصل بالمنصة لإصدار شهادة موثّقة');return;}
   A().modal(`<h3>Certificate name / الاسم على الشهادة</h3>
     <p class="muted">اكتب اسمك بالأحرف الإنجليزية كما تريد ظهوره على الشهادة.</p>
@@ -5602,9 +5614,9 @@ function issueCert(pid) {
 }
 async function drawCert(pid, certificate) {
   const u=A().me(),p=A().pack(pid);
-  if(!u||!p||!A().owns(pid)||!p.cert||!A().certReady(pid)){A().toast('الشهادة متاحة بعد إتمام الباقة فقط');return;}
+  if(!u||!p||!A().owns(pid)||p.type!=='full'||!p.cert||!A().certReady(pid)){A().toast('الشهادة متاحة بعد إتمام الباقة فقط');return;}
   if(!window.AlsaeedCertificate){A().toast('أعد تحميل الصفحة لفتح الشهادة');return;}
-  let html;try{html=window.AlsaeedCertificate.render({...certificate,courseId:p.course});}
+  let html;try{html=window.AlsaeedCertificate.render({...certificate,courseId:certificate.presentation?.courseId||p.course});}
   catch(e){A().toast('تعذّر قراءة سجل الشهادة. أعد المحاولة.');return;}
   const w=window.open('','_blank');if(!w){A().toast('اسمح بفتح نافذة الشهادة في المتصفح');return;}
   w.document.write(html);w.document.close();
@@ -5752,6 +5764,12 @@ function bind() {
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-chapter-test]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pk,c=A().course(A().pack(pid).course);if(c.id==='pmp')window.PackageChapterTest?.(pid,c.chapters[+b.dataset.chapterTest]);else window.UnifiedExam?.open(pid,'ch'+b.dataset.chapterTest)});
   $$('[data-learning-chapter]').forEach(b=>b.onclick=()=>window.PackageChapterTest?.(b.dataset.pk,b.dataset.learningChapter));
+  $$('[data-learning-resource]').forEach(b=>b.onclick=()=>{
+    const shared=$('.learning-outline > [data-learning-group="shared-resources"]');
+    const target=shared&&[...shared.querySelectorAll('.learning-outline-children > [data-learning-group]')].find(g=>g.dataset.learningGroup===b.dataset.learningResource);
+    if(!target)return;
+    shared.open=true;target.open=true;target.querySelector('summary')?.focus();target.scrollIntoView({block:'start'});
+  });
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
   const reminderEnabled=$('#reminderEnabled'), reminderDays=$('#reminderDays');
   const saveReminder=async()=>{
@@ -7135,13 +7153,14 @@ function mount() {
 return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
+<link rel="stylesheet" href="/instructors.css?v=20261015"><script src="/instructor-directory.js?v=20261015"></script>
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261015-nested-topics"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261015-learner-outline"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
-<script src="/v17-interactive.js?v=20.2"></script>
+<script src="/v17-interactive.js?v=20261015-learner-outline"></script>
 <script src="/dict-v17.js"></script>
 <script src="/english-copy-v27.js?v=27.0"></script>
 <script>
@@ -7167,7 +7186,8 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
 <script src="/package-experience.js?v=20261014-completion-only"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
-<script src="/completion-certificate.js?v=20261015-pmp-title"></script>
+<script src="/completion-certificate.js?v=20261015-instructors-qr"></script>
+<script src="/certificate-library.js?v=20261015"></script>
 </body>
 </html>
 

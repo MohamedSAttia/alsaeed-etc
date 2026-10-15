@@ -40,11 +40,11 @@ button:hover{background:#5B4BD0}
   <div class="lm">AS</div><div class="lt"><b>السعيد</b><span>للتعليم والتدريب والاستشارات</span></div></a></div></header>
 <main><div class="wrap"><div class="card">
   <h1>التحقّق من شهادة</h1>
-  <p class="sub">أدخل رقم الشهادة المطبوع أسفلها للتأكّد من صحتها وصدورها من مؤسسة السعيد.</p>
-  <label for="no">رقم الشهادة</label>
-  <input id="no" placeholder="AS-2026-XXXXXX" autocomplete="off">
+  <p class="sub">امسح رمز QR على الشهادة أو الصق رابط التحقّق للتأكّد من صحتها. الشهادات الحديثة تُتحقّق برابطها الخاص؛ رقم الشهادة وحده مخصّص للشهادات القديمة.</p>
+  <label for="no">رابط أو رمز التحقّق، أو رقم شهادة قديمة</label>
+  <input id="no" placeholder="https://al-ltc.com/verify/…" autocomplete="off" autocapitalize="none" spellcheck="false">
   <button id="go">تحقّق</button>
-  <div id="res"></div>
+  <div id="res" role="status" aria-live="polite"></div>
 </div></div></main>
 <footer class="ftr">© 2026 السعيد للتعليم والتدريب والخدمات الاستشارية</footer>
 <script>
@@ -53,22 +53,37 @@ const path=location.pathname.split('/').filter(Boolean);
 if(path[0]==='verify'&&path[1]){$('#no').value=path[1];setTimeout(check,300);}
 $('#go').onclick=check;
 $('#no').addEventListener('keydown',e=>{if(e.key==='Enter')check();});
+let request=0;
+function identifier(value){
+  let id=value.trim();
+  if(/^https?:\/\//i.test(id)||id.startsWith('/')){
+    const url=new URL(id,location.origin);
+    if(url.origin!==location.origin||!/^\/verify\/[A-Za-z0-9_-]{1,100}\/?$/.test(url.pathname)||url.search||url.hash)throw new Error('invalid link');
+    id=url.pathname.split('/')[2];
+  }
+  if(!/^[A-Za-z0-9_-]{1,100}$/.test(id))throw new Error('invalid identifier');
+  // Opaque verification tokens are case-sensitive. Only legacy serials normalize.
+  return /^AS-\d{4}-[A-Z0-9]+$/i.test(id)?id.toUpperCase():id;
+}
 async function check(){
-  const no=$('#no').value.trim().toUpperCase();
-  if(!no){$('#res').innerHTML='';return;}
+  const active=++request;
+  if(!$('#no').value.trim()){$('#res').innerHTML='';return;}
+  let no;
+  try{no=identifier($('#no').value);}catch(e){$('#res').innerHTML='<div class="bad">استخدم رابط التحقّق من موقع السعيد أو امسح رمز QR على الشهادة.</div>';return;}
   $('#res').innerHTML='<p class="sub">جارٍ التحقّق…</p>';
   try{
     const r=await fetch('/api/verify/'+encodeURIComponent(no));
     const d=await r.json();
-    if(!d.valid){$('#res').innerHTML='<div class="bad"><b>لا توجد شهادة بهذا الرقم.</b><br>'+
-      'تأكّد من الرقم كما هو مطبوع أسفل الشهادة.</div>';return;}
+    if(active!==request)return;
+    if(!r.ok||d.valid!==true){$('#res').innerHTML='<div class="bad"><b>لم يتم تأكيد صلاحية الشهادة.</b><br>'+
+      'قد يكون الرابط غير صحيح أو الشهادة ملغاة. امسح رمز QR المطبوع على الشهادة أو تواصل مع السعيد.</div>';return;}
     $('#res').innerHTML='<div class="ok"><h2>✅ شهادة صحيحة وصادرة من السعيد</h2>'+
       '<div class="row"><span>اسم الحاصل</span><b>'+esc(d.name)+'</b></div>'+
       '<div class="row"><span>البرنامج</span><b>'+esc(d.course)+'</b></div>'+
-      (d.hours?'<div class="row"><span>الساعات التدريبية</span><b>'+d.hours+'</b></div>':'')+
+      (d.hours?'<div class="row"><span>الساعات التدريبية</span><b>'+esc(d.hours)+'</b></div>':'')+
       '<div class="row"><span>تاريخ الإصدار</span><b>'+esc(d.issuedText)+'</b></div>'+
       '<div class="row"><span>رقم الشهادة</span><b style="font-family:IBM Plex Mono">'+esc(d.no)+'</b></div></div>';
-  }catch(e){$('#res').innerHTML='<div class="bad">تعذّر الاتصال بالخادم — حاول لاحقاً.</div>';}
+  }catch(e){if(active===request)$('#res').innerHTML='<div class="bad">تعذّر الاتصال بالخادم — حاول لاحقاً.</div>';}
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);}
 </script></body></html>
