@@ -18,7 +18,7 @@ const timestamp = value => Number.isSafeInteger(value) && value > 0 && value <= 
 
 // The audit is append-only through this API and deliberately has no cascading
 // foreign keys: later account/enrollment deletion must not erase its history.
-export function createEnrollmentExtender({ db, now = Date.now, createId = () => crypto.randomUUID() }) {
+function createEnrollmentEditor({ db, now = Date.now, createId = () => crypto.randomUUID() }, adjustment = false) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS enrollment_extension_audit (
       id TEXT PRIMARY KEY,
@@ -45,7 +45,7 @@ export function createEnrollmentExtender({ db, now = Date.now, createId = () => 
     (id,actor_id,enrollment_id,user_id,package_id,old_expires,new_expires,mode,days,created)
     VALUES (?,?,?,?,?,?,?,?,?,?)`);
 
-  const extend = db.transaction(({ actorId, userId, packageId, body }) => {
+  const edit = db.transaction(({ actorId, userId, packageId, body }) => {
     // Recheck current privileges while holding the write transaction. A token's
     // historical role and the shared auth middleware's incomplete user cannot
     // authorize an inactive, deleted, or demoted administrator.
@@ -53,18 +53,24 @@ export function createEnrollmentExtender({ db, now = Date.now, createId = () => 
     if (!actor || actor.role !== 'admin' || actor.active !== 1)
       fail(403, 'ACTIVE_ADMIN_REQUIRED', 'يلزم حساب مشرف فعّال لإجراء التمديد');
 
+    const invalidCode = adjustment ? 'INVALID_ADJUSTMENT' : 'INVALID_EXTENSION';
+    const fields = ['expectedEnrollmentId', 'expectedExpires', 'days', 'expiresAt'];
+    if (adjustment) fields.push('confirmImmediateExpiry');
     if (!body || typeof body !== 'object' || Array.isArray(body) ||
-        Object.keys(body).some(key => !['expectedEnrollmentId', 'expectedExpires', 'days', 'expiresAt'].includes(key)) ||
+        Object.keys(body).some(key => !fields.includes(key)) ||
         typeof body.expectedEnrollmentId !== 'string' || !body.expectedEnrollmentId.trim() || body.expectedEnrollmentId.length > 200 ||
         !has(body, 'expectedExpires') || !(body.expectedExpires === null || body.expectedExpires === 0 || timestamp(body.expectedExpires)) ||
-        has(body, 'days') === has(body, 'expiresAt'))
-      fail(400, 'INVALID_EXTENSION', 'أرسل معرّف الاشتراك وتاريخ انتهائه الحالي، واختر الأيام أو التاريخ فقط');
+        has(body, 'days') === has(body, 'expiresAt') ||
+        (has(body, 'confirmImmediateExpiry') && typeof body.confirmImmediateExpiry !== 'boolean'))
+      fail(400, invalidCode, 'أرسل معرّف الاشتراك وتاريخ انتهائه الحالي، واختر الأيام أو التاريخ فقط');
 
     const mode = has(body, 'days') ? 'days' : 'date';
-    if (mode === 'days' && (!Number.isInteger(body.days) || body.days < 1 || body.days > MAX_EXTENSION_DAYS))
-      fail(400, 'INVALID_EXTENSION', `عدد أيام التمديد يجب أن يكون عددًا صحيحًا من 1 إلى ${MAX_EXTENSION_DAYS}`);
+    if (mode === 'days' && (!Number.isInteger(body.days) || body.days === 0 ||
+        body.days < (adjustment ? -MAX_EXTENSION_DAYS : 1) || body.days > MAX_EXTENSION_DAYS))
+      fail(400, invalidCode, adjustment ? `أدخل عدد أيام صحيحًا غير صفر، بحد أقصى ${MAX_EXTENSION_DAYS} يومًا للزيادة أو التقليل` :
+        `عدد أيام التمديد يجب أن يكون عددًا صحيحًا من 1 إلى ${MAX_EXTENSION_DAYS}`);
     if (mode === 'date' && !timestamp(body.expiresAt))
-      fail(400, 'INVALID_EXTENSION', 'تاريخ الانتهاء المطلوب غير صالح');
+      fail(400, invalidCode, 'تاريخ الانتهاء المطلوب غير صالح');
 
     const enrollment = findEnrollment.get(userId, packageId);
     if (!findUser.get(userId) || !enrollment)
@@ -77,40 +83,75 @@ export function createEnrollmentExtender({ db, now = Date.now, createId = () => 
       fail(409, 'ENROLLMENT_INVALID', 'تاريخ انتهاء الاشتراك الحالي غير صالح للتمديد');
 
     const extendedAt = now();
+    if (adjustment && !timestamp(extendedAt))
+      fail(503, 'INVALID_SERVER_TIME', 'تعذّر التحقق من وقت الخادم. أعد المحاولة لاحقًا');
     const base = Math.max(extendedAt, enrollment.expires);
-    const expires = mode === 'days' ? base + body.days * EXTENSION_DAY_MS : body.expiresAt;
-    if (!timestamp(expires) || expires <= base || expires > base + MAX_EXTENSION_DAYS * EXTENSION_DAY_MS)
-      fail(400, 'INVALID_EXTENSION', 'يجب أن يكون التاريخ الجديد بعد الانتهاء الحالي والوقت الحالي، وبحد أقصى 3650 يومًا إضافيًا وقبل عام 2100');
+    // Reductions always subtract from the saved expiry, even if already expired.
+    // The legacy endpoint retains its original extension-only bounds.
+    const expires = mode === 'days' ?
+      (adjustment && body.days < 0 ? enrollment.expires : base) + body.days * EXTENSION_DAY_MS : body.expiresAt;
+    if (adjustment) {
+      if (!timestamp(expires) || expires === enrollment.expires ||
+          expires < enrollment.expires - MAX_EXTENSION_DAYS * EXTENSION_DAY_MS ||
+          expires > base + MAX_EXTENSION_DAYS * EXTENSION_DAY_MS)
+        fail(400, invalidCode, 'اختر تاريخًا مختلفًا صالحًا، بحد أقصى 3650 يومًا للزيادة أو التقليل وقبل عام 2100');
+      if (expires <= extendedAt && body.confirmImmediateExpiry !== true)
+        fail(409, 'IMMEDIATE_EXPIRY_CONFIRMATION_REQUIRED', 'التاريخ الجديد يوقف الوصول الآن. يلزم تأكيد إيقاف وصول المتدرب قبل الحفظ');
+    } else if (!timestamp(expires) || expires <= base || expires > base + MAX_EXTENSION_DAYS * EXTENSION_DAY_MS) {
+      fail(400, invalidCode, 'يجب أن يكون التاريخ الجديد بعد الانتهاء الحالي والوقت الحالي، وبحد أقصى 3650 يومًا إضافيًا وقبل عام 2100');
+    }
 
     const changed = update.run(expires, enrollment.id, userId, packageId, enrollment.expires);
     if (changed.changes !== 1)
       fail(409, 'ENROLLMENT_CHANGED', 'تغيّر الاشتراك منذ فتحه. حدّث البيانات ثم راجع التمديد');
 
+    // Recheck after the update, while rollback is still possible, so a date that
+    // crosses the current instant during the transaction also needs consent.
+    let checkedAt = extendedAt;
+    if (adjustment) {
+      const observedAt = now();
+      if (!timestamp(observedAt))
+        fail(503, 'INVALID_SERVER_TIME', 'تعذّر التحقق من وقت الخادم. أعد المحاولة لاحقًا');
+      checkedAt = Math.max(extendedAt, observedAt);
+      if (expires <= checkedAt && body.confirmImmediateExpiry !== true)
+        fail(409, 'IMMEDIATE_EXPIRY_CONFIRMATION_REQUIRED', 'التاريخ الجديد يوقف الوصول الآن. يلزم تأكيد إيقاف وصول المتدرب قبل الحفظ');
+    }
     const auditId = createId();
     const days = mode === 'days' ? body.days : null;
     audit.run(auditId, actorId, enrollment.id, userId, packageId, enrollment.expires, expires, mode, days, extendedAt);
     return { ok: true, userId, packageId, enrollmentId: enrollment.id,
-      oldExpires: enrollment.expires, expires, extendedAt, mode, days, auditId };
+      oldExpires: enrollment.expires, expires, extendedAt, mode, days, auditId,
+      ...(adjustment ? { direction: expires > enrollment.expires ? 'increase' : 'reduction',
+        endsAccess: expires <= checkedAt, checkedAt } : {}) };
   });
 
   // IMMEDIATE serializes readers that intend to update across processes; the
   // compare-and-swap also protects against stale/replayed client requests.
-  return input => extend.immediate(input);
+  return input => edit.immediate(input);
+}
+
+export function createEnrollmentExtender(options) {
+  return createEnrollmentEditor(options);
+}
+
+export function createEnrollmentAdjuster(options) {
+  return createEnrollmentEditor(options, true);
 }
 
 export function mountEnrollmentExtensions({ app, db, auth }) {
-  const extend = createEnrollmentExtender({ db });
-  app.post('/api/admin/users/:userId/enrollments/:packageId/extend', auth, (req, res) => {
+  const route = (path, edit, adjustment = false) => app.post(path, auth, (req, res) => {
     res.set('Cache-Control', 'no-store');
     try {
-      res.json(extend({ actorId: req.user.id, userId: req.params.userId, packageId: req.params.packageId, body: req.body }));
+      res.json(edit({ actorId: req.user.id, userId: req.params.userId, packageId: req.params.packageId, body: req.body }));
     } catch (error) {
       if (error instanceof ExtensionError)
         return res.status(error.status).json({ error: error.message, code: error.code });
       if (error.code === 'SQLITE_BUSY')
-        return res.status(503).json({ error: 'الخدمة مشغولة الآن. حدّث الاشتراك قبل المحاولة مجددًا', code: 'EXTENSION_BUSY' });
-      console.error('Enrollment extension transaction failed:', error.message);
-      res.status(500).json({ error: 'تعذّر حفظ التمديد. حدّث الاشتراك للتحقق من حالته', code: 'EXTENSION_FAILED' });
+        return res.status(503).json({ error: 'الخدمة مشغولة الآن. حدّث الاشتراك قبل المحاولة مجددًا', code: adjustment ? 'ADJUSTMENT_BUSY' : 'EXTENSION_BUSY' });
+      console.error('Enrollment expiry transaction failed:', error.message);
+      res.status(500).json({ error: 'تعذّر حفظ تعديل المدة. حدّث الاشتراك للتحقق من حالته', code: adjustment ? 'ADJUSTMENT_FAILED' : 'EXTENSION_FAILED' });
     }
   });
+  route('/api/admin/users/:userId/enrollments/:packageId/extend', createEnrollmentExtender({ db }));
+  route('/api/admin/users/:userId/enrollments/:packageId/expiry', createEnrollmentAdjuster({ db }), true);
 }

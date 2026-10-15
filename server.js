@@ -690,7 +690,7 @@ app.get('/api/admin/users/:id/activity', auth, admin, (req,res)=>{
   const ens=db.prepare('SELECT id,package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created)}));
   const certs=db.prepare('SELECT no,package_id,course,hours,issued FROM certificates WHERE user_id=? ORDER BY issued DESC').all(u.id);
   const orders=db.prepare('SELECT id,package_id,amount,currency,status,gateway,created,paid_at FROM orders WHERE user_id=? ORDER BY created DESC LIMIT 50').all(u.id);
-  res.json({user:u,enrollments:ens,certificates:certs,orders});
+  res.json({user:u,enrollments:ens,certificates:certs,orders,serverNow:Date.now()});
 });
 
 app.post('/api/admin/users', auth, admin, (req, res) => {
@@ -756,7 +756,7 @@ app.get('/api/admin/users/:id', auth, admin, (req, res) => {
   const or = db.prepare('SELECT * FROM orders WHERE user_id=? ORDER BY created DESC').all(u.id);
   const pr = db.prepare('SELECT package_id,data,updated FROM progress WHERE user_id=?').all(u.id);
   const ce = db.prepare('SELECT no,package_id,issued FROM certificates WHERE user_id=?').all(u.id);
-  res.json({ user: u, enrollments: en, orders: or,
+  res.json({ user: u, enrollments: en, orders: or, serverNow: Date.now(),
     progress: pr.map(p => ({ ...p, data: JSON.parse(p.data || '{}') })), certificates: ce });
 });
 
