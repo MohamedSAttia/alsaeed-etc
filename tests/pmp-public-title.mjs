@@ -62,7 +62,7 @@ for(const live of [false,true]) {
    w.APP.go('course/pmp');await settle();
    eq(title('.cd-hero-copy h1'),exact,'Course heading');
    eq(w.document.querySelector('.cd-hero-copy h1').getAttribute('lang'),'en','Course heading language');
-   eq(w.document.querySelectorAll('.cd-topics li').length,18,'Published PMP topic count preserved');
+   eq(w.document.querySelectorAll('.cd-topics > li').length,15,'Public outline top-level topic count');
    w.APP.go('pkg/pmp-full');await settle();
    eq(title('.v44-hero-heading h1'),exact,'Full-package heading');
    eq(w.document.querySelector('.v44-hero-heading h1').getAttribute('dir'),'ltr','English heading direction in RTL');

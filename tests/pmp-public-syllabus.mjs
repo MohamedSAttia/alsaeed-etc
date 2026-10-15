@@ -26,6 +26,7 @@ window.CONTENT_KINDS = [];
 window.validCourseDate = () => false;
 window.I18 = { lang: 'ar' };
 window.__lang = 'ar';
+vm.runInContext(source.match(/window\.publicCatalogName = [\s\S]*?;/)[0], context);
 const course = id => window.COURSES.find(x => x.id === id);
 const pack = id => window.PACKAGES.find(x => x.id === id);
 context.A = () => ({ course, pack, owns: () => false, live: false });
@@ -47,11 +48,11 @@ function readFunction(name) {
   const end = source.indexOf('\nfunction ', start + 1);
   return source.slice(start, end < 0 ? undefined : end);
 }
-for (const name of ['publicCourseTopics', 'courseTabBody', 'courseView', 'pkgView']) {
+for (const name of ['publicCourseTopics', 'publicTopicBody', 'courseTabBody', 'courseView', 'pkgView']) {
   vm.runInContext(readFunction(name), context, { filename: 'public/index.html:' + name });
 }
 vm.runInContext(fs.readFileSync('public/course-roadmap.js', 'utf8'), context);
-const expectedKeys = ['intro', 'exam', 'framework', 'value', 'principles', 'lifecycles', 'governance', 'scope', 'schedule', 'cost', 'resources', 'risk', 'stakeholders', 'people', 'process', 'business', 'journey', 'review'];
+const expectedKeys = ['intro', 'exam', 'framework', 'value', 'principles', 'lifecycles', 'agile', 'predictive', 'hybrid', 'people', 'process', 'business', 'journey', 'review', 'exam-guidelines'];
 assert.deepEqual(Array.from(window.CourseRoadmap.topics(course('pmp')), x => x.key), expectedKeys);
 const learner = window.CourseRoadmap.groups(course('pmp'), []);
 assert.equal(learner.length, 18);
@@ -60,29 +61,29 @@ let assertions = 0;
 try {
   for (const language of ['ar', 'en']) {
     window.__lang = window.I18.lang = language;
-    const expected = Array.from(learner, x => language === 'en' ? x.en : x.title);
+    const expected = Array.from(window.CourseRoadmap.topics(course('pmp')), x => language === 'en' ? x.en : x.ar);
     // Exercise built-in bilingual fallbacks as well as the installed formatter contract.
     for (const formatter of [false, true]) {
       window.biTitle = formatter ? context.publicTitle : undefined;
       app.innerHTML = context.courseView('pmp');
-      assert.deepEqual(names('.cd-topics li > span:last-child'), expected);
-      assert.match(app.querySelector('.cd-count').textContent, /^18 /);
-      assert.equal(app.querySelectorAll('.cd-facts dd')[2].textContent, '18');
+      assert.deepEqual(names('.cd-topics > li > .public-topic-copy > .public-topic-label'), expected);
+      assert.match(app.querySelector('.cd-count').textContent, /^15 /);
+      assert.equal(app.querySelectorAll('.cd-facts dd')[2].textContent, '15');
       assert.equal(app.querySelector('.cd-source-language'), null);
       app.innerHTML = context.courseTabBody(course('pmp'));
-      assert.deepEqual(names('.chap-c > span:last-child'), expected);
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), expected);
       app.innerHTML = context.pkgView('pmp-full');
-      assert.deepEqual(names('.chap-c > span:last-child'), expected);
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), expected);
       assertions += 6;
     }
     for (const p of window.PACKAGES.filter(x => x.id !== 'pmp-full')) {
       app.innerHTML = context.pkgView(p.id);
-      assert.deepEqual(names('.chap-c > span:last-child'), (p.chapters || []).map(context.publicTitle).map((title, i) => title || String(p.chapters[i])));
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), (p.chapters || []).map(context.publicTitle).map((title, i) => title || String(p.chapters[i])));
       assertions++;
     }
     for (const c of allCourses.filter(x => x.id !== 'pmp')) {
       app.innerHTML = context.courseView(c.id);
-      assert.equal(app.querySelectorAll('.cd-topics li').length, (c.chapters || []).length);
+      assert.equal(app.querySelectorAll('.cd-topics > li').length, (c.chapters || []).length);
       assertions++;
     }
   }
@@ -90,18 +91,24 @@ try {
   const roadmap = window.CourseRoadmap;
   window.CourseRoadmap = undefined;
   app.innerHTML = context.courseView('pmp');
-  assert.equal(app.querySelectorAll('.cd-topics li').length, course('pmp').chapters.length);
+  assert.equal(app.querySelectorAll('.cd-topics > li').length, course('pmp').chapters.length);
   window.CourseRoadmap = roadmap;
   // Titles are content: an unsafe string must remain text in all three render paths.
-  const title = roadmap.pmp[0][2];
-  roadmap.pmp[0][2] = '<img src=x onerror="throw 1">';
+  const topicsFor = roadmap.topics;
+  roadmap.topics = c => {
+    const topics = topicsFor(c);
+    topics[0].en = '<img src=x onerror="throw 1">';
+    topics.find(t=>t.key==='predictive').children[0].children[0].en='<img src=nested onerror="throw 2">';
+    return topics;
+  };
   for (const render of [() => context.courseView('pmp'), () => context.courseTabBody(course('pmp')), () => context.pkgView('pmp-full')]) {
     app.innerHTML = render();
     assert.equal(app.querySelector('img[onerror]'), null);
     assert.ok(app.textContent.includes('<img src=x onerror="throw 1">'));
+    assert.ok(app.textContent.includes('<img src=nested onerror="throw 2">'));
   }
-  roadmap.pmp[0][2] = title;
+  roadmap.topics = topicsFor;
   assert.equal(JSON.stringify(catalog), storedBefore, 'Stored course and package chapters are untouched');
-  assert.ok(source.includes('/course-roadmap.js?v=20261014-public-topics'));
-  console.log(`PASS: ${assertions} render assertions; PMP course, legacy tab and full package share 18 learner topics in AR/EN; other packages/courses, optional-module fallback, escaping and stored chapters preserved.`);
+  assert.ok(source.includes('/course-roadmap.js?v=20261015-nested-topics'));
+  console.log(`PASS: ${assertions} render assertions; PMP course, legacy tab and full package share 15 nested public headings in AR/EN; other packages/courses, optional-module fallback, escaping and stored chapters preserved.`);
 } finally { window.close(); }
