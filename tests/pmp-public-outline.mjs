@@ -1,4 +1,4 @@
-/** Nested PMP public outline and naming must survive saved API titles without modifying content records.
+/** Nested PMP public outline and saved public catalog naming preserve content records.
  * Run from the repository root; set JSDOM_MODULE if jsdom is installed elsewhere.
  */
 import assert from 'node:assert/strict';
@@ -7,7 +7,8 @@ import path from 'node:path';
 import vm from 'node:vm';
 const {JSDOM}=await import(process.env.JSDOM_MODULE || 'jsdom');
 const html=fs.readFileSync('public/index.html','utf8');
-const exact='Project Management Professional (PMP)® Preparation Course';
+const restoredCourse=lang=>lang==='en'?'Project Management Professional':'محترف إدارة المشاريع';
+const restoredPackage=lang=>lang==='en'?'PMP® — Complete Package':'PMP® — الباقة الكاملة';
 const fixture=JSON.parse(fs.readFileSync('public/v15-catalog.json','utf8'));
 let checks=0;
 const eq=(a,b,msg)=>{assert.equal(a,b,msg);checks++;};
@@ -42,12 +43,13 @@ for(const live of [false,true]) {
   eq(sourceFull.ar,'PMP® — الباقة الكاملة','Saved full package name remains unchanged');
   eq(sourceFull.lang,'both','Learning language unchanged');
   for(const lang of ['ar','en']){
+   const exact=restoredCourse(lang), packageTitle=restoredPackage(lang);
    w.__lang=lang;w.I18.set(lang);
    w.APP.go('home');await settle();
    eq(title('.pk[data-r="pkg/pmp-full"] h3'),exact,'Featured full-package heading');
-   eq(title('#v31Results a[href="#pkg/pmp-full"] b'),exact,'Homepage finder full-package heading');
+   eq(title('#v31Results a[href="#pkg/pmp-full"] b'),packageTitle,'Homepage finder full-package heading');
    eq(title('#v31Course option[value="pmp"]'),exact,'Program selector');
-   const search=w.document.querySelector('#v22CourseSearch');search.value='Preparation Course';search.dispatchEvent(new w.Event('input',{bubbles:true}));
+   const search=w.document.querySelector('#v22CourseSearch');search.value='PMP';search.dispatchEvent(new w.Event('input',{bubbles:true}));
    eq(title('#v22SearchResults [role="option"] b'),exact,'Search matches the new title');
    const other=w.PACKAGES.find(p=>p.id==='pmp-sim');
    eq(title('#v31Results a[href="#pkg/pmp-sim"] b'),lang==='en'?other.en:other.ar,'Sibling package name unchanged');
@@ -56,12 +58,12 @@ for(const live of [false,true]) {
    const rmp=w.COURSES.find(c=>c.id==='rmp');
    eq(title('[data-course-card="rmp"] h3 a'),lang==='en'?rmp.en:rmp.ar,'Unrelated course title unchanged');
    w.APP.go('programs?course=pmp&view=packages');await settle();
-   eq(title('[data-package-card="pmp-full"] h3 a'),exact,'Catalog package title');
+   eq(title('[data-package-card="pmp-full"] h3 a'),packageTitle,'Catalog package title');
    eq(title('[data-package-card="pmp-sim"] h3 a'),lang==='en'?other.en:other.ar,'Catalog sibling name unchanged');
    eq(w.document.querySelector('[data-package-card="pmp-full"] h3 a').getAttribute('href'),'#pkg/pmp-full','Package route unchanged');
    w.APP.go('course/pmp');await settle();
    eq(title('.cd-hero-copy h1'),exact,'Course heading');
-   eq(w.document.querySelector('.cd-hero-copy h1').getAttribute('lang'),'en','Course heading language');
+   eq(w.document.querySelector('.cd-hero-copy h1').getAttribute('lang'),null,'Original course heading markup restored');
    eq(w.document.querySelectorAll('.cd-topics > li').length,15,'Public outline top-level topic count');
    const outline=w.CourseRoadmap.topics(sourcePmp), labels=outline.map(t=>lang==='en'?t.en:t.ar);
    eq(outline.find(t=>t.key==='hybrid').ar,'النهج المختلط','Requested Hybrid Arabic label');
@@ -73,18 +75,18 @@ for(const live of [false,true]) {
    eq(w.CourseRoadmap.pmp.length,18,'Learner roadmap remains at18 original headings');
    w.APP.go('pkg/pmp-full');await settle();
    eq(title('.v44-hero-heading h1'),exact,'Full-package heading');
-   eq(w.document.querySelector('.v44-hero-heading h1').getAttribute('dir'),'ltr','English heading direction in RTL');
-   ok(title('.v32-compare .is-current th').startsWith(exact),'Package comparison title');
+   eq(w.document.querySelector('.v44-hero-heading h1').getAttribute('dir'),null,'Original package heading markup restored');
+   ok(title('.v32-compare .is-current th').replace(/[\u2066-\u2069]/g,'').startsWith(packageTitle),'Restored package comparison title');
    ok(w.document.querySelector('[data-language-package="pmp-full"]'),'Package identity unchanged');
    eq(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c').length,15,'Full-package public outline matches course');
    assert.deepEqual(Array.from(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c > .public-topic-copy > .public-topic-label'),el=>el.textContent),Array.from(labels));
    eq(w.document.querySelectorAll('.pd-hero .chap-g .public-topic-children > li[data-public-topic="executing"]').length,1,'Execution appears once under Predictive');
-   eq(w.publicCatalogName({id:'pmp-full',ar:'stale saved title',en:'another stale title'}),exact,'Runtime title overrides old API names');
-   eq(w.publicCatalogName({id:'pmp-sim'}),'','Other package names never overridden');
+   eq(typeof w.publicCatalogName,'undefined','Unintended public title override removed');
+   eq(sourcePmp.en,'Project Management Professional','Stored English course title preserved');
   }
   eq(JSON.stringify({courses:w.COURSES,packages:w.PACKAGES}),original,'Saved course and package fields unchanged');
   eq(requests.filter(r=>r.method!=='GET').length,0,'No writes during public navigation');
   eq(errors.length,0,errors.join('\n'));
  }finally{w.close();}
 }
-console.log(`PASS: ${checks} assertions, AR/EN, offline and runtime API title overrides, public routes and untouched stored content.`);
+console.log(`PASS: ${checks} assertions, AR/EN, offline and restored saved public catalog titles, public routes and untouched stored content.`);

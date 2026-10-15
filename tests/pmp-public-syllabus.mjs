@@ -26,7 +26,6 @@ window.CONTENT_KINDS = [];
 window.validCourseDate = () => false;
 window.I18 = { lang: 'ar' };
 window.__lang = 'ar';
-vm.runInContext(source.match(/window\.publicCatalogName = [\s\S]*?;/)[0], context);
 const course = id => window.COURSES.find(x => x.id === id);
 const pack = id => window.PACKAGES.find(x => x.id === id);
 context.A = () => ({ course, pack, owns: () => false, live: false });

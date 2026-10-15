@@ -15,8 +15,8 @@
       (matches.length?'<div class="v31-result-list">'+matches.slice(0,4).map(p=>{
         const c=(window.COURSES||[]).find(item=>item.id===p.course)||{};
         const m=(window.MODES||[]).find(item=>item.k===p.mode)||{};
-        const title=window.publicCatalogName?.(p) || (en?(p.en||p.ar||c.en||c.ar):(p.ar||c.ar||p.en));
-        return '<a href="#pkg/'+encodeURIComponent(p.id)+'"><b>'+safe(title)+'</b><small>'+safe(window.publicCatalogName?.(c) || (en?(c.en||c.ar):(c.ar||c.en)))+' · '+safe(en?(m.en||m.ar):(m.ar||m.en))+'</small><span aria-hidden="true">↗</span></a>';
+        const title=en?(p.en||p.ar||c.en||c.ar):(p.ar||c.ar||p.en);
+        return '<a href="#pkg/'+encodeURIComponent(p.id)+'"><b>'+safe(title)+'</b><small>'+safe(en?(c.en||c.ar):(c.ar||c.en))+' · '+safe(en?(m.en||m.ar):(m.ar||m.en))+'</small><span aria-hidden="true">↗</span></a>';
       }).join('')+'</div><a class="v31-all" href="'+safe(allHref)+'">'+(en?'View all packages':'عرض جميع الباقات')+' ↗</a>':
       '<p class="v31-no-match">'+(en?'No package is currently published for this selection. Ask about a suitable group or team plan.':'لا توجد باقة منشورة بهذا الاختيار حاليًا. استفسر عن مجموعة قادمة أو خطة لفريقك.')+'</p><a href="#contact">'+(en?'Send an inquiry':'أرسل استفسارًا')+' ↗</a>');
   }
