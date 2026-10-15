@@ -91,7 +91,6 @@
     const courseSize = initialSize(courseTitle,36,12,1174,73,1.16);
     const origin = new URL(root.location.origin).origin, logo = brandMark(132);
     const instructor = instructorPresentation(snapshot, origin);
-    const courseLogo = snapshot ? assetUrl(snapshot.courseLogo, origin, 'course') : '';
     const verification = verificationUrl(data.verify, origin), qr = qrSource(data.qr, verification);
     const instructorName = instructor?.name || 'Name not recorded';
     const instructorSize = initialSize(instructorName,24,8,instructor?.badgeAsset ? 263 : 405,56,1.16);
@@ -111,7 +110,6 @@
 .cert-canvas{position:absolute;left:50%;margin-left:-700px;top:0;width:1400px;height:1092px;background:#0b304e;transform:scale(var(--certificate-scale,1));transform-origin:center top}
 .cert-paper{position:absolute;inset:44px;background:linear-gradient(125deg,#fffefa,#fffefb 60%,#fcfaf4);border:3px solid #bd8e29;outline:1px solid #f0dc9d;outline-offset:-8px;text-align:center}
 .cert-brand{position:absolute;top:28px;left:180px;right:180px}.cert-brand svg{display:block;margin:0 auto;width:132px;height:125px}.cert-brand strong{display:block;margin:2px 0 7px;font-family:Arial,sans-serif;font-size:38px;letter-spacing:6px}.cert-brand span{display:block;font-size:14px;letter-spacing:2.3px;color:#465e77}
-.cert-course-brand{position:absolute;right:38px;top:37px;width:168px;text-align:center}.cert-course-logo{display:block;width:168px;height:151px;object-fit:contain}.cert-course-brand small{display:block;margin-top:8px;font:11px Arial,sans-serif;letter-spacing:1.7px;color:#62738a}
 .cert-title{position:absolute;top:232px;left:35px;right:35px;margin:0;font-size:86px;font-weight:bold;line-height:1.12;letter-spacing:1px}.cert-subtitle{position:absolute;top:329px;left:35px;right:35px;font-size:37px;line-height:1;letter-spacing:13px}
 .cert-award{position:absolute;top:395px;left:45px;right:45px;margin:0;color:#4b6178;font-size:31px;line-height:1.3}
 .cert-name{position:absolute;top:442px;left:95px;right:95px;height:92px;display:flex;align-items:center;justify-content:center;font-size:${nameSize}px;font-weight:bold;line-height:1.08;overflow-wrap:anywhere}.cert-name span{max-width:100%}
@@ -125,11 +123,10 @@
 .cert-seal{position:absolute;top:737px;left:50%;margin-left:-111px;width:178px;height:178px}.gold-seal{width:100%;height:100%}
 .cert-record{position:absolute;left:65px;right:220px;bottom:37px;display:flex;justify-content:center;align-items:center;gap:26px;color:#425d77;font-size:17px;line-height:1.3}.cert-record .divider{height:23px;width:2px;background:#b58a2b}.cert-record b{font-weight:normal;color:#183a56}
 .cert-verify{position:absolute;left:65px;right:220px;bottom:14px;margin:0;font-family:Arial,sans-serif;font-size:10px;line-height:1.2;color:#62738a;overflow-wrap:anywhere}.cert-verify a{color:inherit;text-decoration:none}
-.cert-qr{position:absolute;right:25px;bottom:21px;width:174px;padding:11px 11px 9px;border:2px solid #c59b3d;border-radius:13px;background:#0b304e;box-shadow:0 0 0 3px #f6e9c0,0 0 0 5px #ae7c22;color:#fff5d8;text-decoration:none}.cert-qr::before,.cert-qr::after{content:'';position:absolute;left:50%;width:27px;height:4px;margin-left:-13.5px;background:#d9b451;border-radius:4px}.cert-qr::before{top:3px}.cert-qr::after{bottom:3px}.cert-qr-image{display:block;padding:7px;background:#fff;border-radius:3px}.cert-qr img{display:block;width:134px;height:134px;object-fit:contain;background:#fff}.cert-qr-caption{display:block;margin-top:7px;font:12px Arial,sans-serif;letter-spacing:.5px}
+.cert-qr{position:absolute;right:25px;bottom:21px;width:144px;padding:8px 8px 7px;border:2px solid #c59b3d;border-radius:13px;background:#0b304e;box-shadow:0 0 0 3px #f6e9c0,0 0 0 5px #ae7c22;color:#fff5d8;text-decoration:none}.cert-qr::before,.cert-qr::after{content:'';position:absolute;left:50%;width:27px;height:4px;margin-left:-13.5px;background:#d9b451;border-radius:4px}.cert-qr::before{top:3px}.cert-qr::after{bottom:3px}.cert-qr-image{display:block;padding:7px;background:#fff;border-radius:3px}.cert-qr img{display:block;width:110px;height:110px;object-fit:contain;background:#fff}.cert-qr-caption{display:block;margin-top:7px;font:12px Arial,sans-serif;letter-spacing:.5px}
 @page{size:280mm 218.4mm;margin:0}@media print{html,body{width:280mm;height:218.4mm;background:white}.cert-viewport{width:280mm!important;height:218.4mm!important;max-width:none;margin:0}.cert-canvas{transform:scale(.7559055118)!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body><main class="cert-viewport" aria-label="Issued training completion certificate"><article class="cert-canvas"><div class="cert-paper">
 <div class="cert-brand">${logo}<strong>ALSAEED</strong><span>EDUCATION · TRAINING · CONSULTING</span></div>
-${courseLogo ? `<div class="cert-course-brand"><img class="cert-course-logo" src="${escape(courseLogo)}" alt="${escape(snapshot.courseCode || courseTitle)} course logo"><small>PROGRAM</small></div>` : ''}
 <h1 class="cert-title">CERTIFICATE</h1><div class="cert-subtitle">OF COMPLETION</div><p class="cert-award">This certificate is awarded to</p>
 <div class="cert-name"><span dir="auto">${escape(data.name)}</span></div><hr class="cert-rule"><p class="cert-completed">for successfully completing the training program</p>
 <h2 class="cert-course"><span dir="auto">${courseHtml}</span></h2><p class="cert-hours">${data.hours ? `${escape(data.hours)} Training Hours` : ''}</p>

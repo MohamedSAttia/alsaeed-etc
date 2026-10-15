@@ -23,13 +23,14 @@ test('PMP mark is superscript while exact English title remains unchanged', () =
   assert.equal(d.documentElement.lang, 'en');
   assert.match(d.querySelector('style').textContent, /\.cert-trademark\{[^}]*top:-\.55em/);
 });
-test('snapshot instructor identity and course logo occupy separate roles from the credential badge', () => {
+test('reference layout uses the instructor credential beside the instructor, without a separate program logo', () => {
   const d = doc(original);
   assert.equal(d.querySelector('.cert-instructor-name').textContent, instructor.name);
   assert.equal(d.querySelector('.cert-instructor-label').textContent, 'Instructor');
   assert.equal(d.querySelector('.cert-instructor-title').textContent, instructor.title);
   assert.equal(d.querySelector('.cert-instructor-badge').getAttribute('src'), 'https://al-ltc.com' + badgePath);
-  assert.equal(d.querySelector('.cert-course-logo').getAttribute('src'), 'https://al-ltc.com/assets/certifications/pmp.jpeg');
+  assert.equal(d.querySelector('.cert-course-logo'), null);
+  assert.equal(d.querySelector('.cert-course-brand'), null);
   assert(d.querySelector('.cert-signature.left .cert-instructor-badge'));
   assert(!d.querySelector('.cert-course-brand .cert-instructor-badge'));
 });
@@ -47,14 +48,14 @@ test('matching RMP badge stays RMP-specific and never becomes a generic instruct
   assert(doc(rmp).querySelector('.cert-instructor-badge'));
   assert.equal(doc({ ...rmp, presentation: { ...rmp.presentation, courseId: 'acp' } }).querySelector('.cert-instructor-badge'), null);
 });
-test('every course uses its saved title, logo and instructor; live top-level hints cannot override snapshots', () => {
+test('every course keeps its saved title and instructor within the shared reference layout', () => {
   for (const [id, asset] of [['rmp','rmp.png'], ['acp','acp.jpg'], ['grcp','grcp.webp'], ['pba','pba.jpeg'], ['p3o','axelos.jpg'], ['lss','../covers/lss.svg']]) {
     const record = changed({ courseId: id, courseCode: id.toUpperCase(), courseLogo: '/assets/certifications/' + asset }, { id: id+'-teacher', name: 'Teacher for '+id, badge: null });
     record.course = 'Saved '+id+' Training'; record.courseId = 'pmp';
     const d = doc(record);
     assert.equal(d.querySelector('.cert-course').textContent, record.course);
     assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Teacher for '+id);
-    assert(d.querySelector('.cert-course-logo'));
+    assert.equal(d.querySelector('.cert-course-logo'), null);
     assert.equal(d.querySelector('.cert-instructor-badge'), null);
   }
 });
@@ -103,7 +104,7 @@ test('signature image requires a constrained local asset and recorded instructor
     assert.equal(doc(changed({}, { signatureAsset })).querySelector('.cert-signature-image'), null);
   }
 });
-test('all user-supplied text is escaped including instructor, badge label and logo alt', () => {
+test('all displayed user-supplied text is escaped including instructor and badge label', () => {
   const attack = '<img src=x onerror=alert(1)>';
   const record = changed({ courseId: 'rmp', courseCode: attack }, { name: attack, title: attack, badge: { courseId: 'rmp', asset: '/assets/badges/pmi-atp-instructor-rmp.png', label: attack, verified: true } });
   Object.assign(record, { name: attack, no: attack, course: attack });
@@ -112,8 +113,8 @@ test('all user-supplied text is escaped including instructor, badge label and lo
   assert.equal(d.querySelector('.cert-instructor-badge').getAttribute('alt'), attack);
   assert.equal(d.querySelectorAll('script,[onerror],[onload]').length, 0);
 });
-test('unsafe images and instructor badges used as course logos are excluded', () => {
-  for (const courseLogo of ['https://external.invalid/x.svg', '//external.invalid/x.png', 'javascript:alert(1)', 'data:image/png;base64,x', '/assets/certifications/x.png?name=secret', '/assets/certifications/x.png#x', '/assets/certifications/x%2epng', badgePath, '/assets/certifications/x.png\" onerror=alert(1)', 'https://person@al-ltc.com/assets/certifications/pmp.jpeg']) {
+test('course logos never reintroduce a corner badge, including safe and unsafe asset paths', () => {
+  for (const courseLogo of ['/assets/certifications/pmp.jpeg', '/assets/certifications/rmp.png', 'https://external.invalid/x.svg', '//external.invalid/x.png', 'javascript:alert(1)', 'data:image/png;base64,x', '/assets/certifications/x.png?name=secret', '/assets/certifications/x.png#x', '/assets/certifications/x%2epng', badgePath, '/assets/certifications/x.png\" onerror=alert(1)', 'https://person@al-ltc.com/assets/certifications/pmp.jpeg']) {
     assert.equal(doc(changed({ courseLogo })).querySelector('.cert-course-logo'), null, courseLogo);
   }
 });
@@ -205,7 +206,8 @@ test('navy/gold QR frame stays outside the unchanged white QR image and quiet zo
   const d = doc({ ...original, qr }), css = d.querySelector('style').textContent;
   assert.equal(d.querySelector('.cert-qr-image img').getAttribute('src'), qr);
   assert.match(css, /\.cert-qr-image\{display:block;padding:7px;background:#fff/);
-  assert.match(css, /\.cert-qr\{[^}]*border:2px solid #c59b3d[^}]*background:#0b304e/);
+  assert.match(css, /\.cert-qr\{[^}]*width:144px[^}]*border:2px solid #c59b3d[^}]*background:#0b304e/);
+  assert.match(css, /\.cert-qr img\{display:block;width:110px;height:110px/);
   assert.equal(d.querySelector('.cert-qr-caption').textContent, 'Scan to verify');
 });
 test('renderer never adds a preview warning to real runtime certificates', () => {
