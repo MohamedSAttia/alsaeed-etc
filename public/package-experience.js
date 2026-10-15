@@ -91,7 +91,7 @@
     const heading = make('h2', 'package-exp-heading', source.coursePreview ? text('فيديو تعريفي بالبرنامج', 'Program introduction') : text('فيديو تعريفي بالباقة', 'Package introduction'));
     heading.id = 'package-promo-title';
     card.setAttribute('aria-labelledby', heading.id);
-    const name = english() ? (pkg.en || pkg.ar || pkg.id) : (pkg.ar || pkg.en || pkg.id);
+    const name = window.publicCatalogName?.(pkg) || (english() ? (pkg.en || pkg.ar || pkg.id) : (pkg.ar || pkg.en || pkg.id));
     const play = make('button', 'btn n package-exp-promo-play', text('شاهد الفيديو التعريفي', 'Watch introduction'));
     play.type = 'button';
     play.setAttribute('aria-label', text('شاهد الفيديو التعريفي: ', 'Watch introduction: ') + name);

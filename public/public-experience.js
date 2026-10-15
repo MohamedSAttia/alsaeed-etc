@@ -6,7 +6,7 @@
   const english = () => window.__lang === 'en';
   const text = (ar, en) => english() ? en : ar;
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const title = value => value ? (english() ? value.en || value.ar : value.ar || value.en) || '' : '';
+  const title = value => window.publicCatalogName?.(value) || (value ? (english() ? value.en || value.ar : value.ar || value.en) || '' : '');
   const normalize = value => String(value ?? '').normalize('NFKD').replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').toLocaleLowerCase().trim();
   const params = () => new URLSearchParams(location.hash.split('?')[1] || '');
   const route = () => (location.hash.slice(1) || 'home').split('?')[0];
@@ -97,8 +97,8 @@
       const q = normalize(input.value); selected = -1;
       input.removeAttribute('aria-activedescendant');
       if (!q) { close(); return; }
-      matches = (window.COURSES || []).filter(c => normalize([c.code,c.ar,c.en,c.blurb,c.blurb_en].join(' ')).includes(q)).slice(0,6);
-      results.innerHTML = matches.length ? matches.map((c,i) => `<div class="v22-search-item" role="option" aria-selected="false" id="publicSearchOption${i}" data-search-index="${i}"><span dir="ltr">${escape(c.code)}</span><span><b>${escape(title(c))}</b><small>${escape(text(c.en,c.ar))}</small></span><em aria-hidden="true">↗</em></div>`).join('') : `<div class="v22-search-empty" role="status">${text('لا توجد نتائج. جرّب اسم الشهادة أو رمزها.','No matches. Try a certification name or code.')}</div>`;
+      matches = (window.COURSES || []).filter(c => normalize([c.code,c.ar,c.en,title(c),c.blurb,c.blurb_en].join(' ')).includes(q)).slice(0,6);
+      results.innerHTML = matches.length ? matches.map((c,i) => `<div class="v22-search-item" role="option" aria-selected="false" id="publicSearchOption${i}" data-search-index="${i}"><span dir="ltr">${escape(c.code)}</span><span><b>${escape(title(c))}</b><small>${escape(window.publicCatalogName?.(c) || text(c.en,c.ar))}</small></span><em aria-hidden="true">↗</em></div>`).join('') : `<div class="v22-search-empty" role="status">${text('لا توجد نتائج. جرّب اسم الشهادة أو رمزها.','No matches. Try a certification name or code.')}</div>`;
       results.hidden = false; input.setAttribute('aria-expanded','true');
     });
     input.addEventListener('keydown', event => {
@@ -174,7 +174,7 @@
       const active = showAll || Object.values(values).some(Boolean);
       setFilterPanel(active || filtersExpanded);
       const query = normalize(values.q);
-      let matches = published().filter(p => (!values.course || p.course===values.course) && (!values.mode || p.mode===values.mode) && (!values.lang || p.lang===values.lang) && (!query || normalize([p.ar,p.en,course(p.course).ar,course(p.course).en,course(p.course).code,title(mode(p.mode))].join(' ')).includes(query)));
+      let matches = published().filter(p => (!values.course || p.course===values.course) && (!values.mode || p.mode===values.mode) && (!values.lang || p.lang===values.lang) && (!query || normalize([p.ar,p.en,title(p),title(course(p.course)),course(p.course).ar,course(p.course).en,course(p.course).code,title(mode(p.mode))].join(' ')).includes(query)));
       if (values.sort) matches = [...matches].sort((a,b) => String(a.currency||'').localeCompare(String(b.currency||'')) || (Number(a.price)-Number(b.price))*(values.sort==='price-desc'?-1:1));
       $('#publicResultCount',mount).textContent = active ? `${matches.length} ${text('باقة مطابقة','matching packages')}` : `${courses.length} ${text('دورات','courses')} · ${packages.length} ${text('باقة منشورة','published packages')}`;
       $('#publicClearFilters',mount).hidden = !active && !selectedTrack;

@@ -3420,10 +3420,13 @@ const NAV_I18N = {
 };
 const navText = k => (NAV_I18N[window.__lang || 'ar'] || NAV_I18N.ar)[k] || NAV_I18N.ar[k] || k;
 const siteEnglish = () => window.__lang === 'en';
-const publicTitle = (item, fallback='') => siteEnglish() ? (item?.en || item?.title_en || fallback || item?.ar || '') : (item?.ar || item?.title || fallback || '');
-const packageName = (p,c,T) => siteEnglish()
+// Public naming is independent of saved content and issued certificate snapshots.
+window.publicCatalogName = item => ['pmp','pmp-full'].includes(item?.id)
+  ? 'Project Management Professional (PMP)® Preparation Course' : '';
+const publicTitle = (item, fallback='') => window.publicCatalogName(item) || (siteEnglish() ? (item?.en || item?.title_en || fallback || item?.ar || '') : (item?.ar || item?.title || fallback || ''));
+const packageName = (p,c,T) => window.publicCatalogName(p) || (siteEnglish()
   ? (p.en || `${c.en || c.code || ''} — ${T.en || 'Learning Package'}`)
-  : (p.ar || '');
+  : (p.ar || ''));
 const packageDescription = (p,T) => siteEnglish()
   ? (p.desc_en || ({full:'Lessons, learning materials, activities and exam practice in one pathway.',sim:'Practice with timed questions and performance feedback.',review:'Focused review and practice before your exam.',self:'A structured self-study pathway with resources and practice.'}[p.type] || T.en || 'Explore the learning package.'))
   : (p.desc || '');
@@ -3515,7 +3518,7 @@ function megaMenu() {
           return `<div class="mlevel"><h5>${esc(l.ar)}</h5>
             ${arr.map(c => `<a class="mcourse" href="#course/${c.id}" data-r="course/${c.id}">
               <span class="cd">${code(c)}</span>
-              <b>${esc(c.ar)}${c.badge ? `<span class="mbadge">${esc(c.badge)}</span>` : ''}</b>
+              <b>${esc(window.publicCatalogName(c) || c.ar)}${c.badge ? `<span class="mbadge">${esc(c.badge)}</span>` : ''}</b>
               <span class="mm">${c.modes.map(m => {
                 const M = window.MODES.find(x => x.k === m);
                 return M ? `<i>${M.icon} ${esc(M.ar)}</i>` : '';
@@ -3617,7 +3620,7 @@ function home() {
 
   <section class="v24-sessions wrap" aria-labelledby="v24-sessions-title">
     <div><span class="eyebrow">${english?'LIVE LEARNING':'التدريب المباشر'}</span><h2 id="v24-sessions-title">${english?'Upcoming live and in-person courses':'مواعيد الدورات الحضورية والمباشرة'}</h2><p>${english?'Choose a published date, or ask about the next group.':'اختر موعدًا معلنًا، أو اسألنا عن الدفعة القادمة.'}</p></div>
-    <div class="v24-session-list">${(Array.isArray(C.sessions)?C.sessions:[]).filter(s=>s.published!==false && s.date && !Number.isNaN(Date.parse(s.date)) && Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3).map(s=>`<a class="v24-session" href="#course/${esc(s.course)}" data-r="course/${esc(s.course)}"><time datetime="${esc(s.date)}">${esc(new Intl.DateTimeFormat(english?'en-US':'ar-EG',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(s.date+'T12:00:00Z')))}</time><b>${esc((window.COURSES||[]).find(c=>c.id===s.course)?.[english?'en':'ar']||s.course)}</b><span>${s.mode==='onsite'?(english?'In person':'حضوري'):(english?'Live online':'أونلاين مباشر')}${s.city?' · '+esc(s.city):''}</span><em>${english?'Details ↗':'التفاصيل ↗'}</em></a>`).join('')||`<div class="v24-no-sessions">${english?'New dates will be announced here.':'تُعلن المواعيد الجديدة هنا فور اعتمادها.'} <a href="#contact" data-r="contact">${english?'Ask about the next group':'استفسر عن الدفعة القادمة'} ↗</a></div>`}</div>
+    <div class="v24-session-list">${(Array.isArray(C.sessions)?C.sessions:[]).filter(s=>s.published!==false && s.date && !Number.isNaN(Date.parse(s.date)) && Date.parse(s.date+'T23:59:59')>=Date.now()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3).map(s=>`<a class="v24-session" href="#course/${esc(s.course)}" data-r="course/${esc(s.course)}"><time datetime="${esc(s.date)}">${esc(new Intl.DateTimeFormat(english?'en-US':'ar-EG',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(s.date+'T12:00:00Z')))}</time><b>${esc(window.publicCatalogName((window.COURSES||[]).find(c=>c.id===s.course)) || (window.COURSES||[]).find(c=>c.id===s.course)?.[english?'en':'ar']||s.course)}</b><span>${s.mode==='onsite'?(english?'In person':'حضوري'):(english?'Live online':'أونلاين مباشر')}${s.city?' · '+esc(s.city):''}</span><em>${english?'Details ↗':'التفاصيل ↗'}</em></a>`).join('')||`<div class="v24-no-sessions">${english?'New dates will be announced here.':'تُعلن المواعيد الجديدة هنا فور اعتمادها.'} <a href="#contact" data-r="contact">${english?'Ask about the next group':'استفسر عن الدفعة القادمة'} ↗</a></div>`}</div>
   </section>
 
   <section class="v22-discovery" aria-labelledby="v22-discovery-title"><div class="wrap">
@@ -3637,7 +3640,7 @@ function home() {
 
   <section class="v31-finder sec" aria-labelledby="v31-finder-title"><div class="wrap v31-finder-grid">
     <div><span class="eyebrow">${english?'YOUR LEARNING PATH':'مسارك المناسب'}</span><h2 id="v31-finder-title">${english?'Find a package that fits your goal':'اعثر على الباقة المناسبة لهدفك'}</h2><p>${english?'Select a program and format to see packages currently published.':'اختر البرنامج وطريقة التعلّم لعرض الباقات المنشورة حاليًا.'}</p><a href="#contact">${english?'Need a team plan? Request a proposal':'تحتاج خطة لفريقك؟ اطلب عرضًا'} ↗</a></div>
-    <div class="v31-finder-panel"><div class="v31-finder-inputs"><label>${english?'Program':'البرنامج'}<select id="v31Course"><option value="">${english?'All programs':'جميع البرامج'}</option>${window.COURSES.filter(c=>window.PACKAGES.some(p=>p.active!==false&&p.course===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(english?(c.en||c.ar):c.ar)}</option>`).join('')}</select></label><label>${english?'Learning format':'طريقة التعلّم'}<select id="v31Mode"><option value="">${english?'All formats':'جميع الأنماط'}</option>${window.MODES.filter(m=>window.PACKAGES.some(p=>p.active!==false&&p.mode===m.k)).map(m=>`<option value="${esc(m.k)}">${esc(english?m.en:m.ar)}</option>`).join('')}</select></label></div><div id="v31Results" role="status" aria-live="polite"></div></div>
+    <div class="v31-finder-panel"><div class="v31-finder-inputs"><label>${english?'Program':'البرنامج'}<select id="v31Course"><option value="">${english?'All programs':'جميع البرامج'}</option>${window.COURSES.filter(c=>window.PACKAGES.some(p=>p.active!==false&&p.course===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(window.publicCatalogName(c) || (english?(c.en||c.ar):c.ar))}</option>`).join('')}</select></label><label>${english?'Learning format':'طريقة التعلّم'}<select id="v31Mode"><option value="">${english?'All formats':'جميع الأنماط'}</option>${window.MODES.filter(m=>window.PACKAGES.some(p=>p.active!==false&&p.mode===m.k)).map(m=>`<option value="${esc(m.k)}">${esc(english?m.en:m.ar)}</option>`).join('')}</select></label></div><div id="v31Results" role="status" aria-live="polite"></div></div>
   </div></section>
 
   <section class="sec tight alt"><div class="wrap">
@@ -3876,7 +3879,7 @@ function programs() {
     </div><section class="card pad" style="margin-top:45px" aria-label="${siteEnglish()?'Upcoming course schedule':'جدول الدورات المباشرة'}">
       <span class="eyebrow">${siteEnglish()?'UPCOMING PROGRAMS':'التدريب المباشر'}</span><h2 style="margin:10px 0 8px">${siteEnglish()?'Live online and in person schedule':'جدول الدورات الحضورية والأونلاين'}</h2>
       <p class="muted" style="margin-bottom:24px">${siteEnglish()?'Dates are listed after approval by the training team. Ask about a future group or request a custom team session.':'تظهر المواعيد بعد اعتمادها من فريق التدريب. يمكنك طلب موعد مجموعة قادمة أو برنامج مخصص لمؤسستك.'}</p>
-      ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Time & zone','Format','Language','Location','Details']:['البرنامج','التاريخ','الوقت والمنطقة','النمط','اللغة','المدينة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(siteEnglish()?(c.en||c.ar):c.ar):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.time?`${s.time} · ${s.timezone||'Africa/Cairo'}`:(siteEnglish()?'Time to be confirmed':'الوقت قيد التأكيد'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(({ar:siteEnglish()?'Arabic':'عربي',en:siteEnglish()?'English':'إنجليزي',both:siteEnglish()?'Arabic & English':'عربي/إنجليزي'})[s.language]||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
+      ${scheduled.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr>${(siteEnglish()?['Program','Date','Time & zone','Format','Language','Location','Details']:['البرنامج','التاريخ','الوقت والمنطقة','النمط','اللغة','المدينة','التفاصيل']).map(x=>'<th style="padding:13px;text-align:start;border-bottom:2px solid #dce5ef">'+x+'</th>').join('')}</tr></thead><tbody>${scheduled.map(s=>{const c=A().course(s.course);return '<tr><td style="padding:14px;border-bottom:1px solid #e6edf4"><b>'+esc(c?(window.publicCatalogName(c) || (siteEnglish()?(c.en||c.ar):c.ar)):s.course)+'</b></td><td style="padding:14px;border-bottom:1px solid #e6edf4"><time datetime="'+esc(s.date)+'">'+esc(s.date)+'</time></td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.time?`${s.time} · ${s.timezone||'Africa/Cairo'}`:(siteEnglish()?'Time to be confirmed':'الوقت قيد التأكيد'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+(s.mode==='onsite'?(siteEnglish()?'In person':'حضوري'):(siteEnglish()?'Live online':'أونلاين مباشر'))+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(({ar:siteEnglish()?'Arabic':'عربي',en:siteEnglish()?'English':'إنجليزي',both:siteEnglish()?'Arabic & English':'عربي/إنجليزي'})[s.language]||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4">'+esc(s.city||'—')+'</td><td style="padding:14px;border-bottom:1px solid #e6edf4"><button class="btn o sm" data-r="course/'+esc(s.course)+'">'+(siteEnglish()?'Explore':'عرض')+'</button></td></tr>'}).join('')}</tbody></table></div>`:`<div class="note info">${siteEnglish()?'There are no confirmed dates yet. We can discuss proposed online or classroom dates for your team.':'لا توجد مواعيد مؤكدة منشورة الآن. تواصل معنا لوضع جدول مقترح أونلاين أو حضوري لفريقك.'}</div>`}
       <button class="btn p" data-r="contact" style="margin-top:22px">${siteEnglish()?'Request a proposed date or team offer':'اطلب موعدًا مقترحًا أو عرضًا لفريقك'} ↗</button>
     </section>
   </div></section>`;
@@ -4136,7 +4139,7 @@ function courseCard(c) {
   return `<div class="card cr" data-r="course/${c.id}" style="cursor:pointer">
     <div class="cr-top">
       <div class="cr-ic">${c.track === 'grc' ? '🛡️' : c.track === 'qual' ? '📊' : c.track === 'gov' ? '🏛️' : '📋'}</div>
-      <div><div class="cr-code">${code(c)}</div><h3>${esc(c.ar)}</h3></div>
+      <div><div class="cr-code">${code(c)}</div><h3>${esc(window.publicCatalogName(c) || c.ar)}</h3></div>
     </div>
     <p>${esc(c.blurb)}</p>
     <div>
@@ -4268,7 +4271,7 @@ function courseView(id) {
   const sectionNav=[['cd-overview',tr('نظرة عامة','Overview')],['cd-outcomes',tr('ما ستتعلّمه','Learning outcomes')],['cd-topics',tr('المحاور','Course topics')],['v25-choose',tr('الباقات والأسعار','Packages & prices')],['cd-schedule',tr('المواعيد','Schedule')],['cd-questions',tr('أسئلة شائعة','FAQs')]];
   return `<section class="course-hero-v8 course-design-hero" data-course-experience="${esc(c.id)}"><div class="wrap cd-hero-grid">
     <div class="cd-hero-copy"><div class="crumb"><a href="#programs" data-r="programs">${tr('البرامج التدريبية','Training programs')}</a><span aria-hidden="true"> / </span><bdi dir="ltr">${esc(c.code)}</bdi></div>
-      <span class="cd-category">${esc(publicTitle(trackVisual(c)))}</span><h1>${esc(publicTitle(c))}</h1><p class="cd-lead">${esc(summary)}</p>
+      <span class="cd-category">${esc(publicTitle(trackVisual(c)))}</span><h1 ${c.id==='pmp'?'lang="en" dir="ltr"':''}>${esc(publicTitle(c))}</h1><p class="cd-lead">${esc(summary)}</p>
       <div class="cd-issuer">${catalogIssuerLink(c.id)}${catalogInstructorBadge(c.id,true)}</div>
       <dl class="cd-facts"><div><dt>${tr('طرق التعلّم','Study formats')}</dt><dd>${modes.map(m=>esc(publicTitle(m))).join(' · ')||tr('استفسر عن الخيارات','Ask about options')}</dd></div><div><dt>${tr('لغة المحتوى','Content language')}</dt><dd>${languages.map(k=>esc(langName(k))).join(' · ')||'—'}</dd></div><div><dt>${tr('محاور البرنامج','Course topics')}</dt><dd>${topics.length}</dd></div><div><dt>${tr('المجموعة القادمة','Next scheduled group')}</dt><dd>${sessions.length?esc(dateLabel(sessions[0])):tr('استفسر عن الموعد','Ask about dates')}</dd></div></dl>
       <div class="cd-hero-actions"><button class="btn p lg" data-course-jump="v25-choose">${tr('استكشف الباقات والأسعار','Explore packages & prices')}</button><button class="btn gh" data-course-jump="cd-topics">${tr('تعرّف على المحاور','Explore course topics')}</button></div>
@@ -4308,14 +4311,14 @@ function pkgView(id) {
   const siblings=window.PACKAGES.filter(x=>x.course===p.course&&x.active!==false);
   const story=packagePresentation(p), en=siteEnglish();
   const formatOf=x=>{const mode=window.MODES.find(m=>m.k===x.mode)||{};return siteEnglish()?(mode.en||mode.ar||x.mode):(mode.ar||mode.en||x.mode)};
-  const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(siteEnglish()?(x.en||x.ar):x.ar)}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
+  const compare=`<section class="v32-compare" aria-labelledby="v32-compare-title"><div class="v32-compare-head"><div><span class="eyebrow">${siteEnglish()?'COMPARE OPTIONS':'قارن خياراتك'}</span><h2 id="v32-compare-title">${siteEnglish()?'Packages for this program':'باقات هذا البرنامج'}</h2><p>${siteEnglish()?'Compare the published options before deciding. Dates are shown only after confirmation.':'قارن الخيارات المنشورة قبل القرار. تظهر المواعيد بعد اعتمادها فقط.'}</p></div><a href="#contact">${siteEnglish()?'Ask an advisor':'اسأل مستشارًا'} ↗</a></div><div class="v32-compare-scroll"><table><thead><tr><th scope="col">${siteEnglish()?'Package':'الباقة'}</th><th scope="col">${siteEnglish()?'Format':'النمط'}</th><th scope="col">${siteEnglish()?'Language':'اللغة'}</th><th scope="col">${siteEnglish()?'Access':'الوصول'}</th><th scope="col">${siteEnglish()?'Price':'السعر'}</th><th scope="col">${siteEnglish()?'Details':'التفاصيل'}</th></tr></thead><tbody>${siblings.map(x=>{const lang=window.LANG_LABEL[x.lang]||{};return `<tr class="${x.id===id?'is-current':''}"><th scope="row">${esc(window.publicCatalogName(x) || (siteEnglish()?(x.en||x.ar):x.ar))}${x.id===id?` <small>${siteEnglish()?'Current':'الحالية'}</small>`:''}</th><td>${esc(formatOf(x))}</td><td>${esc(publicTitle(lang))}</td><td>${esc(x.days||'—')} ${siteEnglish()?'days':'يوم'}</td><td><strong>${money(x.price)} ${esc(x.currency)}</strong></td><td><a href="#pkg/${esc(x.id)}">${siteEnglish()?'View':'عرض'} ↗</a></td></tr>`}).join('')}</tbody></table></div></section>`;
 
   return `<section data-language-package="${esc(p.id)}" class="pg-hero v38-package-hero v43-package-hero v44-package-hero package-exp-branded-hero v43-type-${esc(p.type)}"><div class="wrap v43-package-layout"><div class="v43-package-copy">
     <div class="crumb"><a href="#programs" data-r="programs">${siteEnglish()?'Programs':'البرامج'}</a> ←
       <a href="#course/${c.id}" data-r="course/${c.id}"><bdi dir="ltr">${esc(c.code||'')}</bdi></a> ← ${esc(publicTitle(T))}</div>
     <div class="v44-hero-heading">
       <span class="v44-hero-eyebrow"><bdi dir="ltr">${esc(c.code||'')}</bdi> <span>${esc(en?story.en:story.ar)}</span></span>
-      <div><h1>${esc(publicTitle(c))}</h1>
+      <div><h1 ${c.id==='pmp'?'lang="en" dir="ltr"':''}>${esc(publicTitle(c))}</h1>
         <span class="v44-hero-package">${esc(publicTitle(T))}</span></div>
     </div>
     <p>${esc(packageDescription(p,T))}</p>
@@ -7147,10 +7150,10 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=20261008"></script>
 <script src="/experience-v24.js?v=20261008"></script>
-<script src="/experience-v31.js?v=20261008"></script>
-<script src="/public-experience.js?v=20261010-design"></script>
+<script src="/experience-v31.js?v=20261015-pmp-title"></script>
+<script src="/public-experience.js?v=20261015-pmp-title"></script>
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
-<script src="/package-experience.js?v=20261014-completion-only"></script>
+<script src="/package-experience.js?v=20261015-pmp-title"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
 <script src="/completion-certificate.js?v=20261014-record"></script>
 </body>
