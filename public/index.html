@@ -4489,11 +4489,12 @@ function pkgTab(p, c, has) {
     const groups=window.CourseRoadmap?(CourseRoadmap.learnerGroups||CourseRoadmap.groups)(c,ls):Object.entries(ls.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([key,items])=>({key,title:c.chapters[key]||'مقدمة',items}));
     const groupLessons=group=>window.CourseRoadmap?.lessonItems?CourseRoadmap.lessonItems(group):group.items;
     let vn=0;groups.forEach(g=>groupLessons(g).forEach(l=>{if(l.vimeo)videoNumbers.set(l.i,++vn)}));
-    const renderGroup=(group,ci,depth=0)=>{const all=groupLessons(group),readingKey=Object.hasOwn(group,'readingKey')?group.readingKey:group.key,assessmentKey=Object.hasOwn(group,'assessmentKey')?group.assessmentKey:(!['intro','exam','journey','review'].includes(group.key)?(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title):null);return `<details class="ch-blk learning-chapter" data-learning-group="${esc(group.key)}" data-outline-depth="${depth}" ${ci===0&&depth===0?'open':''}>
-        <summary class="ch-h"><b>${esc(siteEnglish()?(group.en||group.title):group.title)}</b>
-          <span>${all.length} ${siteEnglish()?'lessons':'دروس'} · ${all.filter(l=>pr.lessons[l.i]).length} ✓</span></summary>
+    const renderGroup=(group,ci,depth=0)=>{const all=groupLessons(group),readingKey=Object.hasOwn(group,'readingKey')?group.readingKey:group.key,assessmentKey=Object.hasOwn(group,'assessmentKey')?group.assessmentKey:(!['intro','exam','journey','review'].includes(group.key)?(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title):null),tag=group.originalChapter?'section':'details',heading=group.originalChapter?'h4':'summary';return `<${tag} class="ch-blk ${group.originalChapter?'learning-original-chapter':'learning-chapter'}" data-learning-group="${esc(group.key)}" data-outline-depth="${depth}" ${group.originalChapter?'data-original-chapter="true"':ci===0&&depth===0?'open':''}>
+        ${group.title?`<${heading} class="ch-h"><b>${esc(siteEnglish()?(group.en||group.title):group.title)}</b>
+          <span>${all.length} ${siteEnglish()?'lessons':'دروس'} · ${all.filter(l=>pr.lessons[l.i]).length} ✓</span></${heading}>`:''}
         ${group.noteAr?`<p class="note info">${esc(siteEnglish()?group.noteEn:group.noteAr)}</p>`:''}
         ${has&&c.id==='pmp'&&window.PmpReading&&readingKey?PmpReading.markup(readingKey):''}
+        ${has&&c.id==='pmp'&&window.PmpReading?(group.readings||[]).map(reading=>`<div data-summary-topic="${esc(reading.key)}">${PmpReading.markup(reading.key)}${reading.assessmentKey?`<button class="btn p" data-learning-chapter="${esc(reading.assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button>`:''}</div>`).join(''):''}
         ${group.items.map(l => `<article class="learning-lesson" data-lesson-index="${l.i}"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
@@ -4504,7 +4505,7 @@ function pkgTab(p, c, has) {
           <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
         </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
-      ${has&&assessmentKey&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${has&&group.resourceKey?`<div class="topic-test-next"><button class="btn o" data-learning-resource="${esc(group.resourceKey)}">${siteEnglish()?'Open shared topic reading and assessment':'افتح شرح الموضوع المشترك واختباره'}</button></div>`:''}${(group.children||[]).length?`<div class="learning-outline-children">${group.children.map((child,i)=>renderGroup(child,i,depth+1)).join('')}</div>`:''}${!all.length&&!(group.children||[]).length?`<p class="empty">${siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.'}</p>`:''}</details>`;};
+      ${has&&assessmentKey&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${has?(group.assessmentKeys||[]).map(key=>`<div class="topic-test-next"><button class="btn p" data-learning-chapter="${esc(key)}" data-pk="${p.id}">${siteEnglish()?'Chapter assessment':'اختبار الفصل'}: ${esc(key)}</button></div>`).join(''):''}${(group.children||[]).length?`<div class="learning-outline-children">${group.children.map((child,i)=>renderGroup(child,i,depth+1)).join('')}</div>`:''}${!all.length&&!(group.children||[]).length&&!group.originalChapter?`<p class="empty">${(group.readings||[]).length?(siteEnglish()?'No published video lessons for this topic yet.':'لم تُنشر دروس فيديو لهذا المحور بعد.'):(siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.')}</p>`:''}</${tag}>`;};
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
             : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
@@ -5765,12 +5766,6 @@ function bind() {
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-chapter-test]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pk,c=A().course(A().pack(pid).course);if(c.id==='pmp')window.PackageChapterTest?.(pid,c.chapters[+b.dataset.chapterTest]);else window.UnifiedExam?.open(pid,'ch'+b.dataset.chapterTest)});
   $$('[data-learning-chapter]').forEach(b=>b.onclick=()=>window.PackageChapterTest?.(b.dataset.pk,b.dataset.learningChapter));
-  $$('[data-learning-resource]').forEach(b=>b.onclick=()=>{
-    const shared=$('.learning-outline > [data-learning-group="shared-resources"]');
-    const target=shared&&[...shared.querySelectorAll('.learning-outline-children > [data-learning-group]')].find(g=>g.dataset.learningGroup===b.dataset.learningResource);
-    if(!target)return;
-    shared.open=true;target.open=true;target.querySelector('summary')?.focus();target.scrollIntoView({block:'start'});
-  });
   $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
   const reminderEnabled=$('#reminderEnabled'), reminderDays=$('#reminderDays');
   const saveReminder=async()=>{
@@ -7158,7 +7153,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261015-learner-outline"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261015-outline-refinement"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20261015-learner-outline"></script>

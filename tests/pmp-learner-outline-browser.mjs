@@ -69,14 +69,13 @@ try {
     await page.locator('[data-lt="content"]').first().click();
     await page.waitForSelector('.learning-outline');
     assert.equal(await page.locator('[data-lesson-index]').count(),8);
-    assert.deepEqual(await page.locator('.learning-outline > [data-learning-group]').evaluateAll(els=>els.slice(0,15).map(e=>e.dataset.learningGroup)),['intro','exam','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','journey','review','exam-guidelines']);
+    assert.deepEqual(await page.locator('.learning-outline > details[data-learning-group]').evaluateAll(els=>els.map(e=>e.dataset.learningGroup)),['intro','exam','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','journey','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
     const predictive=page.locator('.learning-outline > [data-learning-group="predictive"]');
     await predictive.locator(':scope > summary').click();
     const planning=predictive.locator(':scope > .learning-outline-children > [data-learning-group="planning"]');
     await planning.locator(':scope > summary').click();
-    const scope=planning.locator('[data-learning-group="scope"]');
-    await scope.locator(':scope > summary').click();
-    await scope.locator('[data-lesson="1"]').click();
+    assert.equal(await planning.locator('[data-learning-group]').count(),0,'No artificial phase subtopics');
+    await planning.locator('[data-lesson="1"]').click();
     assert.match(await page.locator('#ivFrame').getAttribute('src'),/player.vimeo.com\/video\/101000/);
     await page.locator('#ivClose').click();
     assert.equal(await page.locator('#ivFrame').count(),0);
@@ -91,13 +90,13 @@ try {
       if(process.env.OUTLINE_SCREENSHOT_DIR){await mkdir(process.env.OUTLINE_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.OUTLINE_SCREENSHOT_DIR,'learner-outline-'+lang+'-'+width+'.png')});}
     }
     await page.locator('[data-lt="plan"]').first().click();
-    assert.equal(await page.locator('[data-plan-topic]').count(),15);
+    assert.equal(await page.locator('[data-plan-topic]').count(),18);
     assert.equal(await page.locator('.wk.done [data-week="1"]').count(),1);
   }
   await page.evaluate(()=>{APP.pack('pmp-sim').kinds=['exam','quiz'];APP.go('learn/pmp-sim')});
   await page.locator('[data-lt="plan"]').first().click();
   assert.equal(await page.locator('.learner-course-outline [data-lt="content"]').count(),0);
   assert.deepEqual(errors,[]);
-  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 15 topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
+  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 18 topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
   await context.close();
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

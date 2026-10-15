@@ -42,16 +42,25 @@ try{
   assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lesson-index]'),x=>Number(x.dataset.lessonIndex)),Array.from(w.CourseRoadmap.videoOrder(c,w.LESSONS[pid])));
   assert.equal(A.pct(pid),25);
   assert.equal(w.document.querySelectorAll('.pmp-topic-reading').length,18);
-  click('[data-learning-resource="scope"]');
-  const shared=w.document.querySelector('[data-learning-group="shared-resources"]');
-  assert.equal(shared.open,true);assert.equal(shared.querySelector('[data-learning-group="scope"]').open,true);
-  assert.equal(w.document.activeElement.closest('[data-learning-group]').dataset.learningGroup,'scope');
+  const summaries=w.document.querySelector('[data-learning-group="summaries"]');
+  summaries.parentElement.closest('details').open=true;summaries.open=true;
+  assert.ok(summaries.querySelector('[data-summary-topic="scope"] [data-learning-chapter="scope"]'));
+  assert.equal(w.document.querySelector('[data-learning-group="shared-resources"]'),null);
+  assert.deepEqual(Array.from(w.document.querySelectorAll('.learning-outline > details'),x=>x.dataset.learningGroup).slice(-4),['final-reviews','workshops','exam-eve','exam-guidelines']);
   click('[data-lesson="0"]');assert.match(frame().src,/video\/100000/);click('#ivNext');assert.match(frame().src,/video\/103000/,'Next follows the outline, preserving original index 3');
   w.InteractiveVideo.close();assert.equal(frame(),null);
   assert.equal(JSON.stringify(progress),before,'Playback/navigation never changes completions');
   click('[data-lesson="2"]');assert.match(frame().src,/video\/102000/);w.InteractiveVideo.close();
+  const playbackOrder=Array.from(w.CourseRoadmap.videoOrder(c,w.LESSONS[pid]));
+  assert.deepEqual(playbackOrder,[0,3,1,2,4,6,7,5],'Original source videos stay before the final instructions');
+  click('[data-lesson="'+playbackOrder[0]+'"]');
+  for(let n=0;n<playbackOrder.length;n++){
+   assert.match(frame().src,new RegExp('video/'+w.LESSONS[pid][playbackOrder[n]].vimeo));
+   if(n<playbackOrder.length-1)click('#ivNext');else{const last=frame().src;click('#ivNext');assert.equal(frame().src,last,'Next on the final guidelines cannot jump to hidden additional lessons');}
+  }
+  w.InteractiveVideo.close();assert.equal(JSON.stringify(progress),before);
   click('[data-lt="plan"]');await settle();
-  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,15);
+  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,18);
   assert.ok(w.document.querySelector('.wk.done [data-week="1"]'));
  }
  // The callback uses the same ordering and writes only the original lesson index.

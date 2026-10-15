@@ -35,9 +35,9 @@ function readFunction(name){const start=source.indexOf('function '+name+'('),end
 for(const name of ['publicCourseTopics','publicTopicBody','studyPlan','pkgTab'])vm.runInContext(readFunction(name),ctx);
 for(const file of ['public/course-roadmap.js','public/pmp-reading.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 const r=w.CourseRoadmap;
-const keys=['intro','exam','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','journey','review','exam-guidelines'];
+const keys=['intro','exam','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','journey','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
 const tree=r.learnerGroups(course,lessons),flat=tree.flatMap(r.lessonItems);
-assert.deepEqual(Array.from(tree.slice(0,15),g=>g.key),keys);
+assert.deepEqual(Array.from(tree.filter(g=>!g.originalChapter),g=>g.key),keys);
 assert.deepEqual(Array.from(tree[7].children,g=>g.key),['initiating','planning','executing','monitoring','closing']);
 assert.equal(flat.length,lessons.length);
 assert.deepEqual(Array.from(flat,l=>l.i).sort((a,b)=>a-b),lessons.map((_,i)=>i));
@@ -50,8 +50,8 @@ assert.deepEqual(Array.from(r.lessonItems(find('exam-guidelines')),l=>l.i),[6]);
 assert.deepEqual(Array.from(r.lessonItems(find('predictive').children[1]),l=>l.i),[2]);
 assert.deepEqual(Array.from(r.lessonItems(find('predictive').children[2]),l=>l.i),[3]);
 assert.deepEqual(Array.from(r.lessonItems(find('predictive').children[4]),l=>l.i),[12]);
-assert.deepEqual(Array.from(find('predictive').children[4].children.find(g=>g.key==='procurement').items,l=>l.i),[12],'Explicit closing procurement title maps to its existing nested subtopic');
-assert.deepEqual(Array.from(r.lessonItems(find('shared-resources')),l=>l.i).sort((a,b)=>a-b),[1,7,8,9,13]);
+assert.ok(find('predictive').children.every(g=>g.children.length===0),'No artificial subtopics remain under a phase');
+assert.deepEqual(Array.from(tree.filter(g=>g.originalChapter).flatMap(r.lessonItems),l=>l.i).sort((a,b)=>a-b),[1,7,8,9,13]);
 for(const [title,key] of [['Initiating','initiating'],['مرحلة التخطيط','planning'],['التنفيذ','executing'],['Monitoring & Controlling','monitoring'],['Closing','closing']]){
  const phases=r.learnerGroups({id:'pmp',chapters:[]},[{ch:99,t:title,vimeo:'123456'}]).find(g=>g.key==='predictive').children;
  assert.equal(r.lessonItems(phases.find(g=>g.key===key))[0].i,0,'Exact phase title retained and displayed');
@@ -59,11 +59,42 @@ for(const [title,key] of [['Initiating','initiating'],['مرحلة التخطي�
 assert.equal(r.pmp.length,18,'Existing assessment taxonomy retained');
 assert.equal(r.groups(course,[]).length,18,'Legacy API retained');
 assert.equal(JSON.stringify(r.learnerGroups({id:'rmp',chapters:['RMP']},lessons)),JSON.stringify(r.groups({id:'rmp',chapters:['RMP']},lessons)));
+assert.equal(find('shared-resources'),undefined,'Rejected additional-lesson branch removed');
+assert.deepEqual(Array.from(tree.slice(-4),g=>g.key),['final-reviews','workshops','exam-eve','exam-guidelines']);
+assert.deepEqual(Array.from(find('final-reviews').children,g=>g.key),['summaries','review']);
+assert.equal(find('ai').items.length,0,'No synthetic AI lessons');
+for(const [title,key] of [['الذكاء الاصطناعي','ai'],['Artificial intelligence','ai'],['AI','ai'],['المراجعات النهائية','final-reviews'],['Final reviews','final-reviews'],['ملخصات','summaries'],['Summaries','summaries'],['حل أهم الأسئلة','review'],['Key question review','review'],['ورش العمل التطبيقية','workshops'],['Practical workshops','workshops'],['ليلة الاختبار','exam-eve'],['Exam eve','exam-eve'],['إرشادات وتعليمات الاختبار الدولي','exam-guidelines'],['International Exam Guidelines and Instructions','exam-guidelines'],['PMP® Eligibility and Application','exam-guidelines'],['PMP Application','exam-guidelines'],['Pay for Exam Steps','exam-guidelines'],['Schedule Exam Steps','exam-guidelines'],['PMP® Exam Interface and Results','exam-guidelines']]){
+ for(const useChapter of [false,true]){
+  const future={id:'future-admin-lesson',ch:0,t:useChapter?'Lesson 1':title,vimeo:'321',notes:'Saved admin lesson'};
+  const routed=r.learnerGroups({id:'pmp',chapters:useChapter?[title]:[]},[future]);
+  const allNodes=groups=>groups.flatMap(g=>[g,...allNodes(g.children)]);
+  const target=allNodes(routed).find(g=>g.key===key);
+  assert.deepEqual(Array.from(target.items,l=>l.i),[0],title+' routes from a saved admin title or chapter');
+  assert.equal(routed.flatMap(r.lessonItems).length,1,'Future admin lesson appears exactly once');
+ }
+}
+for(const title of ['Schedule risk fundamentals','Finance and payment planning','Exam management overview']){
+ const routed=r.learnerGroups({id:'pmp',chapters:[]},[{ch:99,t:title,vimeo:'123'}]);
+ assert.equal(routed.find(g=>g.key==='exam-guidelines').items.length,0,'General topic is not guessed to be exam guidance');
+}
+for(const chapters of [[],[null],['Original saved chapter']]){
+ const input=[{id:'a',ch:0,t:'Unmapped lesson',vimeo:'123'},{id:'b',ch:0,t:'Unmapped second lesson',vimeo:'456'}];
+ const result=r.learnerGroups({id:'pmp',chapters},input);
+ assert.deepEqual(Array.from(result.flatMap(r.lessonItems),l=>l.i),[0,1],'Missing/null chapter preserves every lesson');
+ assert.equal(result.filter(g=>g.originalChapter).length,1);
+ const assessments=result.find(g=>g.key==='final-reviews').children.find(g=>g.key==='summaries').assessmentKeys;
+ assert.equal(new Set(assessments).size,assessments.length,'Saved chapter assessment keys are unique');
+ assert.equal(assessments.includes('دروس إضافية'),false,'No invented additional-lesson label for a missing source chapter');
+ if(!chapters[0])assert.equal(assessments.length,0,'No assessment invented for an unnamed chapter');
+}
+const allRouted=r.learnerGroups({id:'pmp',chapters:['Custom saved chapter']},[{ch:0,t:'PMP Application',vimeo:'123'},{ch:0,t:'Artificial intelligence',vimeo:'456'}]);
+assert.equal(allRouted.filter(g=>g.originalChapter).length,0,'No empty source sections after all original lessons route to named topics');
+assert.deepEqual(Array.from(allRouted.find(g=>g.key==='final-reviews').children.find(g=>g.key==='summaries').assessmentKeys),['Custom saved chapter'],'Original chapter assessment remains reachable');
 const planBefore=JSON.stringify(ctx.studyPlan(pkg.id));
 const originalAssessments=Array.from(r.groups(course,lessons)).filter(g=>!['intro','exam','journey','review'].includes(g.key)).map(g=>String(g.key).startsWith('saved_')?g.title:g.key).sort();
 for(const language of ['ar','en']){
  w.__lang=language;ctx.pkTab='content';app.innerHTML=ctx.pkgTab(pkg,course,true);
- assert.deepEqual(Array.from(app.querySelectorAll('.learning-outline > details'),x=>x.dataset.learningGroup).slice(0,15),keys);
+ assert.deepEqual(Array.from(app.querySelectorAll('.learning-outline > details'),x=>x.dataset.learningGroup),keys);
  assert.equal(app.querySelectorAll('.learning-outline > details[data-learning-group="scope"]').length,0);
  assert.equal(app.querySelectorAll('[data-lesson-index]').length,lessons.length);
  assert.deepEqual(Array.from(app.querySelectorAll('[data-lesson-index]'),x=>Number(x.dataset.lessonIndex)).sort((a,b)=>a-b),lessons.map((_,i)=>i));
@@ -71,6 +102,13 @@ for(const language of ['ar','en']){
  assert.deepEqual(Array.from(app.querySelectorAll('.ls.done'),x=>Number(x.closest('[data-lesson-index]').dataset.lessonIndex)).sort((a,b)=>a-b),[0,3,7,9,13]);
  assert.deepEqual(Array.from(app.querySelectorAll('[data-learning-chapter]'),x=>x.dataset.learningChapter).sort(),originalAssessments);
  assert.equal(app.querySelectorAll('.pmp-topic-reading').length,18,'All pre-existing readings retained exactly once');
+ assert.equal(app.querySelectorAll('[data-summary-topic]').length,7,'Seven existing summaries remain in the requested Summaries child');
+ assert.equal(app.querySelector('[data-learning-group="shared-resources"]'),null);
+ assert.equal(app.querySelectorAll('[data-learning-group="predictive"] [data-outline-depth="2"]').length,0);
+ for(const key of ['ai','workshops','exam-eve','summaries'])assert.ok(app.querySelector('[data-learning-group="'+key+'"] > .empty'),'Empty new heading is honest: '+key);
+ const order=Array.from(app.querySelector('.learning-outline').children,x=>x.dataset.learningGroup);
+ assert.ok(order.indexOf('ai')<order.indexOf('source_1')&&order.indexOf('source_4')<order.indexOf('final-reviews'));
+ assert.equal(app.querySelector('[data-learning-group="source_1"] > h4 > b').textContent,'Scope','Unnumbered section uses original saved chapter label');
  assert.equal(app.querySelectorAll('[data-lesson-file="scope-file"]').length,1);
  assert.equal(app.querySelectorAll('img[onerror]').length,0);
  assert.match(app.textContent,/5\/13 \(38%\)/);
@@ -93,4 +131,4 @@ assert.equal(app.querySelectorAll('.pmp-topic-reading').length,0,'Readings remai
 assert.equal(app.querySelectorAll('[data-lesson-file]').length,0,'Paid lesson attachments remain gated');
 assert.equal(JSON.stringify({course,pkg,lessons,progress}),snapshot,'All lesson data and all progress untouched');
 dom.window.close();
-console.log('PASS: 15 nested learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
+console.log('PASS: 18 learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
