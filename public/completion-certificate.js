@@ -18,10 +18,16 @@
     pmp: ['/assets/badges/pmi-atp-instructor-pmp.png', '/assets/badges/pmi-atp-instructor-pmp-supplied.png'],
     rmp: ['/assets/badges/pmi-atp-instructor-rmp.png']
   });
-  // An issuance snapshot is the only source of instructor and course branding.
+  // Saved instructor identities always win. The server may provide a response-only
+  // current-settings display hint for a historical record with no instructor.
+  // Rendering never mutates or persists either snapshot.
   function presentation(data) {
-    const snapshot = data.presentation;
-    if (!snapshot || snapshot.version !== 1 || typeof snapshot !== 'object' || Array.isArray(snapshot)) return null;
+    const valid = value => value && value.version === 1 && typeof value === 'object' && !Array.isArray(value);
+    const snapshot = valid(data.presentation) ? data.presentation : null;
+    if (data.presentation != null && !snapshot) return null;
+    if (snapshot?.instructor != null) return snapshot;
+    const hint = data.displayPresentation;
+    if (valid(hint) && hint.source === 'current-instructor-settings' && (!snapshot?.courseId || hint.courseId === snapshot.courseId)) return hint;
     return snapshot;
   }
   function assetUrl(value, origin, kind) {
@@ -50,9 +56,9 @@
   }
   function instructorPresentation(snapshot, origin) {
     const instructor = snapshot?.instructor;
-    if (!instructor || typeof instructor !== 'object' || Array.isArray(instructor) || !String(instructor.id || '').trim() || !String(instructor.name || '').trim()) return null;
+    if (!instructor || typeof instructor !== 'object' || Array.isArray(instructor) || !String(instructor.name || '').trim()) return null;
     const badge = instructor.badge;
-    const badgeAsset = badge?.verified === true && badge.courseId === snapshot.courseId && BADGE_ASSETS[snapshot.courseId]?.includes(badge.asset)
+    const badgeAsset = String(instructor.id || '').trim() && badge?.verified === true && badge.courseId === snapshot.courseId && BADGE_ASSETS[snapshot.courseId]?.includes(badge.asset)
       ? assetUrl(badge.asset, origin, 'badge') : '';
     return {name: String(instructor.name), title: String(instructor.title || 'Course Instructor'),
       signatureAsset: assetUrl(instructor.signatureAsset, origin, 'signature'),
@@ -77,7 +83,8 @@
     const data = record(input), snapshot = presentation(data);
     const courseId = snapshot ? snapshot.courseId : data.presentation == null ? data.courseId : '';
     const isPmp = courseId === 'pmp';
-    // Legacy titles retain the exact-PMP display rule, but receive no new credentials.
+    // Exact course identity comes from the saved snapshot or validated server display hint.
+    // Legacy records without either retain the prior course-only title rule.
     const courseTitle = isPmp ? PMP_TITLE : data.course;
     const courseHtml = isPmp ? 'Project Management Professional (PMP)<sup class="cert-trademark">®</sup> Preparation Course' : escape(courseTitle);
     const nameSize = initialSize(data.name,66,18,1114,92,1.08);
@@ -87,14 +94,18 @@
     const courseLogo = snapshot ? assetUrl(snapshot.courseLogo, origin, 'course') : '';
     const verification = verificationUrl(data.verify, origin), qr = qrSource(data.qr, verification);
     const instructorName = instructor?.name || 'Name not recorded';
-    const instructorSize = initialSize(instructorName,24,8,instructor?.badgeAsset ? 300 : 405,56,1.16);
-    const instructorTitleSize = initialSize(instructor?.title || '',14,8,instructor?.badgeAsset ? 300 : 405,28,1.2);
+    const instructorSize = initialSize(instructorName,24,8,instructor?.badgeAsset ? 263 : 405,56,1.16);
+    const nameDesignSize = initialSize(instructorName,58,8,405,65,1.05);
+    const instructorTitleSize = initialSize(instructor?.title || '',14,8,instructor?.badgeAsset ? 263 : 405,28,1.2);
     const issueDate = new Intl.DateTimeFormat('en-GB', {day:'2-digit', month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(data.issued));
     const signatureHtml = instructor?.signatureAsset
       ? `<img class="cert-signature-image" src="${escape(instructor.signatureAsset)}" alt="Instructor signature">`
-      : '<span class="cert-signature-slot">Instructor signature</span>';
+      : instructor
+        ? `<span class="cert-name-design cert-instructor-design" aria-label="${escape('Decorative name design: ' + instructorName)}"><span dir="auto">${escape(instructorName)}</span></span>`
+        : '<span class="cert-signature-slot">Instructor signature</span>';
     const instructorHtml = `<div class="cert-instructor-summary">${instructor?.badgeAsset ? `<img class="cert-instructor-badge" src="${escape(instructor.badgeAsset)}" alt="${escape(instructor.badgeLabel)}">` : ''}<div class="cert-instructor-details"><small class="cert-instructor-label">Instructor</small><b class="cert-instructor-name"><span dir="auto">${escape(instructorName)}</span></b>${instructor?.title && instructor.title !== 'Instructor' && instructor.title !== 'Course Instructor' ? `<small class="cert-instructor-title" dir="auto"><span>${escape(instructor.title)}</span></small>` : ''}</div></div>`;
     const html = `<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AlSaeed completion certificate · ${escape(data.no)}</title><style>
+@font-face{font-family:'Certificate Allura';src:url('${origin}/assets/fonts/Allura-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:block}
 *{box-sizing:border-box}html,body{margin:0;padding:0}body{background:#e7edf2;color:#092c49;font-family:Georgia,'Times New Roman',serif}
 .cert-viewport{position:relative;width:min(100%,1400px);height:1092px;margin:0 auto;overflow:hidden}
 .cert-canvas{position:absolute;left:50%;margin-left:-700px;top:0;width:1400px;height:1092px;background:#0b304e;transform:scale(var(--certificate-scale,1));transform-origin:center top}
@@ -108,13 +119,13 @@
 .cert-completed{position:absolute;top:557px;left:50px;right:50px;margin:0;color:#4b6178;font-size:30px;line-height:1.25}
 .cert-course{position:absolute;top:602px;left:65px;right:65px;height:73px;margin:0;display:flex;align-items:center;justify-content:center;font-size:${courseSize}px;font-weight:bold;line-height:1.16;overflow-wrap:anywhere}.cert-course span{max-width:100%}.cert-trademark{position:relative;top:-.55em;font-size:.52em;line-height:0;vertical-align:baseline}
 .cert-hours{position:absolute;top:680px;left:100px;right:100px;margin:0;font-size:27px;line-height:1.2}
-.cert-signature{position:absolute;top:735px;text-align:center}.cert-signature.left{left:65px;width:425px}.cert-signature.right{right:220px;width:300px}.cert-signature-image{display:block;margin:0 auto;max-width:100%;width:340px;height:65px;object-fit:contain}.cert-signature-slot,.cert-issuer-mark{height:65px;display:flex;align-items:end;justify-content:center;padding-bottom:12px;color:#8897a6;font:18px Arial,sans-serif;letter-spacing:1px}.cert-issuer-mark{color:#0d3c66;font-family:Georgia,serif;font-size:34px;letter-spacing:3px}
+.cert-signature{position:absolute;top:735px;text-align:center}.cert-signature.left{left:65px;top:724px;width:425px}.cert-signature.right{right:220px;width:300px}.cert-signature-image{display:block;margin:0 auto;max-width:100%;width:340px;height:65px;object-fit:contain}.cert-signature-slot{height:65px;display:flex;align-items:end;justify-content:center;padding-bottom:12px;color:#8897a6;font:18px Arial,sans-serif;letter-spacing:1px}.cert-name-design{height:65px;display:flex;align-items:center;justify-content:center;font-family:'Certificate Allura','URW Chancery L','Brush Script MT',cursive;font-weight:400;font-style:normal;color:#1756a4;line-height:1.05;overflow-wrap:anywhere}.cert-name-design>span{max-width:100%}.cert-instructor-design{font-size:${nameDesignSize}px}.cert-issuer-mark{font-size:67px;letter-spacing:.3px}
 .cert-signature-line{border:0;border-top:2px solid #b58a2b;margin:4px 0 8px}.cert-signature b{display:block;font-size:21px;line-height:1.25}.cert-signature small{display:block;font-size:16px;line-height:1.25;color:#4b6178}
-.cert-instructor-summary{display:flex;align-items:center;justify-content:center;gap:14px;height:108px}.cert-instructor-badge{width:90px;height:90px;object-fit:contain;flex:none}.cert-instructor-details{min-width:0;flex:1}.cert-signature .cert-instructor-label{font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:12px;margin:0 0 3px}.cert-signature .cert-instructor-name{display:flex;align-items:center;justify-content:center;font-size:${instructorSize}px;line-height:1.16;height:56px;overflow-wrap:anywhere}.cert-instructor-name span{max-width:100%}.cert-signature .cert-instructor-title{display:flex;align-items:center;justify-content:center;margin-top:3px;font-size:${instructorTitleSize}px;line-height:1.2;height:28px;overflow-wrap:anywhere}.cert-instructor-title span{max-width:100%}
+.cert-instructor-summary{display:flex;align-items:center;justify-content:center;gap:14px;height:124px}.cert-instructor-badge{width:148px;height:124px;object-fit:contain;flex:none}.cert-instructor-details{min-width:0;flex:1}.cert-signature .cert-instructor-label{font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:12px;margin:0 0 3px}.cert-signature .cert-instructor-name{display:flex;align-items:center;justify-content:center;font-size:${instructorSize}px;line-height:1.16;height:56px;overflow-wrap:anywhere}.cert-instructor-name span{max-width:100%}.cert-signature .cert-instructor-title{display:flex;align-items:center;justify-content:center;margin-top:3px;font-size:${instructorTitleSize}px;line-height:1.2;height:28px;overflow-wrap:anywhere}.cert-instructor-title span{max-width:100%}
 .cert-seal{position:absolute;top:737px;left:50%;margin-left:-111px;width:178px;height:178px}.gold-seal{width:100%;height:100%}
 .cert-record{position:absolute;left:65px;right:220px;bottom:37px;display:flex;justify-content:center;align-items:center;gap:26px;color:#425d77;font-size:17px;line-height:1.3}.cert-record .divider{height:23px;width:2px;background:#b58a2b}.cert-record b{font-weight:normal;color:#183a56}
 .cert-verify{position:absolute;left:65px;right:220px;bottom:14px;margin:0;font-family:Arial,sans-serif;font-size:10px;line-height:1.2;color:#62738a;overflow-wrap:anywhere}.cert-verify a{color:inherit;text-decoration:none}
-.cert-qr{position:absolute;right:36px;bottom:21px;width:142px;padding:7px 7px 8px;border:1px solid #b58a2b;border-radius:7px;background:#fff;color:#183a56;text-decoration:none}.cert-qr img{display:block;width:126px;height:126px;object-fit:contain;background:#fff}.cert-qr span{display:block;margin-top:3px;font:12px Arial,sans-serif;letter-spacing:.3px}
+.cert-qr{position:absolute;right:25px;bottom:21px;width:174px;padding:11px 11px 9px;border:2px solid #c59b3d;border-radius:13px;background:#0b304e;box-shadow:0 0 0 3px #f6e9c0,0 0 0 5px #ae7c22;color:#fff5d8;text-decoration:none}.cert-qr::before,.cert-qr::after{content:'';position:absolute;left:50%;width:27px;height:4px;margin-left:-13.5px;background:#d9b451;border-radius:4px}.cert-qr::before{top:3px}.cert-qr::after{bottom:3px}.cert-qr-image{display:block;padding:7px;background:#fff;border-radius:3px}.cert-qr img{display:block;width:134px;height:134px;object-fit:contain;background:#fff}.cert-qr-caption{display:block;margin-top:7px;font:12px Arial,sans-serif;letter-spacing:.5px}
 @page{size:280mm 218.4mm;margin:0}@media print{html,body{width:280mm;height:218.4mm;background:white}.cert-viewport{width:280mm!important;height:218.4mm!important;max-width:none;margin:0}.cert-canvas{transform:scale(.7559055118)!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body><main class="cert-viewport" aria-label="Issued training completion certificate"><article class="cert-canvas"><div class="cert-paper">
 <div class="cert-brand">${logo}<strong>ALSAEED</strong><span>EDUCATION · TRAINING · CONSULTING</span></div>
@@ -123,21 +134,21 @@ ${courseLogo ? `<div class="cert-course-brand"><img class="cert-course-logo" src
 <div class="cert-name"><span dir="auto">${escape(data.name)}</span></div><hr class="cert-rule"><p class="cert-completed">for successfully completing the training program</p>
 <h2 class="cert-course"><span dir="auto">${courseHtml}</span></h2><p class="cert-hours">${data.hours ? `${escape(data.hours)} Training Hours` : ''}</p>
 <div class="cert-signature left">${signatureHtml}<hr class="cert-signature-line">${instructorHtml}</div><div class="cert-seal">${seal()}</div>
-<div class="cert-signature right"><span class="cert-issuer-mark">ALSAEED</span><hr class="cert-signature-line"><b>Alsaeed Education, Training &amp; Consulting</b></div>
+<div class="cert-signature right"><span class="cert-name-design cert-issuer-mark" aria-label="Decorative name design: AlSaeed"><span>AlSaeed</span></span><hr class="cert-signature-line"><b>Alsaeed Education, Training &amp; Consulting</b></div>
 <div class="cert-record"><span>Certificate No.: <b>${escape(data.no)}</b></span><span class="divider" aria-hidden="true"></span><span>Date of Issue: <b>${escape(issueDate)}</b></span></div>
-${qr ? `<a class="cert-qr" href="${escape(verification)}" aria-label="Verify this certificate"><img src="${qr}" alt="QR code for certificate verification"><span>Scan to verify</span></a>` : ''}
+${qr ? `<a class="cert-qr" href="${escape(verification)}" aria-label="Verify this certificate"><span class="cert-qr-image"><img src="${qr}" alt="QR code for certificate verification"></span><span class="cert-qr-caption">Scan to verify</span></a>` : ''}
 ${verification ? `<p class="cert-verify">Verification: <a href="${escape(verification)}">${escape(verification)}</a></p>` : ''}
 </div></article></main></body></html>`;
     // Scale actual print boxes to avoid fragmented pages or cropped transformed content.
     return html.replace(/<style>([\s\S]*?)<\/style>/, (_, css) => {
       const printCss = css.split('@page')[0].replace(/(-?\d+(?:\.\d+)?)px\b/g, (_, value) => (Number(value)*PRINT_SCALE).toFixed(5)+'px');
-      return `<style>${css}\n@media print{${printCss}html,body,.cert-viewport{width:280mm!important;height:218.4mm!important}.cert-viewport{margin:0}.cert-canvas{position:relative;left:0;margin-left:0;transform:none!important}.cert-name{font-size:var(--certificate-name-print-size,${nameSize*PRINT_SCALE}px)!important}.cert-course{font-size:var(--certificate-course-print-size,${courseSize*PRINT_SCALE}px)!important}.cert-instructor-name{font-size:var(--certificate-instructor-print-size,${instructorSize*PRINT_SCALE}px)!important}.cert-instructor-title{font-size:var(--certificate-instructor-title-print-size,${instructorTitleSize*PRINT_SCALE}px)!important}}</style>`;
+      return `<style>${css}\n@media print{${printCss}html,body,.cert-viewport{width:280mm!important;height:218.4mm!important}.cert-viewport{margin:0}.cert-canvas{position:relative;left:0;margin-left:0;transform:none!important}.cert-name{font-size:var(--certificate-name-print-size,${nameSize*PRINT_SCALE}px)!important}.cert-course{font-size:var(--certificate-course-print-size,${courseSize*PRINT_SCALE}px)!important}.cert-instructor-name{font-size:var(--certificate-instructor-print-size,${instructorSize*PRINT_SCALE}px)!important}.cert-instructor-title{font-size:var(--certificate-instructor-title-print-size,${instructorTitleSize*PRINT_SCALE}px)!important}.cert-instructor-design{font-size:var(--certificate-name-design-print-size,${nameDesignSize*PRINT_SCALE}px)!important}}</style>`;
     });
   }
   async function prepare(popup) {
     const doc = popup.document;
     await Promise.all([doc.fonts?.ready || Promise.resolve(), ...Array.from(doc.images).map(img => img.complete ? Promise.resolve() : new Promise(resolve => {img.onload=resolve;img.onerror=resolve;}))]);
-    for (const [selector, variable, minimum] of [['.cert-name','--certificate-name-print-size',18],['.cert-course','--certificate-course-print-size',12],['.cert-instructor-name','--certificate-instructor-print-size',8],['.cert-instructor-title','--certificate-instructor-title-print-size',8]]) {
+    for (const [selector, variable, minimum] of [['.cert-name','--certificate-name-print-size',18],['.cert-course','--certificate-course-print-size',12],['.cert-instructor-name','--certificate-instructor-print-size',8],['.cert-instructor-title','--certificate-instructor-title-print-size',8],['.cert-instructor-design','--certificate-name-design-print-size',8]]) {
       const box = doc.querySelector(selector), text = box?.firstElementChild;
       if (!box || !text || !box.clientWidth) continue;
       let size = parseFloat(popup.getComputedStyle(box).fontSize);

@@ -2823,6 +2823,7 @@ async function loadContent() {
     if (d.courses && d.courses.length) window.COURSES = d.courses;
     if (d.packages && d.packages.length) window.PACKAGES = d.packages;
     if (Array.isArray(d.instructors)) window.INSTRUCTORS = d.instructors;
+    window.DEFAULT_INSTRUCTOR_ID = typeof d.defaultInstructorId === 'string' ? d.defaultInstructorId : null;
     if (d.academic && d.academic.length) window.ACADEMIC = d.academic;
     if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
     if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
@@ -7153,7 +7154,7 @@ function mount() {
 return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
-<link rel="stylesheet" href="/instructors.css?v=20261015"><script src="/instructor-directory.js?v=20261015"></script>
+<link rel="stylesheet" href="/instructors.css?v=20261015"><script src="/instructor-directory.js?v=20261015-default"></script>
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
@@ -7186,7 +7187,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
 <script src="/package-experience.js?v=20261014-completion-only"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
-<script src="/completion-certificate.js?v=20261015-instructors-qr"></script>
+<script src="/completion-certificate.js?v=20261015-signature-frame"></script>
 <script src="/certificate-library.js?v=20261015"></script>
 </body>
 </html>

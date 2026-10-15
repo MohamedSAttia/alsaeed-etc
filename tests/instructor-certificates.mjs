@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import {
   createCertificateService, initializeInstructorRegistry, mountCertificateRoutes,
-  mountInstructorRegistry, publicInstructors, validatePackageInstructors
+  mountInstructorRegistry, publicInstructors, publicDefaultInstructorId, effectivePackageInstructor, validatePackageInstructors
 } from '../instructor-certificates.js';
 
 // Node's bundled SQLite gives these synthetic tests real SQL transactions without
@@ -166,7 +166,7 @@ test('duplicate requests and edited profiles/catalogs reprint the first saved re
   } finally { f.db.close(); }
 });
 
-test('legacy partial-package certificates preserve saved fields and no instructor is invented', () => {
+test('legacy partial-package certificates preserve saved fields and add only an owned current-settings display hint', () => {
   const f=fixture();
   try {
     f.db.prepare('INSERT INTO certificates(no,user_id,package_id,name,course,hours,issued) VALUES (?,?,?,?,?,?,?)')
@@ -176,6 +176,9 @@ test('legacy partial-package certificates preserve saved fields and no instructo
     assert.equal(record.course,'Historic Course'); assert.equal(record.name,'Historic Name');
     assert.equal(record.hours,12); assert.equal(record.issued,1234567890000);
     assert.equal(record.presentation,null); assert.equal(record.verify,'https://al-ltc.com/verify/AS-LEGACY');
+    assert.equal(record.displayPresentation.instructor.name,'Dr. Example Trainer');
+    assert.equal(record.displayPresentation.source,'current-instructor-settings');
+    assert.equal(f.service.verify('AS-LEGACY').displayPresentation,undefined);
     assert.equal(f.service.verify('AS-LEGACY').name,'Historic Name');
     f.db.exec('DELETE FROM enrollments');
     assert.deepEqual(f.service.getOwned('student','AS-LEGACY'),{...record,packageId:f.pkg.id});
@@ -229,18 +232,22 @@ test('public instructor projection drops contact, credentials and account fields
   } finally { f.db.close(); }
 });
 
-test('bounded instructor migration preserves unrelated catalog data and never reseeds edited existing registries', () => {
+test('default initialization preserves package/catalog bytes and never repeats its one-time seed', () => {
   const f=fixture();
   try {
     f.db.exec("DELETE FROM settings WHERE k='content_instructors'");
     f.save('content_packages',[{id:'a',course:'pmp',price:123,custom:{keep:true}},
       {id:'b',course:'rmp',instructorId:'already-assigned'},{id:'c',course:'grcp'},{id:'d',course:'acp'}]);
+    const beforePackages=f.setting('content_packages'), beforeCatalog=f.setting('catalog');
     initializeInstructorRegistry(f.options);
     const profiles=f.read('content_instructors'), packages=f.read('content_packages');
     assert.equal(profiles.length,1); assert.equal(profiles[0].id,'mohamed-attia');
-    assert.deepEqual(packages[0],{id:'a',course:'pmp',price:123,custom:{keep:true},instructorId:'mohamed-attia'});
+    assert.deepEqual(packages[0],{id:'a',course:'pmp',price:123,custom:{keep:true}});
     assert.equal(packages[1].instructorId,'already-assigned'); assert.equal(packages[2].instructorId,undefined);
-    assert.equal(packages[3].instructorId,'mohamed-attia');
+    assert.equal(packages[3].instructorId,undefined);
+    assert.equal(profiles[0].nameEn,'Dr.Mohamed Attia');
+    assert.equal(publicDefaultInstructorId(f.setting),'mohamed-attia');
+    assert.equal(f.setting('content_packages'),beforePackages); assert.equal(f.setting('catalog'),beforeCatalog);
     f.save('content_instructors',[]); initializeInstructorRegistry(f.options);
     assert.deepEqual(f.read('content_instructors'),[]);
   } finally { f.db.close(); }
@@ -248,8 +255,157 @@ test('bounded instructor migration preserves unrelated catalog data and never re
   try {
     const before=g.setting('content_instructors'), packages=g.setting('content_packages');
     initializeInstructorRegistry(g.options);
-    assert.equal(g.setting('content_instructors'),before); assert.equal(g.setting('content_packages'),packages);
+    assert.equal(JSON.stringify(g.read('content_instructors')[0]),JSON.stringify(JSON.parse(before)[0]));
+    assert.equal(g.read('content_instructors')[1].nameEn,'Dr.Mohamed Attia');
+    assert.equal(g.setting('content_packages'),packages);
   } finally { g.db.close(); }
+});
+
+test('only the exact untouched original seed receives the English spelling correction',()=>{
+  for(const patch of [null,{nameEn:'Administrator Name'},{titleEn:'Edited title'},
+    {active:false},{updated:Date.UTC(2026,9,15)+1},{custom:'preserve'}, {badges:[]}]) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      const seed=f.read('content_instructors').find(p=>p.id==='mohamed-attia');
+      const previous={...seed,nameEn:'Dr. Mohamed Attia',...(patch||{})};
+      f.save('content_instructors',[previous]);
+      f.db.exec("DELETE FROM settings WHERE k='instructor_default_v2_initialized'");
+      initializeInstructorRegistry(f.options);
+      const result=f.read('content_instructors')[0];
+      if(patch)assert.deepEqual(result,previous);
+      else {assert.equal(result.nameEn,'Dr.Mohamed Attia');assert(result.updated>previous.updated);}
+    } finally {f.db.close();}
+  }
+});
+
+test('default initialization does not destroy a malformed registry or override an existing configured default',()=>{
+  const f=fixture();
+  try {
+    f.setSetting('content_instructors','{not valid');
+    initializeInstructorRegistry(f.options);
+    assert.equal(f.setting('content_instructors'),'{not valid');
+    assert.equal(f.setting('instructor_default_v2_initialized'),'');
+    f.save('content_instructors',[f.trainer]); f.setSetting('default_instructor_id',f.trainer.id);
+    initializeInstructorRegistry(f.options);
+    assert.equal(publicDefaultInstructorId(f.setting),f.trainer.id);
+    assert.equal(effectivePackageInstructor({},f.setting).nameEn,f.trainer.nameEn);
+  } finally {f.db.close();}
+});
+
+test('every unassigned package defaults at runtime and new issuance snapshots that exact effective instructor',()=>{
+  for(const assignment of [undefined,null,'']) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      f.save('content_packages',[{...f.pkg,instructorId:assignment}]);
+      const packages=f.setting('content_packages'), original=f.issue();
+      assert.equal(original.presentation.instructor.id,'mohamed-attia');
+      assert.equal(original.presentation.instructor.name,'Dr.Mohamed Attia');
+      assert.equal(original.presentation.instructor.badge.courseId,'pmp');
+      assert.equal(original.displayPresentation,undefined);
+      assert.equal(f.setting('content_packages'),packages);
+      const before=f.db.prepare('SELECT * FROM certificates').get();
+      f.save('content_instructors',f.read('content_instructors').map(p=>({...p,nameEn:'Edited later',badges:[]})));
+      assert.deepEqual(f.issue(),original);
+      assert.equal(f.service.getOwned('student',original.no).presentation.instructor.name,'Dr.Mohamed Attia');
+      assert.equal(f.service.verify(original.verify.split('/').pop()).presentation.instructor.name,'Dr.Mohamed Attia');
+      assert.deepEqual(f.db.prepare('SELECT * FROM certificates').get(),before);
+    } finally {f.db.close();}
+  }
+});
+
+test('default badges remain course-specific across RMP, GRCP, and unknown courses',()=>{
+  for(const courseId of ['rmp','grcp','unknown-course']) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      f.save('content_packages',[{...f.pkg,course:courseId,instructorId:null}]);
+      f.save('content_courses',[{id:courseId,en:'Synthetic Course',code:courseId,hours:20}]);
+      const record=f.issue();
+      assert.equal(record.presentation.instructor.name,'Dr.Mohamed Attia');
+      assert.equal(record.presentation.instructor.badge?.courseId??null,courseId==='rmp'?'rmp':null);
+      assert.equal(record.presentation.courseLogo,courseId==='rmp'?'/assets/certifications/rmp.png':
+        courseId==='grcp'?'/assets/certifications/grcp.webp':null);
+    } finally {f.db.close();}
+  }
+});
+
+test('explicit assignments win and missing or inactive explicit profiles never fall through to the default',()=>{
+  for(const mode of ['active','missing','inactive']) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      if(mode==='missing')f.save('content_packages',[{...f.pkg,instructorId:'not-existing'}]);
+      if(mode==='inactive')f.save('content_instructors',f.read('content_instructors').map(p=>p.id===f.trainer.id?{...p,active:false}:p));
+      const record=f.issue();
+      assert.equal(record.presentation.instructor?.name??null,mode==='active'?f.trainer.nameEn:null);
+    } finally {f.db.close();}
+  }
+  const f=fixture();
+  try {
+    initializeInstructorRegistry(f.options);
+    f.save('content_packages',[{...f.pkg,instructorId:null}]);
+    f.save('content_instructors',f.read('content_instructors').map(p=>p.id==='mohamed-attia'?{...p,active:false}:p));
+    assert.equal(publicDefaultInstructorId(f.setting),null);
+    assert.equal(f.issue().presentation.instructor,null);
+  } finally {f.db.close();}
+});
+
+test('incomplete imported names use a safe saved label or generic label without credential claims',()=>{
+  const f=fixture();
+  try {
+    for(const nameAr of ['مدرب آخر','']) {
+      f.save('content_instructors',[{...f.trainer,nameEn:'',nameAr}]);
+      const profile=effectivePackageInstructor(f.pkg,f.setting);
+      assert.equal(profile.nameEn,nameAr||'Course Instructor'); assert.deepEqual(profile.badges,[]);
+      assert.equal(profile.signatureName,profile.nameEn);
+    }
+  } finally {f.db.close();}
+});
+
+test('owned legacy hints use saved course ID before exact package mapping and never title guesses',()=>{
+  for(const mode of ['package','saved','deleted','unknown']) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      const metadata=mode==='saved'?JSON.stringify({version:1,courseId:'rmp',courseCode:'PMI-RMP',instructor:null}):null;
+      f.db.prepare('INSERT INTO certificates(no,user_id,package_id,name,course,hours,issued,metadata) VALUES (?,?,?,?,?,?,?,?)')
+        .run('AS-LEGACY','student',f.pkg.id,'Historic Learner','PMP preparation text is not a course ID',35,1234567890000,metadata);
+      f.save('content_packages',mode==='deleted'?[]:[{...f.pkg,instructorId:null,...(mode==='unknown'?{course:'unknown'}:{})}]);
+      const before=f.db.prepare('SELECT * FROM certificates').get();
+      const owned=f.service.getOwned('student','AS-LEGACY'), hint=owned.displayPresentation;
+      assert.equal(hint.source,'current-instructor-settings');
+      assert.equal(hint.courseId,mode==='saved'?'rmp':mode==='deleted'?null:mode==='unknown'?'unknown':'pmp');
+      assert.equal(hint.instructor.name,'Dr.Mohamed Attia');
+      assert.equal(hint.instructor.badge?.courseId??null,mode==='saved'?'rmp':mode==='package'?'pmp':null);
+      if(['deleted','unknown'].includes(mode))assert.equal(hint.courseLogo,null);
+      assert.deepEqual(f.issue().displayPresentation,hint);
+      assert.deepEqual(f.service.listOwned('student')[0].displayPresentation,hint);
+      const verified=f.service.verify('AS-LEGACY');
+      assert.equal(verified.displayPresentation,undefined);
+      assert.deepEqual(verified.presentation,metadata?JSON.parse(metadata):null);
+      assert.deepEqual(f.db.prepare('SELECT * FROM certificates').get(),before);
+    } finally {f.db.close();}
+  }
+});
+
+test('any recorded historical instructor wins, even without a modern ID or after current assignments change',()=>{
+  for(const instructor of [{name:'Recorded Teacher'}, {id:'historic',name:'Recorded Teacher',badge:null}, {}]) {
+    const f=fixture();
+    try {
+      initializeInstructorRegistry(f.options);
+      const presentation={version:1,courseId:'pmp',instructor};
+      f.db.prepare('INSERT INTO certificates(no,user_id,package_id,name,course,hours,issued,metadata) VALUES (?,?,?,?,?,?,?,?)')
+        .run('AS-LEGACY','student',f.pkg.id,'Historic Learner','Historic Course',35,1234567890000,JSON.stringify(presentation));
+      f.save('content_packages',[{...f.pkg,instructorId:null}]);
+      const before=f.db.prepare('SELECT * FROM certificates').get();
+      for(const record of [f.issue(),f.service.getOwned('student','AS-LEGACY'),f.service.listOwned('student')[0],f.service.verify('AS-LEGACY')]) {
+        assert.deepEqual(record.presentation,presentation); assert.equal(record.displayPresentation,undefined);
+      }
+      assert.deepEqual(f.db.prepare('SELECT * FROM certificates').get(),before);
+    } finally {f.db.close();}
+  }
 });
 
 const require = createRequire(process.env.ALSAEED_TEST_MODULE_ROOT ? process.env.ALSAEED_TEST_MODULE_ROOT + '/package.json' : import.meta.url);
@@ -312,6 +468,48 @@ test('HTTP registry rejects auth fields, unverified/mismatched badges and extern
       assert.equal((await f.request('POST','/api/admin/instructors',input,'admin')).status,400);
     assert.equal((await f.request('PUT','/api/admin/packages/pmp-full/instructor',{instructorId:'not-real'},'admin')).status,422);
   } finally { await f.close(); }
+});
+
+test('HTTP default metadata and assignment clearing agree with issuance while preserving explicit overrides',async()=>{
+  const f=await httpFixture();
+  try {
+    initializeInstructorRegistry(f.options);
+    const registry=await f.request('GET','/api/admin/instructors',undefined,'admin');
+    assert.equal(registry.body.defaultInstructorId,'mohamed-attia');
+    assert.equal(registry.body.instructors.find(p=>p.id==='mohamed-attia').nameEn,'Dr.Mohamed Attia');
+    assert.equal((await f.request('PUT','/api/admin/packages/pmp-full/instructor',
+      {instructorId:null,expectedInstructorId:f.trainer.id},'admin')).status,200);
+    assert.equal(f.read('content_packages')[0].instructorId,null);
+    const issued=await f.request('POST','/api/certificate/pmp-full',{englishName:'Synthetic Learner'});
+    assert.equal(issued.body.presentation.instructor.name,'Dr.Mohamed Attia');
+    const before=f.db.prepare('SELECT * FROM certificates').get();
+    assert.equal((await f.request('PUT','/api/admin/packages/pmp-full/instructor',
+      {instructorId:f.trainer.id,expectedInstructorId:null},'admin')).status,200);
+    assert.equal((await f.request('POST','/api/certificate/pmp-full',{})).body.presentation.instructor.name,'Dr.Mohamed Attia');
+    assert.deepEqual(f.db.prepare('SELECT * FROM certificates').get(),before);
+  } finally {await f.close();}
+});
+
+test('HTTP meaningful name edits clear inherited badge/signature claims unless explicitly re-attested',async()=>{
+  const f=await httpFixture();
+  try {
+    initializeInstructorRegistry(f.options);
+    const before=f.read('content_instructors').find(p=>p.id==='mohamed-attia');
+    const normalized=await f.request('PUT','/api/admin/instructors/mohamed-attia',{nameEn:'Dr. Mohamed Attia'},'admin');
+    assert.equal(normalized.status,200); assert.deepEqual(normalized.body.instructor.badges,before.badges);
+    const renamed=await f.request('PUT','/api/admin/instructors/mohamed-attia',{nameEn:'Another Instructor'},'admin');
+    assert.equal(renamed.status,200); assert.deepEqual(renamed.body.instructor.badges,[]);
+    assert.equal(renamed.body.instructor.signatureName,'Another Instructor');
+    assert.equal(renamed.body.instructor.signatureAsset,null);
+    const attested=await f.request('PUT','/api/admin/instructors/mohamed-attia',
+      {nameEn:'Verified Replacement',badges:before.badges},'admin');
+    assert.equal(attested.status,200); assert.deepEqual(attested.body.instructor.badges,before.badges);
+    const arabicEdit=await f.request('PUT','/api/admin/instructors/mohamed-attia',{nameAr:'اسم مختلف'},'admin');
+    assert.equal(arabicEdit.status,200); assert.deepEqual(arabicEdit.body.instructor.badges,[]);
+    f.save('content_packages',[{...f.pkg,instructorId:null}]);
+    assert.equal(f.issue().presentation.instructor.name,'Verified Replacement');
+    assert.equal(f.issue().presentation.instructor.badge,null);
+  } finally {await f.close();}
 });
 
 test('disabled admins cannot read or mutate the new instructor registry with an old token', async()=>{

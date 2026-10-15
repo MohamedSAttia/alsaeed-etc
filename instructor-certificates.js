@@ -18,6 +18,20 @@ const SIGNATURE_ASSETS = new Set();
 const PROFILE_FIELDS = new Set(['nameAr', 'nameEn', 'titleAr', 'titleEn', 'bioAr', 'bioEn',
   'signatureName', 'signatureAsset', 'badges', 'active']);
 const TEXT_LIMITS = { nameAr:160, nameEn:160, titleAr:160, titleEn:160, bioAr:2000, bioEn:2000, signatureName:160 };
+const DEFAULT_INSTRUCTOR_ID = 'mohamed-attia';
+const DEFAULT_INSTRUCTOR_SETTING = 'default_instructor_id';
+
+function defaultProfile(timestamp, nameEn = 'Dr.Mohamed Attia') {
+  return {
+    id:DEFAULT_INSTRUCTOR_ID, nameAr:'د. محمد عطية', nameEn,
+    titleAr:'مدرب الدورة', titleEn:'Course Instructor', bioAr:'', bioEn:'',
+    signatureName:'Mohamed Attia', signatureAsset:null, active:true,
+    badges:[
+      { courseId:'pmp', asset:'/assets/badges/pmi-atp-instructor-pmp-supplied.png', label:'PMI Authorized Training Partner Instructor — PMP', verified:true },
+      { courseId:'rmp', asset:'/assets/badges/pmi-atp-instructor-rmp.png', label:'PMI Authorized Training Partner Instructor — PMI-RMP', verified:true }
+    ], created:timestamp, updated:timestamp
+  };
+}
 
 class RequestError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -52,34 +66,58 @@ export function publicInstructors(setting) {
     .map(p => safeProfile(p));
 }
 
+export function publicDefaultInstructorId(setting) {
+  const id = setting(DEFAULT_INSTRUCTOR_SETTING) || DEFAULT_INSTRUCTOR_ID;
+  return publicInstructors(setting).some(p => p.id === id) ? id : null;
+}
+
+export function effectivePackageInstructor(pkg, setting) {
+  // An explicit assignment, including a missing/deactivated profile, must never
+  // silently turn into a different teacher. Only an unassigned package defaults.
+  const assigned = pkg && pkg.instructorId != null && pkg.instructorId !== '';
+  const id = assigned ? pkg.instructorId : publicDefaultInstructorId(setting);
+  const profile = publicInstructors(setting).find(p => p.id === id);
+  if (!profile) return null;
+  if (!profile.nameEn) {
+    // Imported incomplete profiles get a usable label without asserting someone
+    // else's name or credentials. Admin API edits require an English name.
+    profile.nameEn = profile.nameAr || 'Course Instructor';
+    profile.signatureName = profile.nameEn;
+    profile.signatureAsset = null;
+    profile.badges = [];
+  }
+  return profile;
+}
+
+function untouchedOriginalSeed(profile) {
+  if (!isObject(profile) || !Number.isFinite(profile.created) || profile.created <= 0 || profile.updated !== profile.created) return false;
+  const expected = defaultProfile(profile.created, 'Dr. Mohamed Attia');
+  return Object.keys(profile).length === Object.keys(expected).length &&
+    Object.entries(expected).every(([key, value]) => JSON.stringify(profile[key]) === JSON.stringify(value));
+}
+
 export function initializeInstructorRegistry({ db, setting, setSetting, now = Date.now }) {
   db.transaction(() => {
-    if (setting('instructor_registry_v1_initialized')) return;
-    // This one-time mapping preserves the pre-existing, explicitly named pmp/rmp/acp
-    // instructor. Never overwrite an existing registry, assignment or catalog field.
-    if (!setting('content_instructors')) {
-      const timestamp = now();
-      const profile = {
-        id:'mohamed-attia', nameAr:'د. محمد عطية', nameEn:'Dr. Mohamed Attia',
-        titleAr:'مدرب الدورة', titleEn:'Course Instructor', bioAr:'', bioEn:'',
-        signatureName:'Mohamed Attia', signatureAsset:null, active:true,
-        badges:[
-          { courseId:'pmp', asset:'/assets/badges/pmi-atp-instructor-pmp-supplied.png', label:'PMI Authorized Training Partner Instructor — PMP', verified:true },
-          { courseId:'rmp', asset:'/assets/badges/pmi-atp-instructor-rmp.png', label:'PMI Authorized Training Partner Instructor — PMI-RMP', verified:true }
-        ], created:timestamp, updated:timestamp
-      };
-      setSetting('content_instructors', JSON.stringify([profile]));
-      const packages = list(setting, 'content_packages');
-      let changed = false;
-      for (const pkg of packages) {
-        if (['pmp','rmp','acp'].includes(pkg.course) && !pkg.instructorId) {
-          pkg.instructorId = profile.id;
-          changed = true;
-        }
-      }
-      if (changed) setSetting('content_packages', JSON.stringify(packages));
+    if (setting('instructor_default_v2_initialized')) return;
+    const raw = setting('content_instructors');
+    const profiles = raw ? parse(raw, null) : [];
+    // Do not replace an unparseable imported registry with a seeded one.
+    if (!Array.isArray(profiles)) return;
+    const index = profiles.findIndex(p => isObject(p) && p.id === DEFAULT_INSTRUCTOR_ID);
+    let changed = false;
+    if (index < 0) {
+      profiles.push(defaultProfile(now()));
+      changed = true;
+    } else if (untouchedOriginalSeed(profiles[index])) {
+      profiles[index] = { ...profiles[index], nameEn:'Dr.Mohamed Attia', updated:Math.max(now(), profiles[index].updated + 1) };
+      changed = true;
     }
+    if (changed) setSetting('content_instructors', JSON.stringify(profiles));
+    if (!setting(DEFAULT_INSTRUCTOR_SETTING)) setSetting(DEFAULT_INSTRUCTOR_SETTING, DEFAULT_INSTRUCTOR_ID);
+    // Defaults resolve at read/issue time. Stored package assignments, catalog
+    // fields and historical certificate records are never rewritten here.
     setSetting('instructor_registry_v1_initialized', '1');
+    setSetting('instructor_default_v2_initialized', '1');
   }).immediate();
 }
 
@@ -92,6 +130,16 @@ function validateProfile(input, previous = {}) {
     if (typeof input[key] !== 'string' || input[key].length > limit || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(input[key]))
       fail(400, 'راجع نصوص ملف المدرب وطولها');
     out[key] = input[key].trim();
+  }
+  const normalizedName = value => cleanText(value, 160).toLocaleLowerCase('en').replace(/[\s.]+/g, '');
+  const identityChanged = previous.id && ['nameEn', 'nameAr'].some(key =>
+    key in input && normalizedName(input[key]) !== normalizedName(previous[key]));
+  if (identityChanged) {
+    // Retained form values must not silently transfer credentials/signatures to
+    // a replacement person. Badges require explicit re-attestation in this edit.
+    out.badges = [];
+    out.signatureAsset = null;
+    if (!('signatureName' in input)) out.signatureName = out.nameEn;
   }
   if (!out.nameEn) fail(400, 'اسم المدرب بالإنجليزية مطلوب للشهادة');
   if ('active' in input && typeof input.active !== 'boolean') fail(400, 'حالة المدرب غير صحيحة');
@@ -156,7 +204,7 @@ export function mountInstructorRegistry({ app, db, auth, admin, setting, setSett
     if (body.expectedUpdated !== (Number(previous.updated) || 0)) fail(409, 'تم تعديل ملف المدرب؛ أعد تحميله قبل الحفظ');
   };
   app.get('/api/admin/instructors', auth, admin, activeAdmin, route((req, res) => {
-    res.json({ instructors:registry().map(p => safeProfile(p, true)) });
+    res.json({ instructors:registry().map(p => safeProfile(p, true)), defaultInstructorId:publicDefaultInstructorId(setting) });
   }));
   app.post('/api/admin/instructors', auth, admin, activeAdmin, route((req, res) => {
     const profile = validateProfile(req.body);
@@ -223,7 +271,7 @@ export function ensureCertificateSchema(db) {
 }
 
 function presentationSnapshot(pkg, course, setting) {
-  const profile = publicInstructors(setting).find(p => p.id === pkg.instructorId);
+  const profile = effectivePackageInstructor(pkg, setting);
   return {
     version:1, courseId:course.id, courseCode:cleanText(course.code || '', 100),
     courseLogo:Object.hasOwn(COURSE_LOGOS, course.id) ? COURSE_LOGOS[course.id] : null,
@@ -243,6 +291,20 @@ function publicRecord(row) {
     presentation:isObject(presentation) && presentation.version === 1 ? presentation : null };
 }
 
+function ownedDisplayPresentation(row, setting) {
+  const saved = parse(row.metadata || 'null', null);
+  // A recorded instructor always wins, including older snapshot versions. This
+  // response-only hint is never a migration or a public verification assertion.
+  if (isObject(saved) && saved.instructor != null) return undefined;
+  const presentation = isObject(saved) && saved.version === 1 ? saved : null;
+  const pkg = list(setting, 'content_packages').find(p => isObject(p) && p.id === row.package_id);
+  const savedCourseId = typeof presentation?.courseId === 'string' && presentation.courseId ? presentation.courseId : null;
+  const courseId = savedCourseId || (typeof pkg?.course === 'string' && pkg.course ? pkg.course : null);
+  const course = list(setting, 'content_courses').find(c => isObject(c) && c.id === courseId);
+  const display = presentationSnapshot(pkg, { id:courseId, code:presentation?.courseCode || course?.code || '' }, setting);
+  return { ...display, source:'current-instructor-settings' };
+}
+
 function canonicalVideoSource(pkg, packages) {
   let source = pkg;
   const seen = new Set();
@@ -260,7 +322,12 @@ export function createCertificateService({ db, setting, uid, site, now = Date.no
   ensureCertificateSchema(db);
   // Tokens and links are generated only by the server. Strip any configured path/query.
   const origin = new URL(site).origin;
-  const response = row => ({ ...publicRecord(row), verify:`${origin}/verify/${encodeURIComponent(row.verify_token || row.no)}` });
+  const ownedRecord = row => {
+    const displayPresentation = ownedDisplayPresentation(row, setting);
+    return { ...publicRecord(row), ...(displayPresentation ? { displayPresentation } : {}) };
+  };
+  const response = (row, historical = true) => ({ ...(historical ? ownedRecord(row) : publicRecord(row)),
+    verify:`${origin}/verify/${encodeURIComponent(row.verify_token || row.no)}` });
   const requireActiveUser = userId => {
     const user = db.prepare('SELECT active FROM users WHERE id=?').get(userId);
     if (!user || user.active === 0) fail(403, 'الحساب غير نشط');
@@ -269,7 +336,7 @@ export function createCertificateService({ db, setting, uid, site, now = Date.no
     requireActiveUser(userId);
     const owns = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(userId, packageId);
     if (!owns) fail(403, 'لست مشتركاً في هذه الباقة');
-    const existing = db.prepare(`SELECT ${CERT_FIELDS} FROM certificates WHERE user_id=? AND package_id=? ORDER BY issued,no LIMIT 1`)
+    const existing = db.prepare(`SELECT ${CERT_FIELDS},package_id FROM certificates WHERE user_id=? AND package_id=? ORDER BY issued,no LIMIT 1`)
       .get(userId, packageId);
     if (existing) {
       if (existing.revoked_at != null) fail(403, 'هذه الشهادة ملغاة');
@@ -306,7 +373,7 @@ export function createCertificateService({ db, setting, uid, site, now = Date.no
     };
     db.prepare('INSERT INTO certificates (no,user_id,package_id,name,course,hours,issued,metadata,verify_token) VALUES (?,?,?,?,?,?,?,?,?)')
       .run(row.no, userId, packageId, row.name, row.course, row.hours, row.issued, row.metadata, row.verify_token);
-    return response(row);
+    return response(row, false);
   });
   return {
     // A single immediate transaction covers lookup and insert, including concurrent requests.
@@ -314,7 +381,7 @@ export function createCertificateService({ db, setting, uid, site, now = Date.no
     listOwned(userId) {
       requireActiveUser(userId);
       return db.prepare(`SELECT ${CERT_FIELDS},package_id FROM certificates WHERE user_id=? AND revoked_at IS NULL ORDER BY issued DESC,no LIMIT 200`)
-        .all(userId).map(row => ({ ...publicRecord(row), packageId:row.package_id }));
+        .all(userId).map(row => ({ ...ownedRecord(row), packageId:row.package_id }));
     },
     getOwned(userId, no) {
       requireActiveUser(userId);

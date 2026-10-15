@@ -17,7 +17,7 @@ import { fileURLToPath } from 'url';
 import { mountCorporateWorkflow } from './corporate-workflow.js';
 import { mountClassroom } from './classroom.js'; // الفصل الخاص (باقة مخفية)
 import QRCode from 'qrcode';
-import { initializeInstructorRegistry, mountInstructorRegistry, mountCertificateRoutes, publicInstructors, validatePackageInstructors } from './instructor-certificates.js';
+import { initializeInstructorRegistry, mountInstructorRegistry, mountCertificateRoutes, publicInstructors, publicDefaultInstructorId, validatePackageInstructors } from './instructor-certificates.js';
 
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1050,6 +1050,7 @@ app.get('/api/content', (req, res) => {
     if (v) { try { out[k] = JSON.parse(v); } catch (e) {} }
   });
   out.instructors = publicInstructors(setting);
+  out.defaultInstructorId = publicDefaultInstructorId(setting);
   res.json(out);
 });
 app.put('/api/admin/package-plan/:pkg', auth, admin, (req, res) => {

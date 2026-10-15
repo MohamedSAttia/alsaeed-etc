@@ -85,12 +85,16 @@ test('unsupported presentation versions are ignored, never promoted to trusted l
   assert.equal(d.querySelector('.cert-instructor-badge'), null);
   assert.equal(d.querySelector('.cert-course-logo'), null);
 });
-test('absent genuine signature uses a clear slot and ordinary printed name without fabricated handwriting', () => {
+test('a saved instructor receives a blue typographic name design with the actual name, not signatureName', () => {
   const d = doc(original);
   assert.equal(d.querySelector('.cert-signature-image'), null);
-  assert.equal(d.querySelector('.cert-signature-slot').textContent, 'Instructor signature');
+  assert.equal(d.querySelector('.cert-signature-slot'), null);
+  assert.equal(d.querySelector('.cert-instructor-design').textContent, instructor.name);
+  assert.equal(d.querySelector('.cert-instructor-design').getAttribute('aria-label'), 'Decorative name design: ' + instructor.name);
+  assert.equal(d.querySelector('.cert-issuer-mark').textContent, 'AlSaeed');
   assert(!d.documentElement.textContent.includes(instructor.signatureName));
-  assert(!d.querySelector('style').textContent.includes('Allura'));
+  assert.match(d.querySelector('style').textContent, /color:#1756a4/);
+  assert.match(d.querySelector('style').textContent, /assets\/fonts\/Allura-Regular\.ttf/);
 });
 test('signature image requires a constrained local asset and recorded instructor', () => {
   const d = doc(changed({}, { signatureAsset: '/assets/signatures/synthetic-approved.png' }));
@@ -151,4 +155,69 @@ test('prepare fits instructor text using measured bounds and scales whole canvas
   assert.equal(viewport.style.height, (1092*375/1400)+'px');
   assert(Number.parseFloat(styles['--certificate-instructor-print-size']) < font);
   popup.innerWidth=1900; listener(); assert.equal(styles['--certificate-scale'], '1');
+});
+
+const defaultInstructor = { id: 'mohamed-attia', name: 'Dr.Mohamed Attia', title: 'Course Instructor', badge };
+const defaultDisplay = { ...presentation, instructor: defaultInstructor, source: 'current-instructor-settings' };
+test('response-only current instructor hints decorate missing historical identity without changing original records', () => {
+  for (const snapshot of [null, { ...presentation, instructor: null }, { version: 1, courseId: 'pmp' }]) {
+    const record = freeze({ ...original, presentation: snapshot, displayPresentation: structuredClone(defaultDisplay) });
+    const before = JSON.stringify(record), d = doc(record);
+    assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Dr.Mohamed Attia');
+    assert.equal(d.querySelector('.cert-instructor-design').textContent, 'Dr.Mohamed Attia');
+    assert.equal(d.querySelector('.cert-instructor-badge').getAttribute('src'), 'https://al-ltc.com' + badgePath);
+    assert.equal(d.querySelector('.cert-name').textContent, record.name);
+    assert.match(d.querySelector('.cert-record').textContent, /03 February 2020/);
+    assert.equal(JSON.stringify(record), before);
+  }
+});
+test('an existing instructor always wins over a display hint, including a legacy name without an ID', () => {
+  for (const id of ['saved-instructor', '', undefined]) {
+    const record = changed({}, { id, name: 'Previously Saved Teacher', badge: null });
+    record.displayPresentation = defaultDisplay;
+    const d = doc(record);
+    assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Previously Saved Teacher');
+    assert.equal(d.querySelector('.cert-instructor-design').textContent, 'Previously Saved Teacher');
+    assert.equal(d.querySelector('.cert-instructor-badge'), null);
+    assert(!d.documentElement.textContent.includes('Mohamed Attia'));
+  }
+});
+test('untrusted, malformed, or cross-course display hints do not infer historical credentials', () => {
+  const base = { ...original, presentation: { version: 1, courseId: 'rmp', instructor: null } };
+  for (const displayPresentation of [defaultDisplay, { ...defaultDisplay, source: undefined }, { ...defaultDisplay, version: 2 }]) {
+    const d = doc({ ...base, displayPresentation });
+    assert.equal(d.querySelector('.cert-instructor-badge'), null);
+    assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Name not recorded');
+  }
+  const d = doc({ ...original, presentation: null, displayPresentation: { ...defaultDisplay, courseId: null, courseLogo: null, instructor: { ...defaultInstructor, badge: null } } });
+  assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Dr.Mohamed Attia');
+  assert.equal(d.querySelector('.cert-instructor-badge'), null);
+  assert.equal(d.querySelector('.cert-course-logo'), null);
+});
+test('the supplied badge retains its full image and is sized clearly beside the instructor', () => {
+  const d = doc(original), css = d.querySelector('style').textContent;
+  assert.equal(d.querySelector('.cert-instructor-badge').parentElement.className, 'cert-instructor-summary');
+  assert.match(css, /\.cert-instructor-badge\{width:148px;height:124px;object-fit:contain/);
+  assert(!css.includes('object-fit:cover'));
+});
+test('navy/gold QR frame stays outside the unchanged white QR image and quiet zone', () => {
+  const qr = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB';
+  const d = doc({ ...original, qr }), css = d.querySelector('style').textContent;
+  assert.equal(d.querySelector('.cert-qr-image img').getAttribute('src'), qr);
+  assert.match(css, /\.cert-qr-image\{display:block;padding:7px;background:#fff/);
+  assert.match(css, /\.cert-qr\{[^}]*border:2px solid #c59b3d[^}]*background:#0b304e/);
+  assert.equal(d.querySelector('.cert-qr-caption').textContent, 'Scan to verify');
+});
+test('renderer never adds a preview warning to real runtime certificates', () => {
+  const html = api.render({ ...original, no: 'AL-2026-001', name: 'Example Learner' });
+  assert(!html.includes('NOT ISSUED'));
+  assert(!html.includes('SYNTHETIC PREVIEW'));
+});
+
+test('the server display hint supplies exact course identity when the client package hint is absent', () => {
+  const d = doc({ ...original, course: 'Old saved preparation title', courseId: undefined, presentation: null, displayPresentation: defaultDisplay });
+  assert.equal(d.querySelector('.cert-course').textContent, canonical);
+  assert.equal(d.querySelector('.cert-course sup').textContent, '®');
+  assert(d.querySelector('.cert-instructor-badge'));
+  assert.equal(d.querySelector('.cert-instructor-name').textContent, 'Dr.Mohamed Attia');
 });

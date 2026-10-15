@@ -1,11 +1,14 @@
-/* Public instructor display uses the package's published association. */
+/* Public instructor display uses the published association or owner-selected default. */
 (function (root) {
   'use strict';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const asset = value => typeof value === 'string' && /^\/assets\/[a-zA-Z0-9_./-]+\.(png|jpe?g|webp|svg)$/.test(value) && !value.includes('..') ? value : '';
   const profiles = () => Array.isArray(root.INSTRUCTORS) ? root.INSTRUCTORS : [];
   function forPackage(pkg) {
-    return pkg && pkg.instructorId ? profiles().find(x => x.id === pkg.instructorId && x.active !== false) || null : null;
+    if(!pkg)return null;
+    const assigned=pkg.instructorId!==null&&pkg.instructorId!==undefined&&pkg.instructorId!=='';
+    const id=assigned?pkg.instructorId:root.DEFAULT_INSTRUCTOR_ID;
+    return id ? profiles().find(x => x.id === id && x.active !== false) || null : null;
   }
   function forCourse(courseId) {
     const ids = new Set();
