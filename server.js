@@ -1,3 +1,4 @@
+import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent } from './trainee-tracking.js';
 /* ============================================================
    منصة السعيد — الخادم
    حسابات · اشتراكات · دفع بتحقّق من الخادم · شهادات قابلة للتحقّق
@@ -645,19 +646,8 @@ app.get('/api/admin/users', auth, admin, (req, res) => {
 
 function progressSummary(userId, packageId, enrollmentCreated) {
   const row = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
-  let data = { lessons:{}, weeks:{}, exams:{} };
-  if (row) { try { data = JSON.parse(row.data); } catch (e) {} }
   const videoRows = db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
-  const lessonTotal = videoRows.length;
-  const lessonDone = videoRows.filter(l => data.lessons?.[l.idx]).length;
-  const exams = Object.values(data.exams || {}).filter(Boolean);
-  const scores = exams.map(x => Number(x.score)).filter(Number.isFinite);
-  const avgExam = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : 0;
-  const weeksDone = Object.values(data.weeks || {}).filter(Boolean).length;
-  let progress = lessonTotal ? Math.round(Math.min(1, lessonDone/lessonTotal)*100) : Math.min(100, weeksDone*10 + exams.filter(x=>x.passed).length*10);
-  const chapterGroups=new Map();for(const l of videoRows){const key=String(l.chapter??'');if(!chapterGroups.has(key))chapterGroups.set(key,{title:key||'المحتوى',done:0,total:0});const g=chapterGroups.get(key);g.total++;if(data.lessons?.[l.idx])g.done++;}
-  const activityDetails={chapters:[...chapterGroups.values()],weeksDone,lessons:lessonDone,lessonTotal,activities:Object.values(data.activities||{}).filter(Boolean).length,downloads:Object.keys(data.downloads||{}).length,reports:Object.keys(data.applicationReports||{}).length,games:Object.keys(data.games||{}).length,exams:Object.entries(data.exams||{}).filter(([,x])=>x&&typeof x==='object').map(([id,x])=>({id,score:Number.isFinite(Number(x.score))?Number(x.score):null,passed:typeof x.passed==='boolean'?x.passed:null,at:Number(x.at)||0,total:Number(x.total||x.autoCount)||0}))};
-  return { activityDetails, progress, avgExam:Math.round(avgExam*10)/10, lessonDone, lessonTotal, examsAttempted:exams.length, lastActivity:(row&&row.updated)||enrollmentCreated||0 };
+  return summarizeRecordedProgress(row, videoRows);
 }
 
 app.get('/api/admin/overview', auth, admin, (req, res) => {
@@ -668,29 +658,28 @@ app.get('/api/admin/overview', auth, admin, (req, res) => {
   const names=new Map(catalog.map(x=>[x.id,x.ar||x.id]));
   const students=users.map(u=>{
     const ens=enrollments.filter(e=>e.user_id===u.id);
-    const details=ens.map(e=>({...e,...progressSummary(u.id,e.package_id,e.created)}));
-    const progress=details.length?Math.round(details.reduce((a,x)=>a+x.progress,0)/details.length):0;
-    const examVals=details.map(x=>x.avgExam).filter(x=>x>0);
-    const avgExam=examVals.length?Math.round(examVals.reduce((a,b)=>a+b,0)/examVals.length):0;
-    const lastActivity=Math.max(u.created,...details.map(x=>x.lastActivity||0));
+    const details=ens.map(e=>({...e,...progressSummary(u.id,e.package_id,e.created),...enrollmentTiming(e,now)}));
+    const {progress,avgExam,measuredPackages}=summarizeStudent(details);
+    const lastActivity=Math.max(0,...details.map(x=>x.lastActivity||0)) || null;
     const future=ens.map(x=>x.expires).filter(x=>x&&x>now).sort((a,b)=>a-b);
-    return { ...u, learningPackages:details, enrollments:ens.length, progress, avgExam, lastActivity, nearestExpiry:future[0]||null };
+    return { ...u, learningPackages:details, enrollments:ens.length, progress, avgExam, measuredPackages, lastActivity, nearestExpiry:future[0]||null };
   });
   const orders=db.prepare(`SELECT o.*,u.name user_name,u.email user_email FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 20`).all().map(o=>({...o,package_name:names.get(o.package_id)||o.package_id}));
   const activeEnrollments=enrollments.filter(e=>!e.expires||e.expires>now).length;
   res.json({
     stats:{students:users.length,orders:db.prepare('SELECT COUNT(*) c FROM orders').get().c,paid:db.prepare("SELECT COUNT(*) c FROM orders WHERE status='paid'").get().c,revenue:db.prepare("SELECT COALESCE(SUM(amount),0) s FROM orders WHERE status='paid'").get().s,certificates:db.prepare('SELECT COUNT(*) c FROM certificates').get().c,activeEnrollments},
-    students,recentOrders:orders
+    students,recentOrders:orders,serverNow:now
   });
 });
 
 app.get('/api/admin/users/:id/activity', auth, admin, (req,res)=>{
+  const now=Date.now();
   const u=db.prepare('SELECT id,name,email,phone,role,created FROM users WHERE id=?').get(req.params.id);
   if(!u)return res.status(404).json({error:'المستخدم غير موجود'});
-  const ens=db.prepare('SELECT id,package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created)}));
+  const ens=db.prepare('SELECT id,package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created),...enrollmentTiming(e,now)}));
   const certs=db.prepare('SELECT no,package_id,course,hours,issued FROM certificates WHERE user_id=? ORDER BY issued DESC').all(u.id);
   const orders=db.prepare('SELECT id,package_id,amount,currency,status,gateway,created,paid_at FROM orders WHERE user_id=? ORDER BY created DESC LIMIT 50').all(u.id);
-  res.json({user:u,enrollments:ens,certificates:certs,orders,serverNow:Date.now()});
+  res.json({user:u,enrollments:ens,summary:summarizeStudent(ens),certificates:certs,orders,serverNow:now});
 });
 
 app.post('/api/admin/users', auth, admin, (req, res) => {

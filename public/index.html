@@ -2888,11 +2888,14 @@ function loadLessonsFor(pid) {
 }
 
 async function syncAdminData() {
-  if (!API.live || !API.token) return;
+  if (!API.live || !API.token) return false;
+  const syncToken=API.token, syncActor=DB.session;
+  const sameActor=()=>API.token===syncToken && DB.session===syncActor && me()?.role==='admin';
   try {
     const [users, orders, overview] = await Promise.all([
       api('/admin/users'), api('/admin/orders'), api('/admin/overview')
     ]);
+    if(!sameActor())return false;
     const current = DB.users.find(x => x.id === DB.session);
     DB.users = users.map(u => ({
       id:u.id,name:u.name,email:u.email,role:u.role,phone:u.phone,joined:u.created,
@@ -2906,7 +2909,8 @@ async function syncAdminData() {
     }));
     API.adminOverview = overview;
     save();
-  } catch (e) { console.warn('Admin sync failed:', e.message); }
+    return true;
+  } catch (e) { if(sameActor())API.adminOverview=null; console.warn('Admin sync failed:', e.message); return false; }
 }
 
 async function probe() {
@@ -3502,7 +3506,7 @@ function openCoursePreview(id){
 function localOverview(){
   const D=A().DB, students=D.users.filter(u=>u.role==='student');
   const paid=D.orders.filter(o=>String(o.status||'').toLowerCase().includes('paid')||String(o.status||'').includes('مدفوع'));
-  return {stats:{students:students.length,orders:D.orders.length,paid:paid.length,revenue:paid.reduce((s,o)=>s+(+o.amount||0),0),certificates:0,activeEnrollments:students.reduce((s,u)=>s+(u.packages||[]).length,0)},students:students.map(u=>({id:u.id,name:u.name,email:u.email,created:u.joined||Date.now(),enrollments:(u.packages||[]).length,progress:0,lastActivity:u.joined||Date.now(),avgExam:0,nearestExpiry:null})),recentOrders:D.orders.slice(0,8)};
+  return {stats:{students:students.length,orders:D.orders.length,paid:paid.length,revenue:paid.reduce((s,o)=>s+(+o.amount||0),0),certificates:0,activeEnrollments:students.reduce((s,u)=>s+(u.packages||[]).length,0)},students:students.map(u=>({id:u.id,name:u.name,email:u.email,created:u.joined||Date.now(),enrollments:(u.packages||[]).length,progress:null,lastActivity:null,avgExam:null,nearestExpiry:null})),recentOrders:D.orders.slice(0,8)};
 }
 
 
@@ -4733,7 +4737,7 @@ function dash() {
 /* ═══════════ لوحة الإدارة ═══════════ */
 function admin(sub) {
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
-  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
+  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['tracking','التقدم والترتيب'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
   <div class="wrap" style="padding-bottom:60px">
     <div class="admin-kpis-v8">
@@ -4843,12 +4847,13 @@ function learningAdminView() {
 
 function adminTab() {
   const D=A().DB, O=A().adminOverview||localOverview();
+  if(admTab==='tracking')return window.AlsaeedTraineeTracking.render(A().live?A().adminOverview:null,id=>A().pack(id));
   if(admTab==='overview'){
     const students=(O.students||[]).slice(0,7), orders=(O.recentOrders||[]).slice(0,7);
     const maxP=Math.max(1,...students.map(x=>x.progress||0));
     return `<div class="admin-overview-grid">
       <div class="apanel"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h4>أحدث المسجلين والتقدم</h4><button class="btn o sm" data-at="users">عرض الجميع</button></div>
-        ${students.length?students.map(s=>`<div class="student-quick"><div><b>${esc(s.name)}</b><span class="en">${esc(s.email)}</span><div class="mini-progress"><i style="width:${Math.max(2,s.progress||0)}%"></i></div></div><div style="text-align:end"><b class="num" style="color:var(--orange)">${s.progress||0}%</b><span class="status-dot ${(s.progress||0)<10?'idle':''}">${s.enrollments||0} اشتراك</span><button class="btn o sm" data-student="${s.id}" style="margin-top:5px">متابعة</button></div></div>`).join(''):`<div class="empty"><div class="ic">👥</div><b>لا توجد تسجيلات بعد</b></div>`}
+        ${students.length?students.map(s=>`<div class="student-quick"><div><b>${esc(s.name)}</b><span class="en">${esc(s.email)}</span>${Number.isFinite(s.progress)?`<div class="mini-progress"><i style="width:${s.progress}%"></i></div>`:''}</div><div style="text-align:end"><b class="num" style="color:var(--orange)">${window.AlsaeedTraineeTracking.pct(s.progress)}</b><span class="status-dot ${(s.progress||0)<10?'idle':''}">${s.enrollments||0} اشتراك</span><button class="btn o sm" data-student="${s.id}" style="margin-top:5px">متابعة</button></div></div>`).join(''):`<div class="empty"><div class="ic">👥</div><b>لا توجد تسجيلات بعد</b></div>`}
       </div>
       <div class="apanel"><h4>حالة المنصة</h4><div class="detail-kpis"><div><b>${O.stats&&O.stats.activeEnrollments||0}</b><span>اشتراك نشط</span></div><div><b>${O.stats&&O.stats.certificates||0}</b><span>شهادة</span></div><div><b>${O.stats&&O.stats.paid||0}</b><span>طلب مدفوع</span></div></div>
         <div class="note info"><b>المتابعة الذكية:</b> تظهر هنا نسبة تقدم كل طالب وآخر نشاط ومتوسط الاختبارات وتاريخ انتهاء الوصول بمجرد استخدامه للمنصة.</div>
@@ -5626,8 +5631,7 @@ async function drawCert(pid, certificate) {
 
 /* ═══════════ الربط ═══════════ */
 function trainer(){
- const O=A().adminOverview||localOverview(),students=O.students||[];
- return `<section class="dash-hd learning-hero"><div class="wrap"><h1>${siteEnglish()?'Trainer · learner progress':'صفحة المدرب · متابعة المتدربين'}</h1><p>${siteEnglish()?'Open a learner to review recorded lessons, activities, application reports and exam results.':'افتح ملف المتدرب لمتابعة الدروس والأنشطة وتقارير التطبيق ونتائج الاختبارات المسجلة.'}</p></div></section><div class="wrap trainer-progress-page"><div class="card pad"><div class="grid g2"><label>${siteEnglish()?'Search learner':'بحث عن متدرب'}<input id="studentSearch" type="search" placeholder="${siteEnglish()?'Name or email':'الاسم أو البريد الإلكتروني'}"></label><button class="btn p" id="refreshTrainerProgress">${siteEnglish()?'Refresh progress':'تحديث التقدم'}</button></div></div><div class="grid g3" style="margin-top:20px">${students.map(u=>`<article class="card pad" data-student-row="${esc((u.name+' '+u.email).toLowerCase())}"><h3>${esc(u.name)}</h3><p>${esc(u.email)}</p><div class="mini-progress"><i style="width:${Math.max(0,Math.min(100,u.progress||0))}%"></i></div><p>${siteEnglish()?'Learning progress':'تقدم التعلم'}: <b>${u.progress||0}%</b></p><p>${siteEnglish()?'Average assessment score':'متوسط نتائج الاختبارات'}: <b>${u.avgExam||0}%</b></p><small>${siteEnglish()?'Last activity':'آخر نشاط'}: ${u.lastActivity?new Date(u.lastActivity).toLocaleDateString(siteEnglish()?'en-GB':'ar-SA'):'—'}</small><button class="btn p full" data-student="${esc(u.id)}">${siteEnglish()?'View learning and assessment details':'تفاصيل التعلم والاختبارات'}</button></article>`).join('')||`<p>${siteEnglish()?'No learner records loaded. Use Refresh progress.':'لا توجد بيانات محملة. اضغط تحديث التقدم.'}</p>`}</div></div>`;
+ return `<section class="dash-hd"><div class="wrap"><h1>متابعة المتدربين</h1></div></section><div class="wrap trainer-progress-page">${window.AlsaeedTraineeTracking.render(A().live?A().adminOverview:null,id=>A().pack(id))}</div>`;
 }
 
 async function viewStudent(id){
@@ -5644,24 +5648,25 @@ async function viewStudent(id){
       if(cached){cached.packages=d.enrollments.map(e=>({id:e.package_id,enrollmentId:e.id,source:e.source,expires:e.expires,at:e.created})); A().render();}
     }catch(e){if(current())overlay.querySelector('[role="status"]').textContent=e.message;return;}
   }
-  if(!d){const u=A().DB.users.find(x=>x.id===id);if(!u)return;d={user:u,enrollments:(u.packages||[]).map(p=>({package_id:p.id,source:p.source,expires:p.expires,created:p.at,progress:0,avgExam:0,lastActivity:p.at}))};}
+  if(!d){const u=A().DB.users.find(x=>x.id===id);if(!u)return;d={user:u,enrollments:(u.packages||[]).map(p=>({package_id:p.id,source:p.source,expires:p.expires,created:p.at,progress:null,avgExam:null,lastActivity:null}))};}
   const u=d.user||{}, ens=d.enrollments||[];
   const initial=(u.name||'?').trim().charAt(0);
   A().modal(`<div class="student-detail-head"><div class="avatar-lg">${esc(initial)}</div><div><h3 style="margin:0">${esc(u.name||'طالب')}</h3><p class="en" style="margin:2px 0">${esc(u.email||'')}</p></div></div>
-    <div class="detail-kpis"><div><b>${ens.length}</b><span>اشتراك</span></div><div><b>${ens.length?Math.round(ens.reduce((s,x)=>s+(x.progress||0),0)/ens.length):0}%</b><span>متوسط التقدم</span></div><div><b>${ens.length?Math.round(ens.reduce((s,x)=>s+(x.avgExam||0),0)/ens.length):0}%</b><span>متوسط الاختبارات</span></div></div>
+    <div class="detail-kpis"><div><b>${ens.length}</b><span>اشتراك</span></div><div><b>${window.AlsaeedTraineeTracking.pct(d.summary?.progress)}</b><span>تقدم الدروس المسجلة</span></div><div><b>${window.AlsaeedTraineeTracking.pct(d.summary?.avgExam)}</b><span>متوسط الاختبارات المسجلة</span></div></div>
     <h4 style="font-family:var(--fd);color:var(--navy);margin:15px 0 8px">الباقات والمتابعة</h4>
-    ${ens.length?ens.map(e=>{const p=A().pack(e.package_id)||{};return `<div class="card" style="padding:13px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px"><div><b>${esc(p.ar||e.package_id)}</b><span style="display:block;font-size:.7rem;color:var(--dim)">${esc(e.source||'')} · آخر نشاط ${e.lastActivity?new Date(e.lastActivity).toLocaleDateString('ar-SA'):'—'}</span></div><b class="num" style="color:var(--orange)">${e.progress||0}%</b></div><div class="mini-progress"><i style="width:${Math.max(1,e.progress||0)}%"></i></div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:var(--dim)"><span>اختبارات: <b class="num">${Math.round(e.avgExam||0)}%</b></span><span>الانتهاء (ميلادي، السعودية): <b dir="ltr">${esc(window.AlsaeedEnrollmentExtension?.formatExpiry(e.expires)||'—')}</b></span>${window.AlsaeedEnrollmentExtension?.control(e)||''}</div>${e.activityDetails?`<details class="student-learning-details"><summary>تفاصيل التعلم والتطبيق</summary><div class="detail-kpis">${[['الدروس',e.activityDetails.lessons+'/'+e.activityDetails.lessonTotal],['مراحل الخطة',e.activityDetails.weeksDone],['الأنشطة المنفذة',e.activityDetails.activities],['الملفات المنزلة',e.activityDetails.downloads],['تقارير التطبيق',e.activityDetails.reports],['الألعاب',e.activityDetails.games]].map(([t,n])=>`<div><b>${esc(n)}</b><span>${t}</span></div>`).join('')}</div>${e.activityDetails.chapters?.length?`<h4>تقدم المحاور</h4><div class="grid g3">${e.activityDetails.chapters.map(ch=>`<div class="tracking-topic"><b>${esc(A().course(p.course)?.chapters?.[Number(ch.title)]||ch.title)}</b><p>${ch.done}/${ch.total} درسًا</p><div class="mini-progress"><i style="width:${ch.total?Math.round(ch.done/ch.total*100):0}%"></i></div></div>`).join('')}</div>`:''}<h4>سجل الاختبارات المحفوظة</h4>${e.activityDetails.exams.length?`<div class="student-exam-list">${e.activityDetails.exams.map(x=>`<div><b>${esc(x.id)}</b><span>${x.score===null?'—':esc(x.score)+'%'} · ${x.passed===null?'—':x.passed?'PASS':'FAIL'} · ${x.total?esc(x.total)+' سؤالًا · ':''}${x.at?new Date(x.at).toLocaleDateString('ar-SA'):'—'}</span></div>`).join('')}</div>`:'<p>لا توجد نتائج مسجلة بعد.</p>'}</details>`:''}</div>`;}).join(''):'<div class="note warn">هذا الطالب لم يحصل على باقة بعد.</div>'}
-    <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`,()=>window.AlsaeedEnrollmentExtension?.bind(document.getElementById('ov'),{userId:id,onRefresh:()=>viewStudent(id)}));
+    ${ens.length?ens.map(e=>{const p=A().pack(e.package_id)||{};return `<div class="card" style="padding:13px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px"><div><b>${esc(p.ar||e.package_id)}</b><span style="display:block;font-size:.7rem;color:var(--dim)">${esc(e.source||'')} · آخر نشاط ${e.lastActivity?new Date(e.lastActivity).toLocaleDateString('ar-SA'):'—'}</span></div><b class="num" style="color:var(--orange)">${window.AlsaeedTraineeTracking.pct(e.progress)}</b></div>${Number.isFinite(e.progress)?`<div class="mini-progress"><i style="width:${e.progress}%"></i></div>`:''}<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:var(--dim)"><span>اختبارات: <b class="num">${window.AlsaeedTraineeTracking.pct(e.avgExam)}</b></span><span>الانتهاء (ميلادي، السعودية): <b dir="ltr">${esc(window.AlsaeedEnrollmentExtension?.formatExpiry(e.expires)||'—')}</b></span>${window.AlsaeedEnrollmentExtension?.control(e)||''}</div>${window.AlsaeedTraineeTracking.timing(e)}${e.activityDetails?`<details class="student-learning-details"><summary>تفاصيل التعلم والتطبيق</summary><div class="detail-kpis">${[['الدروس',e.activityDetails.lessons+'/'+e.activityDetails.lessonTotal],['مراحل الخطة',e.activityDetails.weeksDone],['الأنشطة المنفذة',e.activityDetails.activities],['الملفات المنزلة',e.activityDetails.downloads],['تقارير التطبيق',e.activityDetails.reports],['الألعاب',e.activityDetails.games]].map(([t,n])=>`<div><b>${esc(n)}</b><span>${t}</span></div>`).join('')}</div>${e.activityDetails.chapters?.length?`<h4>تقدم المحاور</h4><div class="grid g3">${e.activityDetails.chapters.map(ch=>`<div class="tracking-topic"><b>${esc(A().course(p.course)?.chapters?.[Number(ch.title)]||ch.title)}</b><p>${ch.done}/${ch.total} درسًا</p><div class="mini-progress"><i style="width:${ch.total?Math.round(ch.done/ch.total*100):0}%"></i></div></div>`).join('')}</div>`:''}<h4>سجل الاختبارات المحفوظة</h4>${e.activityDetails.exams.length?`<div class="student-exam-list">${e.activityDetails.exams.map(x=>`<div><b>${esc(x.id)}</b><span>${x.score===null?'—':esc(x.score)+'%'} · ${x.passed===null?'—':x.passed?'PASS':'FAIL'} · ${x.total?esc(x.total)+' سؤالًا · ':''}${x.at?new Date(x.at).toLocaleDateString('ar-SA'):'—'}</span></div>`).join('')}</div>`:'<p>لا توجد نتائج مسجلة بعد.</p>'}</details>`:''}</div>`;}).join(''):'<div class="note warn">هذا الطالب لم يحصل على باقة بعد.</div>'}
+    <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`,()=>window.AlsaeedEnrollmentExtension?.bind(document.getElementById('ov'),{userId:id,onRefresh:async()=>{const route=location.hash,token=A().token;await A().syncAdminData();if(location.hash===route&&A().token===token&&A().me()?.role==='admin')await viewStudent(id)}}));
 }
 function exportStudentsCSV(){
   const O=A().adminOverview||localOverview(), rows=(O.students||[]);
   const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
-  const csv=['Name,Email,Enrollments,Progress,Average Exam,Last Activity,Nearest Expiry',...rows.map(u=>[u.name,u.email,u.enrollments||0,u.progress||0,u.avgExam||0,u.lastActivity?new Date(u.lastActivity).toISOString():'',u.nearestExpiry?new Date(u.nearestExpiry).toISOString():''].map(q).join(','))].join('\n');
+  const csv=['Name,Email,Enrollments,Progress,Average Exam,Last Activity,Nearest Expiry',...rows.map(u=>[u.name,u.email,u.enrollments||0,u.progress??'',u.avgExam??'',u.lastActivity?new Date(u.lastActivity).toISOString():'',u.nearestExpiry?new Date(u.nearestExpiry).toISOString():''].map(q).join(','))].join('\n');
   const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}), url=URL.createObjectURL(blob), a=document.createElement('a');a.href=url;a.download='al-ltc-students.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 
 function bind() {
+  window.AlsaeedTraineeTracking?.bind();
   const mb = $('#megaBtn');
   if (mb) mb.onclick = e => { e.stopPropagation(); window.__mega = !window.__mega; A().render(); };
   $$('[data-mtrack]').forEach(b => b.onclick = e => { e.stopPropagation();
@@ -5997,7 +6002,7 @@ function bind() {
   const auq=$('#admAddUserQuick'); if(auq)auq.onclick=addUser;
   const agq=$('#admGrantQuick'); if(agq)agq.onclick=grantPkg;
   $$('[data-student]').forEach(b=>b.onclick=()=>viewStudent(b.dataset.student));
-  const refreshTrainer=$('#refreshTrainerProgress');if(refreshTrainer)refreshTrainer.onclick=async()=>{refreshTrainer.disabled=true;try{await A().syncAdminData();A().render()}catch(e){A().toast(e.message)}finally{refreshTrainer.disabled=false}};
+  const refreshTrainer=$('#refreshTrainerProgress');if(refreshTrainer)refreshTrainer.onclick=async()=>{refreshTrainer.disabled=true;try{const ok=await A().syncAdminData();A().render();if(ok===false)A().toast('تعذّر تحديث بيانات المتابعة. أعد المحاولة.')}catch(e){A().toast(e.message)}finally{refreshTrainer.disabled=false}};
   const exs=$('#exportStudents'); if(exs)exs.onclick=exportStudentsCSV;
   const ss=$('#studentSearch'); if(ss)ss.oninput=()=>{const q=ss.value.trim().toLowerCase(); $$('[data-student-row]').forEach(r=>r.style.display=!q||r.dataset.studentRow.includes(q)?'':'none');};
   const ag = $('#admGrant'); if (ag) ag.onclick = grantPkg;
@@ -6794,7 +6799,7 @@ function viewUser(id) {
       <div class="mdl-act">
         <button class="btn p" data-uedit2="${id}">تعديل الحساب</button>
         <button class="btn o" data-close>إغلاق</button></div>`, () => {
-      window.AlsaeedEnrollmentExtension?.bind(document.getElementById('ov'), {userId:id, onRefresh:()=>viewUser(id)});
+      window.AlsaeedEnrollmentExtension?.bind(document.getElementById('ov'), {userId:id, onRefresh:async()=>{const route=location.hash,token=A().token;await A().syncAdminData();if(location.hash===route&&A().token===token&&A().me()?.role==='admin')await viewUser(id)}});
       $$('[data-revoke]').forEach(b => b.onclick = () => {
         const [uid, pid] = b.dataset.revoke.split('|');
         if (!confirm('سحب هذه الباقة من المستخدم؟')) return;
@@ -7217,6 +7222,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <link rel="stylesheet" href="/instructors.css?v=20261015"><script src="/instructor-directory.js?v=20261015-default"></script>
+<script src="/trainee-tracking.js?v=20261015"></script>
 <script src="/admin-enrollment-extension.js?v=20261015-2"></script>
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>

@@ -107,12 +107,18 @@
   function updateCache(ctx, result) {
     let changed = false;
     const user = app().DB.users.find(u => u.id === ctx.userId);
-    const enrollment = user?.packages?.find(e => (e.package_id || e.id) === ctx.packageId && e.enrollmentId === result.enrollmentId && e.expires === result.oldExpires);
-    if (enrollment) { enrollment.expires = result.expires; changed = true; }
+    const enrollment = user?.packages?.find(e => (e.package_id || e.id) === ctx.packageId);
+    if (user && Array.isArray(user.packages) && (!enrollment || enrollment.enrollmentId !== result.enrollmentId)) return false;
     const student = app().adminOverview?.students?.find(u => u.id === ctx.userId);
-    const detail = student?.learningPackages?.find(e => e.package_id === ctx.packageId && e.id === result.enrollmentId && e.expires === result.oldExpires);
+    const detail = student?.learningPackages?.find(e => e.package_id === ctx.packageId && e.id === result.enrollmentId);
+    // The user cache is refreshed by the guarded detail read before each edit.
+    // Prefer it over an older overview snapshot; use overview only if absent.
+    if (enrollment ? enrollment.expires !== result.oldExpires : detail && detail.expires !== result.oldExpires) return false;
+    if (enrollment) { enrollment.expires = result.expires; changed = true; }
     if (detail) {
       detail.expires = result.expires;
+      detail.remainingDays = Math.max(0, Math.ceil((result.expires - result.checkedAt) / DAY));
+      detail.enrollmentStatus = result.expires <= result.checkedAt ? 'expired' : result.expires - result.checkedAt <= 7 * DAY ? 'expiring' : 'active';
       student.nearestExpiry = student.learningPackages.map(e => e.expires).filter(e => finite(e) && e > result.checkedAt).sort((a, b) => a - b)[0] || null;
       changed = true;
     }

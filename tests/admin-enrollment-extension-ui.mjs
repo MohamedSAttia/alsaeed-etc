@@ -22,6 +22,7 @@ async function fixture(options = {}) {
     if (script.src || (script.type && script.type !== 'text/javascript') || script.textContent.includes('showStartupError')) continue;
     w.eval(script.textContent);
   }
+  w.eval(await readFile('public/trainee-tracking.js','utf8'));
   w.eval(extension);
   const records = [
     {id:'en-active',user_id:'learner',package_id:'pmp-full',expires:now + 10 * DAY,created:now - DAY,source:'synthetic'},
@@ -45,7 +46,7 @@ async function fixture(options = {}) {
     e.expires = expires;
     return result;
   };
-  w.APP = {...original,live:options.live !== false,token:'synthetic-token',save:()=>{saves++;},toast:message=>messages.push(message),api:async(path,opts={})=>{
+  w.APP = {...original,adminOverview:{serverNow:now,students:[{...clone(learner),learningPackages:clone(records)}]},syncAdminData:async()=>true,live:options.live !== false,token:'synthetic-token',save:()=>{saves++;},toast:message=>messages.push(message),api:async(path,opts={})=>{
     calls.push({path,opts:clone(opts)});
     if (hook) {const answer = await hook(path,opts); if (answer !== undefined) return answer;}
     if (path === '/admin/users/learner' || path === '/admin/users/learner/activity') return details();
@@ -252,6 +253,13 @@ test('delayed old acknowledgement cannot overwrite a later completed adjustment'
   assert.equal(f.learner.packages[0].expires,now+8*DAY);assert.equal(f.records[0].expires,now+8*DAY);
   assert.match(f.doc.querySelector('[data-user-enrollment-expiry="learner|pmp-full"]').textContent,/2026-10-23/);
   assert.equal(f.messages.length,messageCount,'Delayed stale result must not announce an older expiry');
+});
+test('delayed acknowledgement cannot resurrect a replaced enrollment lifecycle',async f=>{
+ const form=await f.open(),pending=deferred();f.setHook((path,opts)=>opts.method==='POST'?pending.promise:undefined);submit(f.w,form);
+ const result=f.response({days:30});form.querySelector('[data-close]').click();
+ f.learner.packages[0].enrollmentId='replacement';f.learner.packages[0].expires=now+99*DAY;
+ const before=f.messages.length;pending.resolve(result);await settle();
+ assert.equal(f.learner.packages[0].enrollmentId,'replacement');assert.equal(f.learner.packages[0].expires,now+99*DAY);assert.equal(f.messages.length,before);
 });
 test('lifetime direct open cannot convert unlimited enrollment',async f=>{
   await f.detailsUI();await f.w.AlsaeedEnrollmentExtension.open({userId:'learner',packageId:'grcp-full',enrollmentId:'en-lifetime',onRefresh:()=>f.detailsUI()});
