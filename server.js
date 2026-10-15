@@ -16,6 +16,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { mountCorporateWorkflow } from './corporate-workflow.js';
 import { mountClassroom } from './classroom.js'; // الفصل الخاص (باقة مخفية)
+import { mountEnrollmentExtensions } from './enrollment-extensions.js';
 import QRCode from 'qrcode';
 import { initializeInstructorRegistry, mountInstructorRegistry, mountCertificateRoutes, publicInstructors, publicDefaultInstructorId, validatePackageInstructors } from './instructor-certificates.js';
 
@@ -132,6 +133,7 @@ function admin(req, res, next) {
     return res.status(403).json({ error: 'هذه العملية للمشرفين' });
   next();
 }
+mountEnrollmentExtensions({ app, db, auth });
 const setting = k => { const r = db.prepare('SELECT v FROM settings WHERE k=?').get(k); return r ? r.v : ''; };
 const setSetting = (k, v) => db.prepare('INSERT INTO settings (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=?').run(k, v, v);
 
@@ -637,7 +639,7 @@ app.get('/api/admin/stats', auth, admin, (req, res) => {
 });
 app.get('/api/admin/users', auth, admin, (req, res) => {
   const users = db.prepare('SELECT id,name,email,role,phone,created FROM users ORDER BY created DESC').all();
-  const en = db.prepare('SELECT user_id,package_id,source,expires,created FROM enrollments').all();
+  const en = db.prepare('SELECT id,user_id,package_id,source,expires,created FROM enrollments').all();
   res.json(users.map(u => ({ ...u, packages: en.filter(e => e.user_id === u.id) })));
 });
 
@@ -661,7 +663,7 @@ function progressSummary(userId, packageId, enrollmentCreated) {
 app.get('/api/admin/overview', auth, admin, (req, res) => {
   const now=Date.now();
   const users=db.prepare("SELECT id,name,email,phone,created FROM users WHERE role='student' ORDER BY created DESC").all();
-  const enrollments=db.prepare('SELECT user_id,package_id,source,expires,created FROM enrollments').all();
+  const enrollments=db.prepare('SELECT id,user_id,package_id,source,expires,created FROM enrollments').all();
   const catalog=JSON.parse(setting('catalog')||'[]');
   const names=new Map(catalog.map(x=>[x.id,x.ar||x.id]));
   const students=users.map(u=>{
@@ -685,7 +687,7 @@ app.get('/api/admin/overview', auth, admin, (req, res) => {
 app.get('/api/admin/users/:id/activity', auth, admin, (req,res)=>{
   const u=db.prepare('SELECT id,name,email,phone,role,created FROM users WHERE id=?').get(req.params.id);
   if(!u)return res.status(404).json({error:'المستخدم غير موجود'});
-  const ens=db.prepare('SELECT package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created)}));
+  const ens=db.prepare('SELECT id,package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created)}));
   const certs=db.prepare('SELECT no,package_id,course,hours,issued FROM certificates WHERE user_id=? ORDER BY issued DESC').all(u.id);
   const orders=db.prepare('SELECT id,package_id,amount,currency,status,gateway,created,paid_at FROM orders WHERE user_id=? ORDER BY created DESC LIMIT 50').all(u.id);
   res.json({user:u,enrollments:ens,certificates:certs,orders});
