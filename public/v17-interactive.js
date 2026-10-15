@@ -90,20 +90,74 @@ let V = null;
 let hiddenLessons=[];
 let player = null;
 let playerLoader = null;
-function visibleVideoOrder(pkgId) {
+let returnFocus = null;
+function canOpenLesson(pkgId, lesson) {
+  return !!lesson && !!(window.APP.owns(pkgId) || window.APP.isAdmin() || lesson.free);
+}
+function visibleVideoGroups(pkgId) {
   const lessons=(window.LESSONS&&window.LESSONS[pkgId])||[];
   const course=window.APP.course(window.APP.pack(pkgId)?.course);
-  if(course?.id==='pmp'&&window.CourseRoadmap?.videoOrder)return CourseRoadmap.videoOrder(course,lessons)
-    .filter(index=>window.APP.owns(pkgId)||window.APP.isAdmin()||lessons[index].free);
-  return lessons
+  let groups;
+  if(course?.id==='pmp'&&window.CourseRoadmap?.videoGroups)groups=window.CourseRoadmap.videoGroups(course,lessons);
+  else if(course?.id==='pmp'&&window.CourseRoadmap?.learnerGroups)groups=window.CourseRoadmap.learnerGroups(course,lessons);
+  else {
+    // Other courses retain the existing saved-chapter playback order.
+    const chapters=new Map();
+    lessons
     .map((lesson, index) => ({ lesson, index }))
-    .filter(item => item.lesson.vimeo && (window.APP.owns(pkgId) || window.APP.isAdmin() || item.lesson.free))
+    .filter(item => item.lesson.vimeo)
     .sort((a, b) => (Number(a.lesson.ch) || 0) - (Number(b.lesson.ch) || 0) || a.index - b.index)
-    .map(item => item.index);
+    .forEach(({lesson,index})=>{
+      const key=String(lesson.ch||0),label=course?.chapters?.[lesson.ch];
+      if(!chapters.has(key))chapters.set(key,{key,title:typeof label==='object'?(label?.ar||label?.en):label,en:typeof label==='object'?(label?.en||label?.ar):label,items:[],children:[]});
+      chapters.get(key).items.push({...lesson,i:index});
+    });
+    groups=[...chapters.values()];
+  }
+  const accessible=nodes=>nodes.map(group=>({...group,
+    items:group.items.filter(item=>item.vimeo&&canOpenLesson(pkgId,lessons[item.i])),
+    children:accessible(group.children||[])
+  })).filter(group=>group.items.length||group.children.length);
+  return accessible(groups);
 }
-function videoNumber(pkgId, index) {
-  const position = visibleVideoOrder(pkgId).indexOf(index);
-  return position < 0 ? index + 1 : position + 1;
+function playlistItems(groups) {
+  return groups.flatMap(group=>[...group.items,...playlistItems(group.children||[])]);
+}
+function visibleVideoOrder(pkgId) {
+  return playlistItems(visibleVideoGroups(pkgId)).map(item=>item.i);
+}
+function groupLabel(group) {
+  return (L()==='en'?(group.en||group.title):group.title)||T('دروس الدورة','Course lessons');
+}
+function videoGroupPath(groups,index,path=[]) {
+  for(const group of groups){
+    const trail=[...path,groupLabel(group)];
+    if(group.items.some(item=>item.i===index))return trail;
+    const found=videoGroupPath(group.children||[],index,trail);if(found.length)return found;
+  }
+  return [];
+}
+function playlistMarkup(groups,order,depth=0) {
+  const watched=window.APP.prog(V.pkgId).lessons;
+  return groups.map(group=>{
+    const items=playlistItems([group]),current=items.some(item=>item.i===V.lessonIdx);
+    return `<details class="iv-group" data-iv-group="${esc(group.key)}" data-depth="${depth}" ${current||V.openGroups?.includes(String(group.key))?'open':''}>
+      <summary><span>${esc(groupLabel(group))}</span><small>${items.length} ${T('فيديو','videos')}</small></summary>
+      <div class="iv-group-items">${group.items.map(item=>{
+        const active=item.i===V.lessonIdx,done=!!watched[item.i];
+        return `<button type="button" class="iv-li${active?' cur':''}${done?' watched':''}" data-go="${item.i}" ${active?'aria-current="true"':''}>
+          <span class="n">${order.indexOf(item.i)+1}</span>
+          <span class="iv-lesson-label"><span class="t">${esc(window.biTitle?window.biTitle(item):(item.t||item.title||''))}</span>
+            <span class="iv-status">${active?`<span class="iv-current">${T('تشاهد الآن','Current video')}</span>`:''}${done?`<span class="iv-watched">✓ ${T('تمت المشاهدة','Watched')}</span>`:''}</span></span>
+          <span class="d" dir="ltr">${esc(item.dur||item.duration||'—')}</span></button>`;
+      }).join('')}${playlistMarkup(group.children||[],order,depth+1)}</div>
+    </details>`;
+  }).join('');
+}
+function updateWatched(index) {
+  const row=$(`#iv [data-go="${index}"]`);if(!row)return;
+  row.classList.add('watched');
+  if(!row.querySelector('.iv-watched'))row.querySelector('.iv-status').insertAdjacentHTML('beforeend',`<span class="iv-watched">✓ ${T('تمت المشاهدة','Watched')}</span>`);
 }
 function loadPlayer() {
   if (window.Vimeo?.Player) return Promise.resolve(window.Vimeo.Player);
@@ -114,26 +168,30 @@ function loadPlayer() {
   }).catch(e=>{playerLoader=null;throw e});
   return playerLoader;
 }
-function nextVideo() {
+function nextVideo(focus=false) {
   if (!V) return;
   const order=visibleVideoOrder(V.pkgId);
-  const index=order[order.indexOf(V.lessonIdx)+1];
-  if(index!==undefined) selectVideo(index);
+  const position=order.indexOf(V.lessonIdx);
+  if(position<0)return;
+  const index=order[position+1];
+  if(index!==undefined) selectVideo(index,focus?'#ivNext':null);
 }
-function selectVideo(index) {
-  if (!V) return;
+function selectVideo(index,focusSelector) {
+  if (!V || !visibleVideoOrder(V.pkgId).includes(index)) return;
+  V.openGroups=$$('#iv [data-iv-group][open]').map(group=>group.dataset.ivGroup);
   if(player){player.destroy().catch(()=>{});player=null;}
   V.lessonIdx=index;V.lesson=(window.LESSONS[V.pkgId]||[])[index];V.startNext=true;
   V.cues=buildCues(V.lesson,index);V.done={};V.answered=0;V.correct=0;V.cue=null;
   V.dur=durSec(V.lesson.dur||V.lesson.duration);V.t=0;
   V.discussion=[];V.discussionStatus='loading';V.discussionError='';V.replying=null;
   render();loadDiscussion();
+  if(focusSelector){const target=$(focusSelector);(target&&!target.disabled?target:$('#ivTitle'))?.focus({preventScroll:true});}
 }
 function connectPlayer(){
   if(!V?.lesson?.vimeo)return;
   const frame=$('#ivFrame'),target=V,index=V.lessonIdx;
   loadPlayer().then(Player=>{
-    if(!frame.isConnected||V!==target||V.lessonIdx!==index)return;
+    if(!frame.isConnected||V!==target||V.lessonIdx!==index||!canOpenLesson(target.pkgId,target.lesson))return;
     const instance=new Player(frame);player=instance;
     instance.getDuration().then(seconds=>{
       if(V!==target||V.lessonIdx!==index||player!==instance||!seconds)return;
@@ -152,10 +210,11 @@ function connectPlayer(){
           .catch(()=>{});
       }
     }).catch(()=>{});
-    instance.on('timeupdate',e=>{if(V===target&&V.lessonIdx===index)V.t=e.seconds});
+    instance.on('timeupdate',e=>{if(V===target&&V.lessonIdx===index&&player===instance)V.t=e.seconds});
     instance.on('ended',()=>{
-      if(V!==target||V.lessonIdx!==index)return;
+      if(V!==target||V.lessonIdx!==index||player!==instance||!canOpenLesson(V.pkgId,V.lesson))return;
       const pr=window.APP.prog(V.pkgId);pr.lessons[index]=true;window.APP.save();
+      updateWatched(index);
       if(V.autoNext)nextVideo();
       else window.APP.toast(T('اكتمل الفيديو. شغّل التالي عندما تريد.','Video completed. Play the next when ready.'));
     });
@@ -198,14 +257,17 @@ window.InteractiveVideo = {
     const ls = (window.LESSONS && window.LESSONS[pkgId]) || [];
     const lesson = ls[lessonIdx];
     if (!lesson) { if (window.APP) window.APP.toast('الدرس غير متاح'); return; }
+    if (!canOpenLesson(pkgId,lesson)) { window.APP.toast(T('هذا الدرس يتطلب اشتراكاً في الباقة.','This lesson requires access to the package.')); return; }
     const c = p && window.APP.course ? window.APP.course(p.course) : {};
 
-    close();V={pkgId,lessonIdx,lesson,course:(c&&c.id)||'pmp',cues:buildCues(lesson,lessonIdx),done:{},t:0,dur:durSec(lesson.dur||lesson.duration),answered:0,correct:0,paused:false,cue:null,autoNext:localStorage.getItem('alsaeed_auto_next')!=='false',discussion:[],discussionStatus:'loading',discussionError:'',canReply:false,replying:null};
+    const opener=document.activeElement;
+    close();returnFocus=opener;V={pkgId,lessonIdx,lesson,course:(c&&c.id)||'pmp',cues:buildCues(lesson,lessonIdx),done:{},t:0,dur:durSec(lesson.dur||lesson.duration),answered:0,correct:0,paused:false,cue:null,autoNext:localStorage.getItem('alsaeed_auto_next')!=='false',discussion:[],discussionStatus:'loading',discussionError:'',canReply:false,replying:null,openGroups:[]};
     const host=$('#lnBody')||document.body,inline=host!==document.body;
     if(inline){hiddenLessons=[...host.children].map(el=>({el,display:el.style.display}));hiddenLessons.forEach(x=>x.el.style.display='none')}else document.body.classList.add('iv-lock');
     host.insertAdjacentHTML('beforeend', `<div class="iv-shell ${inline?'iv-inline':''}" id="iv"></div>`);
     render();
     loadDiscussion();
+    $('#ivTitle')?.focus({preventScroll:true});
   },
   close() { close(); }
 };
@@ -216,6 +278,8 @@ function close() {
   V = null;
   document.body.classList.remove('iv-lock');
   const e = $('#iv'); if (e) e.remove();
+  if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});
+  returnFocus=null;
 }
 
 function render() {
@@ -223,10 +287,13 @@ function render() {
   const l = V.lesson;
   const vid = l.vimeo || l.video || '';
   const pct = V.dur ? Math.min(100, V.t / V.dur * 100) : 0;
+  const groups=visibleVideoGroups(V.pkgId),order=playlistItems(groups).map(item=>item.i),position=order.indexOf(V.lessonIdx);
+  const path=videoGroupPath(groups,V.lessonIdx),hasNext=position>=0&&position<order.length-1;
   $('#iv').innerHTML = `
     <div class="iv-bar">
-      <div class="iv-t"><b>${esc(window.biTitle ? window.biTitle(l) : (l.t || l.title || ''))}</b>
-        <span>${T('درس', 'Lesson')} ${videoNumber(V.pkgId, V.lessonIdx)}<span id="ivDuration">${l.dur ? ' · ' + esc(l.dur) : ''}</span></span></div>
+      <div class="iv-t"><b id="ivTitle" tabindex="-1">${esc(window.biTitle ? window.biTitle(l) : (l.t || l.title || ''))}</b>
+        ${path.length?`<span class="iv-group-path">${path.map(esc).join(' / ')}</span>`:''}
+        <span>${T('فيديو', 'Video')} ${position>=0?position+1:'—'} ${T('من','of')} ${order.length}<span id="ivDuration">${l.dur||l.duration ? ' · ' + esc(l.dur||l.duration) : ''}</span></span></div>
       <div class="iv-stat">
         ${V.cues.length ? `<span>${T('أسئلة الفاصل', 'Checkpoints')}:
           <b>${V.answered}</b>/${V.cues.length}</span>` : ''}
@@ -238,7 +305,7 @@ function render() {
       <div class="iv-stage">
         <div class="iv-player">
           ${vid
-            ? `<iframe id="ivFrame" src="https://player.vimeo.com/video/${esc(vid)}?title=0&byline=0&portrait=0${V.startNext?'&autoplay=1':''}"
+            ? `<iframe id="ivFrame" title="${esc(window.biTitle?window.biTitle(l):(l.t||l.title||T('فيديو الدرس','Lesson video')))}" src="https://player.vimeo.com/video/${esc(vid)}?title=0&byline=0&portrait=0${V.startNext?'&autoplay=1':''}"
                  allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`
             : `<div class="iv-ph"><b>🎬 ${T('الفيديو لم يُربط بعد', 'Video not linked yet')}</b>
                  <p>${T('ارفعه على Vimeo وأضف رقمه من لوحة الإدارة.',
@@ -256,32 +323,30 @@ function render() {
         <p class="iv-hint">${T(
           'النقاط على الشريط أسئلة قصيرة — اضغط أياً منها للإجابة، أو انتظرها أثناء المشاهدة.',
           'Dots on the bar are short checkpoints — click one to answer, or wait for it while watching.')}</p>` : ''}
+        <div class="iv-controls">
+          <button class="btn o" id="ivPause" type="button">${T('إيقاف الفيديو مؤقتاً','Pause video')}</button>
+          <button class="btn p" id="ivNext" type="button" ${hasNext?'':'disabled'}>${T('الفيديو التالي','Next video')} ${T('←','→')}</button>
+          <label class="iv-autoplay"><input type="checkbox" id="ivAutoNext" ${V.autoNext?'checked':''}> ${T('تشغيل التالي تلقائياً','Autoplay next video')}</label>
+        </div>
+        <div class="iv-materials">
+        ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
+        ${String(l.notes||l.notes_en||'').trim()?`<details class="iv-notes"><summary>${T('شرح الدرس','Lesson notes')}</summary><div>${esc((L()==='en'?l.notes_en:l.notes)||l.notes||l.notes_en).replace(/\n/g,'<br>')}</div></details>`:''}
+        ${(l.files||[]).length?`<div class="iv-files"><h4>${T('ملفات الدرس','Lesson files')}</h4>${l.files.map(f=>`<button class="btn o" data-iv-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
+        <details class="iv-discussion-panel"><summary>${T('الأسئلة والمناقشة','Questions & discussion')}</summary><div class="iv-discussion" id="ivDiscussion"></div></details>
+        </div>
       </div>
 
-      <aside class="iv-side">
-        <h4>${T('محتوى الدرس', 'Lesson content')}</h4>
-        <label style="display:block;margin-bottom:10px"><input type="checkbox" id="ivAutoNext" ${V.autoNext?'checked':''}> ${T('تشغيل الفيديو التالي تلقائياً','Automatically play next video')}</label>
-        <button class="btn o" id="ivPause" type="button">${T('إيقاف الفيديو مؤقتاً','Pause video')}</button>
-        <button class="btn o" id="ivNext" type="button">${T('الفيديو التالي','Next video')} →</button>
-        ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
-        ${String(l.notes||l.notes_en||'').trim()?`<div class="iv-notes">${esc((L()==='en'?l.notes_en:l.notes)||l.notes||l.notes_en).replace(/\n/g,'<br>')}</div>`:''}
-        ${(l.files||[]).length?`<div class="iv-files"><h4>${T('ملفات الدرس','Lesson files')}</h4>${l.files.map(f=>`<button class="btn o" data-iv-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
-        <h4>${T('دروس الفصل', 'Chapter lessons')}</h4>
-        <div class="iv-list">
-          ${((window.LESSONS && window.LESSONS[V.pkgId]) || [])
-            .map((x, i) => ({ x, i }))
-            .filter(o => (o.x.ch || 0) === (l.ch || 0))
-            .map(o => `<button class="iv-li${o.i === V.lessonIdx ? ' cur' : ''}" data-go="${o.i}">
-              <span class="n">${videoNumber(V.pkgId, o.i)}</span>
-              <span class="t">${window.APP.prog(V.pkgId).lessons[o.i]?'✓ ':'○ '}${esc(window.biTitle ? window.biTitle(o.x) : (o.x.t || o.x.title || ''))}</span>
-              <span class="d">${esc(o.x.dur || '')}</span></button>`).join('')}
-        </div>
-        <div class="iv-discussion" id="ivDiscussion"></div>
+      <aside class="iv-side" aria-labelledby="ivPlaylistHeading">
+        <div class="iv-playlist-heading"><h4 id="ivPlaylistHeading">${T('فيديوهات الدورة','Course videos')}</h4><span>${order.length} ${T('فيديو','videos')}</span></div>
+        <div class="iv-list" tabindex="0" aria-label="${T('قائمة فيديوهات الدورة','Course video playlist')}">${playlistMarkup(groups,order)}</div>
       </aside>
     </div>`;
   bind();
   connectPlayer();
   renderDiscussion();
+  // Scroll within the bounded playlist only; keep the learner's page position.
+  const list=$('#iv .iv-list'),current=$('#iv .iv-li.cur');
+  if(list&&current){const distance=current.getBoundingClientRect().top-list.getBoundingClientRect().top;if(distance>list.clientHeight-80)list.scrollTop+=distance-80;}
 }
 
 async function loadDiscussion() {
@@ -368,13 +433,13 @@ function bind() {
   const c = $('#ivClose'); if (c) c.onclick = close;
   const auto=$('#ivAutoNext');if(auto)auto.onchange=()=>{V.autoNext=auto.checked;localStorage.setItem('alsaeed_auto_next',String(auto.checked));};
   const pause=$('#ivPause');if(pause)pause.onclick=async()=>{if(!player)return;try{const stopped=await player.getPaused();if(stopped){await player.play();pause.textContent=T('إيقاف الفيديو مؤقتاً','Pause video');}else{await player.pause();pause.textContent=T('استئناف الفيديو','Resume video');}}catch(e){}};
-  const next=$('#ivNext');if(next)next.onclick=nextVideo;
+  const next=$('#ivNext');if(next)next.onclick=()=>nextVideo(true);
   const quiz = $('#ivLessonQuiz'); if (quiz) quiz.onclick = () => {
     const pkg = V.pkgId, idx = V.lessonIdx;
     close(); if(window.PackageJourney)window.PackageJourney.lessonTest(pkg,idx);else if(window.runLessonQuiz)window.runLessonQuiz(pkg,'lesson'+idx);
   };
   $$('[data-iv-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.ivFile),{headers:{Authorization:'Bearer '+window.APP.token}});if(!response.ok)throw Error(T('تعذر تنزيل الملف','Could not download file'));const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download=b.dataset.fileName;document.body.append(a);a.click();a.remove();const pr=window.APP.prog(V.pkgId);pr.downloads||={};pr.downloads[b.dataset.ivFile]={name:b.dataset.fileName,at:Date.now()};window.APP.save();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(e){window.APP.toast(e.message)}});
-  $$('[data-go]').forEach(b => b.onclick = () => selectVideo(+b.dataset.go));
+  $$('#iv [data-go]').forEach(b => b.onclick = () => selectVideo(+b.dataset.go,`#iv [data-go="${b.dataset.go}"]`));
   $$('[data-cue]').forEach(b => b.onclick = () => openCue(+b.dataset.cue));
   $$('[data-cueo]').forEach(b => b.onclick = () => {
     if (V.cue.revealed) return;

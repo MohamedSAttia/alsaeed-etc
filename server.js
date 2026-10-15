@@ -1109,13 +1109,19 @@ app.get('/api/catalog-availability', (req, res) => {
   }
   res.json(result);
 });
+function validCourseChapterKeys(courseId, chapters) {
+  const keys = (Array.isArray(chapters) ? chapters : []).filter(ch => ch && typeof ch === 'object' && ch.outlineKey !== undefined).map(ch => ch.outlineKey);
+  return keys.every(key => courseId === 'pmp' && typeof key === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(key)) && new Set(keys).size === keys.length;
+}
 app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
   const chapters = req.body?.chapters;
   if (!Array.isArray(chapters) || chapters.length > 100 || chapters.some(ch =>
     !(typeof ch === 'string' && ch.trim() && ch.length <= 200 ||
-      ch && typeof ch === 'object' && typeof ch.ar === 'string' && ch.ar.trim() && ch.ar.length <= 200 &&
+      ch && typeof ch === 'object' && !Array.isArray(ch) && typeof ch.ar === 'string' && ch.ar.trim() && ch.ar.length <= 200 &&
       typeof ch.en === 'string' && ch.en.length <= 200)))
     return res.status(400).json({ error: 'أسماء الفصول غير صحيحة' });
+  if (!validCourseChapterKeys(req.params.course, chapters))
+    return res.status(400).json({ error: 'معرّفات المحاور غير صحيحة أو مكررة' });
   const courses = JSON.parse(setting('content_courses') || '[]');
   const course = courses.find(c => c.id === req.params.course);
   if (!course) return res.status(404).json({ error: 'الدورة غير موجودة' });
@@ -1126,6 +1132,8 @@ app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
 });
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
+  if (Array.isArray(body.courses) && body.courses.some(c => !validCourseChapterKeys(c?.id, c?.chapters)))
+    return res.status(400).json({ error: 'معرّفات المحاور غير صحيحة أو مكررة' });
   if (Array.isArray(body.packages)) {
     try { validatePackageInstructors(body.packages, setting, readList('content_packages')); }
     catch (error) { return res.status(error.status || 400).json({ error:error.message }); }

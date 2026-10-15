@@ -108,6 +108,6 @@ try {
   }
   roadmap.topics = topicsFor;
   assert.equal(JSON.stringify(catalog), storedBefore, 'Stored course and package chapters are untouched');
-  assert.ok(source.includes('/course-roadmap.js?v=20261015-outline-refinement'));
+  assert.ok(source.includes('/course-roadmap.js?v=20261015-canonical-authoring'));
   console.log(`PASS: ${assertions} render assertions; PMP course, legacy tab and full package share 18 public headings in AR/EN; other packages/courses, optional-module fallback, escaping and stored chapters preserved.`);
 } finally { window.close(); }

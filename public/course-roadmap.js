@@ -19,13 +19,71 @@ function publicPmpTopics(){
     {key:'exam-guidelines',ar:'إرشادات وتعليمات الاختبار الدولي',en:'International Exam Guidelines and Instructions'}
   ];
 }
-function topics(c){return c.id==='pmp'?publicPmpTopics():(c.chapters||[]).slice()}
+function flattenTopics(nodes,depth=0,prefix=''){
+  return nodes.flatMap((t,n)=>{const number=prefix?prefix+'.'+(n+1):String(n+1);return [{...t,depth,number},...flattenTopics(t.children||[],depth+1,number)];});
+}
+function topics(c){
+  if(c.id!=='pmp')return (c.chapters||[]).slice();
+  const overrides=new Map();
+  for(const ch of c.chapters||[])if(ch&&typeof ch==='object'&&ch.outlineKey&&!overrides.has(ch.outlineKey))overrides.set(ch.outlineKey,ch);
+  const apply=t=>{const saved=overrides.get(t.key);return {...t,ar:saved?.ar||t.ar,en:saved?.en||t.en,...(t.children?{children:t.children.map(apply)}:{})};};
+  return publicPmpTopics().map(apply);
+}
+// References are UI identities, never replacement chapter numbers. Reading the
+// outline does not create or reorder persisted chapter slots.
+function chapterChoices(c){
+  const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:'outline:'+t.key,canonical:true})):[];
+  const keys=new Set(canonical.map(t=>t.key));
+  const saved=(c.chapters||[]).flatMap((ch,index)=>{
+    if(ch&&typeof ch==='object'&&keys.has(ch.outlineKey))return [];
+    const ar=typeof ch==='string'?ch:ch?.ar||ch?.en||'',en=typeof ch==='string'?'':ch?.en||'';
+    return [{key:'source_'+index,ref:'chapter:'+index,index,ar,en,depth:0,number:String(index+1),canonical:false}];
+  });
+  return [...canonical,...saved];
+}
+function ensureChapter(c,ref){
+  const choice=chapterChoices(c).find(t=>t.ref===String(ref));
+  if(!choice)throw new Error('الفصل المحدد غير موجود');
+  if(!choice.canonical)return choice.index;
+  const index=(c.chapters||[]).findIndex(ch=>ch&&typeof ch==='object'&&ch.outlineKey===choice.key);
+  if(index!==-1)return index;
+  if((c.chapters||[]).length>=100)throw new Error('وصلت الدورة إلى الحد الأقصى للفصول');
+  c.chapters=c.chapters||[];
+  c.chapters.push({ar:choice.ar,en:choice.en,outlineKey:choice.key});
+  return c.chapters.length-1;
+}
+function renameChapter(c,ref,ar,en){
+  const choice=chapterChoices(c).find(t=>t.ref===String(ref));
+  if(!choice)throw new Error('الفصل المحدد غير موجود');
+  ar=String(ar||'').trim();en=String(en||'').trim();
+  if(ar===choice.ar&&en===choice.en)return;
+  if(!ar||ar.length>200||en.length>200)throw new Error('اسم الفصل غير صحيح');
+  const index=ensureChapter(c,ref),old=c.chapters[index];
+  c.chapters[index]={...(old&&typeof old==='object'?old:{}),ar,en};
+}
+function adminGroups(c,lessons){
+  if(c.id!=='pmp'){
+    const result=chapterChoices(c).map(t=>({...t,title:t.ar,items:[]})),byChapter=new Map(result.map(g=>[String(g.index),g]));
+    lessons.forEach((l,i)=>{const key=String(l.ch||0);let group=byChapter.get(key);
+      if(!group){group={key:'source_'+key,ref:null,title:'',en:'',items:[],children:[],originalChapter:true};byChapter.set(key,group);result.push(group);}
+      group.items.push({...l,i});
+    });
+    return result;
+  }
+  const choices=chapterChoices(c),byKey=new Map(choices.map(t=>[t.key,t]));
+  const flatten=nodes=>nodes.flatMap(g=>[{...g,ref:null,...byKey.get(g.key)},...flatten(g.children||[])]);
+  const result=flatten(learnerGroups(c,lessons));
+  // Old chapter names remain reachable for explicit authoring, even when all
+// their existing lessons have a more specific canonical display destination.
+  for(const choice of choices)if(!choice.canonical&&!result.some(g=>g.ref===choice.ref))result.push({...choice,title:choice.ar,items:[],children:[],originalChapter:true});
+  return result;
+}
 // Presentation only. Original lessons keep their saved records, chapters and
 // progress indices. A phase gets lessons only when the source identifies it.
 function learnerGroups(c,lessons){
   if(c.id!=='pmp')return groups(c,lessons);
   const node=t=>({key:t.key,title:t.ar,en:t.en,items:[],children:(t.children||[]).map(node),readingKey:null,assessmentKey:null});
-  const outline=publicPmpTopics().map(node),byKey=new Map();
+  const outline=topics(c).map(node),byKey=new Map();
   const index=nodes=>nodes.forEach(g=>{byKey.set(g.key,g);index(g.children)});index(outline);
   const legacy=groups(c,lessons),original=new Map(),sourceGroups=new Map();
   const savedLabel=ch=>typeof ch==='string'?ch:ch?[ch.ar,ch.en].filter(Boolean).join(' '):'';
@@ -77,9 +135,10 @@ function learnerGroups(c,lessons){
     return {approach:one(approaches),phase:one(phases),special,guidelines:exactLabels.some(v=>guidelineTitles.has(v)),ambiguous:new Set(approaches.filter(Boolean)).size>1||new Set(phases.filter(Boolean)).size>1};
   }
   lessons.forEach((l,i)=>{
-    const item={...l,i},prior=original.get(i),route=contextFor(l);
+    const item={...l,i},prior=original.get(i),route=contextFor(l),explicit=c.chapters?.[l.ch]?.outlineKey;
     let target;
-    if(!route.ambiguous&&route.guidelines)target=byKey.get('exam-guidelines');
+    if(explicit)target=byKey.get(explicit)||sourceGroup(l.ch);
+    else if(!route.ambiguous&&route.guidelines)target=byKey.get('exam-guidelines');
     else if(!route.ambiguous&&route.special)target=byKey.get(route.special);
     else if(!route.ambiguous&&(route.approach||route.phase)){
       target=byKey.get(route.approach||'predictive');
@@ -95,6 +154,10 @@ function learnerGroups(c,lessons){
   return [...outline.slice(0,tail),...sourceGroups.values(),...outline.slice(tail)];
 }
 function lessonItems(group){return [...group.items,...(group.children||[]).flatMap(lessonItems)];}
-function videoOrder(c,lessons){return learnerGroups(c,lessons).flatMap(lessonItems).filter(l=>l.vimeo).map(l=>l.i);}
-window.CourseRoadmap={pmp,groups,topics,learnerGroups,lessonItems,videoOrder};
+function videoGroups(c,lessons){
+  const prune=nodes=>nodes.map(g=>({...g,items:g.items.filter(l=>l.vimeo),children:prune(g.children||[])})).filter(g=>g.items.length||g.children.length);
+  return prune(learnerGroups(c,lessons));
+}
+function videoOrder(c,lessons){return videoGroups(c,lessons).flatMap(lessonItems).map(l=>l.i);}
+window.CourseRoadmap={pmp,groups,topics,chapterChoices,ensureChapter,renameChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
 })();
