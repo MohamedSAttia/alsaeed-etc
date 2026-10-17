@@ -949,14 +949,45 @@ app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res)
   res.json({ updated, unavailable:missing.length-updated });
 });
 app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
-  const list = req.body || [];
-  if (!Array.isArray(list)) return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
+  const list = req.body;
+  if (!Array.isArray(list) || list.some(l => !l || typeof l !== 'object' || Array.isArray(l) ||
+      typeof (l.t || l.title) !== 'string' || !(l.t || l.title).trim() ||
+      ['t','title','t_en','title_en','dur','duration','vimeo','notes','notes_en'].some(k => l[k] !== undefined && typeof l[k] !== 'string') ||
+      ['ch','chapter'].some(k => l[k] !== undefined &&
+        !(typeof l[k] === 'string' || Number.isSafeInteger(l[k]) && l[k] >= 0)) ||
+      (l.free !== undefined && ![true,false,0,1].includes(l.free)) ||
+      (l.clearVimeo !== undefined && typeof l.clearVimeo !== 'boolean') ||
+      (l.files !== undefined && !Array.isArray(l.files)) ||
+      (l.quiz !== undefined && !Array.isArray(l.quiz))))
+    return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
   // Only look up newly linked videos; keep existing durations when Vimeo is unavailable.
-  const existing = db.prepare('SELECT idx,title,vimeo,duration,quiz FROM lessons WHERE package_id=?').all(req.params.pkg);
+  const readExisting = db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx');
+  const existing = readExisting.all(req.params.pkg);
+  const snapshot = JSON.stringify(existing);
   for (let i = 0; i < list.length; i++) {
     const lesson = list[i];
+    if (lesson.ch === undefined && lesson.chapter !== undefined) lesson.ch = lesson.chapter;
+    if (lesson.dur === undefined && lesson.duration !== undefined) lesson.dur = lesson.duration;
+    const video = normalizeVimeoReference(lesson.vimeo)?.stored;
+    const videoMatches = video ? existing.filter(row => normalizeVimeoReference(row.vimeo)?.stored === video) : [];
+    const titleMatches = existing.filter(row => row.title === (lesson.t || lesson.title));
     const old = existing.find(row => row.idx === i && row.title === (lesson.t || lesson.title)) ||
-      existing.find(row => row.title === (lesson.t || lesson.title));
+      (titleMatches.length === 1 ? titleMatches[0] : undefined) ||
+      (videoMatches.length === 1 ? videoMatches[0] : undefined);
+    if (!old && (videoMatches.length > 1 || titleMatches.length > 1))
+      return res.status(409).json({ error: 'تعذّر تحديد الدرس الأصلي؛ أعد تحميل الدروس وراجع العناوين وروابط الفيديو' });
+    // Omitted fields are not a request to erase saved teaching material.
+    // Explicit empty strings/arrays and false remain valid edits.
+    if (old) {
+      for (const [key, column] of [['t_en','title_en'], ['ch','chapter'],
+          ['free','free'], ['notes','notes'], ['notes_en','notes_en']]) {
+        if (lesson[key] === undefined && lesson[column] === undefined) lesson[key] = old[column];
+      }
+      if (lesson.files === undefined) lesson.files = JSON.parse(old.files || '[]');
+      if (lesson.dur === undefined && lesson.duration === undefined && !lesson.clearVimeo &&
+          (!lesson.vimeo || normalizeVimeoReference(lesson.vimeo)?.stored === normalizeVimeoReference(old.vimeo)?.stored))
+        lesson.dur = old.duration;
+    }
     if (!Array.isArray(lesson.quiz) && old?.quiz) lesson.quiz = JSON.parse(old.quiz);
     if (!lesson.vimeo && old?.vimeo && !lesson.clearVimeo) lesson.vimeo = old.vimeo;
     const id = normalizeVimeoReference(lesson.vimeo)?.stored;
@@ -969,7 +1000,10 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
   const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`);
-  db.transaction(() => {
+  const saved = db.transaction(() => {
+    // Vimeo lookups await the network. A concurrent editor/duration update must
+    // not be overwritten by the earlier request's stale replacement snapshot.
+    if (JSON.stringify(readExisting.all(req.params.pkg)) !== snapshot) return false;
     del.run(req.params.pkg);
     list.forEach((l, i) => ins.run(req.params.pkg, i,
       l.t || l.title || '', l.t_en || l.title_en || '',
@@ -990,7 +1024,9 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
         return type === 'single' && Array.isArray(q.options) && q.options.length === 4 &&
           q.options.every(o => typeof o === 'string' && !!o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4;
       }).slice(0, 20) : [])));
+    return true;
   })();
+  if (!saved) return res.status(409).json({ error: 'تغيّرت الدروس أثناء الحفظ؛ أعد تحميلها وراجع التغييرات قبل المحاولة مجدداً' });
   res.json({ ok: true, count: list.length });
 });
 app.get('/api/admin/settings', auth, admin, (req, res) => {
@@ -1212,3 +1248,4 @@ app.listen(PORT, () => {
   console.log(`   البوابة: ${setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier'} · ` +
     `المفتاح السرّي: ${process.env.PAYMOB_SECRET_KEY || process.env.MOYASAR_SECRET_KEY || process.env.TAP_SECRET_KEY ? 'مضبوط ✅' : 'غير مضبوط ⚠️'}\n`);
 });
+
