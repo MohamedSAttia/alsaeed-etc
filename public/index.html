@@ -1136,6 +1136,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 .hero .v24-slide{opacity:0!important;visibility:hidden!important}.hero .v24-slide.is-current{opacity:1!important;visibility:visible!important}
 </style>
 <script src="/lesson-video.js?v=20261009-1"></script>
+<link rel="stylesheet" href="/auth-entry.css?v=20261017">
 </head>
 <body>
 
@@ -3164,7 +3165,7 @@ function modal(html, after) {
   ov.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
   if (after) after();
 }
-function closeModal() { const o = $('#ov'); if (o) o.remove(); }
+function closeModal() { const o = $('#ov'); if (o) { if (o.authCleanup) o.authCleanup(); o.remove(); } }
 
 /* ═══ التوجيه ═══ */
 let ROUTE = 'home';
@@ -3236,58 +3237,130 @@ function renderNav() {
 }
 
 /* ═══ الدخول والتسجيل ═══ */
+let authRequestPending = false;
+const AUTH_KNOWN_KEY = 'alsaeed_account_seen';
+const AUTH_VISIT_KEY = 'alsaeed_auth_prompted';
+function rememberAccount() {
+  try { localStorage.setItem(AUTH_KNOWN_KEY, '1'); } catch (e) {}
+}
+function preferredAuthMode() {
+  try { return localStorage.getItem(AUTH_KNOWN_KEY) === '1' ? 'login' : 'reg'; }
+  catch (e) { return 'reg'; }
+}
 function openAuth(mode, after) {
-  const isReg = mode === 'reg';
+  if (authRequestPending) { toast('جارٍ معالجة طلب الدخول، انتظر لحظة.'); return; }
+  if (me() && API.token) { after ? after() : go(isAdmin() ? 'admin' : 'dash'); return; }
+  const isReg = (mode || preferredAuthMode()) === 'reg';
+  const previousFocus = $('#ov')?.authReturnFocus || document.activeElement;
+  const draftName = $('#aName')?.value || $('#ov')?.authDraftName || '';
   modal(`
-    <h3>${isReg ? 'أنشئ حسابك' : 'تسجيل الدخول'}</h3>
-    <p>${isReg ? 'خطوة واحدة تفصلك عن رحلتك المهنية.' : 'أهلاً بعودتك — أكمل من حيث توقّفت.'}</p>
-    ${isReg ? '<label class="f"><span>الاسم الكامل</span><input id="aName" placeholder="محمد عبدالله"></label>' : ''}
-    <label class="f"><span>البريد الإلكتروني</span><input id="aMail" type="email" placeholder="name@example.com"></label>
-    <label class="f"><span>كلمة المرور</span><input id="aPass" type="password" placeholder="••••••••"></label>
-    
-    <div class="mdl-act">
-      <button class="btn p" id="aGo">${isReg ? 'إنشاء الحساب' : 'دخول'}</button>
-      <button class="btn o" id="aSwap">${isReg ? 'لدي حساب' : 'أنشئ حساباً'}</button>
-      <button class="btn o" data-close>إلغاء</button>
-    </div>`, () => {
-    $('#aSwap').onclick = () => openAuth(isReg ? 'login' : 'reg', after);
-    $('#aGo').onclick = () => {
-      const mail = ($('#aMail').value || '').trim().toLowerCase();
-      const pass = $('#aPass').value || '';
-      if (!mail || !pass) { toast('أكمل البريد وكلمة المرور'); return; }
-      if (isReg && pass.length < 10) { toast('كلمة المرور يجب أن تكون 10 أحرف على الأقل'); return; }
-      if (isReg) {
-        const name = ($('#aName').value || '').trim();
-        if (!name) { toast('اكتب اسمك الكامل'); return; }
-        if (API.live) {
-          api('/auth/register', { method: 'POST', body: { name, email: mail, password: pass } })
-            .then(d => {
-              API.token = d.token; window.LESSONS = {}; adminLessonsReady.clear(); try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
-              const u = { ...d.user, packages: [] };
-              if (!DB.users.some(x => x.id === u.id)) DB.users.push(u);
-              DB.session = u.id; save(); closeModal();
-              toast('🎉 أهلاً بك في السعيد'); after ? after() : go('dash');
-            }).catch(e => toast(e.message));
-          return;
+    <section class="auth-layout" dir="rtl">
+      <div class="auth-form-panel">
+        <button class="auth-close" type="button" data-close aria-label="إغلاق والعودة إلى الموقع">×</button>
+        <div class="auth-brand">${window.LOGO_FULL()}</div>
+        <span class="auth-eyebrow">AL-LTC · رحلتك المهنية تبدأ هنا</span>
+        <h2 id="authTitle">${isReg ? 'ابدأ رحلتك معنا' : 'أهلاً بعودتك'}</h2>
+        <p class="auth-intro" id="authDescription">${isReg ? 'أنشئ حسابك وتعلّم اليوم لمستقبل أفضل.' : 'سجّل دخولك وأكمل رحلتك من حيث توقّفت.'}</p>
+        <div class="auth-tabs" aria-label="خيارات الحساب">
+          <button type="button" id="authRegTab" aria-pressed="${isReg}">إنشاء حساب</button>
+          <button type="button" id="authLoginTab" aria-pressed="${!isReg}">تسجيل الدخول</button>
+        </div>
+        <form id="authForm">
+          ${isReg ? '<label class="f" for="aName"><span>الاسم الكامل</span><input id="aName" name="name" autocomplete="name" placeholder="اكتب اسمك الكامل" required maxlength="120"></label>' : ''}
+          <label class="f" for="aMail"><span>البريد الإلكتروني</span><input id="aMail" name="email" type="email" autocomplete="username" inputmode="email" dir="ltr" placeholder="name@example.com" required maxlength="254"></label>
+          <label class="f" for="aPass"><span>كلمة المرور</span><span class="auth-password"><input id="aPass" name="password" type="password" autocomplete="${isReg ? 'new-password' : 'current-password'}" ${isReg ? 'minlength="10" aria-describedby="authPasswordHint"' : ''} placeholder="${isReg ? '10 أحرف على الأقل' : 'أدخل كلمة المرور'}" required><button type="button" id="authShowPassword" aria-label="إظهار كلمة المرور" aria-pressed="false">إظهار</button></span></label>
+          ${isReg ? '<p class="auth-hint" id="authPasswordHint">استخدم كلمة مرور من 10 أحرف على الأقل.</p>' : ''}
+          <div id="authError" class="auth-error" role="alert" hidden></div>
+          <button class="auth-submit" type="submit" id="aGo">${isReg ? 'إنشاء حسابي' : 'تسجيل الدخول'} <span aria-hidden="true">←</span></button>
+        </form>
+        <p class="auth-switch">${isReg ? 'لديك حساب بالفعل؟' : 'جديد في منصة السعيد؟'} <button type="button" id="aSwap">${isReg ? 'سجّل دخولك' : 'أنشئ حسابك'}</button></p>
+        <button type="button" class="auth-browse" data-close>تصفّح البرامج أولاً ←</button>
+      </div>
+      <aside class="auth-visual" aria-label="التعلّم مع منصة السعيد">
+        <div class="auth-visual-top"><span class="auth-visual-pill">السعيد للتعليم والتدريب</span><h3>معرفة اليوم.<br><em>فرص الغد.</em></h3><p>خطوتك القادمة نحو التطوّر المهني تبدأ من هنا.</p></div>
+        <div class="auth-visual-bottom"><span>تعلّم. طبّق. تقدّم.</span><p>برامج مهنية · تعلّم تفاعلي · مسار واضح</p></div>
+      </aside>
+    </section>`, () => {
+    const overlay = $('#ov'), dialog = overlay.querySelector('.mdl');
+    overlay.authReturnFocus = previousFocus; overlay.authDraftName = draftName;
+    if ($('#aName')) $('#aName').value = draftName;
+    overlay.classList.add('auth-overlay'); dialog.classList.add('auth-dialog');
+    dialog.setAttribute('role', 'dialog'); dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-labelledby', 'authTitle'); dialog.setAttribute('aria-describedby', 'authDescription');
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const siblings = [...document.body.children].filter(el => el !== overlay && el.tagName !== 'SCRIPT');
+    const inertState = siblings.map(el => [el, el.inert]);
+    siblings.forEach(el => { el.inert = true; });
+    const keydown = e => {
+      if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+      if (e.key !== 'Tab') return;
+      const nodes = [...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), a[href]')].filter(el => el.getClientRects().length);
+      const first = nodes[0], last = nodes[nodes.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !nodes.includes(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', keydown);
+    overlay.authCleanup = () => {
+      document.removeEventListener('keydown', keydown);
+      document.body.style.overflow = oldOverflow;
+      inertState.forEach(([el, state]) => { el.inert = state; });
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+    // Focus the heading first: clear context without opening a mobile keyboard.
+    $('#authTitle').tabIndex = -1; $('#authTitle').focus();
+    const switchTo = next => {
+      const email = $('#aMail').value, name = $('#aName')?.value;
+      openAuth(next, after);
+      $('#aMail').value = email;
+      if (name && $('#aName')) $('#aName').value = name;
+    };
+    $('#aSwap').onclick = () => switchTo(isReg ? 'login' : 'reg');
+    $('#authRegTab').onclick = () => { if (!isReg) switchTo('reg'); };
+    $('#authLoginTab').onclick = () => { if (isReg) switchTo('login'); };
+    $('#authShowPassword').onclick = () => {
+      const input = $('#aPass'), show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      $('#authShowPassword').textContent = show ? 'إخفاء' : 'إظهار';
+      $('#authShowPassword').setAttribute('aria-pressed', String(show));
+      $('#authShowPassword').setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+    };
+    const form = $('#authForm'), button = $('#aGo'), error = $('#authError');
+    let pending = false;
+    form.onsubmit = async event => {
+      event.preventDefault();
+      if (pending || !form.reportValidity()) return;
+      const mail = $('#aMail').value.trim().toLowerCase(), pass = $('#aPass').value;
+      const name = isReg ? $('#aName').value.trim() : '';
+      error.hidden = true;
+      const fail = text => { error.textContent = text; error.hidden = false; };
+      if (isReg && !name) { fail('اكتب اسمك الكامل.'); $('#aName').focus(); return; }
+      if (!API.live) { fail('تعذّر الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.'); return; }
+      pending = true; authRequestPending = true; button.disabled = true; form.setAttribute('aria-busy', 'true');
+      const label = button.innerHTML; button.textContent = isReg ? 'جارٍ إنشاء الحساب…' : 'جارٍ تسجيل الدخول…';
+      // Keep a single request active even while the visitor navigates away.
+      dialog.querySelectorAll('#aSwap, #authRegTab, #authLoginTab').forEach(el => el.disabled = true);
+      try {
+        const d = await api(isReg ? '/auth/register' : '/auth/login', { method:'POST', timeoutMs:15000, body:isReg ? { name, email:mail, password:pass } : { email:mail, password:pass } });
+        API.token = d.token; window.LESSONS = {}; adminLessonsReady.clear();
+        try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
+        rememberAccount();
+        let u = DB.users.find(x => x.id === d.user.id);
+        if (!u) { u = { ...d.user, packages:[] }; DB.users.push(u); }
+        Object.assign(u, d.user);
+        if (!isReg) {
+          const me2 = await api('/me', { timeoutMs:15000 });
+          u.packages = me2.packages.map(p => ({ id:p.package_id, at:p.created, source:p.source, expires:p.expires }));
         }
-        toast('التسجيل الآمن يحتاج تشغيل خادم AL-LTC — لا يتم حفظ كلمات المرور داخل المتصفح.'); return;
-      } else {
-        if (API.live) {
-          api('/auth/login', { method: 'POST', body: { email: mail, password: pass } })
-            .then(async d => {
-              API.token = d.token; window.LESSONS = {}; adminLessonsReady.clear(); try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
-              let u = DB.users.find(x => x.id === d.user.id);
-              if (!u) { u = { ...d.user, packages: [] }; DB.users.push(u); }
-              Object.assign(u, d.user);
-              const me2 = await api('/me');
-              u.packages = me2.packages.map(p => ({ id: p.package_id, at: p.created, source: p.source, expires:p.expires }));
-              DB.session = u.id; save(); closeModal();
-              if (u.role === 'admin') await syncAdminData();
-              toast(`أهلاً ${u.name.split(' ')[0]}`); after ? after() : go(u.role === 'admin' ? 'admin' : 'dash');
-            }).catch(e => toast(e.message));
-          return;
-        }
-        toast('تسجيل الدخول يحتاج تشغيل خادم AL-LTC.'); return;
+        DB.session = u.id; save(); authRequestPending = false; if ($('#ov') === overlay) closeModal();
+        if (u.role === 'admin') await syncAdminData();
+        toast(isReg ? '🎉 أهلاً بك في السعيد' : `أهلاً ${u.name.split(' ')[0]}`);
+        after ? after() : go(u.role === 'admin' ? 'admin' : 'dash');
+      } catch (e) {
+        fail(isReg ? 'تعذّر إنشاء الحساب. راجع البيانات أو جرّب تسجيل الدخول إذا كان لديك حساب.' : 'تعذّر تسجيل الدخول. تأكد من البريد وكلمة المرور وحاول مرة أخرى.');
+      } finally {
+        pending = false; authRequestPending = false; button.disabled = false; button.innerHTML = label; form.removeAttribute('aria-busy');
+        dialog.querySelectorAll('#aSwap, #authRegTab, #authLoginTab').forEach(el => el.disabled = false);
       }
     };
   });
@@ -3389,7 +3462,16 @@ async function boot() {
       hours:p.hours || (course(p.course) || {}).hours, cert:!!p.cert, type:p.type
     })) } }); } catch (e) {}
   }
+  if (me() && API.token) {
+    rememberAccount();
+    if (!location.hash) ROUTE = isAdmin() ? 'admin' : 'dash';
+  }
   render();
+  if (!API.token && !$('#ov')) {
+    let prompted = false;
+    try { prompted = sessionStorage.getItem(AUTH_VISIT_KEY) === '1'; sessionStorage.setItem(AUTH_VISIT_KEY, '1'); } catch (e) {}
+    if (!prompted) openAuth(preferredAuthMode());
+  }
 }
 
 return { boot, go, replaceRoute, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
@@ -7260,4 +7342,5 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/certificate-library.js?v=20261015"></script>
 </body>
 </html>
+
 
