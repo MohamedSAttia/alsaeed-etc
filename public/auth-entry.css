@@ -185,3 +185,23 @@
     transform: none;
   }
 }
+
+/* Keep a compact animated welcome visible on phones, above the account form. */
+#ov .mdl.auth-dialog{position:relative}.auth-close{z-index:5}
+@media(max-width:760px){
+  .auth-layout{max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  .auth-form-panel{max-height:none;overflow:visible;flex:none;padding:18px 24px 22px}
+  .auth-visual{display:block;order:-1;flex:none;height:184px;min-height:184px;padding:0;border-radius:0}
+  .auth-visual-top{position:absolute;right:18px;top:37px;width:38%;z-index:2}
+  .auth-visual-pill,.auth-visual-top p,.auth-visual-bottom{display:none}
+  #ov .auth-visual h3{font-size:21px;line-height:1.4;margin:0}
+  .auth-scenes{display:block;position:absolute;inset:0 auto auto 0;margin:0;width:61%;height:154px;min-height:0;overflow:hidden}
+  .auth-scene .auth-art{height:154px;max-height:154px}
+  .auth-scene-controls{display:flex;bottom:3px;left:12px;right:12px;gap:3px}
+  .auth-scene-dot{width:32px;height:30px}.auth-scene-pause{min-height:30px;margin-left:6px;font-size:10px;padding:3px 9px}
+  .auth-brand{margin-bottom:12px;min-height:38px}.auth-brand svg{height:38px}
+  .auth-eyebrow{font-size:9px;margin-bottom:5px}
+  #ov .auth-form-panel h2{font-size:26px}#ov .auth-form-panel .auth-intro{font-size:12px;margin-bottom:14px}
+  .auth-tabs{margin-bottom:16px}.auth-close{top:9px;left:9px;background:#f3f5f8ee}
+}
+@media(max-width:350px){#ov .auth-visual h3{font-size:18px}.auth-visual-top{right:14px}.auth-form-panel{padding-left:18px;padding-right:18px}}

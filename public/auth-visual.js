@@ -214,7 +214,6 @@ const scenes = [
 
   function mount(panel) {
     if (!panel) return function () {};
-    const mobile = window.matchMedia('(max-width: 760px)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const media = document.createElement('div');
     media.className = 'auth-scenes'; media.setAttribute('aria-hidden', 'true');
@@ -232,7 +231,7 @@ const scenes = [
     const pause = document.createElement('button'); pause.type = 'button'; pause.className = 'auth-scene-pause';
     controls.appendChild(pause); panel.prepend(media); panel.appendChild(controls);
     function stop() { if (timer !== null) { window.clearTimeout(timer); timer = null; } }
-    function running() { return !disposed && !paused && !mobile.matches && !reduced.matches && !document.hidden; }
+    function running() { return !disposed && !paused && !reduced.matches && !document.hidden; }
     function schedule() {
       stop(); media.classList.toggle('is-running', running()); panel.classList.toggle('auth-motion-still', !running());
       if (running() && !hovering && !focused && !selected) timer = window.setTimeout(() => show((index + 1) % scenes.length), 10000);
@@ -248,7 +247,7 @@ const scenes = [
     function show(next) {
       if (disposed) return;
       index = next;
-      if (!mobile.matches && !frames.length) {
+      if (!frames.length) {
         scenes.forEach(markup => {
           const frame = document.createElement('div'); frame.className = 'auth-scene';
           // These SVG strings are static, reviewed local artwork, never user content.
@@ -269,14 +268,14 @@ const scenes = [
     panel.addEventListener('mouseenter', enter); panel.addEventListener('mouseleave', leave);
     panel.addEventListener('focusin', focusIn); panel.addEventListener('focusout', focusOut);
     document.addEventListener('visibilitychange', visibility);
-    mobile.addEventListener('change', preference); reduced.addEventListener('change', preference);
+    reduced.addEventListener('change', preference);
     paintPause(); show(0);
     return function dispose() {
       if (disposed) return; disposed = true; stop(); media.classList.remove('is-running');
       panel.removeEventListener('mouseenter', enter); panel.removeEventListener('mouseleave', leave);
       panel.removeEventListener('focusin', focusIn); panel.removeEventListener('focusout', focusOut);
       document.removeEventListener('visibilitychange', visibility);
-      mobile.removeEventListener('change', preference); reduced.removeEventListener('change', preference);
+      reduced.removeEventListener('change', preference);
       dots.forEach(dot => { dot.onclick = null; }); pause.onclick = null;
       panel.classList.remove('auth-motion-still'); media.remove(); controls.remove();
     };
