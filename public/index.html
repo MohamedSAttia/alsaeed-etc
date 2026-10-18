@@ -2816,7 +2816,7 @@ function canRefreshCatalog() {
     !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]');
 }
 function beginCatalogWrite() { catalogVersion++; catalogWrites++; }
-function endCatalogWrite() { catalogWrites = Math.max(0, catalogWrites - 1); }
+function endCatalogWrite() { catalogWrites = Math.max(0, catalogWrites - 1); if (!catalogWrites) settleAdminLessonLoad(); }
 function rememberSavedContent(path, body) {
   if (!savedContent || !body) return;
   if (path === '/admin/content') {
@@ -2841,7 +2841,7 @@ function rememberLessons(pid) { savedLessons.set(pid, JSON.stringify(window.LESS
 function resetLessonCaches() {
   catalogVersion++; contentRequest = null; refreshRequest = null; lastRefreshAt = 0;
   window.LESSONS = {}; lessonRequests.clear(); adminLessonRequests.clear();
-  adminLessonsReady.clear(); savedLessons.clear();
+  adminLessonsReady.clear(); adminLessonErrors.clear(); savedLessons.clear();
 }
 
 async function api(path, opts) {
@@ -2915,8 +2915,11 @@ const mapLessonRows = rows => rows.map(l => ({ ch:l.chapter || 0, t:l.title || '
 const lessonRequests = new Map();
 const adminLessonRequests = new Map();
 const adminLessonsReady = new Set();
+const adminLessonErrors = new Map();
 function loadAdminLessons(pid, options = {}) {
   if (!API.live || !API.token || !pid || !isAdmin() || (!options.refresh && adminLessonsReady.has(pid))) return Promise.resolve(false);
+  if (options.retry) adminLessonErrors.delete(pid);
+  else if (!options.refresh && adminLessonErrors.has(pid)) return Promise.resolve(false);
   return requestLessons(pid, true, options);
 }
 function requestLessons(pid, admin, options = {}) {
@@ -2927,23 +2930,51 @@ function requestLessons(pid, admin, options = {}) {
   if (existing?.token === token && existing.actor === actor && existing.version === version) return existing.promise;
   const inputVersion = editorInputVersion, requestedRoute = ROUTE;
   const request = {token,actor,version};
-  request.promise = api((admin ? '/admin/lessons/' : '/lessons/') + encodeURIComponent(pid), {cache:'no-store'})
-    .then(rows => {
-      if (requests.get(pid) !== request || API.token !== token || DB.session !== actor || catalogVersion !== version || catalogWrites ||
-          (admin && !isAdmin()) || (options.refresh && !canRefreshCatalog()) || !Array.isArray(rows)) return false;
+  let changed = false, ready = false, failed = false;
+  const sameIdentity = () => API.token === token && DB.session === actor && (!admin || isAdmin());
+  const sameActor = () => sameIdentity() && catalogVersion === version;
+  const current = () => requests.get(pid) === request && sameActor() && !catalogWrites;
+  request.promise = api((admin ? '/admin/lessons/' : '/lessons/') + encodeURIComponent(pid), {
+    cache:'no-store', ...(admin ? {timeoutMs:15000,timeoutMessage:'استغرق تحميل الدروس وقتًا أطول من المتوقع. أعد المحاولة.'} : {})
+  }).then(rows => {
+      if (!current() || (options.refresh && !canRefreshCatalog())) return false;
+      if (!Array.isArray(rows)) throw new Error('تعذّر قراءة بيانات الدروس من الخادم. أعد المحاولة.');
       if (!admin && (adminLessonsReady.has(pid) || adminLessonRequests.has(pid))) return false;
-      const mapped = mapLessonRows(rows), changed = JSON.stringify(window.LESSONS[pid]) !== JSON.stringify(mapped);
+      const mapped = mapLessonRows(rows);
+      changed = JSON.stringify(window.LESSONS[pid]) !== JSON.stringify(mapped);
       window.LESSONS[pid] = mapped; rememberLessons(pid);
-      if (admin) adminLessonsReady.add(pid);
-      const relevantEditor = ROUTE.startsWith('admin') && (pid === window.__vidPk || pid === (pack(window.__learningPk)?.sourcePackageId || window.__learningPk));
-      if (changed && options.render !== false && ROUTE === requestedRoute && editorInputVersion === inputVersion &&
-          !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]') &&
-          (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || relevantEditor)) render();
+      if (admin) { adminLessonsReady.add(pid); adminLessonErrors.delete(pid); ready = true; }
       return changed;
-    }).catch(e => { if (admin && !options.refresh && API.token === token && DB.session === actor) toast('تعذر تحميل روابط الفيديو: ' + e.message); return false; })
-    .finally(() => { if (requests.get(pid) === request) requests.delete(pid); });
+    }).catch(e => {
+      if (admin && !options.refresh && current()) {
+        adminLessonErrors.set(pid, e.message || 'تعذّر تحميل الدروس. أعد المحاولة.'); failed = true;
+      }
+      return false;
+    }).finally(() => {
+      if (requests.get(pid) !== request) return;
+      requests.delete(pid);
+      if (admin && !options.refresh && sameIdentity()) {
+        if (!ready && !failed && !adminLessonsReady.has(pid))
+          adminLessonErrors.set(pid, 'تغيّرت البيانات أثناء التحميل. أعد المحاولة لتحميل أحدث نسخة.');
+        if (options.render !== false) settleAdminLessonLoad();
+      }
+      if (!sameActor() || catalogWrites || options.render === false || ROUTE !== requestedRoute || editorInputVersion !== inputVersion ||
+          document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]')) return;
+      if (changed && (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid)) render();
+    });
   requests.set(pid, request);
   return request.promise;
+}
+
+function settleAdminLessonLoad() {
+  if (!catalogReady || !isAdmin() || catalogWrites || !ROUTE.startsWith('admin') ||
+      document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]')) return;
+  const host = document.getElementById('admBody'), status = host?.querySelector('[data-admin-lesson-load]');
+  // Only a waiting/error placeholder is safe to replace. Never redraw a populated editor or its raw draft.
+  if (!status || host.querySelector('input, textarea, [contenteditable="true"]')) return;
+  const pid = status.dataset.adminLessonLoad;
+  if (adminLessonRequests.has(pid) || (!adminLessonsReady.has(pid) && !adminLessonErrors.has(pid))) return;
+  render();
 }
 
 const progressRequests = new Map();
@@ -3269,7 +3300,7 @@ function modal(html, after) {
   ov.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
   if (after) after();
 }
-function closeModal() { const o = $('#ov'); if (o) { if (o.authCleanup) o.authCleanup(); o.remove(); } }
+function closeModal() { const o = $('#ov'); if (o) { if (o.authCleanup) o.authCleanup(); o.remove(); settleAdminLessonLoad(); } }
 
 /* ═══ التوجيه ═══ */
 let ROUTE = 'home';
@@ -3585,7 +3616,7 @@ async function boot() {
 
 return { boot, go, replaceRoute, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
   loadAdminLessons, refreshPublishedContent, beginCatalogWrite, endCatalogWrite, rememberLessons,
-  adminLessonsReady: pid => adminLessonsReady.has(pid),
+  adminLessonsReady: pid => adminLessonsReady.has(pid), adminLessonError: pid => adminLessonErrors.get(pid) || '',
   get token() { return API.token; }, get editorRevision() { return editorInputVersion; },
   me, isAdmin, owns, course, pack, prog, pct, certReady, studyPlan, examSet,
   readiness, BAND, overallBand, esc, money, save, syncAdminData,
@@ -5028,13 +5059,19 @@ function openAdminQuestionEditor(q){
     });
 }
 
+function adminLessonStatus(pid) {
+  const error = A().adminLessonError?.(pid);
+  return `<div class="note ${error ? 'warn' : 'info'}" data-admin-lesson-load="${esc(pid)}" role="${error ? 'alert' : 'status'}">${error
+    ? `${esc(error)} <button type="button" class="btn o sm" data-admin-lesson-retry="${esc(pid)}">إعادة المحاولة</button>`
+    : 'جارٍ تحميل الدروس وروابط الفيديو من الخادم…'}</div>`;
+}
 function learningAdminView() {
   const pid = window.__learningPk || window.PACKAGES.find(x => x.id === 'pmp-full')?.id || window.PACKAGES[0]?.id;
   const p = A().pack(pid); if (!p) return '<div class="empty">لا توجد باقات</div>';
   const lessonSource = p.sourcePackageId || pid;
   if (A().live && !A().adminLessonsReady(lessonSource)) {
     A().loadAdminLessons(lessonSource);
-    return `<label class="f"><span>الباقة</span><select id="learningPackage">${window.PACKAGES.map(x => `<option value="${esc(x.id)}" ${x.id===pid?'selected':''}>${esc(x.ar)}</option>`).join('')}</select></label><div class="note info">جارٍ تحميل الدروس لتحديث الخطة…</div>`;
+    return `<label class="f"><span>الباقة</span><select id="learningPackage">${window.PACKAGES.map(x => `<option value="${esc(x.id)}" ${x.id===pid?'selected':''}>${esc(x.ar)}</option>`).join('')}</select></label>${adminLessonStatus(lessonSource)}`;
   }
   const c = A().course(p.course), cards = window.LEARNING_DATA[p.course]?.cards || [], plan = A().studyPlan(pid);
   return `<div class="note info mb">عناوين الفصول والدروس تُقرأ من المحتوى المحفوظ. يمكن تعديل كل بطاقة في الخطة والبطاقات التعليمية، وتعديل أسئلة التقييم من بنك الأسئلة أو من الدرس نفسه.</div>
@@ -5150,7 +5187,7 @@ function adminTab() {
     const c = A().course(pk.course) || { chapters: [] };
     if (A().live && !A().adminLessonsReady(pid)) {
       A().loadAdminLessons(pid);
-      return '<div class="note info">جارٍ تحميل الدروس وروابط الفيديو من الخادم…</div>';
+      return adminLessonStatus(pid);
     }
     const ls = window.LESSONS[pid] || (window.LESSONS[pid] = []);
     const chapters = window.CourseRoadmap.adminGroups(c, ls);
@@ -6003,6 +6040,11 @@ function bind() {
   if(reminderEnabled)reminderEnabled.onchange=saveReminder;
   if(reminderDays)reminderDays.onchange=saveReminder;
   $$('[data-at]').forEach(b => b.onclick = () => { admTab = b.dataset.at; A().render(); });
+  $$('[data-admin-lesson-retry]').forEach(button => button.onclick = () => {
+    if (!A().isAdmin()) return;
+    A().loadAdminLessons(button.dataset.adminLessonRetry, {retry:true});
+    A().render();
+  });
   if (admTab === 'learning') {
     const picker=$('#learningPackage'); if(picker) picker.onchange=()=>{window.__learningPk=picker.value;A().render();};
     const pid=window.__learningPk || window.PACKAGES.find(p=>p.id==='pmp-full')?.id || window.PACKAGES[0]?.id;
