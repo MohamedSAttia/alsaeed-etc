@@ -2791,9 +2791,66 @@ const money = n => Number(n).toLocaleString('en-US');
    إن وُجد خادم، تُدار الحسابات والدفع والتقدّم عليه.
    وإن غاب، تعمل المنصة محلياً للعرض والتجربة. */
 const API = { base: '', live: false, token: null, adminOverview: null };
+// Revalidate at navigation/focus boundaries, never from render or a polling loop.
+const contentKeys = {cms:'CMS',courses:'COURSES',packages:'PACKAGES',academic:'ACADEMIC',
+  consulting:'CONSULTING',systems:'SYSTEMS',promos:'PROMOS',learning:'LEARNING_DATA'};
+let catalogVersion = 0, catalogWrites = 0, catalogReady = false;
+let contentRequest = null, refreshRequest = null, lastRefreshAt = 0;
+let savedContent = null, editorInputVersion = 0;
+// A response that began before the next keystroke must not replace an editor.
+for (const event of ['input','change']) document.addEventListener(event, () => {
+  if (isAdmin() && ROUTE.split('/')[0].split('?')[0] === 'admin') editorInputVersion++;
+}, true);
+const savedLessons = new Map();
+const copyData = value => JSON.parse(JSON.stringify(value ?? null));
+const contentState = () => Object.fromEntries(Object.entries(contentKeys).map(([key,name]) => [key,copyData(window[name])]));
+function rememberContent() { savedContent = contentState(); }
+function hasCatalogDrafts() {
+  if (!isAdmin()) return false;
+  if (savedContent && JSON.stringify(savedContent) !== JSON.stringify(contentState())) return true;
+  return [...savedLessons].some(([pid,value]) => value !== JSON.stringify(window.LESSONS[pid]));
+}
+function canRefreshCatalog() {
+  return catalogReady && API.live && !catalogWrites && !hasCatalogDrafts() &&
+    ROUTE.split('/')[0].split('?')[0] !== 'admin' &&
+    !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]');
+}
+function beginCatalogWrite() { catalogVersion++; catalogWrites++; }
+function endCatalogWrite() { catalogWrites = Math.max(0, catalogWrites - 1); }
+function rememberSavedContent(path, body) {
+  if (!savedContent || !body) return;
+  if (path === '/admin/content') {
+    for (const key of Object.keys(contentKeys)) if (Object.hasOwn(body,key)) savedContent[key] = copyData(body[key]);
+  } else if (path.startsWith('/admin/course-chapters/')) {
+    const c = savedContent.courses?.find(c => c.id === decodeURIComponent(path.split('/').pop()));
+    if (c) c.chapters = copyData(body.chapters);
+  } else if (path.startsWith('/admin/package-plan/')) {
+    const p = savedContent.packages?.find(p => p.id === decodeURIComponent(path.split('/').pop()));
+    if (p) p.planCards = copyData(body.planCards);
+  } else if (path.startsWith('/admin/learning/')) {
+    const id = decodeURIComponent(path.split('/').pop());
+    savedContent.learning ||= {}; savedContent.learning[id] = {...savedContent.learning[id],cards:copyData(body.cards)};
+  } else if (/^\/admin\/lessons\/[^/]+$/.test(path) && Array.isArray(body)) {
+    const pid = decodeURIComponent(path.split('/').pop());
+    savedLessons.set(pid, JSON.stringify(body));
+    const p = savedContent.packages?.find(p => p.id === pid);
+    if (p) p.videos = body.filter(l => l.vimeo).length;
+  }
+}
+function rememberLessons(pid) { savedLessons.set(pid, JSON.stringify(window.LESSONS[pid])); }
+function resetLessonCaches() {
+  catalogVersion++; contentRequest = null; refreshRequest = null; lastRefreshAt = 0;
+  window.LESSONS = {}; lessonRequests.clear(); adminLessonRequests.clear();
+  adminLessonsReady.clear(); savedLessons.clear();
+}
+
 async function api(path, opts) {
   opts = opts || {};
   const h = { 'Content-Type': 'application/json' };
+  const writingCatalog = !['GET','HEAD'].includes((opts.method || 'GET').toUpperCase()) && /^\/admin(?:\/|-)/.test(path);
+  const writeToken = API.token, writeActor = DB.session;
+  const sentBody = opts.body ? JSON.stringify(opts.body) : undefined;
+  if (writingCatalog) beginCatalogWrite();
   if (API.token) h.Authorization = 'Bearer ' + API.token;
   const timeoutMs = Math.max(0, Number(opts.timeoutMs || 0));
   const controller = timeoutMs ? new AbortController() : null;
@@ -2801,60 +2858,94 @@ async function api(path, opts) {
   try {
     const r = await fetch(API.base + '/api' + path, {
       method: opts.method || 'GET', headers: h,
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      body: sentBody,
+      cache: opts.cache,
       signal: controller ? controller.signal : undefined
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) { const error = new Error(d.error || 'تعذّر الاتصال'); error.status = r.status; error.code = d.code; throw error; }
+    if (writingCatalog && API.token === writeToken && DB.session === writeActor) rememberSavedContent(path, sentBody ? JSON.parse(sentBody) : null);
     return d;
   } catch (e) {
     if (e && e.name === 'AbortError') throw new Error(opts.timeoutMessage || 'استغرق تحميل الأسئلة وقتاً أطول من المتوقع');
     throw e;
   } finally {
     if (timeout) clearTimeout(timeout);
+    if (writingCatalog) endCatalogWrite();
   }
 }
-async function loadContent() {
-  try {
-    const r = await fetch('/api/content');
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d.cms) Object.assign(window.CMS, d.cms);
-    window.applyLearningTheme?.();
-    if (d.courses && d.courses.length) window.COURSES = d.courses;
-    if (d.packages && d.packages.length) window.PACKAGES = d.packages;
-    if (Array.isArray(d.instructors)) window.INSTRUCTORS = d.instructors;
-    window.DEFAULT_INSTRUCTOR_ID = typeof d.defaultInstructorId === 'string' ? d.defaultInstructorId : null;
-    if (d.academic && d.academic.length) window.ACADEMIC = d.academic;
-    if (d.consulting && d.consulting.length) window.CONSULTING = d.consulting;
-    if (d.systems && d.systems.length) window.SYSTEMS = d.systems;
-    if (d.promos && d.promos.length) window.PROMOS = d.promos;
-    if (d.learning && typeof d.learning === 'object' && !Array.isArray(d.learning))
-      Object.assign(window.LEARNING_DATA, d.learning);
+async function loadContent(initial = false) {
+  if (!initial && !canRefreshCatalog()) return false;
+  const token = API.token, actor = DB.session, version = catalogVersion;
+  if (contentRequest?.token === token && contentRequest.actor === actor && contentRequest.version === version) return contentRequest.promise;
+  const request = {token,actor,version};
+  const current = () => contentRequest === request && API.token === token && DB.session === actor && catalogVersion === version &&
+    (initial || canRefreshCatalog());
+  request.promise = (async () => {
     try {
-      const availability = await fetch('/api/catalog-availability');
-      if (availability.ok) window.CATALOG_AVAILABILITY = await availability.json();
-    } catch (e) {}
-  } catch (e) {}
+      const [response, availability] = await Promise.all([
+        fetch('/api/content', {cache:'no-store'}),
+        fetch('/api/catalog-availability', {cache:'no-store'}).catch(() => null)
+      ]);
+      if (!response.ok) return false;
+      const d = await response.json(), counts = availability?.ok ? await availability.json() : null;
+      if (!current() || !d || typeof d !== 'object' || Array.isArray(d)) return false;
+      const before = JSON.stringify([contentState(),window.INSTRUCTORS,window.DEFAULT_INSTRUCTOR_ID,window.CATALOG_AVAILABILITY]);
+      if (d.cms && typeof d.cms === 'object' && !Array.isArray(d.cms)) Object.assign(window.CMS, d.cms);
+      for (const [key,name] of Object.entries(contentKeys)) {
+        if (key !== 'cms' && key !== 'learning' && Array.isArray(d[key])) window[name] = d[key];
+      }
+      if (Array.isArray(d.instructors)) window.INSTRUCTORS = d.instructors;
+      window.DEFAULT_INSTRUCTOR_ID = typeof d.defaultInstructorId === 'string' ? d.defaultInstructorId : null;
+      if (d.learning && typeof d.learning === 'object' && !Array.isArray(d.learning)) Object.assign(window.LEARNING_DATA, d.learning);
+      if (counts) window.CATALOG_AVAILABILITY = counts;
+      window.applyLearningTheme?.();
+      rememberContent();
+      return before !== JSON.stringify([contentState(),window.INSTRUCTORS,window.DEFAULT_INSTRUCTOR_ID,window.CATALOG_AVAILABILITY]);
+    } catch (e) { return false; }
+    finally { if (contentRequest === request) contentRequest = null; }
+  })();
+  contentRequest = request;
+  return request.promise;
 }
+const mapLessonRows = rows => rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
+  t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
+  free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
 
 const lessonRequests = new Map();
 const adminLessonRequests = new Map();
 const adminLessonsReady = new Set();
-function loadAdminLessons(pid) {
-  if (!API.live || !API.token || !pid || !isAdmin() || adminLessonsReady.has(pid) || adminLessonRequests.has(pid)) return;
-  const token = API.token;
-  const request = api('/admin/lessons/' + encodeURIComponent(pid)).then(rows => {
-    if (API.token !== token) return;
-    window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
-      t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-      free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
-    adminLessonsReady.add(pid);
-    if (ROUTE.startsWith('admin')) render();
-  }).catch(e => toast('تعذر تحميل روابط الفيديو: ' + e.message))
-    .finally(() => adminLessonRequests.delete(pid));
-  adminLessonRequests.set(pid, request);
+function loadAdminLessons(pid, options = {}) {
+  if (!API.live || !API.token || !pid || !isAdmin() || (!options.refresh && adminLessonsReady.has(pid))) return Promise.resolve(false);
+  return requestLessons(pid, true, options);
 }
+function requestLessons(pid, admin, options = {}) {
+  if (options.refresh && !canRefreshCatalog()) return Promise.resolve(false);
+  const requests = admin ? adminLessonRequests : lessonRequests;
+  const token = API.token, actor = DB.session, version = catalogVersion;
+  const existing = requests.get(pid);
+  if (existing?.token === token && existing.actor === actor && existing.version === version) return existing.promise;
+  const inputVersion = editorInputVersion, requestedRoute = ROUTE;
+  const request = {token,actor,version};
+  request.promise = api((admin ? '/admin/lessons/' : '/lessons/') + encodeURIComponent(pid), {cache:'no-store'})
+    .then(rows => {
+      if (requests.get(pid) !== request || API.token !== token || DB.session !== actor || catalogVersion !== version || catalogWrites ||
+          (admin && !isAdmin()) || (options.refresh && !canRefreshCatalog()) || !Array.isArray(rows)) return false;
+      if (!admin && (adminLessonsReady.has(pid) || adminLessonRequests.has(pid))) return false;
+      const mapped = mapLessonRows(rows), changed = JSON.stringify(window.LESSONS[pid]) !== JSON.stringify(mapped);
+      window.LESSONS[pid] = mapped; rememberLessons(pid);
+      if (admin) adminLessonsReady.add(pid);
+      const relevantEditor = ROUTE.startsWith('admin') && (pid === window.__vidPk || pid === (pack(window.__learningPk)?.sourcePackageId || window.__learningPk));
+      if (changed && options.render !== false && ROUTE === requestedRoute && editorInputVersion === inputVersion &&
+          !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]') &&
+          (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || relevantEditor)) render();
+      return changed;
+    }).catch(e => { if (admin && !options.refresh && API.token === token && DB.session === actor) toast('تعذر تحميل روابط الفيديو: ' + e.message); return false; })
+    .finally(() => { if (requests.get(pid) === request) requests.delete(pid); });
+  requests.set(pid, request);
+  return request.promise;
+}
+
 const progressRequests = new Map();
 function loadProgressFor(pid) {
   const u=me(), token=API.token;
@@ -2870,22 +2961,35 @@ function loadProgressFor(pid) {
     }
   }).catch(() => progressRequests.delete(pid));
 }
-function loadLessonsFor(pid) {
-  if (API.live && isAdmin()) { loadAdminLessons(pid); return; }
-  if (!API.live || !pid || Object.hasOwn(window.LESSONS, pid)) return;
-  if (lessonRequests.has(pid)) return;
-  const requestedToken = API.token;
-  const request = fetch('/api/lessons/' + encodeURIComponent(pid), {
-    headers: API.token ? { Authorization: 'Bearer ' + API.token } : {}
-  }).then(r => { if (!r.ok) throw new Error('تعذّر تحميل الدروس'); return r.json(); })
-    .then(ls => {
-      if (requestedToken !== API.token || adminLessonsReady.has(pid) || adminLessonRequests.has(pid)) return;
-      window.LESSONS[pid] = ls.map(l => ({ ch:l.chapter || 0, t:l.title || '',
-        t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-        free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
-      if (ROUTE === 'pkg/' + pid || ROUTE === 'learn/' + pid || ROUTE.startsWith('admin')) render();
-    }).catch(() => {}).finally(() => lessonRequests.delete(pid));
-  lessonRequests.set(pid, request);
+function loadLessonsFor(pid, options = {}) {
+  if (API.live && isAdmin()) return loadAdminLessons(pid, options);
+  if (!API.live || !pid || (!options.refresh && Object.hasOwn(window.LESSONS, pid))) return Promise.resolve(false);
+  return requestLessons(pid, false, options);
+}
+async function refreshPublishedContent(force = false) {
+  if (!canRefreshCatalog() || (!force && Date.now() - lastRefreshAt < 15000)) return false;
+  const route = ROUTE, token = API.token, actor = DB.session, version = catalogVersion;
+  if (refreshRequest?.route === route && refreshRequest.token === token && refreshRequest.actor === actor && refreshRequest.version === version) return refreshRequest.promise;
+  const request = {route,token,actor,version};
+  lastRefreshAt = Date.now();
+  request.promise = (async () => {
+    let changed = await loadContent();
+    if (ROUTE !== route || API.token !== token || DB.session !== actor || catalogVersion !== version || !canRefreshCatalog()) return false;
+    const [head,pid] = route.split('?')[0].split('/');
+    if (head === 'pkg' || head === 'learn') changed = await loadLessonsFor(pid, {refresh:true,render:false}) || changed;
+    if (head === 'trainer' && isAdmin()) {
+      try {
+        const overview = await api('/admin/overview', {cache:'no-store'});
+        if (ROUTE === route && API.token === token && DB.session === actor && catalogVersion === version && canRefreshCatalog()) {
+          changed = JSON.stringify(API.adminOverview) !== JSON.stringify(overview) || changed; API.adminOverview = overview;
+        }
+      } catch (e) {}
+    }
+    if (changed && ROUTE === route && API.token === token && DB.session === actor && catalogVersion === version && canRefreshCatalog()) render();
+    return changed;
+  })().finally(() => { if (refreshRequest === request) refreshRequest = null; });
+  refreshRequest = request;
+  return request.promise;
 }
 
 async function syncAdminData() {
@@ -3173,6 +3277,7 @@ function go(r) {
   if (window.VIEWS && window.VIEWS.closeMega) window.VIEWS.closeMega();
   document.getElementById('nav')?.classList.remove('open');
   ROUTE = r; location.hash = r; window.scrollTo(0, 0); render();
+  refreshPublishedContent(true);
 }
 function replaceRoute(r) {
   ROUTE = r; history.replaceState(history.state, '', '#' + r);
@@ -3181,7 +3286,6 @@ function render() {
   const V = window.VIEWS;
   const [head, arg] = ROUTE.split('?')[0].split('/');
   if (head === 'pkg' || head === 'learn') { loadLessonsFor(arg); loadProgressFor(arg); }
-  if (head === 'admin' && isAdmin()) loadAdminLessons(window.__vidPk || 'grcp-full');
   let html = '';
   if (head === 'home') html = V.home();
   else if (head === 'courses' || head === 'programs') html = V.programs();
@@ -3344,7 +3448,7 @@ function openAuth(mode, after) {
       dialog.querySelectorAll('#aSwap, #authRegTab, #authLoginTab').forEach(el => el.disabled = true);
       try {
         const d = await api(isReg ? '/auth/register' : '/auth/login', { method:'POST', timeoutMs:15000, body:isReg ? { name, email:mail, password:pass } : { email:mail, password:pass } });
-        API.token = d.token; window.LESSONS = {}; adminLessonsReady.clear();
+        API.token = d.token; resetLessonCaches();
         try { localStorage.setItem('alsaeed_token', d.token); } catch (e) {}
         rememberAccount();
         let u = DB.users.find(x => x.id === d.user.id);
@@ -3374,7 +3478,7 @@ function bindAll() {
   const invoices=$('#dashInvoices');if(invoices)invoices.onclick=()=>window.V23_CART?.showInvoices();
   $$('[data-buy]').forEach(b => b.onclick = () => checkout(b.dataset.buy));
   const lo = $('#logout'); if (lo) lo.onclick = () => {
-    DB.session = null; API.token = null; window.LESSONS = {}; adminLessonsReady.clear();
+    DB.session = null; API.token = null; resetLessonCaches();
     try { localStorage.removeItem('alsaeed_token'); } catch (e) {}
     save(); go('home'); toast('خرجت من حسابك');
   };
@@ -3439,13 +3543,13 @@ async function boot() {
   render();
   window.addEventListener('hashchange', () => {
     const nh = (location.hash || '').replace('#', '') || 'home';
-    if (nh !== ROUTE) { ROUTE = nh; render(); }
+    if (nh !== ROUTE) { ROUTE = nh; render(); refreshPublishedContent(true); }
   });
   await probe();
   if (API.live) {
     // بيانات الخادم وحدها تحدد الدروس المنشورة؛ لا تعرض دروس العرض المحلية للمشتركين.
     window.LESSONS = {};
-    await loadContent();
+    await loadContent(true);
   }
   /* تنظيف بيانات V13 التجريبية وإبقاء الكتالوج المطلوب فقط */
   window.COURSES = (window.COURSES || []).filter(c => window.ACTIVE_COURSE_IDS.includes(c.id));
@@ -3468,6 +3572,9 @@ async function boot() {
     rememberAccount();
     if (!location.hash) ROUTE = isAdmin() ? 'admin' : 'dash';
   }
+  rememberContent(); catalogReady = true; lastRefreshAt = Date.now();
+  window.addEventListener('focus', () => refreshPublishedContent());
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshPublishedContent(); });
   render();
   if (!API.token && !$('#ov')) {
     let prompted = false;
@@ -3477,8 +3584,9 @@ async function boot() {
 }
 
 return { boot, go, replaceRoute, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
-  loadAdminLessons, adminLessonsReady: pid => adminLessonsReady.has(pid),
-  get token() { return API.token; },
+  loadAdminLessons, refreshPublishedContent, beginCatalogWrite, endCatalogWrite, rememberLessons,
+  adminLessonsReady: pid => adminLessonsReady.has(pid),
+  get token() { return API.token; }, get editorRevision() { return editorInputVersion; },
   me, isAdmin, owns, course, pack, prog, pct, certReady, studyPlan, examSet,
   readiness, BAND, overallBand, esc, money, save, syncAdminData,
   get adminOverview() { return API.adminOverview; },
@@ -3502,7 +3610,7 @@ let rmPick = 'pmp';     /* مقياس الجاهزية في البطل */
 let pkTab = 'info';     /* تبويب صفحة الباقة */
 let learnTab = 'plan';  /* تبويب صفحة التعلّم */
 let curLesson = null;
-let admTab = 'overview';
+let admTab = 'overview', adminRouteApplied = '';
 let adminQuestions = [], adminQuestionPackage = '', adminQuestionLoadedFor = '', adminQuestionBusy = false;
 let adminQuestionSearch = '', adminQuestionStatus = 'all';
 let megaTrack = 'pm';
@@ -4820,6 +4928,16 @@ function dash() {
 
 /* ═══════════ لوحة الإدارة ═══════════ */
 function admin(sub) {
+  // Legacy authoring links land in the existing guarded editor, using only a real catalog package.
+  if (A().isAdmin() && A().route !== adminRouteApplied) {
+    adminRouteApplied = A().route;
+    if (sub === 'content') {
+      admTab = 'content';
+      let requested = ''; try { requested = decodeURIComponent(A().route.split('?')[0].split('/')[2] || ''); } catch (e) {}
+      const selected = A().pack(requested) || A().pack(window.__vidPk) || A().pack('pmp-full') || window.PACKAGES[0];
+      if (selected) window.__vidPk = selected.id;
+    }
+  }
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
   const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['tracking','التقدم والترتيب'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
@@ -5082,6 +5200,7 @@ function adminTab() {
               onblur="this.style.borderBottomColor='transparent'">${esc(ch.ar || ch.title)}</b>
             <input ${ref ? `data-chname-en="${esc(ref)}"` : 'disabled'} dir="ltr" aria-label="Chapter title in English" placeholder="Chapter title in English" value="${esc(ch.en || '')}" style="max-width:185px;padding:6px;border:1px solid var(--line);border-radius:8px">
             <span>${rows.length} درساً · ${rows.filter(r => r.vimeo).length} مرتبط · ${rows.reduce((n,r) => n + (r.quiz || []).length, 0) ? rows.reduce((n,r) => n + (r.quiz || []).length, 0) + ' سؤال تقييم' : 'لا توجد أسئلة تقييم'}</span>
+            ${c.id === 'pmp' && ref ? `<button type="button" class="btn o sm" data-chup="${esc(ref)}" title="نقل الفصل لأعلى · Move chapter up" aria-label="نقل الفصل لأعلى · Move chapter up">▲</button><button type="button" class="btn o sm" data-chdown="${esc(ref)}" title="نقل الفصل لأسفل · Move chapter down" aria-label="نقل الفصل لأسفل · Move chapter down">▼</button>` : ''}
             ${ref ? `<button class="btn o sm" data-addto="${esc(ref)}">＋ درس هنا</button>` : ''}
             ${c.id !== 'pmp' && Number.isInteger(ch.index) ? `<button class="btn o sm" data-delch="${ch.index}" title="حذف الفصل">🗑</button>` : ''}
           </div>
@@ -5539,12 +5658,14 @@ function playLesson(pid, idx) {
   curLesson = idx;
   const c=A().course(A().pack(pid).course);
   const outlineOrder=c.id==='pmp'&&window.CourseRoadmap?.videoOrder?CourseRoadmap.videoOrder(c,ls).filter(i=>canOpen(ls[i])):null;
-  const nextIndex=outlineOrder?outlineOrder[outlineOrder.indexOf(idx)+1]:ls.findIndex((x,i)=>i>idx&&x.vimeo&&canOpen(x));
+  const displayOrder=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo&&canOpen(x.l)).map(x=>x.i);
+  const displayPosition=displayOrder.indexOf(idx)+1;
+  const nextIndex=displayOrder[displayOrder.indexOf(idx)+1];
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
     ${String(l.notes||l.notes_en||'').trim()?`<div class="note info" style="white-space:pre-wrap"><b>${siteEnglish()?'Lesson reading':'شرح الدرس'}</b><p>${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></div>`:''}
-    <p>${esc(l.dur||'')} · ${siteEnglish()?'Lesson':'درس'} ${idx + 1} / ${ls.length}</p>
+    <p>${esc(l.dur||'')} · ${siteEnglish()?'Lesson':'درس'} ${displayPosition} / ${displayOrder.length}</p>
     <div class="player">
       ${l.vimeo
         ? `<iframe id="nativeLessonFrame" src="${esc(window.LessonVideo.embedUrl(l.vimeo))}" title="${esc(window.biTitle ? window.biTitle(l) : l.t)}"
@@ -5718,6 +5839,10 @@ function trainer(){
  return `<section class="dash-hd"><div class="wrap"><h1>متابعة المتدربين</h1></div></section><div class="wrap trainer-progress-page">${window.AlsaeedTraineeTracking.render(A().live?A().adminOverview:null,id=>A().pack(id))}</div>`;
 }
 
+function chapterProgressTitle(courseId, title) {
+  const chapter = A().course(courseId)?.chapters?.[Number(title)];
+  return !chapter ? title : typeof chapter === 'string' ? chapter : publicTitle(chapter, title);
+}
 async function viewStudent(id){
   let d=null;
   if(A().live){
@@ -5738,7 +5863,7 @@ async function viewStudent(id){
   A().modal(`<div class="student-detail-head"><div class="avatar-lg">${esc(initial)}</div><div><h3 style="margin:0">${esc(u.name||'طالب')}</h3><p class="en" style="margin:2px 0">${esc(u.email||'')}</p></div></div>
     <div class="detail-kpis"><div><b>${ens.length}</b><span>اشتراك</span></div><div><b>${window.AlsaeedTraineeTracking.pct(d.summary?.progress)}</b><span>تقدم الدروس المسجلة</span></div><div><b>${window.AlsaeedTraineeTracking.pct(d.summary?.avgExam)}</b><span>متوسط الاختبارات المسجلة</span></div></div>
     <h4 style="font-family:var(--fd);color:var(--navy);margin:15px 0 8px">الباقات والمتابعة</h4>
-    ${ens.length?ens.map(e=>{const p=A().pack(e.package_id)||{};return `<div class="card" style="padding:13px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px"><div><b>${esc(p.ar||e.package_id)}</b><span style="display:block;font-size:.7rem;color:var(--dim)">${esc(e.source||'')} · آخر نشاط ${e.lastActivity?new Date(e.lastActivity).toLocaleDateString('ar-SA'):'—'}</span></div><b class="num" style="color:var(--orange)">${window.AlsaeedTraineeTracking.pct(e.progress)}</b></div>${Number.isFinite(e.progress)?`<div class="mini-progress"><i style="width:${e.progress}%"></i></div>`:''}<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:var(--dim)"><span>اختبارات: <b class="num">${window.AlsaeedTraineeTracking.pct(e.avgExam)}</b></span><span>الانتهاء (ميلادي، السعودية): <b dir="ltr">${esc(window.AlsaeedEnrollmentExtension?.formatExpiry(e.expires)||'—')}</b></span>${window.AlsaeedEnrollmentExtension?.control(e)||''}</div>${window.AlsaeedTraineeTracking.timing(e)}${e.activityDetails?`<details class="student-learning-details"><summary>تفاصيل التعلم والتطبيق</summary><div class="detail-kpis">${[['الدروس',e.activityDetails.lessons+'/'+e.activityDetails.lessonTotal],['مراحل الخطة',e.activityDetails.weeksDone],['الأنشطة المنفذة',e.activityDetails.activities],['الملفات المنزلة',e.activityDetails.downloads],['تقارير التطبيق',e.activityDetails.reports],['الألعاب',e.activityDetails.games]].map(([t,n])=>`<div><b>${esc(n)}</b><span>${t}</span></div>`).join('')}</div>${e.activityDetails.chapters?.length?`<h4>تقدم المحاور</h4><div class="grid g3">${e.activityDetails.chapters.map(ch=>`<div class="tracking-topic"><b>${esc(A().course(p.course)?.chapters?.[Number(ch.title)]||ch.title)}</b><p>${ch.done}/${ch.total} درسًا</p><div class="mini-progress"><i style="width:${ch.total?Math.round(ch.done/ch.total*100):0}%"></i></div></div>`).join('')}</div>`:''}<h4>سجل الاختبارات المحفوظة</h4>${e.activityDetails.exams.length?`<div class="student-exam-list">${e.activityDetails.exams.map(x=>`<div><b>${esc(x.id)}</b><span>${x.score===null?'—':esc(x.score)+'%'} · ${x.passed===null?'—':x.passed?'PASS':'FAIL'} · ${x.total?esc(x.total)+' سؤالًا · ':''}${x.at?new Date(x.at).toLocaleDateString('ar-SA'):'—'}</span></div>`).join('')}</div>`:'<p>لا توجد نتائج مسجلة بعد.</p>'}</details>`:''}</div>`;}).join(''):'<div class="note warn">هذا الطالب لم يحصل على باقة بعد.</div>'}
+    ${ens.length?ens.map(e=>{const p=A().pack(e.package_id)||{};return `<div class="card" style="padding:13px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;gap:10px"><div><b>${esc(p.ar||e.package_id)}</b><span style="display:block;font-size:.7rem;color:var(--dim)">${esc(e.source||'')} · آخر نشاط ${e.lastActivity?new Date(e.lastActivity).toLocaleDateString('ar-SA'):'—'}</span></div><b class="num" style="color:var(--orange)">${window.AlsaeedTraineeTracking.pct(e.progress)}</b></div>${Number.isFinite(e.progress)?`<div class="mini-progress"><i style="width:${e.progress}%"></i></div>`:''}<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:var(--dim)"><span>اختبارات: <b class="num">${window.AlsaeedTraineeTracking.pct(e.avgExam)}</b></span><span>الانتهاء (ميلادي، السعودية): <b dir="ltr">${esc(window.AlsaeedEnrollmentExtension?.formatExpiry(e.expires)||'—')}</b></span>${window.AlsaeedEnrollmentExtension?.control(e)||''}</div>${window.AlsaeedTraineeTracking.timing(e)}${e.activityDetails?`<details class="student-learning-details"><summary>تفاصيل التعلم والتطبيق</summary><div class="detail-kpis">${[['الدروس',e.activityDetails.lessons+'/'+e.activityDetails.lessonTotal],['مراحل الخطة',e.activityDetails.weeksDone],['الأنشطة المنفذة',e.activityDetails.activities],['الملفات المنزلة',e.activityDetails.downloads],['تقارير التطبيق',e.activityDetails.reports],['الألعاب',e.activityDetails.games]].map(([t,n])=>`<div><b>${esc(n)}</b><span>${t}</span></div>`).join('')}</div>${e.activityDetails.chapters?.length?`<h4>تقدم المحاور</h4><div class="grid g3">${e.activityDetails.chapters.map(ch=>`<div class="tracking-topic"><b>${esc(chapterProgressTitle(p.course,ch.title))}</b><p>${ch.done}/${ch.total} درسًا</p><div class="mini-progress"><i style="width:${ch.total?Math.round(ch.done/ch.total*100):0}%"></i></div></div>`).join('')}</div>`:''}<h4>سجل الاختبارات المحفوظة</h4>${e.activityDetails.exams.length?`<div class="student-exam-list">${e.activityDetails.exams.map(x=>`<div><b>${esc(x.id)}</b><span>${x.score===null?'—':esc(x.score)+'%'} · ${x.passed===null?'—':x.passed?'PASS':'FAIL'} · ${x.total?esc(x.total)+' سؤالًا · ':''}${x.at?new Date(x.at).toLocaleDateString('ar-SA'):'—'}</span></div>`).join('')}</div>`:'<p>لا توجد نتائج مسجلة بعد.</p>'}</details>`:''}</div>`;}).join(''):'<div class="note warn">هذا الطالب لم يحصل على باقة بعد.</div>'}
     <div class="mdl-act"><button class="btn o" data-close>إغلاق</button></div>`,()=>window.AlsaeedEnrollmentExtension?.bind(document.getElementById('ov'),{userId:id,onRefresh:async()=>{const route=location.hash,token=A().token;await A().syncAdminData();if(location.hash===route&&A().token===token&&A().me()?.role==='admin')await viewStudent(id)}}));
 }
 function exportStudentsCSV(){
@@ -6136,9 +6261,19 @@ function bind() {
       return false;
     }
     const stagedCourse = {...curCourse(), chapters:(curCourse()?.chapters || []).slice()};
-    try { headingEdits.forEach(ch => window.CourseRoadmap.renameChapter(stagedCourse, ch.ref, ch.ar, ch.en)); }
-    catch (e) { A().toast(e.message); return false; }
-    const ls = curLs();
+    const ls = curLs(), retiredAssignments = new Map();
+    try {
+      headingEdits.forEach(ch => window.CourseRoadmap.renameChapter(stagedCourse, ch.ref, ch.ar, ch.en));
+      // Freeze only known retired string-source placements on an explicit save.
+      // Capture the current rendered group before a title edit can change its legacy heuristic.
+      if (stagedCourse.id === 'pmp') $$('[data-lt]').forEach(input => {
+        const index = Number(input.dataset.lt), lesson = ls[index];
+        const source = curCourse()?.chapters?.[lesson?.ch || 0];
+        const ref = input.closest('[data-chapter-ref]')?.dataset.chapterRef;
+        if (lesson && typeof source === 'string' && window.CourseRoadmap.isRetiredFrameworkChapter?.(source) && ref?.startsWith('outline:'))
+          retiredAssignments.set(index, window.CourseRoadmap.ensureChapter(stagedCourse, ref));
+      });
+    } catch (e) { A().toast(e.message); return false; }
     $$('[data-learning-chapter]').forEach(b=>b.onclick=()=>window.PackageChapterTest?.(b.dataset.pk,b.dataset.learningChapter));
   $$('[data-lt]').forEach(x => { if (ls[+x.dataset.lt]) ls[+x.dataset.lt].t = x.value; });
     $$('[data-lten]').forEach(x => { if (ls[+x.dataset.lten]) ls[+x.dataset.lten].t_en = x.value; });
@@ -6150,12 +6285,13 @@ function bind() {
       ls[+x.dataset.vid].vimeo = id;
     } });
     $$('[data-lfree]').forEach(x => { if (ls[+x.dataset.lfree]) ls[+x.dataset.lfree].free = x.checked; });
+    retiredAssignments.forEach((chapter, index) => { ls[index].ch = chapter; });
     stagedCourse.chapters.forEach((ch, index) => { if (curCh()[index] !== ch) curCh()[index] = ch; });
     return true;
   }
 
   $$('[data-vid],[data-ld]').forEach(x => x.onchange = harvest);
-  $$('[data-lt],[data-lten]').forEach(x => x.onchange = () => { harvest(); saveLessons(true); });
+  $$('[data-lt],[data-lten]').forEach(x => x.onchange = () => harvest() ? saveLessons(true) : false);
   async function fillVimeoDuration(input, durationInput) {
     const id = window.LessonVideo.storedValue(input.value);
     if (!id || durationInput.value.trim()) return;
@@ -6169,21 +6305,21 @@ function bind() {
   }
   $$('[data-vid]').forEach(input => input.addEventListener('change', () => {
     const durationInput = document.querySelector(`[data-ld="${input.dataset.vid}"]`);
-    if (durationInput) fillVimeoDuration(input, durationInput);
+    if (durationInput && harvest()) fillVimeoDuration(input, durationInput);
   }));
-  $$('[data-lfree]').forEach(x => x.onchange = () => { harvest(); A().render(); });
+  $$('[data-lfree]').forEach(x => x.onchange = () => { if (harvest()) A().render(); });
   $$('[data-chname],[data-chname-en]').forEach(x => x.onchange = () => { if (harvest()) saveLessons(true); });
   $$('[data-chname]').forEach(x => x.onblur = () => { if (harvest()) saveLessons(true); });
   const fillDur=$('#fillDurations'); if(fillDur) fillDur.onclick=async()=>{
-    harvest(); fillDur.disabled=true; fillDur.textContent='جارٍ استكمال المدد…';
-    try { await saveLessons(false); const result=await A().api('/admin/lessons/'+encodeURIComponent(curPk())+'/fill-durations',{method:'POST'});
+    if (!harvest()) return false; fillDur.disabled=true; fillDur.textContent='جارٍ استكمال المدد…';
+    try { if (await saveLessons(false) === false) { fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات'; return false; } const result=await A().api('/admin/lessons/'+encodeURIComponent(curPk())+'/fill-durations',{method:'POST'});
       const rows=await A().api('/admin/lessons/'+encodeURIComponent(curPk()));
       window.LESSONS[curPk()]=rows.map(l=>({ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||''}));
       A().render(); A().toast('استُكملت '+result.updated+' مدة؛ تعذّر جلب '+result.unavailable+' من Vimeo');
     } catch(e) { A().toast('تعذّر تحديث المدد: '+e.message); fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات'; }
   };
   $$('[data-attach]').forEach(input => input.onchange = async () => {
-    harvest(); input.disabled = true;
+    if (!harvest()) return false; input.disabled = true;
     try {
       const files = await uploadFiles(input.files);
       const lesson = curLs()[+input.dataset.attach];
@@ -6192,13 +6328,13 @@ function bind() {
     } catch (e) { A().toast('تعذر إرفاق الملف: ' + e.message); input.disabled = false; }
   });
   $$('[data-remove-file]').forEach(button => button.onclick = () => {
-    harvest(); const lesson = curLs()[+button.dataset.removeFile];
+    if (!harvest()) return false; const lesson = curLs()[+button.dataset.removeFile];
     lesson.files = (lesson.files || []).filter(f => f.id !== button.dataset.fileId);
     saveLessons(true); A().render();
   });
   $$('[data-lesson-quiz]').forEach(button => button.onclick = () => editLessonQuiz(+button.dataset.lessonQuiz));
   function editLessonQuiz(index, editIndex = -1) {
-    harvest();
+    if (!harvest()) return false;
     const lesson = curLs()[index];
     lesson.quiz = lesson.quiz || [];
     const current = lesson.quiz[editIndex] || {};
@@ -6394,11 +6530,30 @@ function bind() {
     });
   };
 
+  // Presentation metadata only; lesson arrays, source chapter slots and progress keys stay put.
+  $$('[data-chup],[data-chdown]').forEach(button => button.onclick = async () => {
+    if (!harvest()) return false;
+    const c = curCourse(), previous = c.chapters;
+    const staged = {...c, chapters:JSON.parse(JSON.stringify(c.chapters || []))};
+    try {
+      if (!window.CourseRoadmap.moveChapter(staged, button.dataset.chup || button.dataset.chdown, button.hasAttribute('data-chup') ? -1 : 1)) return false;
+      c.chapters = staged.chapters;
+    } catch (e) { c.chapters = previous; A().toast(e.message); return false; }
+    const controls = $$('[data-chup],[data-chdown]'), inputVersion = A().editorRevision;
+    const route = A().route, pid = curPk(), token = A().token;
+    controls.forEach(b => b.disabled = true);
+    const saved = await saveLessons(true);
+    // Keep a failed/partially saved draft available to Save All rather than pretending it reverted on the server.
+    if (A().route === route && curPk() === pid && A().token === token && A().editorRevision === inputVersion && A().course(A().pack(pid)?.course) === c) A().render();
+    else controls.filter(b => b.isConnected).forEach(b => b.disabled = false);
+    return saved;
+  });
+
   $$('[data-delch]').forEach(b => b.onclick = () => {
     const n = +b.dataset.delch;
     const inCh = curLs().filter(l => (l.ch || 0) === n).length;
     if (!confirm(inCh ? `حذف الفصل و${inCh} درساً بداخله؟` : 'حذف هذا الفصل؟')) return;
-    harvest();
+    if (!harvest()) return false;
     window.LESSONS[curPk()] = curLs().filter(l => (l.ch || 0) !== n)
       .map(l => ({ ...l, ch: (l.ch || 0) > n ? l.ch - 1 : l.ch }));
     curCh().splice(n, 1);
@@ -6410,7 +6565,7 @@ function bind() {
   $$('[data-ldown]').forEach(b => b.onclick = () => moveLesson(+b.dataset.ldown, 1));
   function moveLesson(i2, dir) {
     if (curCourse()?.id === 'pmp') return;
-    harvest();
+    if (!harvest()) return false;
     const ls = curLs(); const ch = ls[i2].ch || 0;
     const sib = ls.map((l, k) => ({ l, k })).filter(x => (x.l.ch || 0) === ch);
     const pos = sib.findIndex(x => x.k === i2);
@@ -6422,7 +6577,7 @@ function bind() {
   }
   $$('[data-ldel]').forEach(b => b.onclick = () => {
     if (!confirm('حذف هذا الدرس؟')) return;
-    harvest(); curLs().splice(+b.dataset.ldel, 1);
+    if (!harvest()) return false; curLs().splice(+b.dataset.ldel, 1);
     saveLessons(); A().render(); A().toast('حُذف الدرس');
   });
 
@@ -6766,29 +6921,43 @@ function saveLessons(notify) {
   if (A().live) {
     const snapshot = JSON.parse(JSON.stringify(ls));
     const chapters = JSON.parse(JSON.stringify(A().course(pk?.course)?.chapters || []));
+    const token = A().token, actor = A().me?.()?.id, inputVersion = A().editorRevision, route = A().route;
+    const sameActor = () => A().token === token && A().me?.()?.id === actor && (!A().isAdmin || A().isAdmin());
+    const unchanged = () => sameActor() && window.LESSONS[pid] === ls &&
+      JSON.stringify(ls) === JSON.stringify(snapshot) && A().editorRevision === inputVersion && lessonSaveQueues.get(pid) === pending;
     let chaptersSaved = false, lessonsSaved = false;
+    A().beginCatalogWrite?.();
     const pending = (lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
+      if (!sameActor()) return false;
       // A new lesson must never be persisted before its chapter identity exists.
       if (pk?.course) await A().api('/admin/course-chapters/' + encodeURIComponent(pk.course), {
         method: 'PUT', body: { chapters } });
       chaptersSaved = true;
+      if (!sameActor()) return false;
       await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
       lessonsSaved = true;
+      if (!sameActor()) return false;
       const response = await fetch('/api/catalog-availability', { cache: 'no-store' });
-      if (response.ok) window.CATALOG_AVAILABILITY = await response.json();
-      if (window.LESSONS[pid] === ls && lessonSaveQueues.get(pid) === pending) {
-        const rows = await A().api('/admin/lessons/' + encodeURIComponent(pid));
-        window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
-          dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
-        A().render();
+      const availability = response.ok ? await response.json() : null;
+      if (availability && sameActor() && lessonSaveQueues.get(pid) === pending) window.CATALOG_AVAILABILITY = availability;
+      if (unchanged()) {
+        const rows = await A().api('/admin/lessons/' + encodeURIComponent(pid), {cache:'no-store'});
+        // Re-check after the request: another edit, queued save or logout may have happened while it was in flight.
+        if (unchanged() && Array.isArray(rows)) {
+          window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
+            dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+          A().rememberLessons?.(pid);
+          if (A().route === route) A().render();
+        }
       }
-        if (notify) A().toast('✅ حُفظ على الخادم — ' + ls.length + ' درساً');
+      if (notify && sameActor()) A().toast('✅ حُفظ على الخادم — ' + ls.length + ' درساً');
       return true;
     }).catch(e => {
+      if (!sameActor()) return false;
       if (lessonsSaved) { A().toast('حُفظت التغييرات؛ تعذّر تحديث العرض: ' + e.message); return true; }
       A().toast((chaptersSaved ? 'حُفظت الفصول؛ تعذّر حفظ الدروس. أعد المحاولة: ' : 'تعذّر حفظ الفصول؛ لم تُحفظ الدروس: ') + e.message);
       return false;
-    });
+    }).finally(() => A().endCatalogWrite?.());
     lessonSaveQueues.set(pid, pending);
     return pending;
   } else if (notify) {
@@ -7311,7 +7480,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261015-canonical-authoring"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261018-curriculum-sync"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20261015-canonical-playlist"></script>
@@ -7345,5 +7514,6 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/certificate-library.js?v=20261015"></script>
 </body>
 </html>
+
 
 

@@ -35,10 +35,10 @@ function readFunction(name){const start=source.indexOf('function '+name+'('),end
 for(const name of ['publicCourseTopics','publicTopicBody','studyPlan','pkgTab'])vm.runInContext(readFunction(name),ctx);
 for(const file of ['public/course-roadmap.js','public/pmp-reading.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 const r=w.CourseRoadmap;
-const keys=['intro','exam','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','journey','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
+const keys=['intro','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
 const tree=r.learnerGroups(course,lessons),flat=tree.flatMap(r.lessonItems);
 assert.deepEqual(Array.from(tree.filter(g=>!g.originalChapter),g=>g.key),keys);
-assert.deepEqual(Array.from(tree[7].children,g=>g.key),['initiating','planning','executing','monitoring','closing']);
+assert.deepEqual(Array.from(tree[6].children,g=>g.key),['initiating','planning','executing','monitoring','closing']);
 assert.equal(flat.length,lessons.length);
 assert.deepEqual(Array.from(flat,l=>l.i).sort((a,b)=>a-b),lessons.map((_,i)=>i));
 assert.deepEqual(Array.from(flat,l=>l.id).sort(),lessons.map(l=>l.id).sort());
@@ -131,4 +131,5 @@ assert.equal(app.querySelectorAll('.pmp-topic-reading').length,0,'Readings remai
 assert.equal(app.querySelectorAll('[data-lesson-file]').length,0,'Paid lesson attachments remain gated');
 assert.equal(JSON.stringify({course,pkg,lessons,progress}),snapshot,'All lesson data and all progress untouched');
 dom.window.close();
-console.log('PASS: 18 learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
+console.log('PASS: 16 learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
+

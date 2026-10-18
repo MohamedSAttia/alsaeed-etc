@@ -7,11 +7,12 @@ const publicLabels=Object.fromEntries(pmp.map(([key,ar,en])=>[key,{key,ar,en}]))
 const publicPhases=[['initiating','مرحلة البدء','Initiating'],['planning','مرحلة التخطيط','Planning'],['executing','مرحلة التنفيذ','Executing'],['monitoring','مرحلة المتابعة والتحكم','Monitoring & Controlling'],['closing','مرحلة الإغلاق','Closing']];
 function publicPmpTopics(){
   return [
-    ...pmp.slice(0,6).map(([key])=>({...publicLabels[key]})),
+    {...publicLabels.intro,children:[{...publicLabels.exam},{...publicLabels.journey}]},
+    ...pmp.slice(2,6).map(([key])=>({...publicLabels[key]})),
     {key:'agile',ar:'النهج الرشيق',en:'Agile Approach'},
     {key:'predictive',ar:'النهج التنبؤي',en:'Predictive Approach',children:publicPhases.map(([key,ar,en])=>({key,ar,en}))},
     {key:'hybrid',ar:'النهج المختلط',en:'Hybrid Approach'},
-    ...pmp.slice(13,17).map(([key])=>({...publicLabels[key]})),
+    ...pmp.slice(13,16).map(([key])=>({...publicLabels[key]})),
     {key:'ai',ar:'الذكاء الاصطناعي',en:'Artificial intelligence'},
     {key:'final-reviews',ar:'المراجعات النهائية',en:'Final reviews',children:[{key:'summaries',ar:'ملخصات',en:'Summaries'},{...publicLabels.review}]},
     {key:'workshops',ar:'ورش العمل التطبيقية',en:'Practical workshops'},
@@ -26,16 +27,44 @@ function topics(c){
   if(c.id!=='pmp')return (c.chapters||[]).slice();
   const overrides=new Map();
   for(const ch of c.chapters||[])if(ch&&typeof ch==='object'&&ch.outlineKey&&!overrides.has(ch.outlineKey))overrides.set(ch.outlineKey,ch);
-  const apply=t=>{const saved=overrides.get(t.key);return {...t,ar:saved?.ar||t.ar,en:saved?.en||t.en,...(t.children?{children:t.children.map(apply)}:{})};};
-  return publicPmpTopics().map(apply);
+  const defaults=publicPmpTopics(),known=new Set(flattenTopics(defaults).map(t=>t.key));
+  const additions=(c.chapters||[]).flatMap((ch,index)=>{
+    if(!ch||typeof ch!=='object'||known.has(ch.outlineKey)||isRetiredFrameworkChapter(ch)&&!ch.outlineKey)return [];
+    return [{key:ch.outlineKey||'source_'+index,ar:ch.ar||ch.en,en:ch.en||ch.ar,sourceIndex:index,outlineOrder:ch.outlineOrder}];
+  });
+  defaults.splice(defaults.findIndex(t=>t.key==='final-reviews'),0,...additions);
+  const apply=nodes=>nodes.map((t,index)=>{const saved=overrides.get(t.key)||c.chapters?.[t.sourceIndex];return {...t,ar:saved?.ar||t.ar,en:saved?.en||t.en,sortOrder:Number.isFinite(saved?.outlineOrder)?saved.outlineOrder:index,...(t.children?{children:apply(t.children)}:{})};}).sort((a,b)=>a.sortOrder-b.sortOrder);
+  return apply(defaults);
 }
 // References are UI identities, never replacement chapter numbers. Reading the
 // outline does not create or reorder persisted chapter slots.
+// Retired PMP source headings are aliases, not deleted database slots. Keeping
+// their indices intact preserves lesson IDs, attached content and learner progress.
+function normalizedLabel(value){return String(value||'').replace(/®/g,'').replace(/\s+/g,' ').trim().toLowerCase();}
+const retiredFrameworkChapters=new Set([
+  'أسس إدارة المشاريع وبيئتها','أسس المشاريع','دور مدير المشروع والقيادة','دور مدير المشروع',
+  'Project management foundations and environment','Project foundations',
+  'Role of the project manager and leadership','Role of the project manager'
+].map(normalizedLabel));
+function isRetiredFrameworkChapter(ch){
+  // Object chapters are explicitly authored and must override migration aliases.
+  return typeof ch==='string'&&retiredFrameworkChapters.has(normalizedLabel(ch));
+}
+const introductionLessonTitles=new Set([
+  'معهد PMI وأخلاقيات المهنة','Title: PMI and Professional Ethics','PMI and Professional Ethics',
+  'شهادات PMI','The PMI Certifications','PMI Certifications',
+  'استراتيجيات حل اسئلة الاختبار الحقيقي','استراتيجيات حل أسئلة الاختبار الحقيقي',
+  'Strategies for Solving Any PMP Question',
+  'المحاضر ومحاور البرنامج - الاصدار الثامن','Instructor and PMP outlines - 8 Edition',
+  'هيكل اختبار محترف ادارة المشاريع وأنواع الأسئلة','PMP Exam Structure and Question Types',
+  'خطة اجتياز الاختبار الحقيقي','Pass PMP Real Exam Plan'
+].map(normalizedLabel));
 function chapterChoices(c){
-  const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:'outline:'+t.key,canonical:true})):[];
+  const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey?'chapter:'+t.sourceIndex:'outline:'+t.key,index:t.sourceIndex,canonical:!(Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey)})):[];
   const keys=new Set(canonical.map(t=>t.key));
   const saved=(c.chapters||[]).flatMap((ch,index)=>{
-    if(ch&&typeof ch==='object'&&keys.has(ch.outlineKey))return [];
+    if(ch&&typeof ch==='object'&&(keys.has(ch.outlineKey)||keys.has('source_'+index)))return [];
+    if(c.id==='pmp'&&isRetiredFrameworkChapter(ch)&&!ch?.outlineKey)return [];
     const ar=typeof ch==='string'?ch:ch?.ar||ch?.en||'',en=typeof ch==='string'?'':ch?.en||'';
     return [{key:'source_'+index,ref:'chapter:'+index,index,ar,en,depth:0,number:String(index+1),canonical:false}];
   });
@@ -61,6 +90,21 @@ function renameChapter(c,ref,ar,en){
   const index=ensureChapter(c,ref),old=c.chapters[index];
   c.chapters[index]={...(old&&typeof old==='object'?old:{}),ar,en};
 }
+// Persist display order on chapter metadata, never splice chapter or lesson slots.
+function moveChapter(c,ref,delta){
+  if(c.id!=='pmp'||![-1,1].includes(delta))return false;
+  const choice=chapterChoices(c).find(t=>t.ref===ref);if(!choice)return false;
+  const original=c;c={...c,chapters:(c.chapters||[]).slice()};
+  if(!choice.canonical&&typeof c.chapters[choice.index]==='string')c.chapters[choice.index]={ar:c.chapters[choice.index],en:''};
+  let siblings;
+  const find=nodes=>{if(nodes.some(t=>t.key===choice.key)){siblings=nodes;return;}for(const t of nodes)if(t.children&&!siblings)find(t.children);};find(topics(c));
+  if(!siblings)return false;
+  const from=siblings.findIndex(t=>t.key===choice.key),to=from+delta;if(to<0||to>=siblings.length)return false;
+  [siblings[from],siblings[to]]=[siblings[to],siblings[from]];
+  const staged={...c,chapters:(c.chapters||[]).map(ch=>ch&&typeof ch==='object'?{...ch}:ch)};
+  siblings.forEach((t,order)=>{const saved=chapterChoices(staged).find(ch=>ch.key===t.key);const i=ensureChapter(staged,saved.ref),old=staged.chapters[i];staged.chapters[i]={...(typeof old==='object'?old:{ar:old,en:''}),outlineOrder:order};});
+  original.chapters=staged.chapters;return true;
+}
 function adminGroups(c,lessons){
   if(c.id!=='pmp'){
     const result=chapterChoices(c).map(t=>({...t,title:t.ar,items:[]})),byChapter=new Map(result.map(g=>[String(g.index),g]));
@@ -82,7 +126,7 @@ function adminGroups(c,lessons){
 // progress indices. A phase gets lessons only when the source identifies it.
 function learnerGroups(c,lessons){
   if(c.id!=='pmp')return groups(c,lessons);
-  const node=t=>({key:t.key,title:t.ar,en:t.en,items:[],children:(t.children||[]).map(node),readingKey:null,assessmentKey:null});
+  const node=t=>({key:t.key,title:t.ar,en:t.en,sourceIndex:t.sourceIndex,items:[],children:(t.children||[]).map(node),readingKey:null,assessmentKey:null});
   const outline=topics(c).map(node),byKey=new Map();
   const index=nodes=>nodes.forEach(g=>{byKey.set(g.key,g);index(g.children)});index(outline);
   const legacy=groups(c,lessons),original=new Map(),sourceGroups=new Map();
@@ -112,7 +156,7 @@ function learnerGroups(c,lessons){
   const phaseLabels=[['initiating',/مرحلة البدء|\binitiating\s+(?:phase|process group)\b/i],['planning',/مرحلة التخطيط|\bplanning\s+(?:phase|process group)\b/i],['executing',/مرحلة التنفيذ|\bexecuting\s+(?:phase|process group)\b/i],['monitoring',/مرحلة (?:المتابعة|المراقبة) والتحكم|\bmonitoring\s*(?:&|and)\s*controlling\s*(?:phase|process group)?\b/i],['closing',/مرحلة الإغلاق|\bclosing\s+(?:phase|process group)\b/i]];
   const labelValues=l=>[l.t,l.t_en,l.title,l.title_ar,l.title_en,l.en].filter(v=>typeof v==='string');
   const labelText=l=>labelValues(l).join(' ');
-  const normalize=text=>String(text).replace(/®/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+  const normalize=normalizedLabel;
   // Exact published titles avoid sweeping general exam/finance/schedule topics
   // into the final instructions chapter merely because a keyword occurs.
   const guidelineTitles=new Set([
@@ -138,18 +182,24 @@ function learnerGroups(c,lessons){
     const item={...l,i},prior=original.get(i),route=contextFor(l),explicit=c.chapters?.[l.ch]?.outlineKey;
     let target;
     if(explicit)target=byKey.get(explicit)||sourceGroup(l.ch);
+    else if(c.chapters?.[l.ch]&&typeof c.chapters[l.ch]==='object'&&byKey.has('source_'+l.ch))target=byKey.get('source_'+l.ch);
+    else if(labelValues(l).some(title=>introductionLessonTitles.has(normalize(title))))target=byKey.get('intro');
     else if(!route.ambiguous&&route.guidelines)target=byKey.get('exam-guidelines');
     else if(!route.ambiguous&&route.special)target=byKey.get(route.special);
     else if(!route.ambiguous&&(route.approach||route.phase)){
       target=byKey.get(route.approach||'predictive');
       if(route.phase&&(!route.approach||route.approach==='predictive'))target=target.children.find(g=>g.key===route.phase);
+    }else if(isRetiredFrameworkChapter(c.chapters?.[l.ch])){
+      // Preserve the agreed introduction/exam/journey destinations; consolidate
+      // the other materials from the two retired headings under the framework.
+      target=byKey.get(['intro','exam','journey'].includes(prior.key)?'intro':'framework');
     }else target=byKey.get(prior.key);
     if(!target)target=sourceGroup(l.ch);
     target.items.push(item);
   });
   // Keep source-only materials in their actual saved chapters, outside the
   // numbered curriculum and before its final four chapters. Playback uses this
-  // same visual order; no original item is hidden, duplicated or reclassified.
+  // same visual order; original records are never hidden, duplicated or rewritten.
   const tail=outline.findIndex(g=>g.key==='final-reviews');
   return [...outline.slice(0,tail),...sourceGroups.values(),...outline.slice(tail)];
 }
@@ -159,5 +209,6 @@ function videoGroups(c,lessons){
   return prune(learnerGroups(c,lessons));
 }
 function videoOrder(c,lessons){return videoGroups(c,lessons).flatMap(lessonItems).map(l=>l.i);}
-window.CourseRoadmap={pmp,groups,topics,chapterChoices,ensureChapter,renameChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
+window.CourseRoadmap={pmp,groups,topics,chapterChoices,ensureChapter,renameChapter,moveChapter,isRetiredFrameworkChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
 })();
+

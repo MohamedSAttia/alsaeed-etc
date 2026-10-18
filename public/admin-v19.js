@@ -3,6 +3,8 @@
   'use strict';
   let CHAPTERS=[];
   const packageById=id=>PACKAGES.find(p=>p.id===id)||{};
+  const isPmpPackage=id=>packageById(id).course==='pmp';
+  const pmpEditorUrl=id=>'/#admin/content/'+encodeURIComponent(id);
   const normalizedChapters=list=>(Array.isArray(list)?list:[]).map(x=>typeof x==='object'
     ?{ar:String(x.ar||'').trim(),en:String(x.en||'').trim()}
     :{ar:String(x||'').trim(),en:''}).filter(x=>x.ar||x.en);
@@ -25,7 +27,7 @@
       if(!edit||!acts||acts.querySelector('.packageLessons'))return;
       const b=document.createElement('button');
       b.className='btn sm packageLessons';b.textContent='المحتوى والفيديو';b.dataset.id=edit.dataset.id;
-      b.onclick=()=>{CURRENT=b.dataset.id;TAB='lessons';draw()};acts.appendChild(b);
+      b.onclick=()=>{CURRENT=b.dataset.id;if(isPmpPackage(CURRENT)){window.location.assign(pmpEditorUrl(CURRENT));return;}TAB='lessons';draw()};acts.appendChild(b);
     });
   };
 
@@ -74,12 +76,21 @@
   };
 
   vLessons=function(){
+    if(isPmpPackage(CURRENT))return hero('محتوى PMP الموحّد','تُدار فصول PMP ودروسه من محرر واحد، وتظهر التعديلات في صفحات البرنامج والمتدرب.')+
+      '<div class="video-admin-toolbar"><label class="f"><span>الباقة</span>'+psel('lessonPkg')+'</label></div>'+
+      '<div class="card"><h2>فصول ودروس '+esc(packageById(CURRENT).ar||packageById(CURRENT).en||CURRENT)+'</h2><p>افتح محرر المحتوى الموحّد لتعديل الأسماء والترتيب والفيديوهات مع الحفاظ على تقدم المتدربين. قد يُطلب تسجيل الدخول إلى الموقع بحساب المشرف.</p><a class="btn p" id="pmpUnifiedEditor" href="'+esc(pmpEditorUrl(CURRENT))+'">فتح محرر محتوى PMP</a></div>';
     return hero('استوديو المحتوى والفيديو','رتّب الفصول والدروس، اربط Vimeo، وعاين المحتوى قبل ظهوره للمتدرب.',
       '<button class="btn ghost" id="lessonPreviewAll">👁 معاينة كمتدرب</button><button class="btn p" id="lessonSave">💾 حفظ الكل</button>')+
       '<div class="video-admin-toolbar"><label class="f"><span>الباقة</span>'+psel('lessonPkg')+'</label><button class="btn n" id="lessonLoad">تحميل</button><button class="btn" id="chapterAdd">＋ فصل</button><button class="btn" id="lessonAdd">＋ درس</button><button class="btn" id="lessonBulk">📋 إضافة جماعية</button></div>'+
       '<div id="lessonStats" class="grid g4"></div><div id="lessonWorkspace"></div>';
   };
   bindLessons=function(){
+    // PMP's stable chapter/lesson slots are owned by the shared SPA editor.
+    // Never load or save PMP through this older package._chapters store.
+    if(isPmpPackage(CURRENT)){
+      $('#lessonPkg').onchange=()=>{CURRENT=$('#lessonPkg').value;draw()};
+      return;
+    }
     const readCourseChapters=p=>{
       const c=(CONTENT.courses||[]).find(x=>x.id===p.course);
       return normalizedChapters((p._chapters&&p._chapters.length)?p._chapters:(c&&c.chapters)||[]);
@@ -129,8 +140,16 @@
       $$('.fetchDuration').forEach(b=>b.onclick=()=>hydrateRow(b.closest('[data-li]')));
       $$('#lessonWorkspace [data-vimeo]').forEach(input=>input.onblur=()=>{const id=vimeoId(input.value);if(id&&id!==input.dataset.lastVimeo)hydrateRow(input.closest('[data-li]'))});
     }
-    async function load(){CURRENT=$('#lessonPkg').value;const p=packageById(CURRENT);CHAPTERS=readCourseChapters(p);LESSONS=(await SA('/lessons/'+encodeURIComponent(CURRENT))).map(x=>({...x,chapter:Number(x.chapter||0)}));render()}
-    async function save(){harvest();const btn=$('#lessonSave');btn.disabled=true;btn.textContent='جارٍ الحفظ…';try{await Promise.all([SA('/lessons/'+encodeURIComponent(CURRENT),{method:'PUT',body:LESSONS}),CA('/packages/'+encodeURIComponent(CURRENT),{method:'PUT',body:{_chapters:CHAPTERS}})]);PACKAGES=await request('/api/admin-package-summary');toast('تم حفظ ترتيب الفصول والدروس والفيديوهات');render()}finally{btn.disabled=false;btn.textContent='💾 حفظ الكل'}}
+    async function load(){
+      const id=$('#lessonPkg').value;CURRENT=id;
+      if(isPmpPackage(id)){draw();return;}
+      const p=packageById(id),lessons=await SA('/lessons/'+encodeURIComponent(id));
+      if(CURRENT!==id||TAB!=='lessons'||!$('#lessonWorkspace'))return;
+      CHAPTERS=readCourseChapters(p);LESSONS=lessons.map(x=>({...x,chapter:Number(x.chapter||0)}));render();
+    }
+    async function save(){
+      if(isPmpPackage(CURRENT))throw new Error('استخدم محرر محتوى PMP الموحّد لحفظ الفصول والدروس.');
+      harvest();const btn=$('#lessonSave');btn.disabled=true;btn.textContent='جارٍ الحفظ…';try{await Promise.all([SA('/lessons/'+encodeURIComponent(CURRENT),{method:'PUT',body:LESSONS}),CA('/packages/'+encodeURIComponent(CURRENT),{method:'PUT',body:{_chapters:CHAPTERS}})]);PACKAGES=await request('/api/admin-package-summary');toast('تم حفظ ترتيب الفصول والدروس والفيديوهات');render()}finally{btn.disabled=false;btn.textContent='💾 حفظ الكل'}}
     $('#lessonPkg').onchange=()=>load().catch(e=>alert(e.message));$('#lessonLoad').onclick=()=>load().catch(e=>alert(e.message));$('#lessonSave').onclick=()=>save().catch(e=>alert(e.message));
     $('#chapterAdd').onclick=()=>{harvest();chapterDialog(null,-1)};$('#lessonAdd').onclick=()=>{harvest();lessonDialog(0)};
     $('#lessonPreviewAll').onclick=()=>{harvest();window.open('/#learn/'+encodeURIComponent(CURRENT),'_blank')};
@@ -142,3 +161,4 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mark,{once:true});else mark();
   new MutationObserver(mark).observe(document.documentElement,{subtree:true,childList:true});
 })();
+

@@ -60,7 +60,7 @@ try{
   }
   w.InteractiveVideo.close();assert.equal(JSON.stringify(progress),before);
   click('[data-lt="plan"]');await settle();
-  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,18);
+  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,16);
   assert.ok(w.document.querySelector('.wk.done [data-week="1"]'));
  }
  // The callback uses the same ordering and writes only the original lesson index.
@@ -92,3 +92,4 @@ try{
  assert.deepEqual(errors,[]);assert.deepEqual(writes,[],'No backend mutation');
  console.log('PASS: real SPA AR/EN rendering, exact original-index video open/Next/autoplay, unchanged existing progress, stable plan keys, quiz-only navigation, guest fallback gating, no backend writes or JS errors.');
 }finally{w.close();}
+

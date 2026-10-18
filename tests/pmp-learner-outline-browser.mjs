@@ -90,13 +90,14 @@ try {
       if(process.env.OUTLINE_SCREENSHOT_DIR){await mkdir(process.env.OUTLINE_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.OUTLINE_SCREENSHOT_DIR,'learner-outline-'+lang+'-'+width+'.png')});}
     }
     await page.locator('[data-lt="plan"]').first().click();
-    assert.equal(await page.locator('[data-plan-topic]').count(),18);
+    assert.equal(await page.locator('[data-plan-topic]').count(),16);
     assert.equal(await page.locator('.wk.done [data-week="1"]').count(),1);
   }
   await page.evaluate(()=>{APP.pack('pmp-sim').kinds=['exam','quiz'];APP.go('learn/pmp-sim')});
   await page.locator('[data-lt="plan"]').first().click();
   assert.equal(await page.locator('.learner-course-outline [data-lt="content"]').count(),0);
   assert.deepEqual(errors,[]);
-  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 18 topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
+  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 16 root topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
   await context.close();
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
+

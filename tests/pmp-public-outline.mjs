@@ -64,12 +64,12 @@ for(const live of [false,true]) {
    w.APP.go('course/pmp');await settle();
    eq(title('.cd-hero-copy h1'),exact,'Course heading');
    eq(w.document.querySelector('.cd-hero-copy h1').getAttribute('lang'),null,'Original course heading markup restored');
-   eq(w.document.querySelectorAll('.cd-topics > li').length,18,'Public outline top-level topic count');
+   eq(w.document.querySelectorAll('.cd-topics > li').length,16,'Public outline top-level topic count');
    const outline=w.CourseRoadmap.topics(sourcePmp), labels=outline.map(t=>lang==='en'?t.en:t.ar);
    eq(outline.find(t=>t.key==='hybrid').ar,'النهج المختلط','Requested Hybrid Arabic label');
    eq(outline.at(-1).ar,'إرشادات وتعليمات الاختبار الدولي','Requested exam-guidance Arabic label');
    assert.deepEqual(Array.from(w.document.querySelectorAll('.cd-topics > li > .public-topic-copy > .public-topic-label'),el=>el.textContent),Array.from(labels));
-   const branch=w.document.querySelector('.cd-topics > .public-topic-branch');
+   const branch=w.document.querySelectorAll('.cd-topics > .public-topic-branch')[1];
    assert.deepEqual(Array.from(branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'),el=>el.dataset.publicTopic),['initiating','planning','executing','monitoring','closing']);
    for(const child of branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'))eq(child.querySelectorAll('.public-topic-children > li').length,0,'No invented subtopics under '+child.dataset.publicTopic);
    assert.deepEqual(Array.from(outline.slice(-4),t=>t.key),['final-reviews','workshops','exam-eve','exam-guidelines']);
@@ -80,7 +80,7 @@ for(const live of [false,true]) {
    eq(w.document.querySelector('.v44-hero-heading h1').getAttribute('dir'),null,'Original package heading markup restored');
    ok(title('.v32-compare .is-current th').replace(/[\u2066-\u2069]/g,'').startsWith(packageTitle),'Restored package comparison title');
    ok(w.document.querySelector('[data-language-package="pmp-full"]'),'Package identity unchanged');
-   eq(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c').length,18,'Full-package public outline matches course');
+   eq(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c').length,16,'Full-package public outline matches course');
    assert.deepEqual(Array.from(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c > .public-topic-copy > .public-topic-label'),el=>el.textContent),Array.from(labels));
    eq(w.document.querySelectorAll('.pd-hero .chap-g .public-topic-children > li[data-public-topic="executing"]').length,1,'Execution appears once under Predictive');
    eq(typeof w.publicCatalogName,'undefined','Unintended public title override removed');
@@ -92,3 +92,4 @@ for(const live of [false,true]) {
  }finally{w.close();}
 }
 console.log(`PASS: ${checks} assertions, AR/EN, offline and restored saved public catalog titles, public routes and untouched stored content.`);
+
