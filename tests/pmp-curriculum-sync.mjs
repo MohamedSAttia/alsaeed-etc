@@ -26,7 +26,7 @@ const lesson = (id, ch, t, t_en = '') => ({
   dur: '03:00', free: false, files: [{ id: id + '-file', name: 'Fixture.pdf' }],
   quiz: [{ id: id + '-question' }], notes: 'Synthetic note', notes_en: 'Synthetic note'
 });
-const introTitles = [
+const legacyIntroTitles = [
   ['معهد PMI وأخلاقيات المهنة', 'Title: PMI and Professional Ethics'],
   ['شهادات PMI', 'The PMI  Certifications'],
   ['المحاضر ومحاور البرنامج - الاصدار الثامن', 'Instructor and PMP outlines - 8 Edition'],
@@ -34,7 +34,7 @@ const introTitles = [
   ['استراتيجيات حل اسئلة الاختبار الحقيقي', 'Strategies for Solving Any PMP® Question'],
   ['خطة اجتياز الاختبار  الحقيقي', 'Pass PMP Real Exam Plan ']
 ];
-const guidanceTitles = [
+const legacyGuidanceTitles = [
   ['متطلبات تقديم الاختبار الدولى والاهليه', 'PMP® Eligibility and Application'],
   ['طريقة تعبئة طلب الاختبار الدولي', 'PMP Application'],
   ['خطوات دفع رسوم اختبار PMP', 'Pay for Exam Steps'],
@@ -43,6 +43,9 @@ const guidanceTitles = [
   ['إرشادات وتعليمات الاختبار الحقيقي', 'Actual Exam Guidelines and Instructions'],
   ['إرشادات وتعليمات الاختبار الدولي', 'International Exam Guidelines and Instructions']
 ];
+const examTitles = [legacyIntroTitles[3]];
+const introTitles = [...legacyIntroTitles.filter((_, i) => i !== 3), legacyGuidanceTitles[0], legacyGuidanceTitles[4]];
+const guidanceTitles = legacyGuidanceTitles.filter((_, i) => ![0, 4].includes(i));
 const retiredAliases = [
   'أسس إدارة المشاريع وبيئتها', 'أسس المشاريع', 'دور مدير المشروع والقيادة', 'دور مدير المشروع',
   'Project management foundations and environment', 'Project foundations',
@@ -53,23 +56,25 @@ const retiredAliases = [
 const course = { id: 'pmp', chapters: [retiredAliases[0], retiredAliases[2], 'Existing source'] };
 const lessons = [
   lesson('fixture-0', 0, 'مقدمة البرنامج', 'Introduction'),
-  ...introTitles.map(([ar, en], i) => lesson('fixture-' + (i + 1), 0, ar, en)),
+  ...legacyIntroTitles.map(([ar, en], i) => lesson('fixture-' + (i + 1), 0, ar, en)),
   lesson('fixture-7', 0, 'Traditional and professional management'),
   lesson('fixture-8', 1, 'Strategic objectives'),
   lesson('fixture-9', 1, 'Knowledge Check — دور مدير المشروع والقيادة'),
-  ...guidanceTitles.map(([ar, en], i) => lesson('fixture-' + (i + 10), 0, ar, en)),
+  ...legacyGuidanceTitles.map(([ar, en], i) => lesson('fixture-' + (i + 10), 0, ar, en)),
   lesson('fixture-17', 2, 'Unclassified source lesson')
 ];
 const progress = { lessons: { 0: true, 3: true, 7: true, 17: true }, weeks: { 2: true }, exams: { framework: { score: 82 } } };
 const original = JSON.stringify({ course, lessons, progress });
 freeze(course); freeze(lessons); freeze(progress);
 const tree = r.learnerGroups(course, lessons);
-assert.equal(tree.filter(group => !group.originalChapter).length, 16);
-assert.deepEqual(keys(tree[0].children), ['exam', 'journey']);
-assert.deepEqual(indices(find(tree, 'intro')), [0, 1, 2, 3, 4, 5, 6]);
+assert.equal(tree.filter(group => !group.originalChapter).length, 17);
+assert.deepEqual(keys(tree[0].children), ['journey']);
+assert.deepEqual(indices(find(tree, 'intro')), [0, 1, 2, 3, 5, 6, 10, 14]);
 assert.deepEqual(indices(find(tree, 'framework')), [7, 8, 9]);
-assert.deepEqual(indices(find(tree, 'exam-guidelines')), [10, 11, 12, 13, 14, 15, 16]);
+assert.deepEqual(indices(find(tree, 'exam-guidelines')), [11, 12, 13, 15, 16]);
 assert.equal(tree.at(-1).key, 'exam-guidelines');
+assert.deepEqual(indices(find(tree, 'exam')), [4]);
+assert.deepEqual(keys(r.topics(course)), ['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
 for (const groupKey of ['source_0', 'source_1']) assert.equal(find(tree, groupKey), undefined);
 for (const ref of ['chapter:0', 'chapter:1']) assert(!r.chapterChoices(course).some(choice => choice.ref === ref));
 const readings = flatten(tree).flatMap(group => [group.readingKey, ...(group.readings || []).map(reading => reading.key)]).filter(Boolean);
@@ -88,7 +93,7 @@ assert.deepEqual(Array.from(r.videoOrder(course, lessons)).sort((a, b) => a - b)
 assert.equal(JSON.stringify({ course, lessons, progress }), original);
 
 // Published title matching works through each supported title field independently.
-for (const [titles, expected] of [[introTitles, 'intro'], [guidanceTitles, 'exam-guidelines']]) {
+for (const [titles, expected] of [[introTitles, 'intro'], [examTitles, 'exam'], [guidanceTitles, 'exam-guidelines']]) {
   for (const pair of titles) for (const title of pair) {
     for (const field of ['t', 't_en', 'title', 'title_ar', 'title_en', 'en']) {
       const item = { id: 'title-fixture', ch: 0, [field]: '  ' + title + '  ', vimeo: '20000' };
@@ -169,7 +174,7 @@ r.renameChapter(authored, 'chapter:1', 'فصل محفوظ ومعدل', 'Renamed 
 reload(); verifyAuthored('Legacy source rename');
 assert.deepEqual(indices(find(r.learnerGroups(authored, authoredLessons), 'source_1')), [1]);
 
-for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline:journey', -1], ['outline:executing', 1], ['outline:review', -1]]) {
+for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline:exam', -1], ['outline:executing', 1], ['outline:review', -1]]) {
   const beforeChapters = clone(authored.chapters);
   assert.equal(r.moveChapter(authored, ref, delta), true, ref + ' moves');
   reload(); verifyAuthored('Move ' + ref);
@@ -181,6 +186,9 @@ for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline
     }
   }
 }
+const beforeSingletonMove = JSON.stringify(authored);
+assert.equal(r.moveChapter(authored, 'outline:journey', -1), false);
+assert.equal(JSON.stringify(authored), beforeSingletonMove);
 for (let n = 0; n < 80; n++) {
   const publishedKeys = keys(flatten(r.topics(authored)));
   const choices = r.chapterChoices(authored).filter(choice => publishedKeys.includes(choice.key));

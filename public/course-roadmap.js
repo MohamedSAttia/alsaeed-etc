@@ -4,15 +4,18 @@ const pmp=[['intro','مقدمة','Introduction',/مقدم|introduction/i],['exam
 function groups(c,lessons){if(c.id!=='pmp')return Object.entries(lessons.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([ch,items])=>({title:c.chapters[ch]||'مقدمة',items,key:ch}));const result=pmp.map(t=>({key:t[0],title:t[1],en:t[2],items:[]})),other=new Map();lessons.forEach((l,i)=>{const title=[l.t,l.title_ar,l.title_en,l.en].filter(Boolean).join(' ');let topic=pmp.find(t=>['people','process','business','exam','review','journey'].includes(t[0])&&t[3].test(title))||pmp.find(t=>t[3].test(title));if(topic)result[pmp.indexOf(topic)].items.push({...l,i});else{const key=String(l.ch);if(!other.has(key))other.set(key,{key:'saved_'+key,title:c.chapters[l.ch]||'دروس إضافية',items:[]});other.get(key).items.push({...l,i})}});return [...result,...other.values()]}
 // Shared outline labels; assessment keys and stored lesson chapters stay unchanged.
 const publicLabels=Object.fromEntries(pmp.map(([key,ar,en])=>[key,{key,ar,en}]));
+publicLabels.people.ar='مجال الأفراد';
 const publicPhases=[['initiating','مرحلة البدء','Initiating'],['planning','مرحلة التخطيط','Planning'],['executing','مرحلة التنفيذ','Executing'],['monitoring','مرحلة المتابعة والتحكم','Monitoring & Controlling'],['closing','مرحلة الإغلاق','Closing']];
 function publicPmpTopics(){
   return [
-    {...publicLabels.intro,children:[{...publicLabels.exam},{...publicLabels.journey}]},
-    ...pmp.slice(2,6).map(([key])=>({...publicLabels[key]})),
+    {...publicLabels.intro,children:[{...publicLabels.journey}]},
+    {...publicLabels.exam},
+    {...publicLabels.framework},
     {key:'agile',ar:'النهج الرشيق',en:'Agile Approach'},
     {key:'predictive',ar:'النهج التنبؤي',en:'Predictive Approach',children:publicPhases.map(([key,ar,en])=>({key,ar,en}))},
     {key:'hybrid',ar:'النهج المختلط',en:'Hybrid Approach'},
     ...pmp.slice(13,16).map(([key])=>({...publicLabels[key]})),
+    ...pmp.slice(3,6).map(([key])=>({...publicLabels[key]})),
     {key:'ai',ar:'الذكاء الاصطناعي',en:'Artificial intelligence'},
     {key:'final-reviews',ar:'المراجعات النهائية',en:'Final reviews',children:[{key:'summaries',ar:'ملخصات',en:'Summaries'},{...publicLabels.review}]},
     {key:'workshops',ar:'ورش العمل التطبيقية',en:'Practical workshops'},
@@ -56,8 +59,12 @@ const introductionLessonTitles=new Set([
   'استراتيجيات حل اسئلة الاختبار الحقيقي','استراتيجيات حل أسئلة الاختبار الحقيقي',
   'Strategies for Solving Any PMP Question',
   'المحاضر ومحاور البرنامج - الاصدار الثامن','Instructor and PMP outlines - 8 Edition',
-  'هيكل اختبار محترف ادارة المشاريع وأنواع الأسئلة','PMP Exam Structure and Question Types',
+  'متطلبات تقديم الاختبار الدولى والاهليه','PMP Eligibility and Application',
+  'واجهة اختبار PMP وتقرير النتائج','PMP Exam Interface and Results',
   'خطة اجتياز الاختبار الحقيقي','Pass PMP Real Exam Plan'
+].map(normalizedLabel));
+const examStructureLessonTitles=new Set([
+  'هيكل اختبار محترف ادارة المشاريع وأنواع الأسئلة','PMP Exam Structure and Question Types'
 ].map(normalizedLabel));
 function chapterChoices(c){
   const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey?'chapter:'+t.sourceIndex:'outline:'+t.key,index:t.sourceIndex,canonical:!(Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey)})):[];
@@ -160,11 +167,9 @@ function learnerGroups(c,lessons){
   // Exact published titles avoid sweeping general exam/finance/schedule topics
   // into the final instructions chapter merely because a keyword occurs.
   const guidelineTitles=new Set([
-    'متطلبات تقديم الاختبار الدولى والاهليه','PMP Eligibility and Application',
     'طريقة تعبئة طلب الاختبار الدولي','PMP Application',
     'خطوات دفع رسوم اختبار PMP','Pay for Exam Steps',
     'خطوات حجز موعد اختبار PMP','Schedule Exam Steps',
-    'واجهة اختبار PMP وتقرير النتائج','PMP Exam Interface and Results',
     'إرشادات وتعليمات الاختبار الحقيقي','Actual Exam Guidelines and Instructions',
     'إرشادات وتعليمات الاختبار الدولي','International Exam Guidelines and Instructions'
   ].map(normalize));
@@ -176,14 +181,15 @@ function learnerGroups(c,lessons){
     const exactLabels=[chapter,...labelValues(l)].map(normalize);
     const phases=[...phaseLabels.filter(([,rx])=>rx.test(text)).map(([key])=>key),...publicPhases.filter(([key,ar,en])=>[key,ar,ar.replace(/^مرحلة /,''),en].some(v=>exactLabels.includes(normalize(v)))).map(([key])=>key),publicPhases.some(([key])=>key===l.phase)?l.phase:null];
     const special=one(specialLabels.filter(([,rx])=>[chapter,...labelValues(l)].some(v=>rx.test(v.trim()))).map(([key])=>key));
-    return {approach:one(approaches),phase:one(phases),special,guidelines:exactLabels.some(v=>guidelineTitles.has(v)),ambiguous:new Set(approaches.filter(Boolean)).size>1||new Set(phases.filter(Boolean)).size>1};
+    return {approach:one(approaches),phase:one(phases),special,intro:exactLabels.some(v=>introductionLessonTitles.has(v)),exam:exactLabels.some(v=>examStructureLessonTitles.has(v)),guidelines:exactLabels.some(v=>guidelineTitles.has(v)),ambiguous:new Set(approaches.filter(Boolean)).size>1||new Set(phases.filter(Boolean)).size>1};
   }
   lessons.forEach((l,i)=>{
     const item={...l,i},prior=original.get(i),route=contextFor(l),explicit=c.chapters?.[l.ch]?.outlineKey;
     let target;
     if(explicit)target=byKey.get(explicit)||sourceGroup(l.ch);
     else if(c.chapters?.[l.ch]&&typeof c.chapters[l.ch]==='object'&&byKey.has('source_'+l.ch))target=byKey.get('source_'+l.ch);
-    else if(labelValues(l).some(title=>introductionLessonTitles.has(normalize(title))))target=byKey.get('intro');
+    else if(route.intro)target=byKey.get('intro');
+    else if(route.exam)target=byKey.get('exam');
     else if(!route.ambiguous&&route.guidelines)target=byKey.get('exam-guidelines');
     else if(!route.ambiguous&&route.special)target=byKey.get(route.special);
     else if(!route.ambiguous&&(route.approach||route.phase)){
@@ -192,7 +198,7 @@ function learnerGroups(c,lessons){
     }else if(isRetiredFrameworkChapter(c.chapters?.[l.ch])){
       // Preserve the agreed introduction/exam/journey destinations; consolidate
       // the other materials from the two retired headings under the framework.
-      target=byKey.get(['intro','exam','journey'].includes(prior.key)?'intro':'framework');
+      target=byKey.get(prior.key==='exam'?'exam':['intro','journey'].includes(prior.key)?'intro':'framework');
     }else target=byKey.get(prior.key);
     if(!target)target=sourceGroup(l.ch);
     target.items.push(item);

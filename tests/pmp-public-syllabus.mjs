@@ -51,8 +51,10 @@ for (const name of ['publicCourseTopics', 'publicTopicBody', 'courseTabBody', 'c
   vm.runInContext(readFunction(name), context, { filename: 'public/index.html:' + name });
 }
 vm.runInContext(fs.readFileSync('public/course-roadmap.js', 'utf8'), context);
-const expectedKeys = ['intro','framework','value','principles','lifecycles','agile','predictive','hybrid','people','process','business','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
+const expectedKeys = ['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
 assert.deepEqual(Array.from(window.CourseRoadmap.topics(course('pmp')), x => x.key), expectedKeys);
+assert.deepEqual(Array.from(window.CourseRoadmap.topics(course('pmp'))[0].children, x => x.key), ['journey']);
+assert.equal(window.CourseRoadmap.topics(course('pmp'))[1].children, undefined, 'Exam structure is the second root, without invented children');
 const learner = window.CourseRoadmap.groups(course('pmp'), []);
 assert.equal(learner.length, 18);
 const names = selector => Array.from(app.querySelectorAll(selector), x => x.textContent);
@@ -66,8 +68,8 @@ try {
       window.biTitle = formatter ? context.publicTitle : undefined;
       app.innerHTML = context.courseView('pmp');
       assert.deepEqual(names('.cd-topics > li > .public-topic-copy > .public-topic-label'), expected);
-      assert.match(app.querySelector('.cd-count').textContent, /^16 /);
-      assert.equal(app.querySelectorAll('.cd-facts dd')[2].textContent, '16');
+      assert.match(app.querySelector('.cd-count').textContent, /^17 /);
+      assert.equal(app.querySelectorAll('.cd-facts dd')[2].textContent, '17');
       assert.equal(app.querySelector('.cd-source-language'), null);
       app.innerHTML = context.courseTabBody(course('pmp'));
       assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), expected);
@@ -108,7 +110,7 @@ try {
   }
   roadmap.topics = topicsFor;
   assert.equal(JSON.stringify(catalog), storedBefore, 'Stored course and package chapters are untouched');
-  assert.ok(source.includes('/course-roadmap.js?v=20261018-curriculum-sync'));
-  console.log(`PASS: ${assertions} render assertions; PMP course, legacy tab and full package share 16 public headings in AR/EN; other packages/courses, optional-module fallback, escaping and stored chapters preserved.`);
+  assert.ok(source.includes('/course-roadmap.js?v=20261018-exam-order'));
+  console.log(`PASS: ${assertions} render assertions; PMP course, legacy tab and full package share 17 public headings in AR/EN; other packages/courses, optional-module fallback, escaping and stored chapters preserved.`);
 } finally { window.close(); }
 

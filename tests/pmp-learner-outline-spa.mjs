@@ -42,6 +42,9 @@ try{
   assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lesson-index]'),x=>Number(x.dataset.lessonIndex)),Array.from(w.CourseRoadmap.videoOrder(c,w.LESSONS[pid])));
   assert.equal(A.pct(pid),25);
   assert.equal(w.document.querySelectorAll('.pmp-topic-reading').length,18);
+  assert.deepEqual(Array.from(w.document.querySelectorAll('.learning-outline > details'),x=>x.dataset.learningGroup),['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
+  assert.deepEqual(Array.from(w.document.querySelectorAll('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group]'),x=>x.dataset.learningGroup),['journey']);
+  assert.equal(w.document.querySelectorAll('.learning-outline > [data-learning-group="exam"] > .pmp-topic-reading').length,1);
   const summaries=w.document.querySelector('[data-learning-group="summaries"]');
   summaries.parentElement.closest('details').open=true;summaries.open=true;
   assert.ok(summaries.querySelector('[data-summary-topic="scope"] [data-learning-chapter="scope"]'));
@@ -60,7 +63,8 @@ try{
   }
   w.InteractiveVideo.close();assert.equal(JSON.stringify(progress),before);
   click('[data-lt="plan"]');await settle();
-  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,16);
+  assert.equal(w.document.querySelectorAll('[data-plan-topic]').length,17);
+  assert.deepEqual(Array.from(w.document.querySelectorAll('[data-plan-topic]'),x=>x.dataset.planTopic),['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
   assert.ok(w.document.querySelector('.wk.done [data-week="1"]'));
  }
  // The callback uses the same ordering and writes only the original lesson index.
