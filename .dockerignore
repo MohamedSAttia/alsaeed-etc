@@ -4,6 +4,7 @@
 !package.json
 !package-lock.json
 !server.js
+!curriculum-slots.js
 !trainee-tracking.js
 !enrollment-extensions.js
 !instructor-certificates.js
