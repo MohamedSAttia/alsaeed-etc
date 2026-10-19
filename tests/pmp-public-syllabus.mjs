@@ -67,19 +67,19 @@ try {
     for (const formatter of [false, true]) {
       window.biTitle = formatter ? context.publicTitle : undefined;
       app.innerHTML = context.courseView('pmp');
-      assert.deepEqual(names('.cd-topics > li > .public-topic-copy > .public-topic-label'), expected);
+      assert.deepEqual(names('.cd-topics > li > .public-topic-copy > .public-topic-label, .cd-topics > li > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'), expected);
       assert.match(app.querySelector('.cd-count').textContent, /^16 /);
       assert.equal(app.querySelectorAll('.cd-facts dd')[2].textContent, '16');
       assert.equal(app.querySelector('.cd-source-language'), null);
       app.innerHTML = context.courseTabBody(course('pmp'));
-      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), expected);
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label, .chap-c > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'), expected);
       app.innerHTML = context.pkgView('pmp-full');
-      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), expected);
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label, .chap-c > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'), expected);
       assertions += 6;
     }
     for (const p of window.PACKAGES.filter(x => x.id !== 'pmp-full')) {
       app.innerHTML = context.pkgView(p.id);
-      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label'), (p.chapters || []).map(context.publicTitle).map((title, i) => title || String(p.chapters[i])));
+      assert.deepEqual(names('.chap-c > .public-topic-copy > .public-topic-label, .chap-c > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'), (p.chapters || []).map(context.publicTitle).map((title, i) => title || String(p.chapters[i])));
       assertions++;
     }
     for (const c of allCourses.filter(x => x.id !== 'pmp')) {

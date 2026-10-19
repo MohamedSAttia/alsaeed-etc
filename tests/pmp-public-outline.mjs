@@ -72,13 +72,13 @@ for(const live of [false,true]) {
    eq(outline.find(t=>t.key==='hybrid').ar,'النهج المختلط','Requested Hybrid Arabic label');
    eq(outline.find(t=>t.key==='people').ar,'مجال الأفراد','Requested People Arabic label');
    eq(outline.at(-1).ar,'إرشادات وتعليمات الاختبار الدولي','Requested exam-guidance Arabic label');
-   assert.deepEqual(Array.from(w.document.querySelectorAll('.cd-topics > li > .public-topic-copy > .public-topic-label'),el=>el.textContent),Array.from(labels));
+   assert.deepEqual(Array.from(w.document.querySelectorAll('.cd-topics > li > .public-topic-copy > .public-topic-label, .cd-topics > li > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'),el=>el.textContent),Array.from(labels));
    const introBranch=w.document.querySelector('.cd-topics > li:first-child');
-   assert.deepEqual(Array.from(introBranch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'),el=>el.dataset.publicTopic),['exam','journey']);
+   assert.deepEqual(Array.from(introBranch.querySelectorAll(':scope > .public-topic-copy > .public-topic-disclosure > .public-topic-children > li'),el=>el.dataset.publicTopic),['exam','journey']);
    assert.equal(w.document.querySelector('.cd-topics > li:nth-child(2) .public-topic-children'),null);
    const branch=w.document.querySelectorAll('.cd-topics > .public-topic-branch')[1];
-   assert.deepEqual(Array.from(branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'),el=>el.dataset.publicTopic),['initiating','planning','executing','monitoring','closing']);
-   for(const child of branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-children > li'))eq(child.querySelectorAll('.public-topic-children > li').length,0,'No invented subtopics under '+child.dataset.publicTopic);
+   assert.deepEqual(Array.from(branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-disclosure > .public-topic-children > li'),el=>el.dataset.publicTopic),['initiating','planning','executing','monitoring','closing']);
+   for(const child of branch.querySelectorAll(':scope > .public-topic-copy > .public-topic-disclosure > .public-topic-children > li'))eq(child.querySelectorAll('.public-topic-children > li').length,0,'No invented subtopics under '+child.dataset.publicTopic);
    assert.deepEqual(Array.from(outline.slice(-4),t=>t.key),['final-reviews','workshops','exam-eve','exam-guidelines']);
    assert.deepEqual(Array.from(outline.find(t=>t.key==='final-reviews').children,t=>t.key),['summaries','review']);
    eq(w.CourseRoadmap.pmp.length,18,'Legacy assessment taxonomy retains its 18 keys');
@@ -88,7 +88,7 @@ for(const live of [false,true]) {
    ok(title('.v32-compare .is-current th').replace(/[\u2066-\u2069]/g,'').startsWith(packageTitle),'Restored package comparison title');
    ok(w.document.querySelector('[data-language-package="pmp-full"]'),'Package identity unchanged');
    eq(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c').length,16,'Full-package public outline matches course');
-   assert.deepEqual(Array.from(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c > .public-topic-copy > .public-topic-label'),el=>el.textContent),Array.from(labels));
+   assert.deepEqual(Array.from(w.document.querySelectorAll('.pd-hero .chap-g > .chap-c > .public-topic-copy > .public-topic-label, .pd-hero .chap-g > .chap-c > .public-topic-copy > .public-topic-disclosure > summary > .public-topic-label'),el=>el.textContent),Array.from(labels));
    eq(w.document.querySelectorAll('.pd-hero .chap-g .public-topic-children > li[data-public-topic="executing"]').length,1,'Execution appears once under Predictive');
    eq(typeof w.publicCatalogName,'undefined','Unintended public title override removed');
    eq(sourcePmp.en,'Project Management Professional','Stored English course title preserved');
