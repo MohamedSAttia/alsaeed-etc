@@ -96,7 +96,7 @@ test('requested pair reorders by metadata, repeats safely, reloads, and matches 
   assert.deepEqual(f.rows.get('pmp-alt'),initialRows,'Other packages stay unchanged');
   reload=await fixture(f.snapshot());assert.deepEqual(indices(reload),[2,1,3]);
   const w=reload.w,order=Array.from(w.CourseRoadmap.videoOrder(w.APP.course('pmp'),w.LESSONS['pmp-full']));assert.deepEqual(order,[0,2,1,4]);
-  assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lt]'),el=>[+el.dataset.lt,el.closest('tr').querySelector('td').textContent.trim()]),[[0,'1'],[2,'2'],[1,'3'],[3,'—'],[4,'4']]);
+  assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lt]'),el=>[+el.dataset.lt,el.closest('tr').querySelector('td').textContent.trim()]),[[0,'1'],[2,'2'],[1,'3'],[3,'4'],[4,'5']]);
   w.Vimeo={Player:class{constructor(){this.handlers={};}getDuration(){return Promise.resolve(60);}on(name,fn){this.handlers[name]=fn;}destroy(){return Promise.resolve();}}};
   w.APP.go('learn/pmp-full');await until(()=>reload.$('[data-lt="content"]'),'learner tabs');reload.$('[data-lt="content"]').click();await until(()=>reload.$('[data-lesson]'),'learner content');
   assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lesson]'),el=>Number(el.dataset.lesson)),order);

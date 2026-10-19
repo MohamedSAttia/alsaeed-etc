@@ -2,9 +2,9 @@
 (function(){
 const pmp=[['intro','مقدمة','Introduction',/مقدم|introduction/i],['exam','هيكل اختبار PMP','PMP exam structure',/هيكل.*اختبار|exam.*structure/i],['framework','إطار عمل إدارة المشاريع','Project management framework',/إطار|framework|أسس إدارة/i],['value','نظام تسليم القيمة','Value delivery system',/تسليم القيمة|value delivery/i],['principles','مبادئ إدارة المشاريع','Project management principles',/مبادئ|principles/i],['lifecycles','دورات حياة المشروع','Project life cycles',/دور.*حياة|life.?cycle/i],['governance','الحوكمة','Governance',/حوكمة|governance/i],['scope','النطاق','Scope',/نطاق|scope|متطلبات/i],['schedule','الجدول الزمني','Schedule',/جدول|schedule/i],['cost','المالية','Finance',/مالية|تكلفة|تمويل|cost|finance/i],['resources','الموارد','Resources',/موارد|فريق|قيادة|resource|team|leadership/i],['risk','المخاطر','Risk',/مخاطر|risk/i],['stakeholders','المعنيون','Stakeholders',/معني|مصلحة|stakeholder/i],['people','مجال الأشخاص','People domain',/مجال.*(أشخاص|أفراد)|people domain/i],['process','مجال العمليات','Process domain',/مجال.*عمليات|process domain/i],['business','مجال بيئة الأعمال','Business environment domain',/مجال.*بيئة|business environment domain/i],['journey','رحلة الاجتياز','Passing journey',/اجتياز|passing journey/i],['review','حل أهم الأسئلة','Key question review',/حل.*أسئلة|question review/i]];
 const validLessonOrder=value=>Number.isSafeInteger(value)&&value>=0&&value<=1000000;
-function orderedItems(items){return items.slice().sort((a,b)=>(validLessonOrder(a.displayOrder)?a.displayOrder:a.i)-(validLessonOrder(b.displayOrder)?b.displayOrder:b.i)||a.i-b.i);}
+function orderedItems(items){return items.filter(l=>!l.deleted).slice().sort((a,b)=>(validLessonOrder(a.displayOrder)?a.displayOrder:a.i)-(validLessonOrder(b.displayOrder)?b.displayOrder:b.i)||a.i-b.i);}
 function orderGroups(nodes){return nodes.map(g=>({...g,items:orderedItems(g.items),...(g.children?{children:orderGroups(g.children)}:{})}));}
-function groups(c,lessons){if(c.id!=='pmp')return orderGroups(Object.entries(lessons.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([ch,items])=>({title:c.chapters[ch]&&typeof c.chapters[ch]==='object'?(c.chapters[ch].ar||c.chapters[ch].en):c.chapters[ch]||'مقدمة',en:c.chapters[ch]&&typeof c.chapters[ch]==='object'?c.chapters[ch].en:'',items,key:ch})));const result=pmp.map(t=>({key:t[0],title:t[1],en:t[2],items:[]})),other=new Map();lessons.forEach((l,i)=>{const title=[l.t,l.title_ar,l.title_en,l.en].filter(Boolean).join(' ');let topic=pmp.find(t=>['people','process','business','exam','review','journey'].includes(t[0])&&t[3].test(title))||pmp.find(t=>t[3].test(title));if(topic)result[pmp.indexOf(topic)].items.push({...l,i});else{const key=String(l.ch);if(!other.has(key))other.set(key,{key:'saved_'+key,title:c.chapters[l.ch]||'دروس إضافية',items:[]});other.get(key).items.push({...l,i})}});return orderGroups([...result,...other.values()])}
+function groups(c,lessons){if(c.id!=='pmp')return orderGroups(Object.entries(lessons.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([ch,items])=>({title:c.chapters[ch]&&typeof c.chapters[ch]==='object'?(c.chapters[ch].ar||c.chapters[ch].en):c.chapters[ch]||'مقدمة',en:c.chapters[ch]&&typeof c.chapters[ch]==='object'?c.chapters[ch].en:'',items,key:ch})));const result=pmp.map(t=>({key:t[0],title:t[1],en:t[2],items:[]})),other=new Map();lessons.forEach((l,i)=>{if(l.deleted)return;const title=[l.t,l.title_ar,l.title_en,l.en].filter(Boolean).join(' ');let topic=pmp.find(t=>['people','process','business','exam','review','journey'].includes(t[0])&&t[3].test(title))||pmp.find(t=>t[3].test(title));if(topic)result[pmp.indexOf(topic)].items.push({...l,i});else{const key=String(l.ch);if(!other.has(key))other.set(key,{key:'saved_'+key,title:c.chapters[l.ch]||'دروس إضافية',items:[]});other.get(key).items.push({...l,i})}});return orderGroups([...result,...other.values()])}
 // Shared outline labels; assessment keys and stored lesson chapters stay unchanged.
 const publicLabels=Object.fromEntries(pmp.map(([key,ar,en])=>[key,{key,ar,en}]));
 publicLabels.people.ar='مجال الأفراد';
@@ -206,7 +206,7 @@ function reparentChapter(c,ref,parentRef){
 function adminGroups(c,lessons){
   if(c.id!=='pmp'){
     const result=chapterChoices(c).map(t=>({...t,title:t.ar,items:[]})),byChapter=new Map(result.map(g=>[String(g.index),g]));
-    lessons.forEach((l,i)=>{const key=String(l.ch||0);let group=byChapter.get(key);
+    lessons.forEach((l,i)=>{if(l.deleted)return;const key=String(l.ch||0);let group=byChapter.get(key);
       if(!group){group={key:'source_'+key,ref:null,title:'',en:'',items:[],children:[],originalChapter:true};byChapter.set(key,group);result.push(group);}
       group.items.push({...l,i});
     });
@@ -275,7 +275,7 @@ function learnerGroups(c,lessons){
     const special=one(specialLabels.filter(([,rx])=>[chapter,...labelValues(l)].some(v=>rx.test(v.trim()))).map(([key])=>key));
     return {approach:one(approaches),phase:one(phases),special,intro:exactLabels.some(v=>introductionLessonTitles.has(v)),exam:exactLabels.some(v=>examStructureLessonTitles.has(v)),guidelines:exactLabels.some(v=>guidelineTitles.has(v)),ambiguous:new Set(approaches.filter(Boolean)).size>1||new Set(phases.filter(Boolean)).size>1};
   }
-  lessons.forEach((l,i)=>{
+  lessons.forEach((l,i)=>{if(l.deleted)return;
     const item={...l,i},prior=original.get(i),route=contextFor(l),explicit=c.chapters?.[l.ch]?.outlineKey;
     let target;
     if(explicit)target=byKey.get(explicit)||byKey.get('source_'+l.ch)||sourceGroup(l.ch);

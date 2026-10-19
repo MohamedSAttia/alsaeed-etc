@@ -91,8 +91,10 @@ let hiddenLessons=[];
 let player = null;
 let playerLoader = null;
 let returnFocus = null;
+window.addEventListener('lessons-updated',event=>{if(V&&V.pkgId===event.detail?.pid&&window.LESSONS?.[V.pkgId]?.[V.lessonIdx]?.deleted)close();});
 function canOpenLesson(pkgId, lesson) {
-  return !!lesson && !!(window.APP.owns(pkgId) || window.APP.isAdmin() || lesson.free);
+  if(V&&V.pkgId===pkgId&&V.lesson===lesson&&window.LESSONS?.[pkgId]?.[V.lessonIdx]?.deleted)return false;
+  return !!lesson && !lesson.deleted && !!(window.APP.owns(pkgId) || window.APP.isAdmin() || lesson.free);
 }
 function visibleVideoGroups(pkgId) {
   const lessons=(window.LESSONS&&window.LESSONS[pkgId])||[];

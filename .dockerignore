@@ -31,3 +31,6 @@
 !rmp-advanced-seed.js
 !data/
 !data/**
+
+
+!lesson-actions.js

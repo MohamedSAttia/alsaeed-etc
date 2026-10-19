@@ -352,7 +352,7 @@ export function createCertificateService({ db, setting, uid, site, now = Date.no
     const course = list(setting, 'content_courses').find(c => c.id === pkg.course);
     if (!course) fail(400, 'بيانات الدورة غير مكتملة لإصدار الشهادة');
     const source = canonicalVideoSource(pkg, packages);
-    const videos = db.prepare("SELECT idx FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(source);
+    const videos = db.prepare("SELECT idx FROM lessons WHERE package_id=? AND deleted_at IS NULL AND TRIM(COALESCE(vimeo,''))<>''").all(source);
     const progressRow = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
     const progress = parse(progressRow?.data || '{}', {});
     if (!videos.length || !isObject(progress) || !isObject(progress.lessons) ||

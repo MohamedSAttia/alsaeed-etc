@@ -1,10 +1,12 @@
+import {lessonStructure} from '../lesson-actions.js';
 /** Real lesson-save handler + in-memory SQLite; synthetic fixtures only. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 const {default:Database} = await import(process.env.SQLITE_MODULE || 'better-sqlite3');
 const db = new Database(':memory:');
-db.exec(`CREATE TABLE lessons(package_id TEXT, idx INTEGER, title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER, notes TEXT, notes_en TEXT, files TEXT, quiz TEXT, display_order INTEGER, PRIMARY KEY(package_id,idx));
+db.exec(`CREATE TABLE lessons(package_id TEXT, idx INTEGER, title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER, notes TEXT, notes_en TEXT, files TEXT, quiz TEXT, display_order INTEGER, deleted_at INTEGER, PRIMARY KEY(package_id,idx));
+CREATE TABLE settings(k TEXT PRIMARY KEY,v TEXT);
 CREATE TABLE lesson_files(id TEXT, package_id TEXT);
 CREATE TABLE quiz_images(id TEXT, package_id TEXT);
 CREATE TABLE progress(user_id TEXT, package_id TEXT, data TEXT);`);
@@ -13,7 +15,7 @@ const source = fs.readFileSync(process.argv[2] || 'server.js','utf8');
 const start = source.indexOf("app.put('/api/admin/lessons/:pkg'");
 const end = source.indexOf("app.get('/api/admin/settings'", start);
 assert(start > 0 && end > start);
-vm.runInNewContext(source.slice(start,end), {db, app:{put:(path,...handlers)=>handler=handlers.at(-1)}, auth(){}, admin(){},
+vm.runInNewContext(source.slice(start,end), {db, lessonStructure, app:{put:(path,...handlers)=>handler=handlers.at(-1)}, auth(){}, admin(){},
  normalizeVimeoReference:v => /^\d+$/.test(String(v || '')) ? {stored:String(v)} : null,
  vimeoDuration:id=>lookup(id)});
 const originalQuiz = [{q:'Synthetic check',options:['a','b','c','d'],correct:0}];
@@ -21,8 +23,8 @@ function seed(){
  db.exec('DELETE FROM lessons; DELETE FROM lesson_files; DELETE FROM progress');
  db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('file-a','pmp');
  db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('foreign','other');
- db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run('pmp',0,'Original','English',3,'02:00','101',1,'Notes','English notes',JSON.stringify([{id:'file-a',name:'Guide'}]),JSON.stringify(originalQuiz),null);
- db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order FROM lessons WHERE package_id=?').run('other','pmp');
+ db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)').run('pmp',0,'Original','English',3,'02:00','101',1,'Notes','English notes',JSON.stringify([{id:'file-a',name:'Guide'}]),JSON.stringify(originalQuiz),null);
+ db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order,deleted_at FROM lessons WHERE package_id=?').run('other','pmp');
  db.prepare('INSERT INTO progress VALUES (?,?,?)').run('synthetic','pmp',JSON.stringify({lessons:{0:true},exams:{x:{score:90}}}));
  lookup=async()=>'';
 }

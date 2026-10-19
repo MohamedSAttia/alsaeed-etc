@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const docker=fs.readFileSync('Dockerfile','utf8'),ignore=fs.readFileSync('.dockerignore','utf8').split(/\r?\n/);
 const copied=docker.split('\n').filter(l=>l.startsWith('COPY ')&&l.endsWith(' ./')).flatMap(l=>l.split(/\s+/).slice(1,-1));
-assert.ok(copied.includes('curriculum-slots.js'));assert.ok(ignore.includes('!curriculum-slots.js'));
+assert.ok(copied.includes('lesson-actions.js'));assert.ok(ignore.includes('!lesson-actions.js'));assert.ok(copied.includes('curriculum-slots.js'));assert.ok(ignore.includes('!curriculum-slots.js'));
 let edges=0;
 for(const file of copied.filter(f=>f.endsWith('.js'))){
  const source=fs.readFileSync(file,'utf8');

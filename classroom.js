@@ -356,7 +356,7 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
   const learningFor = id => {
     if (!workspace || !q1("SELECT name FROM sqlite_master WHERE type='table' AND name='progress'")) return null;
     const row=q1('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?',id,CLASSROOM_PACKAGE);const data=J(row?.data,{})||{};
-    const catalog=q1("SELECT name FROM sqlite_master WHERE type='table' AND name='lessons'")?qa('SELECT idx,title,chapter,vimeo FROM lessons WHERE package_id=? ORDER BY idx',CLASSROOM_PACKAGE):[];return {catalog,lessons:data.lessons||{},weeks:data.weeks||{},exams:data.exams||{},activities:data.activities||{},games:data.games||{},downloads:data.downloads||{},updated:row?.updated||null};
+    const catalog=q1("SELECT name FROM sqlite_master WHERE type='table' AND name='lessons'")?qa('SELECT idx,title,chapter,vimeo FROM lessons WHERE deleted_at IS NULL AND package_id=? ORDER BY idx',CLASSROOM_PACKAGE):[];return {catalog,lessons:data.lessons||{},weeks:data.weeks||{},exams:data.exams||{},activities:data.activities||{},games:data.games||{},downloads:data.downloads||{},updated:row?.updated||null};
   };
   const userListRow = u => {
     const s = summ(u.id), a = q1("SELECT COUNT(*) n, ROUND(AVG(CASE WHEN kind='exam' THEN pct END),1) ex, ROUND(AVG(CASE WHEN kind='game' THEN pct END),1) gm, MAX(created) last FROM cls_attempts WHERE user_id = ?", u.id);

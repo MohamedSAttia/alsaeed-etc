@@ -82,6 +82,7 @@ function ensureColumn(table, col, ddl) {
     return true;
   } catch { return false; }
 }
+ensureColumn('lessons', 'deleted_at', 'INTEGER');
 ensureColumn('lessons', 'title_en', 'TEXT');
 ensureColumn('lessons', 'notes', 'TEXT');
 ensureColumn('lessons', 'notes_en', 'TEXT');
@@ -480,7 +481,7 @@ function handlePackageSummary(req,res){
   const admin=adminFromToken(req); if(!admin)return sendJson(res,401,{error:'يلزم تسجيل دخول المشرف'});
   const packs=getPackages();
   const q=db.prepare('SELECT package_id,COUNT(*) n FROM questions WHERE active=1 GROUP BY package_id').all();
-  const l=db.prepare('SELECT package_id,COUNT(*) n FROM lessons GROUP BY package_id').all();
+  const l=db.prepare('SELECT package_id,COUNT(*) n FROM lessons WHERE deleted_at IS NULL GROUP BY package_id').all();
   const e=db.prepare('SELECT package_id,COUNT(*) n FROM exams GROUP BY package_id').all();
   const r=db.prepare('SELECT package_id,COUNT(*) n FROM resources GROUP BY package_id').all();
   const map=(a)=>Object.fromEntries(a.map(x=>[x.package_id,x.n])); const qm=map(q),lm=map(l),em=map(e),rm=map(r);
@@ -538,6 +539,9 @@ async function handleLessonDiscussions(req,res,url){
   const packageId=decodeURIComponent(parts[0]||''),lessonIdx=Number(parts[1]);
   if(!packageId||!Number.isInteger(lessonIdx)||lessonIdx<0)return sendJson(res,400,{error:'بيانات الدرس غير صحيحة'});
   if(!lessonAccess(user,packageId))return sendJson(res,403,{error:'الأسئلة متاحة للمشتركين في هذه الباقة'});
+  const packages=JSON.parse(db.prepare('SELECT v FROM settings WHERE k=?').get('content_packages')?.v||'[]');
+  const source=packages.find(p=>p.id===packageId)?.sourcePackageId||packageId;
+  if(!db.prepare('SELECT 1 FROM lessons WHERE package_id=? AND idx=? AND deleted_at IS NULL').get(source,lessonIdx))return sendJson(res,404,{error:'الدرس غير متاح'});
   const staff=['admin','trainer','instructor'].includes(String(user.role||'').toLowerCase());
   if(req.method==='GET'){
     const rows=db.prepare(`SELECT d.id,d.parent_id,d.body,d.created,d.updated,u.name,u.role,d.user_id
@@ -588,7 +592,7 @@ function handlePlatformHealth(req,res){
     if(!signature)continue;
     if(signatures.has(signature))duplicates++;else signatures.set(signature,q.id);
   }
-  const lessons=db.prepare('SELECT duration,vimeo FROM lessons').all();
+  const lessons=db.prepare('SELECT duration,vimeo FROM lessons WHERE deleted_at IS NULL').all();
   const gateway=String(setting('gateway')||process.env.PAYMENT_GATEWAY||'kashier').toLowerCase();
   const configured={
     kashier:!!(process.env.KASHIER_MERCHANT_ID&&process.env.KASHIER_PAYMENT_API_KEY),

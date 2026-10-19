@@ -1,3 +1,4 @@
+import {lessonStructure} from '../lesson-actions.js';
 /** Stable presentation ordering against real projections and SQLite handlers.
  * Synthetic fixtures only: no production account, data, or network. */
 import assert from 'node:assert/strict';
@@ -39,14 +40,15 @@ const other={id:'rmp',chapters:[null,{ar:'Second',en:'Second'}]},otherLessons=[{
 assert.equal(R.moveLesson(other,otherLessons,1,-1),true);assert.deepEqual(Array.from(R.videoOrder(other,otherLessons)),[2,1,0]);assert.equal(otherLessons[0].t,'one');
 
 const source=fs.readFileSync('server.js','utf8'),db=new Database(':memory:');
-db.exec(`CREATE TABLE lessons(package_id TEXT,idx INTEGER,title TEXT,title_en TEXT,chapter INTEGER,duration TEXT,vimeo TEXT,free INTEGER,notes TEXT,notes_en TEXT,files TEXT,quiz TEXT,PRIMARY KEY(package_id,idx));CREATE TABLE lesson_files(id TEXT,package_id TEXT);CREATE TABLE quiz_images(id TEXT,package_id TEXT);CREATE TABLE progress(user_id TEXT,package_id TEXT,data TEXT);`);
+db.exec(`CREATE TABLE lessons(package_id TEXT,idx INTEGER,title TEXT,title_en TEXT,chapter INTEGER,duration TEXT,vimeo TEXT,free INTEGER,notes TEXT,notes_en TEXT,files TEXT,quiz TEXT,PRIMARY KEY(package_id,idx));CREATE TABLE settings(k TEXT PRIMARY KEY,v TEXT);
+CREATE TABLE lesson_files(id TEXT,package_id TEXT);CREATE TABLE quiz_images(id TEXT,package_id TEXT);CREATE TABLE progress(user_id TEXT,package_id TEXT,data TEXT);`);
 const migration=source.match(/if \(!db\.pragma\('table_info\(lessons\)'\)\.some\(col => col\.name === 'display_order'\)\)\n  db\.exec\("ALTER TABLE lessons ADD COLUMN display_order INTEGER"\);/)[0];
-new Function('db',migration)(db);new Function('db',migration)(db);assert.equal(db.pragma('table_info(lessons)').filter(c=>c.name==='display_order').length,1);
+new Function('db',migration)(db);new Function('db',migration)(db);db.exec('ALTER TABLE lessons ADD COLUMN deleted_at INTEGER');assert.equal(db.pragma('table_info(lessons)').filter(c=>c.name==='display_order').length,1);
 let handler,lookup=async()=>'';
 const start=source.indexOf("app.put('/api/admin/lessons/:pkg'"),end=source.indexOf("app.get('/api/admin/settings'",start);
-new Function('db','app','auth','admin','normalizeVimeoReference','vimeoDuration',source.slice(start,end))(db,{put:(route,...handlers)=>handler=handlers.at(-1)},()=>{},()=>{},v=>/^\d+$/.test(String(v||''))?{stored:String(v)}:null,id=>lookup(id));
+new Function('lessonStructure','db','app','auth','admin','normalizeVimeoReference','vimeoDuration',source.slice(start,end))(lessonStructure,db,{put:(route,...handlers)=>handler=handlers.at(-1)},()=>{},()=>{},v=>/^\d+$/.test(String(v||''))?{stored:String(v)}:null,id=>lookup(id));
 const all=()=>db.prepare('SELECT * FROM lessons ORDER BY package_id,idx').all();
-function seed(){db.exec('DELETE FROM lessons;DELETE FROM lesson_files;DELETE FROM progress');original.forEach((l,i)=>{db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('file-'+i,'pmp-full');db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run('pmp-full',i,l.t,l.t_en,l.ch,l.dur,l.vimeo,l.free?1:0,l.notes,l.notes_en,JSON.stringify(l.files),JSON.stringify(l.quiz),null);});db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order FROM lessons WHERE package_id=?').run('other','pmp-full');db.prepare('INSERT INTO progress VALUES (?,?,?)').run('synthetic','pmp-full',JSON.stringify(progress));lookup=async()=>'';}
+function seed(){db.exec('DELETE FROM lessons;DELETE FROM lesson_files;DELETE FROM progress');original.forEach((l,i)=>{db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('file-'+i,'pmp-full');db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)').run('pmp-full',i,l.t,l.t_en,l.ch,l.dur,l.vimeo,l.free?1:0,l.notes,l.notes_en,JSON.stringify(l.files),JSON.stringify(l.quiz),null);});db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order,deleted_at FROM lessons WHERE package_id=?').run('other','pmp-full');db.prepare('INSERT INTO progress VALUES (?,?,?)').run('synthetic','pmp-full',JSON.stringify(progress));lookup=async()=>'';}
 const read=()=>db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx').all('pmp-full').map(l=>({t:l.title,t_en:l.title_en,ch:l.chapter,dur:l.duration,vimeo:l.vimeo,free:!!l.free,notes:l.notes,notes_en:l.notes_en,files:JSON.parse(l.files),quiz:JSON.parse(l.quiz),displayOrder:l.display_order,displayOrderBase:l.display_order}));
 async function put(body){let status=200,out;await handler({params:{pkg:'pmp-full'},body:clone(body)},{status(n){status=n;return this;},json(v){out=v;return this;}});return {status,body:out};}
 seed();const initial=all(),progressRows=db.prepare('SELECT * FROM progress').all();

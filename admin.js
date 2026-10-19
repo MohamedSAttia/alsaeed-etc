@@ -94,8 +94,8 @@ export function mountAdmin(app, db, cfg) {
       revenue30: db.prepare("SELECT COALESCE(SUM(amount),0) s FROM orders WHERE status='paid' AND paid_at>?").get(d30).s,
       certificates: db.prepare('SELECT COUNT(*) c FROM certificates').get().c,
       messages: db.prepare('SELECT COUNT(*) c FROM messages').get().c,
-      lessons: db.prepare('SELECT COUNT(*) c FROM lessons').get().c,
-      withVideo: db.prepare("SELECT COUNT(*) c FROM lessons WHERE vimeo IS NOT NULL AND vimeo!=''").get().c,
+      lessons: db.prepare('SELECT COUNT(*) c FROM lessons WHERE deleted_at IS NULL').get().c,
+      withVideo: db.prepare("SELECT COUNT(*) c FROM lessons WHERE deleted_at IS NULL AND vimeo IS NOT NULL AND vimeo!=''").get().c,
       topPackages: db.prepare(`SELECT package_id, COUNT(*) n FROM enrollments
         GROUP BY package_id ORDER BY n DESC LIMIT 6`).all(),
       recent: db.prepare(`SELECT id,name,email,created FROM users WHERE role='student'
@@ -185,6 +185,7 @@ export function mountAdmin(app, db, cfg) {
         l.free !== undefined && ![true,false,0,1].includes(l.free)))
       return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
     const existing = db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg);
+    if(list.length<existing.length || existing.some(r=>r.deleted_at) || db.prepare("SELECT 1 FROM settings WHERE k LIKE ? LIMIT 1").get('lesson_action:'+req.params.pkg+':%')) return res.status(409).json({error:'استخدم محرر المحتوى الموحد لحماية الدروس وتقدم المتدربين'});
     // This legacy editor has no stable-order UI. Reject physical row moves rather
     // than moving progress keys; use the unified content editor for ordering.
     if (list.some((l, i) => {

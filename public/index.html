@@ -2846,7 +2846,7 @@ function rememberSavedContent(path, body) {
     const pid = decodeURIComponent(path.split('/').pop());
     savedLessons.set(pid, JSON.stringify(body));
     const p = savedContent.packages?.find(p => p.id === pid);
-    if (p) p.videos = body.filter(l => l.vimeo).length;
+    if (p) p.videos = body.filter(l => !l.deleted && l.vimeo).length;
   } else if (/^\/admin\/lessons\/[^/]+$/.test(path) && body.kind === 'display-order') {
     const pid = decodeURIComponent(path.split('/').pop()), saved = JSON.parse(savedLessons.get(pid) || '[]');
     for (const order of body.orders) if (saved[order.idx]) {
@@ -2927,7 +2927,7 @@ async function loadContent(initial = false) {
   contentRequest = request;
   return request.promise;
 }
-const mapLessonRows = rows => rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
+const mapLessonRows = rows => rows.map(l => ({ idx:l.idx, deleted:!!l.deleted, structureBase:l.structureBase,courseBase:l.courseBase, ch:l.chapter || 0, t:l.title || '',
   t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
   free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '',
   ...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
@@ -2935,6 +2935,7 @@ const mapLessonRows = rows => rows.map(l => ({ ch:l.chapter || 0, t:l.title || '
 
 const lessonRequests = new Map();
 const adminLessonRequests = new Map();
+const emptyLessonBases = new Map();
 const adminLessonsReady = new Set();
 const adminLessonErrors = new Map();
 function loadAdminLessons(pid, options = {}) {
@@ -2957,10 +2958,11 @@ function requestLessons(pid, admin, options = {}) {
   const current = () => requests.get(pid) === request && sameActor() && !catalogWrites;
   request.promise = api((admin ? '/admin/lessons/' : '/lessons/') + encodeURIComponent(pid), {
     cache:'no-store', ...(admin ? {timeoutMs:15000,timeoutMessage:'استغرق تحميل الدروس وقتًا أطول من المتوقع. أعد المحاولة.'} : {})
-  }).then(rows => {
+  }).then(async rows => {
       if (!current() || (options.refresh && !canRefreshCatalog())) return false;
       if (!Array.isArray(rows)) throw new Error('تعذّر قراءة بيانات الدروس من الخادم. أعد المحاولة.');
       if (!admin && (adminLessonsReady.has(pid) || adminLessonRequests.has(pid))) return false;
+      if(admin&&!rows.length){const meta=await api('/admin/lessons/'+encodeURIComponent(pid)+'/structure',{cache:'no-store'});if(!current())return false;emptyLessonBases.set(pid,meta.courseBase);}
       const mapped = mapLessonRows(rows);
       changed = JSON.stringify(window.LESSONS[pid]) !== JSON.stringify(mapped);
       window.LESSONS[pid] = mapped; rememberLessons(pid);
@@ -3134,7 +3136,7 @@ function pct(pid) {
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
   const activityTotal = (p.activities || 0) ? (((window.LEARNING_DATA||{})[p.course]||{}).activities||[]).length : 0;
-  const videos = ls.map((l,i) => ({l,i})).filter(x => x.l.vimeo);
+  const videos = ls.map((l,i) => ({l,i})).filter(x => !x.l.deleted && x.l.vimeo);
   const total = videos.length || (p.quizzes || 0) + activityTotal;
   if (!total) return 0;
   const done = videos.length ? videos.filter(x => !!pr.lessons[x.i]).length :
@@ -3147,7 +3149,7 @@ function certReady(pid) {
   if (p.type !== 'full' || !p.cert) return false;
   const ls = window.LESSONS[pid] || [];
   const pr = prog(pid);
-  const videos = ls.map((l, i) => ({l,i})).filter(x => x.l.vimeo);
+  const videos = ls.map((l, i) => ({l,i})).filter(x => !x.l.deleted && x.l.vimeo);
   return videos.length > 0 && videos.every(x => pr.lessons[x.i]);
 }
 
@@ -3190,7 +3192,7 @@ function studyPlan(pid) {
   let i = 0, w = 1;
   while (i < chs.length) {
     const start = i, slice = chs.slice(i, i + perWeek);
-    const actual = lessons.filter(l => (l.ch || 0) >= start && (l.ch || 0) < start + slice.length && l.vimeo)
+    const actual = lessons.filter(l => !l.deleted && (l.ch || 0) >= start && (l.ch || 0) < start + slice.length && l.vimeo)
       .map(l => (window.biTitle ? window.biTitle(l) : l.t) || l.t).filter(Boolean);
     const override = (p.planCards || {})[String(start)] || {};
     plan.push({
@@ -3231,7 +3233,7 @@ function examSet(pid) {
   const p = pack(pid), c = course(p.course);
   const out = [];
   c.chapters.forEach((ch, i) => {
-    const count = (window.LESSONS[pid] || []).filter(l => (l.ch || 0) === i)
+    const count = (window.LESSONS[pid] || []).filter(l => !l.deleted && (l.ch || 0) === i)
       .reduce((n, l) => n + (l.quiz || []).length, 0);
     if (count) out.push({ id: 'ch' + i, kind: 'فصل', title: ch, q: count, min: Math.max(2, count * 2) });
   });
@@ -3636,7 +3638,7 @@ async function boot() {
 }
 
 return { boot, go, replaceRoute, render, api, get live() { return API.live; }, toast, modal, closeModal, openAuth, checkout,
-  loadAdminLessons, refreshPublishedContent, beginCatalogWrite, endCatalogWrite, rememberLessons,
+  acknowledgeLessonStructure:(pid,token)=>{const saved=JSON.parse(savedLessons.get(pid)||'[]');saved.forEach(l=>l.structureBase=token);savedLessons.set(pid,JSON.stringify(saved));}, get catalogWrites(){return catalogWrites;}, setLessonReady:(pid,ready)=>ready?adminLessonsReady.add(pid):adminLessonsReady.delete(pid), emptyLessonCourseBase:pid=>emptyLessonBases.get(pid), rememberContent, hasCatalogDrafts, loadAdminLessons, refreshPublishedContent, beginCatalogWrite, endCatalogWrite, rememberLessons,
   adminLessonsReady: pid => adminLessonsReady.has(pid), adminLessonError: pid => adminLessonErrors.get(pid) || '',
   get token() { return API.token; }, get editorRevision() { return editorInputVersion; },
   me, isAdmin, owns, course, pack, prog, pct, certReady, studyPlan, examSet,
@@ -4740,7 +4742,7 @@ function pkgTab(p, c, has) {
       <b>المحتوى قيد الرفع</b><p class="muted">سيظهر هنا فور رفعه من لوحة الإدارة.</p></div>`;
     const pr = has ? A().prog(p.id) : { lessons: {} };
     const videoNumbers = new Map(ls.map((l, i) => ({ l, i }))
-      .filter(x => x.l.vimeo).sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i)
+      .filter(x => !x.l.deleted && x.l.vimeo).sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i)
       .map((x, n) => [x.i, n + 1]));
     const groups=window.CourseRoadmap?(CourseRoadmap.learnerGroups||CourseRoadmap.groups)(c,ls):Object.entries(ls.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([key,items])=>({key,title:c.chapters[key]||'مقدمة',items}));
     const groupLessons=group=>window.CourseRoadmap?.lessonItems?CourseRoadmap.lessonItems(group):group.items;
@@ -4765,14 +4767,14 @@ function pkgTab(p, c, has) {
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
             : 'الدروس المجانية متاحة للجميع. اشترك لفتح باقي المحتوى.'}</div>
-      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => l.vimeo).length} (${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
+      ${has ? `<div class="note info mb">${siteEnglish()?'Video progress':'تقدم مشاهدة الفيديوهات'}: <b>${ls.filter((l, i) => !l.deleted && l.vimeo && !!pr.lessons[i]).length}/${ls.filter(l => !l.deleted && l.vimeo).length} (${Math.round(ls.filter((l, i) => !l.deleted && l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => !l.deleted && l.vimeo).length || 1) * 100)}%)</b><div class="prog"><i style="width:${Math.round(ls.filter((l, i) => !l.deleted && l.vimeo && !!pr.lessons[i]).length / (ls.filter(l => !l.deleted && l.vimeo).length || 1) * 100)}%"></i></div></div>` : ''}
       <div class="learning-outline">${groups.map((group,ci)=>renderGroup(group,ci)).join('')}</div>`;
   }
 
   if (pkTab === 'resources') {
     const studyRoutes = { rmp:'rmp-study.html', grcp:'grcp-study.html', pba:'pba-study.html' };
     const route = studyRoutes[c.id];
-    const attachments=[...new Map((window.LESSONS[p.id]||[]).flatMap((l,i)=>(l.files||[]).map(f=>({...f,lesson:window.biTitle?window.biTitle(l):l.t}))).map(f=>[f.id,f])).values()];
+    const attachments=[...new Map((window.LESSONS[p.id]||[]).flatMap((l,i)=>(l.deleted?[]:l.files||[]).map(f=>({...f,lesson:window.biTitle?window.biTitle(l):l.t}))).map(f=>[f.id,f])).values()];
     return `${attachments.length?`<section class="card pad mb"><h3>${siteEnglish()?'Lesson attachments':'مرفقات المحتوى والفيديو'}</h3><div class="resource-list">${attachments.map(f=>`<div class="resource-row"><span class="ic">📎</span><div><b>${esc(f.name)}</b><small>${esc(f.lesson||'')}</small></div>${has?`<button class="btn p sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">${siteEnglish()?'Download':'تحميل'}</button>`:`<button class="btn o sm" data-buy="${p.id}">🔒</button>`}</div>`).join('')}</div></section>`:''}<div class="note info mb"><b>ملفاتك تبقى معك.</b> حمّل دليل الدراسة والخطة والبطاقات، واستخدمها بعد انتهاء الوصول للمنصة.</div>
       <div class="resource-list">
         ${route ? `<div class="resource-row"><span class="ic">📘</span><div><b>الدليل التعليمي التفاعلي</b><span>${esc(c.code)} study guide</span></div>${has?`<a class="btn n sm" href="${route}" target="_blank" rel="noopener">فتح</a>`:`<button class="btn o sm" data-buy="${p.id}">🔒 اشترك</button>`}</div>` : ''}
@@ -4891,7 +4893,7 @@ function learn(id) {
     <div class="grid g4 mb">
       <div class="stat hl"><b class="num">${pc}%</b><span>اكتمال الباقة</span>
         <div class="prog" style="background:rgba(255,255,255,.25)"><i style="width:${pc}%;background:#fff"></i></div></div>
-      <div class="stat"><b class="num">${ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length}/${ls.filter(l=>l.vimeo).length || '—'}</b><span>فيديو مكتملاً</span></div>
+      <div class="stat"><b class="num">${ls.filter((l,i)=>!l.deleted&&l.vimeo&&pr.lessons[i]).length}/${ls.filter(l=>!l.deleted&&l.vimeo).length || '—'}</b><span>فيديو مكتملاً</span></div>
       <div class="stat"><b class="num">${Object.keys(pr.exams).length}</b><span>اختباراً أُدّي</span></div>
       <div class="stat"><b class="num">${readinessPct != null ? readinessPct + '%' : '—'}</b>
         <span>${readinessPct != null ? (siteEnglish()?'Practice readiness':'مؤشر الجاهزية التدريبي') : (siteEnglish()?'Take a practice assessment':'ابدأ باختبار لقياس الجاهزية')}</span></div>
@@ -4909,7 +4911,7 @@ function learn(id) {
         `<span class="k"><i style="background:${A().BAND[k].c}"></i>${A().BAND[k].ar}</span>`).join('')}</div>
     </div>` : ''}
 
-    <div class="card pad mb"><h3>${siteEnglish()?'My learning dashboard':'لوحة تقدمي في الباقة'}</h3><p>${siteEnglish()?'Follow the steps below. Completion counts reflect recorded activity.':'تابع الخطوات التالية. الأعداد تعكس ما سجلته فعليًا في هذه الباقة.'}</p><div class="learner-steps">${[['plan',siteEnglish()?'Plan':'الخطة',Object.values(pr.weeks||{}).filter(Boolean).length],['content',siteEnglish()?'Reading & video':'الشرح والفيديو',ls.filter((l,i)=>l.vimeo&&pr.lessons[i]).length],['exams',siteEnglish()?'Tests':'الاختبارات',Object.keys(pr.exams||{}).length],['resources',siteEnglish()?'Files':'الملفات',Object.keys(pr.downloads||{}).length],['activities',siteEnglish()?'Exercises':'التمارين',Object.values(pr.activities||{}).filter(Boolean).length],['workspace',siteEnglish()?'Application':'التطبيق',Object.keys(pr.applicationReports||{}).length]].filter(([id])=>tabs.some(t=>t[0]===id)).map(([id,t,n],i)=>`<button class="learner-step ${learnTab===id?'on':''} ${n?'done':''}" data-lt="${id}"><strong>${i+1} · ${t}</strong><small>${n} ${siteEnglish()?'recorded':'مسجل'}</small></button>`).join('')}</div></div>
+    <div class="card pad mb"><h3>${siteEnglish()?'My learning dashboard':'لوحة تقدمي في الباقة'}</h3><p>${siteEnglish()?'Follow the steps below. Completion counts reflect recorded activity.':'تابع الخطوات التالية. الأعداد تعكس ما سجلته فعليًا في هذه الباقة.'}</p><div class="learner-steps">${[['plan',siteEnglish()?'Plan':'الخطة',Object.values(pr.weeks||{}).filter(Boolean).length],['content',siteEnglish()?'Reading & video':'الشرح والفيديو',ls.filter((l,i)=>!l.deleted&&l.vimeo&&pr.lessons[i]).length],['exams',siteEnglish()?'Tests':'الاختبارات',Object.keys(pr.exams||{}).length],['resources',siteEnglish()?'Files':'الملفات',Object.keys(pr.downloads||{}).length],['activities',siteEnglish()?'Exercises':'التمارين',Object.values(pr.activities||{}).filter(Boolean).length],['workspace',siteEnglish()?'Application':'التطبيق',Object.keys(pr.applicationReports||{}).length]].filter(([id])=>tabs.some(t=>t[0]===id)).map(([id,t,n],i)=>`<button class="learner-step ${learnTab===id?'on':''} ${n?'done':''}" data-lt="${id}"><strong>${i+1} · ${t}</strong><small>${n} ${siteEnglish()?'recorded':'مسجل'}</small></button>`).join('')}</div></div>
     <div class="tabs">${tabs.filter(([k])=>!['plan','content','resources','activities','workspace','exams'].includes(k)).map(([k, l]) =>
       `<button class="${learnTab === k ? 'on' : ''}" data-lt="${k}">${l}</button>`).join('')}</div>
     <div id="lnBody" class="learning-content-frame" style="padding-bottom:60px">${learnTab === 'workspace' ? `<section class="package-application" data-native-workspace="${esc(p.id)}"><div class="card pad">${siteEnglish()?'Loading applications…':'جارٍ تحميل التطبيق…'}</div></section>` : learnTab === 'system' ? sysTab(c) : (pkTab = learnTab, pkgTab(p, c, true))}</div>
@@ -5221,15 +5223,15 @@ function adminTab() {
     const ls = window.LESSONS[pid] || (window.LESSONS[pid] = []);
     const chapters = window.CourseRoadmap.adminGroups(c, ls);
     const videoOrder = window.CourseRoadmap.videoOrder(c, ls);
-    const videoNumbers = new Map(videoOrder.map((i, n) => [i, n + 1]));
+    const videoNumbers = new Map(chapters.flatMap(g=>g.items).map((l,n)=>[l.i,n+1]));
     const totalMin = ls.reduce((a, l) => {
-      const p = String(l.dur || '0:0').split(':'); return a + (+p[0] || 0) + (+p[1] || 0) / 60; }, 0);
-    const linked = ls.filter(l => l.vimeo).length;
+      if(l.deleted)return a; const p = String(l.dur || '0:0').split(':'); return a + (+p[0] || 0) + (+p[1] || 0) / 60; }, 0);
+    const linked = ls.filter(l => !l.deleted && l.vimeo).length;
 
     return `<div class="grid g4 mb">
-        <div class="stat"><b class="num">${ls.length}</b><span>درساً</span></div>
+        <div class="stat"><b class="num">${ls.filter(l=>!l.deleted).length}</b><span>درساً</span></div>
         <div class="stat"><b class="num">${linked}</b><span>مرتبط بفيديو</span></div>
-        <div class="stat"><b class="num">${ls.length - linked}</b><span>بانتظار الرفع</span></div>
+        <div class="stat"><b class="num">${ls.filter(l=>!l.deleted).length - linked}</b><span>بانتظار الرفع</span></div>
         <div class="stat hl"><b class="num">${Math.round(totalMin / 60 * 10) / 10}</b><span>ساعة محتوى</span></div>
       </div>
 
@@ -5252,6 +5254,7 @@ function adminTab() {
         <button class="btn o" id="fillDurations">⏱ استكمال مدد الفيديوهات</button>
       </div>
 
+      ${ls.some(l=>l.deleted)?`<details class="card pad mb"><summary>الدروس المحذوفة (${ls.filter(l=>l.deleted).length}) — يمكن استعادتها</summary>${ls.map((l,i)=>l.deleted?`<div class="resource-row"><b>${esc(l.t)}</b><button type="button" class="btn o sm" data-lrestore="${i}">استعادة الدرس</button></div>`:'').join('')}</details>`:''}
       ${chapters.length ? chapters.map(ch => {
         const rows = ch.items, ref = ch.ref || '';
         return `<div class="ch-blk" data-admin-chapter="${esc(ch.key)}" data-chapter-ref="${esc(ref)}" style="${ch.depth ? 'margin-inline-start:' + ch.depth * 24 + 'px' : ''}">
@@ -5305,7 +5308,9 @@ function adminTab() {
               <td style="white-space:nowrap">
                 <button class="btn o sm" data-lup="${l.i}" ${lessonOrderPending.has(pid) || rowPosition === 0 ? 'disabled' : ''} title="نقل الدرس لأعلى · Move lesson up" aria-label="نقل الدرس لأعلى · Move lesson up">▲</button>
                 <button class="btn o sm" data-ldown="${l.i}" ${lessonOrderPending.has(pid) || rowPosition === rows.length - 1 ? 'disabled' : ''} title="نقل الدرس لأسفل · Move lesson down" aria-label="نقل الدرس لأسفل · Move lesson down">▼</button>
-                <button class="btn o sm" data-ldel="${l.i}" title="حذف">🗑</button>
+                <button type="button" class="btn o sm" data-lbefore="${l.i}" title="إضافة درس فوق هذا الدرس">＋ فوق</button>
+                <button type="button" class="btn o sm" data-lafter="${l.i}" title="إضافة درس تحت هذا الدرس">＋ تحت</button>
+                <button type="button" class="btn o sm" data-ldel="${l.i}" title="حذف قابل للاستعادة">🗑 حذف</button>
               </td></tr><tr><td></td><td colspan="5">
                 <label class="btn o sm">📎 أرفق PDF أو Word أو Excel
                   <input type="file" data-attach="${l.i}" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple hidden></label>
@@ -5324,7 +5329,7 @@ function adminTab() {
         <button class="btn p" id="admSaveVid">💾 احفظ كل التغييرات</button>
         <button class="btn o" id="admPreviewAll">👁 معاينة كطالب</button>
         <span class="muted" style="flex:1;align-self:center;font-size:.83rem">
-          ${ls.length} درساً · ${linked} مرتبط بفيديو · ${ls.length - linked} بانتظار الرفع</span>
+          ${ls.filter(l=>!l.deleted).length} درساً · ${linked} مرتبط بفيديو · ${ls.filter(l=>!l.deleted).length - linked} بانتظار الرفع</span>
       </div>`;
   }
 
@@ -5725,13 +5730,13 @@ function decisionGame(pid){ openPractice(pid,'game'); }
 /* ═══════════ مشغّل الفيديو ═══════════ */
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
-  const canOpen=lesson=>A().owns(pid)||A().isAdmin()||lesson.free;
-  if (!l || !l.vimeo || !canOpen(l)) return;
+  const canOpen=lesson=>!lesson.deleted&&(A().owns(pid)||A().isAdmin()||lesson.free);
+  if (!l || l.deleted || !l.vimeo || !canOpen(l)) return;
   if(!window.LessonVideo.embedUrl(l.vimeo)){A().toast(siteEnglish()?'The video link is invalid. Please contact the trainer.':'رابط الفيديو غير صالح؛ يرجى إبلاغ المدرب.');return;}
   curLesson = idx;
   const c=A().course(A().pack(pid).course);
   const outlineOrder=window.CourseRoadmap?.videoOrder?CourseRoadmap.videoOrder(c,ls).filter(i=>canOpen(ls[i])):null;
-  const displayOrder=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo&&canOpen(x.l)).map(x=>x.i);
+  const displayOrder=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>!x.l.deleted&&x.l.vimeo&&canOpen(x.l)).map(x=>x.i);
   const displayPosition=displayOrder.indexOf(idx)+1;
   const nextIndex=displayOrder[displayOrder.indexOf(idx)+1], previousIndex=displayOrder[displayOrder.indexOf(idx)-1];
   const pr = A().prog(pid);
@@ -5758,7 +5763,7 @@ function playLesson(pid, idx) {
     </div>`, () => {
     const frame=$('#nativeLessonFrame');window.LessonVideo.attach(frame,()=>{
       pr.lessons[idx]=true;A().save();
-      const order=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo&&canOpen(x.l)).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);
+      const order=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>!x.l.deleted&&x.l.vimeo&&canOpen(x.l)).sort((a,b)=>(Number(a.l.ch)||0)-(Number(b.l.ch)||0)||a.i-b.i).map(x=>x.i);
       const next=order[order.indexOf(idx)+1];if(next!==undefined){A().closeModal();playLesson(pid,next)}else A().toast(siteEnglish()?'All videos completed':'اكتملت الفيديوهات');
     });
     $$('[data-player-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.playerFile),{headers:{Authorization:'Bearer '+A().token}});if(!response.ok)throw Error('تعذر تنزيل الملف');const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;link.download=b.dataset.fileName;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);pr.downloads=pr.downloads||{};pr.downloads[b.dataset.playerFile]={name:b.dataset.fileName,at:Date.now()};A().save()}catch(e){A().toast(e.message)}});
@@ -5779,8 +5784,8 @@ function runLessonQuiz(pid, key) {
   const lessons = window.LESSONS[pid] || [];
   const selected = key.startsWith('lesson')
     ? lessons.slice(Number(key.slice(6)), Number(key.slice(6)) + 1)
-    : lessons.filter(l => (l.ch || 0) === Number(key.slice(2)));
-  const questions = selected.flatMap(l => l.quiz || []);
+    : lessons.filter(l => !l.deleted && (l.ch || 0) === Number(key.slice(2)));
+  const questions = selected.filter(l=>!l.deleted).flatMap(l => l.quiz || []);
   if (!questions.length) { A().toast('لم تُضف أسئلة لهذا الفصل بعد'); return; }
   let index = 0, score = 0, scored = 0, pending = 0;
   function show() {
@@ -5866,7 +5871,7 @@ window.runLessonQuiz = runLessonQuiz;
 
 /* ═══════════ محاكاة الاختبار ═══════════ */
 function runExam(pid, eid) {
-  if (/^ch\d+$/.test(eid) && (window.LESSONS[pid] || []).some(l =>
+  if (/^ch\d+$/.test(eid) && (window.LESSONS[pid] || []).some(l => !l.deleted &&
     (l.ch || 0) === Number(eid.slice(2)) && (l.quiz || []).length)) {
     runLessonQuiz(pid, eid); return;
   }
@@ -6304,6 +6309,8 @@ function bind() {
   const vpk = $('#admPk');
   if (vpk) vpk.onchange = () => { window.__vidPk = vpk.value; A().render(); };
 
+  const lifecycleInputVersion=A().editorRevision;
+  const lifecycleReady=()=>{if(A().editorRevision!==lifecycleInputVersion||A().hasCatalogDrafts?.()||A().catalogWrites||lessonOrderPending.has(curPk())){A().toast('احفظ التعديلات الحالية أولاً ثم أعد المحاولة');return false;}return true;};
   const curPk = () => window.__vidPk || 'grcp-full';
   const curLs = () => (window.LESSONS[curPk()] = window.LESSONS[curPk()] || []);
   async function uploadFiles(fileList) {
@@ -6364,7 +6371,7 @@ function bind() {
     $$('[data-vid]').forEach(x => { if (ls[+x.dataset.vid]) {
       const id = videoId(x.value);
       if (id === null) { A().toast('رابط Vimeo غير صحيح؛ لم يُمسح الرابط المحفوظ'); return; }
-      ls[+x.dataset.vid].clearVimeo = !id && !!ls[+x.dataset.vid].vimeo;
+      if(!id&&ls[+x.dataset.vid].vimeo)ls[+x.dataset.vid].clearVimeo=true;else if(id)delete ls[+x.dataset.vid].clearVimeo;
       ls[+x.dataset.vid].vimeo = id;
     } });
     $$('[data-lfree]').forEach(x => { if (ls[+x.dataset.lfree]) ls[+x.dataset.lfree].free = x.checked; });
@@ -6409,7 +6416,7 @@ function bind() {
       const rows=await A().api('/admin/lessons/'+encodeURIComponent(pid));
       if(!sameActor())return false;
       if(window.LESSONS[pid]===ls&&JSON.stringify(ls)===snapshot&&A().editorRevision===inputVersion){
-        window.LESSONS[pid]=rows.map(l=>({ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||'',...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
+        window.LESSONS[pid]=rows.map(l=>({idx:l.idx,deleted:!!l.deleted,structureBase:l.structureBase,courseBase:l.courseBase,ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||'',...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
   ...(Object.hasOwn(l,'displayOrder')?{displayOrderBase:Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?l.displayOrder:null}:{})}));
         A().rememberLessons?.(pid);
         if(curPk()===pid&&A().route===route&&!document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]'))A().render();
@@ -6532,67 +6539,49 @@ function bind() {
   const al = $('#addLesson'); if (al) al.onclick = () => addLessonAt(chapterChoices()[0]?.ref);
   $$('[data-addto]').forEach(b => b.onclick = () => addLessonAt(b.dataset.addto));
 
-  function addLessonAt(ch) {
-    if (!harvest()) return;
-    const choice = chapterChoices().find(item => item.ref === ch);
-    if (!choice) { A().toast('أضف فصلاً أولاً'); return; }
-    A().modal(`<h3>إضافة درس جديد</h3>
-      <p>سيُضاف إلى فصل: <b>${esc(window.__lang === 'en' ? choice.en || choice.ar : choice.ar || choice.en)}</b></p>
-      <div class="f-row">
-        <label class="f"><span>🇸🇦 عنوان الدرس بالعربية</span>
-          <input id="nlT" dir="rtl" placeholder="مثال: مقدمة في إدارة المخاطر" autofocus></label>
-        <label class="f"><span>🇬🇧 Lesson title in English</span>
-          <input id="nlTen" dir="ltr" placeholder="e.g. Introduction to Risk Management"></label>
-      </div>
-      <div class="f-row">
-        <label class="f"><span>الفصل</span><select id="nlCh">
-          ${chapterOptions(ch)}
-        </select></label>
-        <label class="f"><span>المدة <small>دقيقة:ثانية</small></span>
-          <input class="num" id="nlD" placeholder="12:30"></label>
-      </div>
-      <label class="f"><span>رقم فيديو Vimeo <small>اختياري — يمكن إضافته لاحقاً</small></span>
-        <input class="en" id="nlV" placeholder="912345678 أو الصق الرابط كاملاً"></label>
-      <label class="f"><span>مرفقات الدرس (PDF أو Word أو Excel، حتى 10 ميجابايت لكل ملف)</span>
-        <input type="file" id="nlFiles" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple></label>
-      <label style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
-        <input type="checkbox" id="nlF"><span style="font-size:.88rem">درس مجاني (يُشاهده غير المشترك)</span></label>
-      <div class="mdl-act">
-        <button class="btn p" id="nlSave">أضف الدرس</button>
-        <button class="btn o" id="nlSaveMore">أضف واستمر</button>
-        <button class="btn o" data-close>إلغاء</button></div>`, () => {
-      let pendingLesson = null;
-      const doAdd = async keep => {
-        const t = $('#nlT').value.trim();
-        if (!t) { A().toast('اكتب عنوان الدرس'); return; }
-        if (videoId($('#nlV').value) === null) { A().toast('رابط Vimeo غير صحيح'); return; }
-        const button = $('#nlSave'); button.disabled = true;
-        if ($('#nlSaveMore')) $('#nlSaveMore').disabled = true;
-        let files;
-        try { files = await uploadFiles($('#nlFiles').files); }
-        catch (e) { A().toast('تعذر رفع المرفق: ' + e.message); button.disabled = false; $('#nlSaveMore').disabled = false; return; }
-        try {
-          const lesson = { ch: window.CourseRoadmap.ensureChapter(curCourse(), $('#nlCh').value), t,
-            t_en: (($('#nlTen') || {}).value || '').trim(), dur: $('#nlD').value.trim(),
-            vimeo: videoId($('#nlV').value), free: $('#nlF').checked, files };
-          if (pendingLesson) Object.assign(pendingLesson, lesson);
-          else { pendingLesson = lesson; curLs().push(pendingLesson); }
-          const saved = await saveLessons(true);
-          if (saved === false) { button.disabled = false; $('#nlSaveMore').disabled = false; return; }
-          pendingLesson = null;
-        } catch (e) { A().toast(e.message); button.disabled = false; $('#nlSaveMore').disabled = false; return; }
-        if (keep) { $('#nlT').value = ''; if ($('#nlTen')) $('#nlTen').value = '';
-          $('#nlD').value = ''; $('#nlV').value = ''; $('#nlFiles').value = '';
-          button.disabled = false; $('#nlSaveMore').disabled = false;
-          $('#nlT').focus(); A().toast('✅ أُضيف — أكمل التالي'); }
-        else { A().closeModal(); A().render(); A().toast('✅ أُضيف الدرس'); }
+  function addLessonAt(ch, index=null, position='end') {
+    if (!lifecycleReady()) return;
+    const pid=curPk(), ls=curLs(), target=index===null?null:ls[index];
+    if(target?.deleted)return;
+    const group=target?window.CourseRoadmap.adminGroups(curCourse(),ls).find(g=>g.items.some(l=>l.i===index)):null;
+    const choice=group||chapterChoices().find(item=>item.ref===ch);
+    if(!choice){A().toast('أضف فصلاً أولاً');return;}
+    const context={pid,ls,route:A().route,token:A().token,actor:A().me?.()?.id,domSignature:lessonEditorSignature()};
+    const body={action:'insert',requestId:crypto.randomUUID(),structureBase:ls[0]?.structureBase||'empty',courseBase:ls[0]?.courseBase||A().emptyLessonCourseBase?.(pid),
+      position,idx:index,chapterRef:ch, ...(target?{anchor:{ch:target.ch,displayOrder:target.displayOrder??null}}:{})};
+    A().modal(`<h3>إضافة درس ${position==='before'?'فوق الدرس المحدد':position==='after'?'تحت الدرس المحدد':'جديد'}</h3>
+      <p>الفصل: <b>${esc(choice.title||choice.ar||choice.en)}</b>${target?` · ${esc(target.t)}`:''}</p>
+      <label class="f"><span>عنوان الدرس بالعربية</span><input id="nlT" dir="rtl" autofocus></label>
+      <label class="f"><span>Lesson title in English</span><input id="nlTen" dir="ltr"></label>
+      <label class="f"><span>المدة</span><input id="nlD" placeholder="12:30"></label>
+      <label class="f"><span>رقم Vimeo أو الرابط (اختياري)</span><input id="nlV" dir="ltr"></label>
+      <label><input type="checkbox" id="nlF"> درس مجاني</label>
+      <label class="f"><span>مرفقات الدرس</span><input type="file" id="nlFiles" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple></label>
+      <div class="mdl-act"><button type="button" class="btn p" id="nlSave">أضف الدرس</button><button type="button" class="btn o" id="nlSaveMore">أضف واستمر</button><button type="button" class="btn o" data-close>إلغاء</button></div>`,()=>{
+      const button=$('#nlSave');let busy=false,submitted=null;
+      const doAdd=async keep=>{
+        if(busy||!button.isConnected||curPk()!==pid)return;
+        const t=$('#nlT').value.trim(),vimeo=videoId($('#nlV').value);
+        if(!t||vimeo===null){A().toast(!t?'اكتب عنوان الدرس':'رابط Vimeo غير صحيح');return;}
+        // Retry an uncertain request with exactly the same id and payload.
+        const fields={t,t_en:$('#nlTen').value.trim(),dur:$('#nlD').value.trim(),vimeo,free:$('#nlF').checked},files=$('#nlFiles').files;
+        busy=true;button.disabled=true;$('#nlSaveMore').disabled=true;const uploadRevision=A().editorRevision;
+        if(!submitted){try{fields.files=await uploadFiles(files);}catch(e){A().toast(e.message);if(button.isConnected){busy=false;button.disabled=false;$('#nlSaveMore').disabled=false;}return;}
+          if(!button.isConnected||curPk()!==pid||A().token!==context.token||A().me?.()?.id!==context.actor)return;
+          if(A().editorRevision!==uploadRevision){A().toast('تغيّرت البيانات أثناء رفع الملف؛ راجعها وأعد المحاولة');busy=false;button.disabled=false;$('#nlSaveMore').disabled=false;return;}
+          submitted={...body,lesson:fields};}
+        const result=await performLessonAction(context,submitted,button);
+        if(result&&button.isConnected){A().closeModal();A().render();if(keep){const next=index===null?Array.from(document.querySelectorAll('[data-addto]')).find(b=>b.dataset.addto===ch):document.querySelector(`[data-l${position==='before'?'before':'after'}="${position==='after'?result.idx:index}"]`);next?.click();}}
+        if(button.isConnected){busy=false;button.disabled=false;$('#nlSaveMore').disabled=false;}
       };
-      $('#nlSave').onclick = () => doAdd(false);
-      $('#nlSaveMore').onclick = () => doAdd(true);
-      $('#nlV').addEventListener('change', () => fillVimeoDuration($('#nlV'), $('#nlD')));
-      $('#nlT').addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(true); });
+      button.onclick=()=>doAdd(false);$('#nlSaveMore').onclick=()=>doAdd(true);
     });
   }
+  $$('[data-lbefore],[data-lafter]').forEach(b=>b.onclick=()=>{
+    if(!b.isConnected||lessonActionPending.has(curPk()))return;
+    const index=Number(b.dataset.lbefore??b.dataset.lafter);
+    addLessonAt(null,index,b.hasAttribute('data-lbefore')?'before':'after');
+  });
 
   /* إضافة فصل أو موضوع فرعي */
   const ac2 = $('#addChapter');
@@ -6694,16 +6683,8 @@ function bind() {
     return persistChapterDraft();
   });
 
-  $$('[data-delch]').forEach(b => b.onclick = () => {
-    const n = +b.dataset.delch;
-    const inCh = curLs().filter(l => (l.ch || 0) === n).length;
-    if (!confirm(inCh ? `حذف الفصل و${inCh} درساً بداخله؟` : 'حذف هذا الفصل؟')) return;
-    if (!harvest()) return false;
-    window.LESSONS[curPk()] = curLs().filter(l => (l.ch || 0) !== n)
-      .map(l => ({ ...l, ch: (l.ch || 0) > n ? l.ch - 1 : l.ch }));
-    curCh().splice(n, 1);
-    saveLessons(); A().render(); A().toast('حُذف الفصل');
-  });
+  $$('[data-delch]').forEach(b=>b.onclick=()=>A().toast('احذف الدروس فردياً من أزرار الحذف القابل للاستعادة؛ تبقى هوية الفصل محفوظة'));
+
 
   /* ترتيب وحذف الدروس */
   $$('[data-lup],[data-ldown]').forEach(button => button.onclick = () => {
@@ -6734,10 +6715,17 @@ function bind() {
     }
     return saved;
   }
-  $$('[data-ldel]').forEach(b => b.onclick = () => {
-    if (!confirm('حذف هذا الدرس؟')) return;
-    if (!harvest()) return false; curLs().splice(+b.dataset.ldel, 1);
-    saveLessons(); A().render(); A().toast('حُذف الدرس');
+  $$('[data-ldel],[data-lrestore]').forEach(b=>b.onclick=async()=>{
+    if(!b.isConnected||b.disabled||lessonActionPending.has(curPk()))return;
+    const index=Number(b.dataset.ldel??b.dataset.lrestore),ls=curLs(),lesson=ls[index],restore=b.hasAttribute('data-lrestore');
+    if(!lesson||!!lesson.deleted!==restore)return;
+    if(!confirm(restore?`استعادة درس «${lesson.t}»؟`:`حذف درس «${lesson.t}»؟ سيختفي من المتدربين ويمكن استعادته مع محتواه وتقدمه.`))return;
+    if(!lifecycleReady())return;
+    const context={pid:curPk(),ls,route:A().route,token:A().token,actor:A().me?.()?.id,domSignature:lessonEditorSignature()};
+    b.disabled=true;
+    const result=await performLessonAction(context,{action:restore?'restore':'delete',requestId:crypto.randomUUID(),idx:index,
+      structureBase:ls[0]?.structureBase||'empty',courseBase:ls[0]?.courseBase||A().emptyLessonCourseBase?.(pid),anchor:{ch:lesson.ch,displayOrder:lesson.displayOrder??null}},b);
+    if(result&&b.isConnected)A().render();else if(b.isConnected)b.disabled=false;
   });
 
   /* معاينة الفيديو */
@@ -7065,6 +7053,33 @@ function editPromo(codeValue) {
 
 
 
+const lessonEditorSignature=()=>JSON.stringify(Array.from(document.querySelectorAll('#admBody input,#admBody textarea,#admBody select,#admBody [contenteditable]'),el=>[el.getAttribute('data-lt'),el.value,el.checked,el.isContentEditable?el.textContent:null]));
+const lessonActionPending = new Set();
+async function performLessonAction(context,body,control) {
+  const {pid,ls,route,token,actor}=context;
+  if(lessonActionPending.has(pid)||!A().live){A().toast('تحتاج هذه العملية إلى الاتصال بالخادم');return false;}
+  const sameActor=()=>A().token===token&&A().me?.()?.id===actor&&A().isAdmin();
+  const sameView=()=>sameActor()&&A().route===route&&(window.__vidPk||'grcp-full')===pid&&control.isConnected&&window.LESSONS[pid]===ls;
+  if(!sameView())return false;
+  if(A().catalogWrites||A().hasCatalogDrafts?.()||context.domSignature!==lessonEditorSignature()){A().toast('تغيّرت بيانات المحرر؛ احفظها أولاً ثم أعد فتح العملية');return false;}
+  lessonActionPending.add(pid);A().beginCatalogWrite?.();
+  const revision=A().editorRevision, snapshot=JSON.stringify(ls);
+  try {
+    const result=await A().api('/admin/lessons/'+encodeURIComponent(pid)+'/action',{method:'POST',body});
+    if(!sameActor())return false;
+    A().setLessonReady?.(pid,false);
+    const [rows,content]=await Promise.all([A().api('/admin/lessons/'+encodeURIComponent(pid),{cache:'no-store'}),A().api('/content',{cache:'no-store'})]);
+    if(sameView()&&A().editorRevision===revision&&JSON.stringify(ls)===snapshot){
+      window.LESSONS[pid]=rows.map(l=>({idx:l.idx,deleted:!!l.deleted,structureBase:l.structureBase,courseBase:l.courseBase,ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||'',displayOrder:l.displayOrder,displayOrderBase:l.displayOrder??null}));
+      const c=A().course(A().pack(pid)?.course),fresh=content.courses?.find(x=>x.id===c?.id);if(c&&fresh)c.chapters=fresh.chapters; A().rememberContent?.();
+      A().rememberLessons?.(pid);A().setLessonReady?.(pid,true);window.dispatchEvent(new CustomEvent('lessons-updated',{detail:{pid}}));
+      A().toast(body.action==='delete'?'حُذف الدرس ويمكن استعادته':body.action==='restore'?'استُعيد الدرس بمحتواه':'أُضيف الدرس في موضعه');
+      return result;
+    }
+    A().toast('حُفظت العملية. أعد تحميل المحرر لعرض أحدث الدروس');return false;
+  }catch(e){if(sameActor())A().toast('تعذّر إكمال العملية: '+e.message);return false;}
+  finally{lessonActionPending.delete(pid);A().endCatalogWrite?.();}
+}
 const lessonSaveQueues = new Map();
 const chapterSaveQueues = new Map();
 const lessonOrderPending = new Set();
@@ -7082,7 +7097,8 @@ function saveLessonOrder(pid, indices) {
     // Only an acknowledged earlier local save may advance a queued move's base.
     for (const order of orders) if (window.LESSONS[pid] === ls && ls[order.idx] === identities[order.idx])
       order.displayOrderBase = ls[order.idx].displayOrderBase ?? null;
-    await A().api('/admin/lessons/' + encodeURIComponent(pid), {method:'PUT',body:{kind:'display-order',expectedCount:ls.length,orders}});
+    const orderResult=await A().api('/admin/lessons/' + encodeURIComponent(pid), {method:'PUT',body:{kind:'display-order',expectedCount:ls.length,orders}});
+    if(sameActor()&&orderResult.structureBase&&window.LESSONS[pid]===ls){ls.forEach(l=>l.structureBase=orderResult.structureBase);A().acknowledgeLessonStructure?.(pid,orderResult.structureBase);}
     if (!sameActor()) return false;
     for (const order of orders) if (window.LESSONS[pid] === ls && ls[order.idx] === identities[order.idx])
       ls[order.idx].displayOrderBase = order.displayOrder;
@@ -7102,7 +7118,7 @@ function saveLessons(notify) {
   const ls = window.LESSONS[pid] || [];
   const pk = A().pack(pid);
   /* حدّث عدّاد الفيديوهات في الباقة تلقائياً */
-  if (pk) pk.videos = ls.filter(l => l.vimeo).length;
+  if (pk) pk.videos = ls.filter(l => !l.deleted && l.vimeo).length;
   try { localStorage.setItem('alsaeed_lessons', JSON.stringify(window.LESSONS)); } catch (e) {}
   if (A().live) {
     const snapshot = JSON.parse(JSON.stringify(ls)), identities = ls.slice();
@@ -7123,7 +7139,8 @@ function saveLessons(notify) {
         method: 'PUT', body: { chapters } });
       chaptersSaved = true;
       if (!sameActor()) return false;
-      await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
+      const saveResult=await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
+      if(sameActor()&&saveResult.structureBase){snapshot.forEach(l=>l.structureBase=saveResult.structureBase);if(window.LESSONS[pid]===ls)ls.forEach(l=>l.structureBase=saveResult.structureBase);}
       lessonsSaved = true;
       if (!sameActor()) return false;
       // Advance only baselines acknowledged by this save. A newer raw input or
@@ -7140,7 +7157,7 @@ function saveLessons(notify) {
         const rows = await A().api('/admin/lessons/' + encodeURIComponent(pid), {cache:'no-store'});
         // Re-check after the request: another edit, queued save or logout may have happened while it was in flight.
         if (unchanged() && Array.isArray(rows)) {
-          window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
+          window.LESSONS[pid] = rows.map(l => ({ idx:l.idx, deleted:!!l.deleted, structureBase:l.structureBase,courseBase:l.courseBase, ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
             dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '',
   ...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
   ...(Object.hasOwn(l,'displayOrder')?{displayOrderBase:Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?l.displayOrder:null}:{}) }));
@@ -7679,10 +7696,10 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261018-editable-hierarchy"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
-<script src="/v17-interactive.js?v=20261015-canonical-playlist"></script>
+<script src="/v17-interactive.js?v=20261019-lesson-actions"></script>
 <script src="/dict-v17.js"></script>
 <script src="/english-copy-v27.js?v=27.0"></script>
 <script src="/auth-visual.js?v=20261017-mobile-art"></script>

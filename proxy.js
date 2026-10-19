@@ -506,7 +506,7 @@ async function handleContentAdmin(req, res, requestUrl) {
   if (method === 'GET' && sub === '/boot') {
     const packages = getPackages();
     const stats = {
-      lessons: db.prepare('SELECT COUNT(*) c FROM lessons').get().c,
+      lessons: db.prepare('SELECT COUNT(*) c FROM lessons WHERE deleted_at IS NULL').get().c,
       questions: db.prepare('SELECT COUNT(*) c FROM questions').get().c,
       exams: db.prepare('SELECT COUNT(*) c FROM exams').get().c,
       resources: db.prepare('SELECT COUNT(*) c FROM resources').get().c,

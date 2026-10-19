@@ -1,3 +1,4 @@
+import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
 import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent } from './trainee-tracking.js';
 /* ============================================================
    منصة السعيد — الخادم
@@ -91,6 +92,8 @@ if (!db.pragma('table_info(lessons)').some(col => col.name === 'quiz'))
   db.exec("ALTER TABLE lessons ADD COLUMN quiz TEXT DEFAULT '[]'");
 
 // Nullable presentation metadata; existing storage slots and progress stay unchanged.
+if (!db.pragma('table_info(lessons)').some(col => col.name === 'deleted_at'))
+  try{db.exec('ALTER TABLE lessons ADD COLUMN deleted_at INTEGER');}catch(e){if(!db.pragma('table_info(lessons)').some(col=>col.name==='deleted_at'))throw e;}
 if (!db.pragma('table_info(lessons)').some(col => col.name === 'display_order'))
   db.exec("ALTER TABLE lessons ADD COLUMN display_order INTEGER");
 
@@ -291,7 +294,7 @@ async function deliverStudyReminders() {
         const variant=packages.find(p=>p.id===c.package_id);
         const source=variant?.sourcePackageId && packages.some(p=>p.id===variant.sourcePackageId)
           ? variant.sourcePackageId : c.package_id;
-        const videos=db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(source);
+        const videos=db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND deleted_at IS NULL AND TRIM(COALESCE(vimeo,''))<>''").all(source);
         if(!videos.length) return false;
         let progress={};try{progress=JSON.parse(c.data||'{}')}catch{}
         return videos.some(l=>!progress.lessons?.[l.idx]);
@@ -357,7 +360,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
   const variant = publishedPackages.find(p => p.id === req.params.pkg);
   const source = variant?.sourcePackageId && publishedPackages.some(p => p.id === variant.sourcePackageId)
     ? variant.sourcePackageId : req.params.pkg;
-  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order AS displayOrder FROM lessons WHERE package_id=? ORDER BY idx')
+  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,deleted_at,display_order AS displayOrder FROM lessons WHERE package_id=? ORDER BY idx')
     .all(source);
   let enrolled = false;
   const h = req.headers.authorization || '';
@@ -371,7 +374,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
     } catch (e) {}
   }
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */
-  res.json(rows.map(r => ({ ...r, files: (enrolled || r.free) ? JSON.parse(r.files || '[]') : [],
+  res.json(rows.map(r => r.deleted_at ? {idx:r.idx,deleted:true,title:'',chapter:0,vimeo:null,files:[],quiz:[],notes:'',notes_en:''} : ({ ...r, files: (enrolled || r.free) ? JSON.parse(r.files || '[]') : [],
     quiz: (enrolled || r.free) ? JSON.parse(r.quiz || '[]') : [],
     vimeo: (enrolled || r.free) ? r.vimeo : null })));
 });
@@ -379,7 +382,7 @@ app.get('/api/lesson-files/:id', auth, (req, res) => {
   const file = db.prepare('SELECT * FROM lesson_files WHERE id=?').get(req.params.id);
   if (!file) return res.status(404).json({ error: 'الملف غير موجود' });
   const published = JSON.parse(setting('content_packages') || '[]');
-  const allowed = db.prepare('SELECT package_id,free FROM lessons WHERE package_id=? AND files LIKE ?')
+  const allowed = db.prepare('SELECT package_id,free FROM lessons WHERE package_id=? AND deleted_at IS NULL AND files LIKE ?')
     .all(file.package_id, '%' + file.id + '%').some(lesson => {
       if (req.user.role === 'admin' || lesson.free) return true;
       const ids = [lesson.package_id, ...published.filter(p => p.sourcePackageId === lesson.package_id).map(p => p.id)];
@@ -396,7 +399,7 @@ app.get('/api/lesson-files/:id', auth, (req, res) => {
 app.get('/api/quiz-images/:id', auth, (req, res) => {
   const image = db.prepare('SELECT * FROM quiz_images WHERE id=?').get(req.params.id);
   if (!image) return res.status(404).end();
-  const lessons = db.prepare('SELECT free,quiz FROM lessons WHERE package_id=?').all(image.package_id);
+  const lessons = db.prepare('SELECT free,quiz FROM lessons WHERE deleted_at IS NULL AND package_id=?').all(image.package_id);
   const referenced = lessons.filter(l => (JSON.parse(l.quiz || '[]')).some(q => q.imageId === image.id));
   if (!referenced.length && req.user.role !== 'admin') return res.status(404).end();
   const published = JSON.parse(setting('content_packages') || '[]');
@@ -654,7 +657,7 @@ app.get('/api/admin/users', auth, admin, (req, res) => {
 
 function progressSummary(userId, packageId, enrollmentCreated) {
   const row = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
-  const videoRows = db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
+  const videoRows = db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND deleted_at IS NULL AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
   return summarizeRecordedProgress(row, videoRows);
 }
 
@@ -822,9 +825,15 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
     FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 500`).all());
 });
 app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
-  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order AS displayOrder
+  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,deleted_at,display_order AS displayOrder
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
-  res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), quiz: JSON.parse(row.quiz || '[]'), free: !!row.free })));
+  const structureBase=lessonStructure(rows),courseBase=lessonCourseBase(setting,req.params.pkg);
+  res.json(rows.map(row => ({ ...row, deleted:!!row.deleted_at, structureBase,courseBase, files: JSON.parse(row.files || '[]'), quiz: JSON.parse(row.quiz || '[]'), free: !!row.free })));
+});
+app.get('/api/admin/lessons/:pkg/structure',auth,admin,(req,res)=>res.json({courseBase:lessonCourseBase(setting,req.params.pkg)}));
+app.post('/api/admin/lessons/:pkg/action', auth, admin, (req,res)=>{
+  const result=lessonAction({db,setting,setSetting},req.params.pkg,req.body);
+  res.status(result.status||200).json(result);
 });
 app.post('/api/admin/quiz-images/:pkg', auth, admin, (req, res) => {
   const { name, data } = req.body || {};
@@ -921,7 +930,7 @@ app.patch('/api/lessons/:pkg/:idx/duration', auth, (req, res) => {
   const variant = catalog.find(p => p.id === pkg);
   const source = variant?.sourcePackageId && catalog.some(p => p.id === variant.sourcePackageId)
     ? variant.sourcePackageId : pkg;
-  const lesson = db.prepare('SELECT vimeo,duration,free FROM lessons WHERE package_id=? AND idx=?').get(source, idx);
+  const lesson = db.prepare('SELECT vimeo,duration,free FROM lessons WHERE deleted_at IS NULL AND package_id=? AND idx=?').get(source, idx);
   if (!lesson || lesson.vimeo !== id) return res.status(404).json({ error:'الفيديو غير موجود' });
   const enrollment = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?').get(req.user.id, pkg);
   if (req.user.role !== 'admin' && !lesson.free && (!enrollment || enrollment.expires && enrollment.expires <= Date.now()))
@@ -932,7 +941,7 @@ app.patch('/api/lessons/:pkg/:idx/duration', auth, (req, res) => {
 });
 
 async function fillMissingDurations() {
-  const missing = db.prepare(`SELECT package_id,idx,vimeo FROM lessons WHERE ${missingDurationSql} AND vimeo GLOB '[0-9]*'`).all();
+  const missing = db.prepare(`SELECT package_id,idx,vimeo FROM lessons WHERE deleted_at IS NULL AND ${missingDurationSql} AND vimeo GLOB '[0-9]*'`).all();
   for (const lesson of missing) {
     if (!normalizeVimeoReference(lesson.vimeo)) continue;
     const duration = await vimeoDuration(lesson.vimeo);
@@ -942,7 +951,7 @@ async function fillMissingDurations() {
 setTimeout(() => fillMissingDurations().catch(error => console.error('Vimeo duration refresh:', error)), 5000);
 setInterval(() => fillMissingDurations().catch(error => console.error('Vimeo duration refresh:', error)), 6 * 60 * 60 * 1000);
 app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res) => {
-  const missing = db.prepare(`SELECT idx,vimeo FROM lessons WHERE package_id=? AND TRIM(COALESCE(vimeo,''))<>'' AND ${missingDurationSql}`)
+  const missing = db.prepare(`SELECT idx,vimeo FROM lessons WHERE package_id=? AND deleted_at IS NULL AND TRIM(COALESCE(vimeo,''))<>'' AND ${missingDurationSql}`)
     .all(req.params.pkg);
   let updated = 0;
   for (const row of missing) {
@@ -970,16 +979,16 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
       return res.status(400).json({ error: 'ترتيب الدروس غير صحيح' });
     const update = db.prepare('UPDATE lessons SET display_order=? WHERE package_id=? AND idx=?');
     const saved = db.transaction(() => {
-      const rows = db.prepare('SELECT idx,display_order FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg);
+      const rows = db.prepare('SELECT idx,display_order,deleted_at FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg);
       if (rows.length !== expectedCount || orders.some(order => {
         const row = rows.find(row => row.idx === order.idx);
-        return !row || order.displayOrder !== (row.display_order ?? null) && order.displayOrderBase !== (row.display_order ?? null);
+        return !row || row.deleted_at || order.displayOrder !== (row.display_order ?? null) && order.displayOrderBase !== (row.display_order ?? null);
       })) return false;
       orders.forEach(row => update.run(row.displayOrder, req.params.pkg, row.idx));
       return true;
     })();
     if (!saved) return res.status(409).json({ error: 'تغيّرت الدروس أو ترتيبها منذ فتح المحرر؛ أعد تحميل الصفحة وراجع الترتيب' });
-    return res.json({ ok: true, orders: orders.map(({idx,displayOrder}) => ({idx,displayOrder})) });
+    return res.json({ ok: true, structureBase:lessonStructure(db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg)), orders: orders.map(({idx,displayOrder}) => ({idx,displayOrder})) });
   }
   const list = req.body;
   if (!Array.isArray(list) || list.some(l => !l || typeof l !== 'object' || Array.isArray(l) ||
@@ -1000,18 +1009,26 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
   const readExisting = db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx');
   const existing = readExisting.all(req.params.pkg);
   const snapshot = JSON.stringify(existing);
+  if(list.length<existing.length || existing.some((row,i)=>row.idx!==i || (list[i].idx!==undefined&&list[i].idx!==i)) ||
+      existing.some(row=>row.deleted_at) && list.some(l=>l.structureBase!==lessonStructure(existing)) ||
+      list.some(l=>l.structureBase!==undefined&&l.structureBase!==lessonStructure(existing)))
+    return res.status(409).json({error:'تغيّرت قائمة الدروس؛ أعد تحميل المحرر. استخدم حذف الدرس القابل للاستعادة'});
+  // Once a lifecycle action has been used, old clients cannot overwrite newer slots.
+  if(db.prepare("SELECT 1 FROM settings WHERE k LIKE ? LIMIT 1").get('lesson_action:'+req.params.pkg+':%') && existing.some((row,i)=>list[i].structureBase!==lessonStructure(existing)))
+    return res.status(409).json({error:'أعد تحميل المحرر قبل حفظ الدروس'});
   for (let i = 0; i < list.length; i++) {
     const lesson = list[i];
+    if(existing[i]?.deleted_at)continue;
     if (lesson.ch === undefined && lesson.chapter !== undefined) lesson.ch = lesson.chapter;
     if (lesson.dur === undefined && lesson.duration !== undefined) lesson.dur = lesson.duration;
     const video = normalizeVimeoReference(lesson.vimeo)?.stored;
     const videoMatches = video ? existing.filter(row => normalizeVimeoReference(row.vimeo)?.stored === video) : [];
     const titleMatches = existing.filter(row => row.title === (lesson.t || lesson.title));
-    const old = existing.find(row => row.idx === i && row.title === (lesson.t || lesson.title)) ||
-      (titleMatches.length === 1 ? titleMatches[0] : undefined) ||
-      (videoMatches.length === 1 ? videoMatches[0] : undefined);
-    if (!old && (videoMatches.length > 1 || titleMatches.length > 1))
-      return res.status(409).json({ error: 'تعذّر تحديد الدرس الأصلي؛ أعد تحميل الدروس وراجع العناوين وروابط الفيديو' });
+    // Slot identity is authoritative, including when title and video are edited together.
+    const old=existing[i];
+    const moved=existing.filter(row=>row.title===(lesson.t||lesson.title)||video&&normalizeVimeoReference(row.vimeo)?.stored===video);
+    if(lesson.idx!==undefined&&lesson.idx!==i || lesson.idx===undefined&&(moved.length===1&&moved[0].idx!==i || videoMatches.length===1&&videoMatches[0].idx!==i || titleMatches.length===1&&titleMatches[0].idx!==i))
+      return res.status(409).json({error:'استخدم ترتيب العرض؛ لا يمكن تغيير هوية الدرس'});
     // A loaded draft must not overwrite a newer editor's presentation order.
     // Idempotent retries and queued title saves with the already-saved rank are safe.
     if (old && lesson.displayOrder !== undefined && lesson.displayOrder !== (old.display_order ?? null) &&
@@ -1040,14 +1057,17 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
     if (!lesson.dur || lesson.dur === '00:00') lesson.dur = await vimeoDuration(id) || '';
   }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order,deleted_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const saved = db.transaction(() => {
     // Vimeo lookups await the network. A concurrent editor/duration update must
     // not be overwritten by the earlier request's stale replacement snapshot.
     if (JSON.stringify(readExisting.all(req.params.pkg)) !== snapshot) return false;
     del.run(req.params.pkg);
-    list.forEach((l, i) => ins.run(req.params.pkg, i,
+    list.forEach((l, i) => {
+      const old=existing[i];
+      if(old?.deleted_at){ins.run(req.params.pkg,i,old.title,old.title_en,old.chapter,old.duration,old.vimeo,old.free,old.notes,old.notes_en,old.files,old.quiz,old.display_order,old.deleted_at);return;}
+      ins.run(req.params.pkg, i,
       l.t || l.title || '', l.t_en || l.title_en || '',
       l.ch || 0, l.dur || l.duration || '', l.vimeo || '', l.free ? 1 : 0,
       l.notes || '', l.notes_en || '', JSON.stringify((l.files || []).filter(f =>
@@ -1065,11 +1085,11 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
           q.pairs.every(p => Array.isArray(p) && p.length === 2 && p.every(s => typeof s === 'string' && !!s.trim()));
         return type === 'single' && Array.isArray(q.options) && q.options.length === 4 &&
           q.options.every(o => typeof o === 'string' && !!o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4;
-      }).slice(0, 20) : []), l.displayOrder ?? null));
+      }).slice(0, 20) : []), l.displayOrder ?? null,null);});
     return true;
   })();
   if (!saved) return res.status(409).json({ error: 'تغيّرت الدروس أثناء الحفظ؛ أعد تحميلها وراجع التغييرات قبل المحاولة مجدداً' });
-  res.json({ ok: true, count: list.length });
+  res.json({ ok: true, count: list.length, structureBase:lessonStructure(readExisting.all(req.params.pkg)) });
 });
 app.get('/api/admin/settings', auth, admin, (req, res) => {
   res.json({
@@ -1156,7 +1176,7 @@ app.put('/api/admin/learning/:course', auth, admin, (req, res) => {
 /* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
 app.get('/api/catalog-availability', (req, res) => {
   const packages = JSON.parse(setting('content_packages') || '[]');
-  const videos = db.prepare("SELECT package_id, duration FROM lessons WHERE TRIM(COALESCE(vimeo,'')) <> ''")
+  const videos = db.prepare("SELECT package_id, duration FROM lessons WHERE deleted_at IS NULL AND TRIM(COALESCE(vimeo,'')) <> ''")
     .all().reduce((map, row) => {
       const entry = map[row.package_id] ||= { count: 0, minutes: 0 };
       entry.count++;
@@ -1254,7 +1274,7 @@ app.put('/api/admin/content', auth, admin, (req, res) => {
     for (const p of body.packages.filter(x => x.active !== false && x.sourcePackageId)) {
       const source = body.packages.find(x => x.id === p.sourcePackageId && x.course === p.course);
       if (!source) return res.status(422).json({ error: 'مصدر محتوى النسخة اللغوية غير موجود: ' + p.id });
-      const lessons = db.prepare('SELECT title,title_en FROM lessons WHERE package_id=?').all(source.id);
+      const lessons = db.prepare('SELECT title,title_en FROM lessons WHERE deleted_at IS NULL AND package_id=?').all(source.id);
       if ((p.kinds||[]).includes('video') && (!lessons.length || (p.lang === 'en' && lessons.some(l => !String(l.title_en||'').trim()))))
         return res.status(422).json({ error: 'راجع عناوين الفيديوهات بلغة النسخة قبل نشر: ' + p.id });
       if ((p.kinds||[]).includes('exam')) {
