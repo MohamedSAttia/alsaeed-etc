@@ -12,6 +12,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
+import { chapterSlotFloor, validChapterAllocation, repairPmpIntroCollision, repairPmpQualityOrder } from './curriculum-slots.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -89,6 +90,10 @@ if (!db.pragma('table_info(lessons)').some(col => col.name === 'files'))
 if (!db.pragma('table_info(lessons)').some(col => col.name === 'quiz'))
   db.exec("ALTER TABLE lessons ADD COLUMN quiz TEXT DEFAULT '[]'");
 
+// Nullable presentation metadata; existing storage slots and progress stay unchanged.
+if (!db.pragma('table_info(lessons)').some(col => col.name === 'display_order'))
+  db.exec("ALTER TABLE lessons ADD COLUMN display_order INTEGER");
+
 /* مشرف أول — لا توجد كلمة مرور افتراضية داخل الكود */
 const admins = db.prepare("SELECT COUNT(*) c FROM users WHERE role='admin'").get();
 if (!admins.c) {
@@ -145,7 +150,6 @@ const DEFAULT_PROMOS_V15 = [
   { code:'GROUP25', schemaVersion:15, pct:25, until:'2026-12-31', desc:'خصم المجموعات (3+)' },
   { code:'WELCOME15', schemaVersion:15, pct:15, until:'2027-12-31', desc:'خصم الترحيب بالمنصة المطوّرة' }
 ];
-const V15_COURSE_IDS = ['pmp','rmp','acp','grcp','p3o','pba','lss'];
 const readList = key => {
   try { const value = JSON.parse(setting(key) || '[]'); return Array.isArray(value) ? value : []; }
   catch { return []; }
@@ -157,13 +161,13 @@ try {
 } catch (e) { console.warn('تعذّر تحميل كتالوج V15:', e.message); }
 
 const savedCourses = readList('content_courses');
-const savedCourseIds = savedCourses.map(x => x.id).filter(Boolean).sort();
-const validCourseIds = V15_COURSE_IDS.slice().sort();
-if (JSON.stringify(savedCourseIds) !== JSON.stringify(validCourseIds) && v15Catalog.courses.length)
+// Seed empty installations only. Authored catalog IDs/chapters must survive
+// restarts, including newer/custom courses absent from an old default allowlist.
+if (!savedCourses.length && v15Catalog.courses.length)
   setSetting('content_courses', JSON.stringify(v15Catalog.courses));
 
 const savedPackages = readList('content_packages');
-if ((!savedPackages.length || !savedPackages.every(x => x.schemaVersion === 15 && V15_COURSE_IDS.includes(x.course))) && v15Catalog.packages.length) {
+if (!savedPackages.length && v15Catalog.packages.length) {
   setSetting('content_packages', JSON.stringify(v15Catalog.packages));
   setSetting('catalog', JSON.stringify(v15Catalog.packages.filter(p => p.active !== false).map(p => ({
     id:p.id, ar:p.ar, en:p.en || '', code:p.code || p.id, price:p.price,
@@ -178,6 +182,10 @@ if ((!savedSystems.length || !savedSystems.every(x => x.schemaVersion === 15)) &
 const savedPromos = readList('content_promos');
 if (!savedPromos.length || !savedPromos.every(x => x.schemaVersion === 15))
   setSetting('content_promos', JSON.stringify(v15Catalog.promos.length ? v15Catalog.promos : DEFAULT_PROMOS_V15));
+
+// One-time, fingerprint-guarded metadata correction; transaction includes its completion marker.
+repairPmpIntroCollision({ db, setting, setSetting });
+repairPmpQualityOrder({ db, setting, setSetting });
 
 initializeInstructorRegistry({ db, setting, setSetting });
 mountInstructorRegistry({ app, db, auth, admin, setting, setSetting, uid });
@@ -349,7 +357,7 @@ app.get('/api/lessons/:pkg', (req, res) => {
   const variant = publishedPackages.find(p => p.id === req.params.pkg);
   const source = variant?.sourcePackageId && publishedPackages.some(p => p.id === variant.sourcePackageId)
     ? variant.sourcePackageId : req.params.pkg;
-  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz FROM lessons WHERE package_id=? ORDER BY idx')
+  const rows = db.prepare('SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order AS displayOrder FROM lessons WHERE package_id=? ORDER BY idx')
     .all(source);
   let enrolled = false;
   const h = req.headers.authorization || '';
@@ -814,7 +822,7 @@ app.get('/api/admin/orders', auth, admin, (req, res) => {
     FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created DESC LIMIT 500`).all());
 });
 app.get('/api/admin/lessons/:pkg', auth, admin, (req, res) => {
-  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz
+  const rows = db.prepare(`SELECT idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order AS displayOrder
     FROM lessons WHERE package_id=? ORDER BY idx`).all(req.params.pkg);
   res.json(rows.map(row => ({ ...row, files: JSON.parse(row.files || '[]'), quiz: JSON.parse(row.quiz || '[]'), free: !!row.free })));
 });
@@ -949,12 +957,40 @@ app.post('/api/admin/lessons/:pkg/fill-durations', auth, admin, async (req, res)
   res.json({ updated, unavailable:missing.length-updated });
 });
 app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
+  // Arrow moves update only presentation metadata. Never replay a stale full
+  // lesson snapshot over another editor's current media, notes, files or quizzes.
+  if (req.body?.kind === 'display-order') {
+    const { orders, expectedCount } = req.body;
+    const validRank = value => Number.isSafeInteger(value) && value >= 0 && value <= 1000000;
+    if (!Number.isSafeInteger(expectedCount) || expectedCount < 1 ||
+        !Array.isArray(orders) || !orders.length || orders.length > expectedCount ||
+        orders.some(row => !row || !Number.isSafeInteger(row.idx) || row.idx < 0 ||
+          !validRank(row.displayOrder) || !(row.displayOrderBase === null || validRank(row.displayOrderBase))) ||
+        new Set(orders.map(row => row.idx)).size !== orders.length)
+      return res.status(400).json({ error: 'ترتيب الدروس غير صحيح' });
+    const update = db.prepare('UPDATE lessons SET display_order=? WHERE package_id=? AND idx=?');
+    const saved = db.transaction(() => {
+      const rows = db.prepare('SELECT idx,display_order FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg);
+      if (rows.length !== expectedCount || orders.some(order => {
+        const row = rows.find(row => row.idx === order.idx);
+        return !row || order.displayOrder !== (row.display_order ?? null) && order.displayOrderBase !== (row.display_order ?? null);
+      })) return false;
+      orders.forEach(row => update.run(row.displayOrder, req.params.pkg, row.idx));
+      return true;
+    })();
+    if (!saved) return res.status(409).json({ error: 'تغيّرت الدروس أو ترتيبها منذ فتح المحرر؛ أعد تحميل الصفحة وراجع الترتيب' });
+    return res.json({ ok: true, orders: orders.map(({idx,displayOrder}) => ({idx,displayOrder})) });
+  }
   const list = req.body;
   if (!Array.isArray(list) || list.some(l => !l || typeof l !== 'object' || Array.isArray(l) ||
       typeof (l.t || l.title) !== 'string' || !(l.t || l.title).trim() ||
       ['t','title','t_en','title_en','dur','duration','vimeo','notes','notes_en'].some(k => l[k] !== undefined && typeof l[k] !== 'string') ||
       ['ch','chapter'].some(k => l[k] !== undefined &&
         !(typeof l[k] === 'string' || Number.isSafeInteger(l[k]) && l[k] >= 0)) ||
+      (l.displayOrder !== undefined && l.displayOrder !== null &&
+        !(Number.isSafeInteger(l.displayOrder) && l.displayOrder >= 0 && l.displayOrder <= 1000000)) ||
+      (l.displayOrderBase !== undefined && l.displayOrderBase !== null &&
+        !(Number.isSafeInteger(l.displayOrderBase) && l.displayOrderBase >= 0 && l.displayOrderBase <= 1000000)) ||
       (l.free !== undefined && ![true,false,0,1].includes(l.free)) ||
       (l.clearVimeo !== undefined && typeof l.clearVimeo !== 'boolean') ||
       (l.files !== undefined && !Array.isArray(l.files)) ||
@@ -976,6 +1012,11 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
       (videoMatches.length === 1 ? videoMatches[0] : undefined);
     if (!old && (videoMatches.length > 1 || titleMatches.length > 1))
       return res.status(409).json({ error: 'تعذّر تحديد الدرس الأصلي؛ أعد تحميل الدروس وراجع العناوين وروابط الفيديو' });
+    // A loaded draft must not overwrite a newer editor's presentation order.
+    // Idempotent retries and queued title saves with the already-saved rank are safe.
+    if (old && lesson.displayOrder !== undefined && lesson.displayOrder !== (old.display_order ?? null) &&
+        lesson.displayOrderBase !== (old.display_order ?? null))
+      return res.status(409).json({ error: 'تغيّر ترتيب الدروس منذ فتح المحرر؛ أعد تحميل الصفحة وراجع الترتيب قبل المحاولة مجدداً' });
     // Omitted fields are not a request to erase saved teaching material.
     // Explicit empty strings/arrays and false remain valid edits.
     if (old) {
@@ -983,6 +1024,7 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
           ['free','free'], ['notes','notes'], ['notes_en','notes_en']]) {
         if (lesson[key] === undefined && lesson[column] === undefined) lesson[key] = old[column];
       }
+      if (lesson.displayOrder === undefined) lesson.displayOrder = old.display_order ?? null;
       if (lesson.files === undefined) lesson.files = JSON.parse(old.files || '[]');
       if (lesson.dur === undefined && lesson.duration === undefined && !lesson.clearVimeo &&
           (!lesson.vimeo || normalizeVimeoReference(lesson.vimeo)?.stored === normalizeVimeoReference(old.vimeo)?.stored))
@@ -998,8 +1040,8 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
     if (!lesson.dur || lesson.dur === '00:00') lesson.dur = await vimeoDuration(id) || '';
   }
   const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`);
+  const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
   const saved = db.transaction(() => {
     // Vimeo lookups await the network. A concurrent editor/duration update must
     // not be overwritten by the earlier request's stale replacement snapshot.
@@ -1023,7 +1065,7 @@ app.put('/api/admin/lessons/:pkg', auth, admin, async (req, res) => {
           q.pairs.every(p => Array.isArray(p) && p.length === 2 && p.every(s => typeof s === 'string' && !!s.trim()));
         return type === 'single' && Array.isArray(q.options) && q.options.length === 4 &&
           q.options.every(o => typeof o === 'string' && !!o.trim()) && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4;
-      }).slice(0, 20) : [])));
+      }).slice(0, 20) : []), l.displayOrder ?? null));
     return true;
   })();
   if (!saved) return res.status(409).json({ error: 'تغيّرت الدروس أثناء الحفظ؛ أعد تحميلها وراجع التغييرات قبل المحاولة مجدداً' });
@@ -1076,6 +1118,7 @@ app.get('/api/content', (req, res) => {
     const v = setting('content_' + k);
     if (v) { try { out[k] = JSON.parse(v); } catch (e) {} }
   });
+  if (Array.isArray(out.courses)) out.courses = out.courses.map(course => ({...course, chapterSlotFloor:chapterSlotFloor(db, course, out.packages || [])}));
   out.instructors = publicInstructors(setting);
   out.defaultInstructorId = publicDefaultInstructorId(setting);
   res.json(out);
@@ -1135,30 +1178,76 @@ app.get('/api/catalog-availability', (req, res) => {
   res.json(result);
 });
 function validCourseChapterKeys(courseId, chapters) {
-  const keys = (Array.isArray(chapters) ? chapters : []).filter(ch => ch && typeof ch === 'object' && ch.outlineKey !== undefined).map(ch => ch.outlineKey);
-  return keys.every(key => courseId === 'pmp' && typeof key === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(key)) && new Set(keys).size === keys.length;
+  // Both catalog writers use the same bounded validation before any settings write.
+  // Courses without chapter metadata and legacy string slots remain supported.
+  if (chapters === undefined) return true;
+  if (!Array.isArray(chapters) || chapters.length > 100 || chapters.some(ch =>
+      !(ch === null || typeof ch === 'string' && ch.trim() && ch.length <= 200 ||
+        ch && typeof ch === 'object' && !Array.isArray(ch) && typeof ch.ar === 'string' && ch.ar.trim() && ch.ar.length <= 200 &&
+        typeof ch.en === 'string' && ch.en.length <= 200))) return false;
+  const objects = chapters.filter(ch => ch && typeof ch === 'object');
+  const keys = objects.filter(ch => ch.outlineKey !== undefined).map(ch => ch.outlineKey);
+  if (!keys.every(key => courseId === 'pmp' && typeof key === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(key)) || new Set(keys).size !== keys.length) return false;
+  if (objects.some(ch => Object.hasOwn(ch, 'outlineOrder') && (!Number.isInteger(ch.outlineOrder) || ch.outlineOrder < 0 || ch.outlineOrder > 10000))) return false;
+  if (courseId !== 'pmp') return objects.every(ch => !Object.hasOwn(ch, 'outlineParent'));
+  // Canonical nodes exist even without saved overrides. Keep this default graph
+  // in parity with CourseRoadmap.topics; the hierarchy regression verifies it.
+  const parents = new Map(Object.entries({
+    intro:null, exam:'intro', journey:'intro', framework:null, agile:null,
+    predictive:null, initiating:'predictive', planning:'predictive', executing:'predictive', monitoring:'predictive', closing:'predictive',
+    hybrid:null, people:null, process:null, business:null, value:null, principles:null, lifecycles:null, ai:null,
+    'final-reviews':null, summaries:'final-reviews', review:'final-reviews', workshops:null, 'exam-eve':null, 'exam-guidelines':null
+  }));
+  chapters.forEach((ch, index) => {
+    if (ch === null) return;
+    const key = ch && typeof ch === 'object' && ch.outlineKey || 'source_' + index;
+    if (!parents.has(key)) parents.set(key, null);
+  });
+  for (let index = 0; index < chapters.length; index++) {
+    const ch = chapters[index];
+    if (!ch || typeof ch !== 'object' || !Object.hasOwn(ch, 'outlineParent')) continue;
+    const key = ch.outlineKey || 'source_' + index, parent = ch.outlineParent;
+    if (parent !== null && (typeof parent !== 'string' || !parents.has(parent) || parent === key)) return false;
+    parents.set(key, parent);
+  }
+  for (const key of parents.keys()) {
+    const seen = new Set(); let current = key;
+    while (current !== null) {
+      if (seen.has(current) || !parents.has(current)) return false;
+      seen.add(current); current = parents.get(current);
+    }
+  }
+  return true;
 }
 app.put('/api/admin/course-chapters/:course', auth, admin, (req, res) => {
   const chapters = req.body?.chapters;
   if (!Array.isArray(chapters) || chapters.length > 100 || chapters.some(ch =>
-    !(typeof ch === 'string' && ch.trim() && ch.length <= 200 ||
+    !(ch === null || typeof ch === 'string' && ch.trim() && ch.length <= 200 ||
       ch && typeof ch === 'object' && !Array.isArray(ch) && typeof ch.ar === 'string' && ch.ar.trim() && ch.ar.length <= 200 &&
       typeof ch.en === 'string' && ch.en.length <= 200)))
     return res.status(400).json({ error: 'أسماء الفصول غير صحيحة' });
   if (!validCourseChapterKeys(req.params.course, chapters))
-    return res.status(400).json({ error: 'معرّفات المحاور غير صحيحة أو مكررة' });
-  const courses = JSON.parse(setting('content_courses') || '[]');
-  const course = courses.find(c => c.id === req.params.course);
-  if (!course) return res.status(404).json({ error: 'الدورة غير موجودة' });
-  course.chapters = chapters;
-  db.prepare("INSERT INTO settings (k,v) VALUES ('content_courses',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v")
-    .run(JSON.stringify(courses));
-  res.json({ ok: true, chapters });
+    return res.status(400).json({ error: 'بيانات المحاور أو ترتيبها أو تبعيتها غير صحيحة' });
+  const result = db.transaction(() => {
+    const courses = JSON.parse(setting('content_courses') || '[]');
+    const course = courses.find(c => c.id === req.params.course);
+    if (!course) return {status:404,error:'الدورة غير موجودة'};
+    const packages = JSON.parse(setting('content_packages') || '[]');
+    if (!validChapterAllocation(db, course, {chapters}, packages))
+      return {status:409,error:'تغيّرت خانات الفصول المحفوظة. أعد تحميل المحتوى قبل إضافة فصل.'};
+    course.chapters = chapters;
+    delete course.chapterSlotFloor;
+    db.prepare("INSERT INTO settings (k,v) VALUES ('content_courses',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v")
+      .run(JSON.stringify(courses));
+    return {chapters,chapterSlotFloor:chapterSlotFloor(db,course,packages)};
+  })();
+  if (result.error) return res.status(result.status).json({error:result.error});
+  res.json({ ok:true, ...result });
 });
 app.put('/api/admin/content', auth, admin, (req, res) => {
   const body = req.body || {};
-  if (Array.isArray(body.courses) && body.courses.some(c => !validCourseChapterKeys(c?.id, c?.chapters)))
-    return res.status(400).json({ error: 'معرّفات المحاور غير صحيحة أو مكررة' });
+  if (Object.hasOwn(body, 'courses') && (!Array.isArray(body.courses) || body.courses.some(c => !c || typeof c !== 'object' || Array.isArray(c) || !validCourseChapterKeys(c.id, c.chapters))))
+    return res.status(400).json({ error: 'بيانات المحاور أو ترتيبها أو تبعيتها غير صحيحة' });
   if (Array.isArray(body.packages)) {
     try { validatePackageInstructors(body.packages, setting, readList('content_packages')); }
     catch (error) { return res.status(error.status || 400).json({ error:error.message }); }
@@ -1182,9 +1271,17 @@ app.put('/api/admin/content', auth, admin, (req, res) => {
       }
     }
   }
+  const allocationError = db.transaction(() => {
+    const previous = JSON.parse(setting('content_courses') || '[]');
+    const packages = [...JSON.parse(setting('content_packages') || '[]'), ...(Array.isArray(body.packages) ? body.packages : [])];
+    for (const course of body.courses || []) {
+      const old = previous.find(c => c.id === course.id) || {id:course.id,chapters:[]};
+      if (course.chapters === undefined && old.chapters !== undefined) course.chapters = old.chapters;
+      if (!validChapterAllocation(db, old, course, packages)) return true;
+    }
   Object.keys(body).forEach(k => {
     if (['cms', 'courses', 'packages', 'academic', 'consulting', 'tracks', 'modes', 'systems', 'promos'].includes(k))
-      setSetting('content_' + k, JSON.stringify(body[k]));
+      setSetting('content_' + k, JSON.stringify(k === 'courses' ? body[k].map(({chapterSlotFloor, ...course}) => course) : body[k]));
   });
   /* الكتالوج يُشتق من الباقات ليتحقّق الدفع من السعر */
   if (body.packages) {
@@ -1192,6 +1289,9 @@ app.put('/api/admin/content', auth, admin, (req, res) => {
       ({ id: p.id, ar: p.ar, en:p.en || '', code:p.code || p.id, price: p.price,
          currency: p.currency, days: p.days, hours: p.hours, cert: !!p.cert, type: p.type }))));
   }
+    return false;
+  })();
+  if (allocationError) return res.status(409).json({error:'تغيّرت خانات الفصول المحفوظة. أعد تحميل المحتوى قبل إضافة فصل.'});
   res.json({ ok: true });
 });
 
@@ -1248,4 +1348,5 @@ app.listen(PORT, () => {
   console.log(`   البوابة: ${setting('gateway') || process.env.PAYMENT_GATEWAY || 'kashier'} · ` +
     `المفتاح السرّي: ${process.env.PAYMOB_SECRET_KEY || process.env.MOYASAR_SECRET_KEY || process.env.TAP_SECRET_KEY ? 'مضبوط ✅' : 'غير مضبوط ⚠️'}\n`);
 });
+
 

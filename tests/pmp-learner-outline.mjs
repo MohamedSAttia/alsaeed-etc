@@ -35,12 +35,12 @@ function readFunction(name){const start=source.indexOf('function '+name+'('),end
 for(const name of ['publicCourseTopics','publicTopicBody','studyPlan','pkgTab'])vm.runInContext(readFunction(name),ctx);
 for(const file of ['public/course-roadmap.js','public/pmp-reading.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 const r=w.CourseRoadmap;
-const keys=['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
+const keys=['intro','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines'];
 const tree=r.learnerGroups(course,lessons),flat=tree.flatMap(r.lessonItems);
 assert.deepEqual(Array.from(tree.filter(g=>!g.originalChapter),g=>g.key),keys);
-assert.deepEqual(Array.from(tree[0].children,g=>g.key),['journey']);
-assert.equal(tree[1].key,'exam');assert.equal(tree[1].readingKey,'exam');assert.equal(tree[1].children.length,0);
-assert.deepEqual(Array.from(tree[4].children,g=>g.key),['initiating','planning','executing','monitoring','closing']);
+assert.deepEqual(Array.from(tree[0].children,g=>g.key),['exam','journey']);
+assert.equal(tree[0].children[0].key,'exam');assert.equal(tree[0].children[0].readingKey,'exam');assert.equal(tree[0].children[0].children.length,0);
+assert.deepEqual(Array.from(tree[3].children,g=>g.key),['initiating','planning','executing','monitoring','closing']);
 assert.equal(flat.length,lessons.length);
 assert.deepEqual(Array.from(flat,l=>l.i).sort((a,b)=>a-b),lessons.map((_,i)=>i));
 assert.deepEqual(Array.from(flat,l=>l.id).sort(),lessons.map(l=>l.id).sort());
@@ -106,8 +106,8 @@ const originalAssessments=Array.from(r.groups(course,lessons)).filter(g=>!['intr
 for(const language of ['ar','en']){
  w.__lang=language;ctx.pkTab='content';app.innerHTML=ctx.pkgTab(pkg,course,true);
  assert.deepEqual(Array.from(app.querySelectorAll('.learning-outline > details'),x=>x.dataset.learningGroup),keys);
- assert.deepEqual(Array.from(app.querySelectorAll('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group]'),x=>x.dataset.learningGroup),['journey']);
- assert.equal(app.querySelectorAll('.learning-outline > [data-learning-group="exam"] > .pmp-topic-reading').length,1);
+ assert.deepEqual(Array.from(app.querySelectorAll('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group]'),x=>x.dataset.learningGroup),['exam','journey']);
+ assert.equal(app.querySelectorAll('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group="exam"] > .pmp-topic-reading').length,1);
  assert.equal(app.querySelectorAll('.learning-outline > details[data-learning-group="scope"]').length,0);
  assert.equal(app.querySelectorAll('[data-lesson-index]').length,lessons.length);
  assert.deepEqual(Array.from(app.querySelectorAll('[data-lesson-index]'),x=>Number(x.dataset.lessonIndex)).sort((a,b)=>a-b),lessons.map((_,i)=>i));
@@ -144,5 +144,5 @@ assert.equal(app.querySelectorAll('.pmp-topic-reading').length,0,'Readings remai
 assert.equal(app.querySelectorAll('[data-lesson-file]').length,0,'Paid lesson attachments remain gated');
 assert.equal(JSON.stringify({course,pkg,lessons,progress}),snapshot,'All lesson data and all progress untouched');
 dom.window.close();
-console.log('PASS: 17 learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
+console.log('PASS: 16 learner topics; 14 exact lesson IDs/indices, 13 videos, 5 completions, notes/files/quizzes preserved; 18 readings and original test keys; stable weeks and activity IDs; AR/EN and guest gating.');
 

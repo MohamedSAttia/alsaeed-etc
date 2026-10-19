@@ -1,15 +1,17 @@
 /* Ordered presentation taxonomy; stored lesson chapter ids remain unchanged. */
 (function(){
 const pmp=[['intro','مقدمة','Introduction',/مقدم|introduction/i],['exam','هيكل اختبار PMP','PMP exam structure',/هيكل.*اختبار|exam.*structure/i],['framework','إطار عمل إدارة المشاريع','Project management framework',/إطار|framework|أسس إدارة/i],['value','نظام تسليم القيمة','Value delivery system',/تسليم القيمة|value delivery/i],['principles','مبادئ إدارة المشاريع','Project management principles',/مبادئ|principles/i],['lifecycles','دورات حياة المشروع','Project life cycles',/دور.*حياة|life.?cycle/i],['governance','الحوكمة','Governance',/حوكمة|governance/i],['scope','النطاق','Scope',/نطاق|scope|متطلبات/i],['schedule','الجدول الزمني','Schedule',/جدول|schedule/i],['cost','المالية','Finance',/مالية|تكلفة|تمويل|cost|finance/i],['resources','الموارد','Resources',/موارد|فريق|قيادة|resource|team|leadership/i],['risk','المخاطر','Risk',/مخاطر|risk/i],['stakeholders','المعنيون','Stakeholders',/معني|مصلحة|stakeholder/i],['people','مجال الأشخاص','People domain',/مجال.*(أشخاص|أفراد)|people domain/i],['process','مجال العمليات','Process domain',/مجال.*عمليات|process domain/i],['business','مجال بيئة الأعمال','Business environment domain',/مجال.*بيئة|business environment domain/i],['journey','رحلة الاجتياز','Passing journey',/اجتياز|passing journey/i],['review','حل أهم الأسئلة','Key question review',/حل.*أسئلة|question review/i]];
-function groups(c,lessons){if(c.id!=='pmp')return Object.entries(lessons.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([ch,items])=>({title:c.chapters[ch]||'مقدمة',items,key:ch}));const result=pmp.map(t=>({key:t[0],title:t[1],en:t[2],items:[]})),other=new Map();lessons.forEach((l,i)=>{const title=[l.t,l.title_ar,l.title_en,l.en].filter(Boolean).join(' ');let topic=pmp.find(t=>['people','process','business','exam','review','journey'].includes(t[0])&&t[3].test(title))||pmp.find(t=>t[3].test(title));if(topic)result[pmp.indexOf(topic)].items.push({...l,i});else{const key=String(l.ch);if(!other.has(key))other.set(key,{key:'saved_'+key,title:c.chapters[l.ch]||'دروس إضافية',items:[]});other.get(key).items.push({...l,i})}});return [...result,...other.values()]}
+const validLessonOrder=value=>Number.isSafeInteger(value)&&value>=0&&value<=1000000;
+function orderedItems(items){return items.slice().sort((a,b)=>(validLessonOrder(a.displayOrder)?a.displayOrder:a.i)-(validLessonOrder(b.displayOrder)?b.displayOrder:b.i)||a.i-b.i);}
+function orderGroups(nodes){return nodes.map(g=>({...g,items:orderedItems(g.items),...(g.children?{children:orderGroups(g.children)}:{})}));}
+function groups(c,lessons){if(c.id!=='pmp')return orderGroups(Object.entries(lessons.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([ch,items])=>({title:c.chapters[ch]&&typeof c.chapters[ch]==='object'?(c.chapters[ch].ar||c.chapters[ch].en):c.chapters[ch]||'مقدمة',en:c.chapters[ch]&&typeof c.chapters[ch]==='object'?c.chapters[ch].en:'',items,key:ch})));const result=pmp.map(t=>({key:t[0],title:t[1],en:t[2],items:[]})),other=new Map();lessons.forEach((l,i)=>{const title=[l.t,l.title_ar,l.title_en,l.en].filter(Boolean).join(' ');let topic=pmp.find(t=>['people','process','business','exam','review','journey'].includes(t[0])&&t[3].test(title))||pmp.find(t=>t[3].test(title));if(topic)result[pmp.indexOf(topic)].items.push({...l,i});else{const key=String(l.ch);if(!other.has(key))other.set(key,{key:'saved_'+key,title:c.chapters[l.ch]||'دروس إضافية',items:[]});other.get(key).items.push({...l,i})}});return orderGroups([...result,...other.values()])}
 // Shared outline labels; assessment keys and stored lesson chapters stay unchanged.
 const publicLabels=Object.fromEntries(pmp.map(([key,ar,en])=>[key,{key,ar,en}]));
 publicLabels.people.ar='مجال الأفراد';
 const publicPhases=[['initiating','مرحلة البدء','Initiating'],['planning','مرحلة التخطيط','Planning'],['executing','مرحلة التنفيذ','Executing'],['monitoring','مرحلة المتابعة والتحكم','Monitoring & Controlling'],['closing','مرحلة الإغلاق','Closing']];
 function publicPmpTopics(){
   return [
-    {...publicLabels.intro,children:[{...publicLabels.journey}]},
-    {...publicLabels.exam},
+    {...publicLabels.intro,children:[{...publicLabels.exam},{...publicLabels.journey}]},
     {...publicLabels.framework},
     {key:'agile',ar:'النهج الرشيق',en:'Agile Approach'},
     {key:'predictive',ar:'النهج التنبؤي',en:'Predictive Approach',children:publicPhases.map(([key,ar,en])=>({key,ar,en}))},
@@ -26,18 +28,62 @@ function publicPmpTopics(){
 function flattenTopics(nodes,depth=0,prefix=''){
   return nodes.flatMap((t,n)=>{const number=prefix?prefix+'.'+(n+1):String(n+1);return [{...t,depth,number},...flattenTopics(t.children||[],depth+1,number)];});
 }
+// A missing parent inherits the default; an explicit null promotes a node to the root.
+// Invalid imported metadata is rendered conservatively without repairing stored data.
+const validOutlineKey=key=>typeof key==='string'&&/^[a-z][a-z0-9-]{0,63}$/.test(key);
+const validOutlineOrder=order=>Number.isInteger(order)&&order>=0&&order<=10000;
 function topics(c){
   if(c.id!=='pmp')return (c.chapters||[]).slice();
-  const overrides=new Map();
-  for(const ch of c.chapters||[])if(ch&&typeof ch==='object'&&ch.outlineKey&&!overrides.has(ch.outlineKey))overrides.set(ch.outlineKey,ch);
-  const defaults=publicPmpTopics(),known=new Set(flattenTopics(defaults).map(t=>t.key));
-  const additions=(c.chapters||[]).flatMap((ch,index)=>{
-    if(!ch||typeof ch!=='object'||known.has(ch.outlineKey)||isRetiredFrameworkChapter(ch)&&!ch.outlineKey)return [];
-    return [{key:ch.outlineKey||'source_'+index,ar:ch.ar||ch.en,en:ch.en||ch.ar,sourceIndex:index,outlineOrder:ch.outlineOrder}];
+  const chapters=Array.isArray(c.chapters)?c.chapters:[],defaults=publicPmpTopics(),nodes=new Map(),overrides=new Map();
+  for(const ch of chapters)if(ch&&typeof ch==='object'&&!Array.isArray(ch)&&validOutlineKey(ch.outlineKey)&&!overrides.has(ch.outlineKey))overrides.set(ch.outlineKey,ch);
+  function collect(items,parentKey=null){items.forEach((t,index)=>{const {children,...base}=t;nodes.set(t.key,{...base,parentKey,defaultParent:parentKey,defaultOrder:index});if(children)collect(children,t.key);});}
+  collect(defaults);
+  // Explicit object additions are public. A referenced legacy string parent is
+  // also projected, while untouched legacy source headings remain fallback-only.
+  const referenced=new Set(chapters.filter(ch=>ch&&typeof ch==='object').map(ch=>ch.outlineParent));
+  const additions=[];
+  chapters.forEach((ch,index)=>{
+    if(!ch||typeof ch!=='object'&&!(typeof ch==='string'&&referenced.has('source_'+index)))return;
+    if(Array.isArray(ch))return;
+    const key=validOutlineKey(ch.outlineKey)?ch.outlineKey:'source_'+index;
+    if(nodes.has(key))return;
+    const ar=typeof ch==='string'?ch:ch.ar||ch.en||'',en=typeof ch==='string'?'':ch.en||ch.ar||'';
+    nodes.set(key,{key,ar,en,sourceIndex:index,parentKey:null,defaultParent:null});additions.push(key);
   });
-  defaults.splice(defaults.findIndex(t=>t.key==='final-reviews'),0,...additions);
-  const apply=nodes=>nodes.map((t,index)=>{const saved=overrides.get(t.key)||c.chapters?.[t.sourceIndex];return {...t,ar:saved?.ar||t.ar,en:saved?.en||t.en,sortOrder:Number.isFinite(saved?.outlineOrder)?saved.outlineOrder:index,...(t.children?{children:apply(t.children)}:{})};}).sort((a,b)=>a.sortOrder-b.sortOrder);
-  return apply(defaults);
+  const roots=defaults.map(t=>t.key),tail=roots.indexOf('final-reviews');
+  roots.splice(tail<0?roots.length:tail,0,...additions);
+  roots.forEach((key,index)=>{nodes.get(key).defaultOrder=index;});
+  for(const node of nodes.values()){
+    const saved=overrides.get(node.key)||chapters[node.sourceIndex];
+    if(saved&&typeof saved==='object'){
+      if(typeof saved.ar==='string'&&saved.ar)node.ar=saved.ar;
+      if(typeof saved.en==='string'&&saved.en)node.en=saved.en;
+      if(Object.hasOwn(saved,'outlineParent')){
+        const parent=saved.outlineParent;
+        if(parent===null||typeof parent==='string'&&nodes.has(parent)&&parent!==node.key)node.parentKey=parent;
+      }
+    }
+    node.sortOrder=validOutlineOrder(saved?.outlineOrder)?saved.outlineOrder:node.defaultOrder;
+  }
+  // Detach only actual cycle members. Descendants still remain reachable once.
+  for(const node of nodes.values()){
+    const path=[],seen=new Map();let key=node.key;
+    while(key!==null&&nodes.has(key)){
+      if(seen.has(key)){for(const cyclic of path.slice(seen.get(key)))nodes.get(cyclic).parentKey=null;break;}
+      seen.set(key,path.length);path.push(key);key=nodes.get(key).parentKey;
+    }
+  }
+  const children=new Map([[null,[]]]);
+  for(const node of nodes.values()){
+    if(!children.has(node.parentKey))children.set(node.parentKey,[]);
+    children.get(node.parentKey).push(node);
+  }
+  const build=parent=>(children.get(parent)||[]).sort((a,b)=>a.sortOrder-b.sortOrder).map(node=>{
+    const {defaultParent,defaultOrder,...out}=node,descendants=build(node.key);
+    if(descendants.length)out.children=descendants;
+    return out;
+  });
+  return build(null);
 }
 // References are UI identities, never replacement chapter numbers. Reading the
 // outline does not create or reorder persisted chapter slots.
@@ -67,15 +113,31 @@ const examStructureLessonTitles=new Set([
   'هيكل اختبار محترف ادارة المشاريع وأنواع الأسئلة','PMP Exam Structure and Question Types'
 ].map(normalizedLabel));
 function chapterChoices(c){
-  const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey?'chapter:'+t.sourceIndex:'outline:'+t.key,index:t.sourceIndex,canonical:!(Number.isInteger(t.sourceIndex)&&!c.chapters[t.sourceIndex]?.outlineKey)})):[];
-  const keys=new Set(canonical.map(t=>t.key));
+  const canonical=c.id==='pmp'?flattenTopics(topics(c)).map(t=>({...t,ref:Number.isInteger(t.sourceIndex)&&!validOutlineKey(c.chapters[t.sourceIndex]?.outlineKey)?'chapter:'+t.sourceIndex:'outline:'+t.key,index:t.sourceIndex,canonical:!(Number.isInteger(t.sourceIndex)&&!validOutlineKey(c.chapters[t.sourceIndex]?.outlineKey))})):[];
+  const keys=new Set(canonical.map(t=>t.key)),refs=new Map(canonical.map(t=>[t.key,t.ref]));
   const saved=(c.chapters||[]).flatMap((ch,index)=>{
-    if(ch&&typeof ch==='object'&&(keys.has(ch.outlineKey)||keys.has('source_'+index)))return [];
-    if(c.id==='pmp'&&isRetiredFrameworkChapter(ch)&&!ch?.outlineKey)return [];
+    if(ch==null)return [];
+    if(keys.has('source_'+index)||ch&&typeof ch==='object'&&keys.has(ch.outlineKey))return [];
+    if(c.id==='pmp'&&isRetiredFrameworkChapter(ch))return [];
     const ar=typeof ch==='string'?ch:ch?.ar||ch?.en||'',en=typeof ch==='string'?'':ch?.en||'';
-    return [{key:'source_'+index,ref:'chapter:'+index,index,ar,en,depth:0,number:String(index+1),canonical:false}];
+    return [{key:'source_'+index,ref:'chapter:'+index,index,ar,en,depth:0,number:String(index+1),canonical:false,parentKey:null,parentRef:null}];
   });
-  return [...canonical,...saved];
+  return [...canonical.map(t=>({...t,parentRef:t.parentKey===null?null:refs.get(t.parentKey)||null})),...saved];
+}
+function parentChoices(c,ref){
+  if(c.id!=='pmp')return [];
+  const choices=chapterChoices(c),choice=choices.find(t=>t.ref===ref||t.key===ref);
+  const tree=topics(c),node=flattenTopics(tree).find(t=>t.key===choice?.key),excluded=new Set(node?flattenTopics([node]).map(t=>t.key):[]);
+  if(choice)excluded.add(choice.key);
+  const current=choice?.parentKey??null;
+  const eligible=choices.filter(t=>!excluded.has(t.key));
+  return [{ref:null,key:null,ar:'فصل رئيسي',en:'Main heading',selected:current===null},...eligible.map(t=>({...t,selected:t.key===current}))];
+}
+function reserveChapterSlots(c){
+  const floor=c.id==='pmp'&&Number.isSafeInteger(c.chapterSlotFloor)&&c.chapterSlotFloor>=0?c.chapterSlotFloor:0;
+  if(Math.max((c.chapters||[]).length,floor)>=100)throw new Error('وصلت الدورة إلى الحد الأقصى للفصول');
+  c.chapters=c.chapters||[];
+  while(c.chapters.length<floor)c.chapters.push(null);
 }
 function ensureChapter(c,ref){
   const choice=chapterChoices(c).find(t=>t.ref===String(ref));
@@ -83,8 +145,7 @@ function ensureChapter(c,ref){
   if(!choice.canonical)return choice.index;
   const index=(c.chapters||[]).findIndex(ch=>ch&&typeof ch==='object'&&ch.outlineKey===choice.key);
   if(index!==-1)return index;
-  if((c.chapters||[]).length>=100)throw new Error('وصلت الدورة إلى الحد الأقصى للفصول');
-  c.chapters=c.chapters||[];
+  reserveChapterSlots(c);
   c.chapters.push({ar:choice.ar,en:choice.en,outlineKey:choice.key});
   return c.chapters.length-1;
 }
@@ -112,6 +173,36 @@ function moveChapter(c,ref,delta){
   siblings.forEach((t,order)=>{const saved=chapterChoices(staged).find(ch=>ch.key===t.key);const i=ensureChapter(staged,saved.ref),old=staged.chapters[i];staged.chapters[i]={...(typeof old==='object'?old:{ar:old,en:''}),outlineOrder:order};});
   original.chapters=staged.chapters;return true;
 }
+// Change presentation hierarchy in a staging copy; slot IDs and lessons never move.
+function reparentChapter(c,ref,parentRef){
+  if(c.id!=='pmp')return false;
+  const choices=chapterChoices(c),choice=choices.find(t=>t.ref===ref||t.key===ref);
+  if(!choice)throw new Error('الفصل المحدد غير موجود');
+  const root=parentRef===null||parentRef==='';
+  const parent=root?null:choices.find(t=>t.ref===parentRef||t.key===parentRef);
+  if(!root&&!parent)throw new Error('الفصل الرئيسي المحدد غير موجود');
+  const parentKey=parent?.key??null;
+  const current=flattenTopics(topics(c)).find(t=>t.key===choice.key);
+  if(parentKey===choice.key||current&&flattenTopics([current]).some(t=>t.key===parentKey))throw new Error('لا يمكن نقل الفصل داخل نفسه أو أحد فروعه');
+  if(current&&current.parentKey===parentKey)return false;
+  const staged={...c,chapters:(c.chapters||[]).map(ch=>ch&&typeof ch==='object'?{...ch}:ch)};
+  const materialize=item=>{
+    const i=ensureChapter(staged,item.ref),old=staged.chapters[i];
+    if(typeof old==='string')staged.chapters[i]={ar:old,en:''};
+    return i;
+  };
+  const index=materialize(choice);
+  if(parent)materialize(parent);
+  const before=topics(staged),target=parentKey===null?before:flattenTopics(before).find(t=>t.key===parentKey)?.children||[];
+  const order=target.filter(t=>t.key!==choice.key).map(t=>t.key).concat(choice.key);
+  staged.chapters[index]={...staged.chapters[index],outlineParent:parentKey};
+  // Persist destination sibling ordering as a unit, including previously virtual headings.
+  for(const [position,key] of order.entries()){
+    const item=chapterChoices(staged).find(t=>t.key===key),i=ensureChapter(staged,item.ref),old=staged.chapters[i];
+    staged.chapters[i]={...(typeof old==='object'?old:{ar:old,en:''}),outlineOrder:position};
+  }
+  c.chapters=staged.chapters;return true;
+}
 function adminGroups(c,lessons){
   if(c.id!=='pmp'){
     const result=chapterChoices(c).map(t=>({...t,title:t.ar,items:[]})),byChapter=new Map(result.map(g=>[String(g.index),g]));
@@ -119,7 +210,7 @@ function adminGroups(c,lessons){
       if(!group){group={key:'source_'+key,ref:null,title:'',en:'',items:[],children:[],originalChapter:true};byChapter.set(key,group);result.push(group);}
       group.items.push({...l,i});
     });
-    return result;
+    return orderGroups(result);
   }
   const choices=chapterChoices(c),byKey=new Map(choices.map(t=>[t.key,t]));
   const flatten=nodes=>nodes.flatMap(g=>[{...g,ref:null,...byKey.get(g.key)},...flatten(g.children||[])]);
@@ -140,6 +231,7 @@ function learnerGroups(c,lessons){
   const savedLabel=ch=>typeof ch==='string'?ch:ch?[ch.ar,ch.en].filter(Boolean).join(' '):'';
   function sourceGroup(ch){
     const key=String(ch);
+    if(byKey.has('source_'+key))return byKey.get('source_'+key);
     if(!sourceGroups.has(key)){
       const chapter=c.chapters?.[ch],label=savedLabel(chapter);
       sourceGroups.set(key,{key:'source_'+key,title:chapter&&typeof chapter==='object'?(chapter.ar||chapter.en||''):label,en:chapter&&typeof chapter==='object'?(chapter.en||chapter.ar||''):label,items:[],children:[],readingKey:null,assessmentKey:null,assessmentKeys:[],originalChapter:true});
@@ -186,15 +278,15 @@ function learnerGroups(c,lessons){
   lessons.forEach((l,i)=>{
     const item={...l,i},prior=original.get(i),route=contextFor(l),explicit=c.chapters?.[l.ch]?.outlineKey;
     let target;
-    if(explicit)target=byKey.get(explicit)||sourceGroup(l.ch);
-    else if(c.chapters?.[l.ch]&&typeof c.chapters[l.ch]==='object'&&byKey.has('source_'+l.ch))target=byKey.get('source_'+l.ch);
+    if(explicit)target=byKey.get(explicit)||byKey.get('source_'+l.ch)||sourceGroup(l.ch);
+    else if(byKey.has('source_'+l.ch))target=byKey.get('source_'+l.ch);
     else if(route.intro)target=byKey.get('intro');
     else if(route.exam)target=byKey.get('exam');
     else if(!route.ambiguous&&route.guidelines)target=byKey.get('exam-guidelines');
     else if(!route.ambiguous&&route.special)target=byKey.get(route.special);
     else if(!route.ambiguous&&(route.approach||route.phase)){
       target=byKey.get(route.approach||'predictive');
-      if(route.phase&&(!route.approach||route.approach==='predictive'))target=target.children.find(g=>g.key===route.phase);
+      if(route.phase&&(!route.approach||route.approach==='predictive'))target=byKey.get(route.phase);
     }else if(isRetiredFrameworkChapter(c.chapters?.[l.ch])){
       // Preserve the agreed introduction/exam/journey destinations; consolidate
       // the other materials from the two retired headings under the framework.
@@ -206,8 +298,23 @@ function learnerGroups(c,lessons){
   // Keep source-only materials in their actual saved chapters, outside the
   // numbered curriculum and before its final four chapters. Playback uses this
   // same visual order; original records are never hidden, duplicated or rewritten.
-  const tail=outline.findIndex(g=>g.key==='final-reviews');
-  return [...outline.slice(0,tail),...sourceGroups.values(),...outline.slice(tail)];
+  const end=outline.findIndex(g=>['final-reviews','workshops','exam-eve','exam-guidelines'].includes(g.key)),tail=end<0?outline.length:end;
+  return orderGroups([...outline.slice(0,tail),...sourceGroups.values(),...outline.slice(tail)]);
+}
+// Only presentation ranks change. Never splice lesson records or their progress keys.
+// Rank every sibling together so repeated moves, ties and sparse legacy slots are deterministic.
+function moveLesson(c,lessons,index,delta){
+  if(!Number.isSafeInteger(index)||!lessons[index]||![-1,1].includes(delta))return false;
+  const siblings=adminGroups(c,lessons).find(g=>g.items.some(l=>l.i===index))?.items;
+  if(!siblings)return false;
+  const from=siblings.findIndex(l=>l.i===index),to=from+delta;
+  if(to<0||to>=siblings.length)return false;
+  const order=siblings.map(l=>l.i);[order[from],order[to]]=[order[to],order[from]];
+  order.forEach((i,position)=>{
+    if(!Object.hasOwn(lessons[i],'displayOrderBase'))lessons[i].displayOrderBase=validLessonOrder(lessons[i].displayOrder)?lessons[i].displayOrder:null;
+    lessons[i].displayOrder=position;
+  });
+  return true;
 }
 function lessonItems(group){return [...group.items,...(group.children||[]).flatMap(lessonItems)];}
 function videoGroups(c,lessons){
@@ -215,6 +322,6 @@ function videoGroups(c,lessons){
   return prune(learnerGroups(c,lessons));
 }
 function videoOrder(c,lessons){return videoGroups(c,lessons).flatMap(lessonItems).map(l=>l.i);}
-window.CourseRoadmap={pmp,groups,topics,chapterChoices,ensureChapter,renameChapter,moveChapter,isRetiredFrameworkChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
+window.CourseRoadmap={pmp,groups,validLessonOrder,orderedItems,moveLesson,topics,chapterChoices,reserveChapterSlots,ensureChapter,renameChapter,moveChapter,reparentChapter,parentChoices,isRetiredFrameworkChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
 })();
 

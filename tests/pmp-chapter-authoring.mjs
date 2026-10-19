@@ -1,3 +1,4 @@
+import { chapterSlotFloor, validChapterAllocation } from '../curriculum-slots.js';
 /** Local-only authoring regression: real admin renderer/bindings and save handler,
  * synthetic data/API, no production accounts or trainee records. */
 import assert from 'node:assert/strict';
@@ -124,10 +125,11 @@ console.log('PASS: real admin canonical headings/selectors/add/bulk/rename; stab
 // Evaluate the actual bounded course-chapters endpoint against an in-memory store.
 const server=fs.readFileSync('server.js','utf8');const routeStart=server.indexOf('function validCourseChapterKeys(');const routeEnd=server.indexOf("app.put('/api/admin/content'",routeStart);
 let handler,writes=0,courses=JSON.stringify([{id:'pmp',chapters:['Original']},{id:'rmp',chapters:['RMP']}]);
-vm.runInNewContext(server.slice(routeStart,routeEnd),{app:{put:(_path,...handlers)=>handler=handlers.at(-1)},auth(){},admin(){},setting:()=>courses,db:{prepare:()=>({run:value=>{writes++;courses=value;}})}});
+vm.runInNewContext(server.slice(routeStart,routeEnd),{chapterSlotFloor,validChapterAllocation,app:{put:(_path,...handlers)=>handler=handlers.at(-1)},auth(){},admin(){},setting:key=>key==='content_courses'?courses:'[]',db:{transaction:fn=>fn,prepare:()=>({all:()=>[],run:value=>{writes++;courses=value;}})}});
 function put(chapters,course='pmp'){let status=200,body;handler({params:{course},body:{chapters}},{status(value){status=value;return this;},json(value){body=value;return this;}});return {status,body};}
 const payload=['Original',{ar:'ذكاء',en:'AI',outlineKey:'ai',metadata:{owner:'kept'}}];assert.equal(put(payload).status,200);assert.deepEqual(JSON.parse(courses)[0].chapters,payload);
 const saved=courses;for(const chapters of [[...payload,payload[1]],[{ar:'X',en:'Y',outlineKey:'x<script>'}],[{ar:'X',en:'Y',outlineKey:'A'}],[{ar:'X',en:'Y',outlineKey:''}],[{ar:'X',en:'Y',outlineKey:7}],Array(101).fill('x')]){assert.equal(put(chapters).status,400);assert.equal(courses,saved);}
 assert.equal(put([{ar:'RMP renamed',en:'RMP',other:{kept:true}}],'rmp').status,200);assert.equal(put([{ar:'RMP',en:'RMP',outlineKey:'ai'}],'rmp').status,400);
 assert.equal(put(['x'],'missing').status,404);assert.equal(writes,2);
 console.log('PASS: real chapter API preserves metadata, validates bounded PMP keys, rejects duplicates/invalid payloads without writes, retains other courses.');
+

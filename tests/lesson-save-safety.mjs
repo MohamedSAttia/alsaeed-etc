@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 const {default:Database} = await import(process.env.SQLITE_MODULE || 'better-sqlite3');
 const db = new Database(':memory:');
-db.exec(`CREATE TABLE lessons(package_id TEXT, idx INTEGER, title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER, notes TEXT, notes_en TEXT, files TEXT, quiz TEXT, PRIMARY KEY(package_id,idx));
+db.exec(`CREATE TABLE lessons(package_id TEXT, idx INTEGER, title TEXT, title_en TEXT, chapter INTEGER, duration TEXT, vimeo TEXT, free INTEGER, notes TEXT, notes_en TEXT, files TEXT, quiz TEXT, display_order INTEGER, PRIMARY KEY(package_id,idx));
 CREATE TABLE lesson_files(id TEXT, package_id TEXT);
 CREATE TABLE quiz_images(id TEXT, package_id TEXT);
 CREATE TABLE progress(user_id TEXT, package_id TEXT, data TEXT);`);
@@ -21,8 +21,8 @@ function seed(){
  db.exec('DELETE FROM lessons; DELETE FROM lesson_files; DELETE FROM progress');
  db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('file-a','pmp');
  db.prepare('INSERT INTO lesson_files VALUES (?,?)').run('foreign','other');
- db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run('pmp',0,'Original','English',3,'02:00','101',1,'Notes','English notes',JSON.stringify([{id:'file-a',name:'Guide'}]),JSON.stringify(originalQuiz));
- db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz FROM lessons WHERE package_id=?').run('other','pmp');
+ db.prepare('INSERT INTO lessons VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run('pmp',0,'Original','English',3,'02:00','101',1,'Notes','English notes',JSON.stringify([{id:'file-a',name:'Guide'}]),JSON.stringify(originalQuiz),null);
+ db.prepare('INSERT INTO lessons SELECT ?,idx,title,title_en,chapter,duration,vimeo,free,notes,notes_en,files,quiz,display_order FROM lessons WHERE package_id=?').run('other','pmp');
  db.prepare('INSERT INTO progress VALUES (?,?,?)').run('synthetic','pmp',JSON.stringify({lessons:{0:true},exams:{x:{score:90}}}));
  lookup=async()=>'';
 }
@@ -84,3 +84,4 @@ seed();db.exec("CREATE TRIGGER reject_bad BEFORE INSERT ON lessons WHEN NEW.titl
 await assert.rejects(()=>put([{t:'Changed'},{t:'Reject'}]),/synthetic failure/);
 assert.deepEqual(rows(),before);db.close();
 console.log('PASS: omitted metadata preserved, explicit clearing works, malformed snapshots rejected, foreign attachments excluded, concurrent saves protected, append stable, transaction rollback, progress/other packages untouched.');
+

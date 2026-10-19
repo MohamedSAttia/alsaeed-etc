@@ -2835,6 +2835,13 @@ function rememberSavedContent(path, body) {
     savedLessons.set(pid, JSON.stringify(body));
     const p = savedContent.packages?.find(p => p.id === pid);
     if (p) p.videos = body.filter(l => l.vimeo).length;
+  } else if (/^\/admin\/lessons\/[^/]+$/.test(path) && body.kind === 'display-order') {
+    const pid = decodeURIComponent(path.split('/').pop()), saved = JSON.parse(savedLessons.get(pid) || '[]');
+    for (const order of body.orders) if (saved[order.idx]) {
+      saved[order.idx].displayOrder = order.displayOrder;
+      saved[order.idx].displayOrderBase = order.displayOrder;
+    }
+    savedLessons.set(pid, JSON.stringify(saved));
   }
 }
 function rememberLessons(pid) { savedLessons.set(pid, JSON.stringify(window.LESSONS[pid])); }
@@ -2910,7 +2917,9 @@ async function loadContent(initial = false) {
 }
 const mapLessonRows = rows => rows.map(l => ({ ch:l.chapter || 0, t:l.title || '',
   t_en:l.title_en || '', dur:l.duration || '', vimeo:l.vimeo || '',
-  free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+  free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '',
+  ...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
+  ...(Object.hasOwn(l,'displayOrder')?{displayOrderBase:Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?l.displayOrder:null}:{}) }));
 
 const lessonRequests = new Map();
 const adminLessonRequests = new Map();
@@ -5191,9 +5200,7 @@ function adminTab() {
     }
     const ls = window.LESSONS[pid] || (window.LESSONS[pid] = []);
     const chapters = window.CourseRoadmap.adminGroups(c, ls);
-    const videoOrder = c.id === 'pmp' ? window.CourseRoadmap.videoOrder(c, ls) :
-      ls.map((l, i) => ({l, i})).filter(x => x.l.vimeo)
-        .sort((a, b) => (Number(a.l.ch) || 0) - (Number(b.l.ch) || 0) || a.i - b.i).map(x => x.i);
+    const videoOrder = window.CourseRoadmap.videoOrder(c, ls);
     const videoNumbers = new Map(videoOrder.map((i, n) => [i, n + 1]));
     const totalMin = ls.reduce((a, l) => {
       const p = String(l.dur || '0:0').split(':'); return a + (+p[0] || 0) + (+p[1] || 0) / 60; }, 0);
@@ -5227,8 +5234,8 @@ function adminTab() {
 
       ${chapters.length ? chapters.map(ch => {
         const rows = ch.items, ref = ch.ref || '';
-        return `<div class="ch-blk" data-admin-chapter="${esc(ch.key)}" data-chapter-ref="${esc(ref)}" style="${ch.depth ? 'margin-inline-start:24px' : ''}">
-          <div class="ch-h">
+        return `<div class="ch-blk" data-admin-chapter="${esc(ch.key)}" data-chapter-ref="${esc(ref)}" style="${ch.depth ? 'margin-inline-start:' + ch.depth * 24 + 'px' : ''}">
+          <div class="ch-h" style="flex-wrap:wrap">
             <span class="num" style="width:28px;height:28px;border-radius:9px;background:var(--orange3);
               color:var(--orange);display:flex;align-items:center;justify-content:center;
               font-size:.8rem;flex-shrink:0">${ch.canonical ? ch.number : c.id === 'pmp' ? '•' : ch.number}</span>
@@ -5241,12 +5248,21 @@ function adminTab() {
             ${ref ? `<button class="btn o sm" data-addto="${esc(ref)}">＋ درس هنا</button>` : ''}
             ${c.id !== 'pmp' && Number.isInteger(ch.index) ? `<button class="btn o sm" data-delch="${ch.index}" title="حذف الفصل">🗑</button>` : ''}
           </div>
+          ${c.id === 'pmp' && ref ? `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;padding:12px 22px;border-bottom:1px solid var(--line)">
+            <label class="f" style="flex:1;min-width:210px;margin:0"><span>موقع الموضوع · Parent heading</span>
+              <select data-chparent="${esc(ref)}" data-current-parent="${esc(ch.parentRef || '')}" aria-label="موقع ${esc(ch.ar || ch.title)}">
+                ${window.CourseRoadmap.parentChoices(c, ref).map(parent => `<option value="${esc(parent.ref || '')}" ${parent.selected ? 'selected' : ''}>${parent.number ? esc(parent.number) + '. ' : ''}${esc(window.__lang === 'en' ? parent.en || parent.ar : parent.ar || parent.en)}</option>`).join('')}
+              </select></label>
+            <button type="button" class="btn p sm" data-chsave="${esc(ref)}">حفظ العنوان والموقع</button>
+            <button type="button" class="btn o sm" data-addchapter="${esc(ref)}">＋ موضوع فرعي</button>
+            <small class="muted">اختر «فصل رئيسي» لجعله عنواناً مستقلاً.</small>
+          </div>` : ''}
           ${rows.length ? `<div class="tbl-w" style="border:0;border-radius:0">
             <table class="t"><thead><tr>
               <th style="width:40px">#</th><th>عنوان الدرس</th><th style="width:90px">المدة</th>
               <th style="width:170px">رقم Vimeo</th><th style="width:80px">مجاني</th><th style="width:120px"></th>
             </tr></thead><tbody>
-            ${rows.map(l => `<tr>
+            ${rows.map((l, rowPosition) => `<tr>
               <td class="num">${videoNumbers.get(l.i) || '—'}</td>
               <td>
                 <div class="bi-f sm"><span class="bi-flag">🇸🇦</span>
@@ -5267,8 +5283,8 @@ function adminTab() {
                 <input type="checkbox" data-lfree="${l.i}" ${l.free ? 'checked' : ''}
                   style="width:18px;height:18px;accent-color:var(--ok)"></td>
               <td style="white-space:nowrap">
-                <button class="btn o sm" data-lup="${l.i}" ${c.id === 'pmp' ? 'disabled title="ترتيب المحاور موحّد للحفاظ على تقدم الدروس المحفوظ"' : 'title="لأعلى"'}>▲</button>
-                <button class="btn o sm" data-ldown="${l.i}" ${c.id === 'pmp' ? 'disabled title="ترتيب المحاور موحّد للحفاظ على تقدم الدروس المحفوظ"' : 'title="لأسفل"'}>▼</button>
+                <button class="btn o sm" data-lup="${l.i}" ${lessonOrderPending.has(pid) || rowPosition === 0 ? 'disabled' : ''} title="نقل الدرس لأعلى · Move lesson up" aria-label="نقل الدرس لأعلى · Move lesson up">▲</button>
+                <button class="btn o sm" data-ldown="${l.i}" ${lessonOrderPending.has(pid) || rowPosition === rows.length - 1 ? 'disabled' : ''} title="نقل الدرس لأسفل · Move lesson down" aria-label="نقل الدرس لأسفل · Move lesson down">▼</button>
                 <button class="btn o sm" data-ldel="${l.i}" title="حذف">🗑</button>
               </td></tr><tr><td></td><td colspan="5">
                 <label class="btn o sm">📎 أرفق PDF أو Word أو Excel
@@ -5694,10 +5710,10 @@ function playLesson(pid, idx) {
   if(!window.LessonVideo.embedUrl(l.vimeo)){A().toast(siteEnglish()?'The video link is invalid. Please contact the trainer.':'رابط الفيديو غير صالح؛ يرجى إبلاغ المدرب.');return;}
   curLesson = idx;
   const c=A().course(A().pack(pid).course);
-  const outlineOrder=c.id==='pmp'&&window.CourseRoadmap?.videoOrder?CourseRoadmap.videoOrder(c,ls).filter(i=>canOpen(ls[i])):null;
+  const outlineOrder=window.CourseRoadmap?.videoOrder?CourseRoadmap.videoOrder(c,ls).filter(i=>canOpen(ls[i])):null;
   const displayOrder=outlineOrder||ls.map((l,i)=>({l,i})).filter(x=>x.l.vimeo&&canOpen(x.l)).map(x=>x.i);
   const displayPosition=displayOrder.indexOf(idx)+1;
-  const nextIndex=displayOrder[displayOrder.indexOf(idx)+1];
+  const nextIndex=displayOrder[displayOrder.indexOf(idx)+1], previousIndex=displayOrder[displayOrder.indexOf(idx)-1];
   const pr = A().prog(pid);
   A().modal(`
     <h3>${esc(window.biTitle ? window.biTitle(l) : l.t)}</h3>
@@ -5716,6 +5732,7 @@ function playLesson(pid, idx) {
       <button class="btn ${pr.lessons[idx] ? 'o' : 'p'}" id="lsDone">
         ${pr.lessons[idx] ? (siteEnglish()?'✓ Completed — undo':'✓ مكتمل — إلغاء') : (siteEnglish()?'Mark complete':'علّم كمكتمل')}</button>
       <button class="btn o" id="lessonQuiz">${siteEnglish()?'Test this lesson / chapter':'اختبار هذا الدرس / الفصل'}</button>
+      ${previousIndex!==undefined ? `<button class="btn o" id="lsPrev">${siteEnglish()?'Previous video':'الفيديو السابق'}</button>` : ''}
       ${nextIndex!==undefined&&nextIndex>=0 ? `<button class="btn o" id="lsNext">${siteEnglish()?'Next video':'الفيديو التالي'}</button>` : ''}
       <button class="btn o" data-close>${siteEnglish()?'Close':'إغلاق'}</button>
     </div>`, () => {
@@ -5732,6 +5749,7 @@ function playLesson(pid, idx) {
       if(completed)setTimeout(()=>A().modal(`<h3>${siteEnglish()?'Lesson completed':'أتممت الدرس'}</h3><p>${siteEnglish()?'Apply what you learned, then assess your understanding.':'طبّق ما تعلمته، ثم اختبر فهمك للدرس أو الفصل.'}</p><button class="btn p" id="afterLessonTest">${siteEnglish()?'Start assessment':'ابدأ اختبار الدرس / الفصل'}</button><button class="btn o" data-close>${siteEnglish()?'Continue learning':'متابعة التعلم'}</button>`,()=>{$('#afterLessonTest').onclick=()=>{A().closeModal();PackageJourney.lessonTest(pid,idx)}}),180);
     };
     const quiz = $('#lessonQuiz'); if (quiz) quiz.onclick = () => { A().closeModal(); PackageJourney.lessonTest(pid,idx); };
+    const pv = $('#lsPrev'); if (pv) pv.onclick = () => { A().closeModal(); playLesson(pid, previousIndex); };
     const nx = $('#lsNext'); if (nx) nx.onclick = () => { A().closeModal(); playLesson(pid, nextIndex); };
   });
 }
@@ -6286,7 +6304,7 @@ function bind() {
   const curCh = () => { const c = curCourse();
     if (c) { c.chapters = c.chapters || []; return c.chapters; } return []; };
   const chapterChoices = () => window.CourseRoadmap.chapterChoices(curCourse());
-  const chapterOptions = selected => chapterChoices().map(ch => `<option value="${esc(ch.ref)}" ${ch.ref === selected ? 'selected' : ''}>${ch.canonical ? ch.number + '. ' : curCourse().id === 'pmp' ? 'فصل محفوظ: ' : ch.number + '. '}${esc(window.__lang === 'en' ? ch.en || ch.ar : ch.ar || ch.en)}</option>`).join('');
+  const chapterOptions = selected => chapterChoices().map(ch => `<option value="${esc(ch.ref)}" ${ch.ref === selected ? 'selected' : ''}>${ch.number + '. '}${esc(window.__lang === 'en' ? ch.en || ch.ar : ch.ar || ch.en)}</option>`).join('');
   function videoId(value) {
     if(!String(value||'').trim())return '';
     return window.LessonVideo.storedValue(value);
@@ -6306,6 +6324,9 @@ function bind() {
     const ls = curLs(), retiredAssignments = new Map();
     try {
       headingEdits.forEach(ch => window.CourseRoadmap.renameChapter(stagedCourse, ch.ref, ch.ar, ch.en));
+      // Parent edits share the same atomic preflight as names and legacy placements.
+      $$('[data-chparent]').filter(input => input.value !== input.dataset.currentParent)
+        .forEach(input => window.CourseRoadmap.reparentChapter(stagedCourse, input.dataset.chparent, input.value || null));
       // Freeze only known retired string-source placements on an explicit save.
       // Capture the current rendered group before a title edit can change its legacy heuristic.
       if (stagedCourse.id === 'pmp') $$('[data-lt]').forEach(input => {
@@ -6350,15 +6371,33 @@ function bind() {
     if (durationInput && harvest()) fillVimeoDuration(input, durationInput);
   }));
   $$('[data-lfree]').forEach(x => x.onchange = () => { if (harvest()) A().render(); });
-  $$('[data-chname],[data-chname-en]').forEach(x => x.onchange = () => { if (harvest()) saveLessons(true); });
-  $$('[data-chname]').forEach(x => x.onblur = () => { if (harvest()) saveLessons(true); });
+  // PMP names and placement are saved together, without a blur-triggered save
+  // racing the parent selector. Save All also collects these pending fields.
+  const saveHeadingOnBlur = () => { if (curCourse()?.id !== 'pmp' && harvest()) return saveLessons(true); };
+  $$('[data-chname],[data-chname-en]').forEach(x => x.onchange = saveHeadingOnBlur);
+  $$('[data-chname]').forEach(x => x.onblur = saveHeadingOnBlur);
   const fillDur=$('#fillDurations'); if(fillDur) fillDur.onclick=async()=>{
-    if (!harvest()) return false; fillDur.disabled=true; fillDur.textContent='جارٍ استكمال المدد…';
-    try { if (await saveLessons(false) === false) { fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات'; return false; } const result=await A().api('/admin/lessons/'+encodeURIComponent(curPk())+'/fill-durations',{method:'POST'});
-      const rows=await A().api('/admin/lessons/'+encodeURIComponent(curPk()));
-      window.LESSONS[curPk()]=rows.map(l=>({ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||''}));
-      A().render(); A().toast('استُكملت '+result.updated+' مدة؛ تعذّر جلب '+result.unavailable+' من Vimeo');
-    } catch(e) { A().toast('تعذّر تحديث المدد: '+e.message); fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات'; }
+    if (fillDur.disabled || !harvest()) return false;
+    const pid=curPk(), route=A().route, token=A().token, actor=A().me?.()?.id, inputVersion=A().editorRevision;
+    const sameActor=()=>A().token===token&&A().me?.()?.id===actor&&(!A().isAdmin||A().isAdmin());
+    fillDur.disabled=true; fillDur.textContent='جارٍ استكمال المدد…';
+    try {
+      if (await saveLessons(false) === false || !sameActor()) return false;
+      const ls=window.LESSONS[pid],snapshot=JSON.stringify(ls);
+      const result=await A().api('/admin/lessons/'+encodeURIComponent(pid)+'/fill-durations',{method:'POST'});
+      if(!sameActor())return false;
+      const rows=await A().api('/admin/lessons/'+encodeURIComponent(pid));
+      if(!sameActor())return false;
+      if(window.LESSONS[pid]===ls&&JSON.stringify(ls)===snapshot&&A().editorRevision===inputVersion){
+        window.LESSONS[pid]=rows.map(l=>({ch:l.chapter||0,t:l.title||'',t_en:l.title_en||'',dur:l.duration||'',vimeo:l.vimeo||'',free:!!l.free,files:l.files||[],quiz:l.quiz||[],notes:l.notes||'',notes_en:l.notes_en||'',...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
+  ...(Object.hasOwn(l,'displayOrder')?{displayOrderBase:Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?l.displayOrder:null}:{})}));
+        A().rememberLessons?.(pid);
+        if(curPk()===pid&&A().route===route&&!document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]'))A().render();
+      }
+      A().toast('استُكملت '+result.updated+' مدة؛ تعذّر جلب '+result.unavailable+' من Vimeo');
+      return true;
+    } catch(e) { if(sameActor())A().toast('تعذّر تحديث المدد: '+e.message); return false; }
+    finally { if(fillDur.isConnected){fillDur.disabled=false; fillDur.textContent='⏱ استكمال مدد الفيديوهات';} }
   };
   $$('[data-attach]').forEach(input => input.onchange = async () => {
     if (!harvest()) return false; input.disabled = true;
@@ -6535,60 +6574,104 @@ function bind() {
     });
   }
 
-  /* إضافة فصل */
+  /* إضافة فصل أو موضوع فرعي */
   const ac2 = $('#addChapter');
-  if (ac2) ac2.onclick = () => {
+  if (ac2) ac2.onclick = () => addChapterAt(null);
+  $$('[data-addchapter]').forEach(button => button.onclick = () => addChapterAt(button.dataset.addchapter));
+  function addChapterAt(parentRef) {
     if (!harvest()) return;
-    const canonical = chapterChoices().filter(ch => ch.canonical);
-    A().modal(`<h3>إضافة فصل جديد</h3>
-      <p>اختر محوراً من خطة الدورة أو أضف فصلاً مخصصاً.</p>
-      ${canonical.length ? `<label class="f"><span>المحور</span><select id="ncRef">${canonical.map(ch => `<option value="${esc(ch.ref)}">${ch.number}. ${esc(ch.ar)}</option>`).join('')}<option value="custom">فصل مخصص</option></select></label>` : ''}
+    const course = curCourse(), pid = curPk(), route = A().route, token = A().token, actor = A().me?.()?.id;
+    const sameEditor = () => curPk() === pid && curCourse() === course && A().route === route &&
+      A().token === token && A().me?.()?.id === actor && (!A().isAdmin || A().isAdmin());
+    const canonical = chapterChoices().filter(ch => ch.canonical), isPmp = course?.id === 'pmp';
+    const initial = parentRef ? null : canonical[0];
+    const parentOptions = (ref, selected) => window.CourseRoadmap.parentChoices(course, ref).map(parent =>
+      `<option value="${esc(parent.ref || '')}" ${(selected === undefined ? parent.selected : (parent.ref || '') === (selected || '')) ? 'selected' : ''}>${parent.number ? esc(parent.number) + '. ' : ''}${esc(window.__lang === 'en' ? parent.en || parent.ar : parent.ar || parent.en)}</option>`).join('');
+    A().modal(`<h3>${parentRef ? 'إضافة موضوع فرعي' : 'إضافة فصل جديد'}</h3>
+      <p>اختر محوراً من خطة الدورة أو أضف فصلاً مخصصاً، ثم حدد موقعه.</p>
+      ${canonical.length ? `<label class="f"><span>المحور</span><select id="ncRef">${canonical.map(ch => `<option value="${esc(ch.ref)}" ${initial?.ref === ch.ref ? 'selected' : ''}>${ch.number}. ${esc(ch.ar)}</option>`).join('')}<option value="custom" ${!initial ? 'selected' : ''}>فصل مخصص</option></select></label>` : ''}
       <label class="f"><span>اسم الفصل بالعربية</span>
-        <input id="ncN" value="${esc(canonical[0]?.ar || '')}" placeholder="مثال: تخطيط إدارة المخاطر" autofocus></label>
-      <label class="f"><span>Chapter title in English</span><input id="ncEn" dir="ltr" value="${esc(canonical[0]?.en || '')}"></label>
+        <input id="ncN" value="${esc(initial?.ar || '')}" placeholder="مثال: تخطيط إدارة المخاطر" autofocus></label>
+      <label class="f"><span>Chapter title in English</span><input id="ncEn" dir="ltr" value="${esc(initial?.en || '')}"></label>
+      ${isPmp ? `<label class="f"><span>موقع الموضوع · Parent heading</span><select id="ncParent">${parentOptions(initial?.ref, parentRef || undefined)}</select></label>` : ''}
       <div class="mdl-act"><button class="btn p" id="ncGo">احفظ الفصل</button>
         <button class="btn o" data-close>إلغاء</button></div>`, () => {
       let pendingRef = null;
       if ($('#ncRef')) $('#ncRef').onchange = () => {
         const choice = canonical.find(ch => ch.ref === $('#ncRef').value);
         $('#ncN').value = choice?.ar || ''; $('#ncEn').value = choice?.en || '';
+        if ($('#ncParent')) $('#ncParent').innerHTML = parentOptions(choice?.ref, choice ? undefined : parentRef);
       };
       const go2 = async () => {
+        const button = $('#ncGo');
+        if (!button || button.disabled || !sameEditor()) return false;
         const ar = $('#ncN').value.trim(), en = $('#ncEn').value.trim();
-        if (!ar || ar.length > 200 || en.length > 200) { A().toast('اسم الفصل غير صحيح'); return; }
-        const button = $('#ncGo'); button.disabled = true;
+        if (!ar || ar.length > 200 || en.length > 200) { A().toast('اسم الفصل غير صحيح'); return false; }
+        const controls = [$('#ncRef'), $('#ncN'), $('#ncEn'), $('#ncParent')].filter(Boolean);
+        const staged = {...course, chapters:JSON.parse(JSON.stringify(course.chapters || []))};
+        const ref = pendingRef || $('#ncRef')?.value || 'custom';
+        let nextRef = ref;
+        button.disabled = true;
         try {
-          const ref = $('#ncRef')?.value || 'custom';
           if (ref === 'custom') {
-            if (!pendingRef) { if (curCh().length >= 100) throw new Error('وصلت الدورة إلى الحد الأقصى للفصول'); pendingRef = 'chapter:' + curCh().length; curCh().push({ar,en}); }
-            window.CourseRoadmap.renameChapter(curCourse(), pendingRef, ar, en);
-          } else { window.CourseRoadmap.ensureChapter(curCourse(), ref); window.CourseRoadmap.renameChapter(curCourse(), ref, ar, en); }
-          if (await saveLessons(true) === false) { button.disabled = false; return; }
-          A().closeModal(); A().render(); A().toast('✅ حُفظ الفصل');
-        } catch (e) { A().toast(e.message); button.disabled = false; }
+            window.CourseRoadmap.reserveChapterSlots(staged);
+            nextRef = 'chapter:' + staged.chapters.length; staged.chapters.push({ar,en});
+          } else {
+            window.CourseRoadmap.ensureChapter(staged, ref);
+            window.CourseRoadmap.renameChapter(staged, ref, ar, en);
+          }
+          if (isPmp) window.CourseRoadmap.reparentChapter(staged, nextRef, $('#ncParent').value || null);
+          course.chapters = staged.chapters; pendingRef = nextRef;
+          controls.forEach(input => input.disabled = true);
+          const inputVersion = A().editorRevision;
+          const saved = await saveLessons(true);
+          if (saved === false) return false;
+          // Dismiss only this still-current dialog. A canceled/replaced dialog or
+          // newer raw editor draft must survive the completion of an older save.
+          if (sameEditor() && $('#ncGo') === button && A().editorRevision === inputVersion) {
+            A().closeModal(); A().render(); A().toast('✅ حُفظ الفصل');
+          }
+          return true;
+        } catch (e) { if (sameEditor()) A().toast(e.message); return false; }
+        finally {
+          if (button.isConnected) {
+            button.disabled = false; controls.forEach(input => input.disabled = false);
+            if (pendingRef && $('#ncRef')) $('#ncRef').disabled = true;
+          }
+        }
       };
       $('#ncGo').onclick = go2;
-      $('#ncN').addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+      $('#ncN').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go2(); } });
     });
-  };
+  }
 
+  async function persistChapterDraft() {
+    const c = curCourse(), controls = $$('[data-chup],[data-chdown],[data-chsave]'), inputVersion = A().editorRevision;
+    const route = A().route, pid = curPk(), token = A().token, actor = A().me?.()?.id;
+    controls.forEach(button => button.disabled = true);
+    const saved = await saveLessons(true);
+    // Retain failed/partially saved drafts for an exact retry. Never replace a
+    // newer raw input, another package, or a dialog opened while saving.
+    if (A().route === route && curPk() === pid && A().token === token && A().me?.()?.id === actor &&
+        A().editorRevision === inputVersion && A().course(A().pack(pid)?.course) === c &&
+        !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]')) A().render();
+    else controls.filter(button => button.isConnected).forEach(button => button.disabled = false);
+    return saved;
+  }
+  $$('[data-chsave]').forEach(button => button.onclick = () => {
+    if (button.disabled || (A().isAdmin && !A().isAdmin()) || !harvest()) return false;
+    return persistChapterDraft();
+  });
   // Presentation metadata only; lesson arrays, source chapter slots and progress keys stay put.
-  $$('[data-chup],[data-chdown]').forEach(button => button.onclick = async () => {
-    if (!harvest()) return false;
+  $$('[data-chup],[data-chdown]').forEach(button => button.onclick = () => {
+    if (button.disabled || (A().isAdmin && !A().isAdmin()) || !harvest()) return false;
     const c = curCourse(), previous = c.chapters;
     const staged = {...c, chapters:JSON.parse(JSON.stringify(c.chapters || []))};
     try {
       if (!window.CourseRoadmap.moveChapter(staged, button.dataset.chup || button.dataset.chdown, button.hasAttribute('data-chup') ? -1 : 1)) return false;
       c.chapters = staged.chapters;
     } catch (e) { c.chapters = previous; A().toast(e.message); return false; }
-    const controls = $$('[data-chup],[data-chdown]'), inputVersion = A().editorRevision;
-    const route = A().route, pid = curPk(), token = A().token;
-    controls.forEach(b => b.disabled = true);
-    const saved = await saveLessons(true);
-    // Keep a failed/partially saved draft available to Save All rather than pretending it reverted on the server.
-    if (A().route === route && curPk() === pid && A().token === token && A().editorRevision === inputVersion && A().course(A().pack(pid)?.course) === c) A().render();
-    else controls.filter(b => b.isConnected).forEach(b => b.disabled = false);
-    return saved;
+    return persistChapterDraft();
   });
 
   $$('[data-delch]').forEach(b => b.onclick = () => {
@@ -6603,19 +6686,33 @@ function bind() {
   });
 
   /* ترتيب وحذف الدروس */
-  $$('[data-lup]').forEach(b => b.onclick = () => moveLesson(+b.dataset.lup, -1));
-  $$('[data-ldown]').forEach(b => b.onclick = () => moveLesson(+b.dataset.ldown, 1));
-  function moveLesson(i2, dir) {
-    if (curCourse()?.id === 'pmp') return;
+  $$('[data-lup],[data-ldown]').forEach(button => button.onclick = () => {
+    if (button.disabled || !button.isConnected || lessonOrderPending.has(curPk()) || (A().isAdmin && !A().isAdmin())) return false;
+    return moveLesson(Number(button.dataset.lup ?? button.dataset.ldown), button.hasAttribute('data-lup') ? -1 : 1);
+  });
+  async function moveLesson(i2, dir) {
     if (!harvest()) return false;
-    const ls = curLs(); const ch = ls[i2].ch || 0;
-    const sib = ls.map((l, k) => ({ l, k })).filter(x => (x.l.ch || 0) === ch);
-    const pos = sib.findIndex(x => x.k === i2);
-    const t = pos + dir;
-    if (t < 0 || t >= sib.length) return;
-    const a = sib[pos].k, b2 = sib[t].k;
-    [ls[a], ls[b2]] = [ls[b2], ls[a]];
-    saveLessons(); A().render();
+    const c = curCourse();
+    if (!window.CourseRoadmap.moveLesson(c, curLs(), i2, dir)) return false;
+    const controls = $$('[data-lup],[data-ldown]');
+    const route = A().route, pid = curPk(), token = A().token, actor = A().me?.()?.id, inputVersion = A().editorRevision;
+    controls.forEach(button => button.disabled = true);
+    const siblings = window.CourseRoadmap.adminGroups(c, curLs()).find(group => group.items.some(lesson => lesson.i === i2)).items;
+    const saved = await saveLessonOrder(pid, siblings.map(lesson => lesson.i));
+    if (A().route === route && curPk() === pid && A().token === token && A().me?.()?.id === actor &&
+        A().editorRevision === inputVersion && A().course(A().pack(pid)?.course) === c &&
+        !document.querySelector('#ov, #iv, #ux, dialog[open], [role="dialog"]')) A().render();
+    else if (A().route === route && curPk() === pid && A().token === token && A().me?.()?.id === actor && A().course(A().pack(pid)?.course) === c) {
+      // A refresh may have replaced the captured controls while a newer raw draft
+      // prevents rerendering. Unlock the current DOM without harvesting that draft.
+      const bounds = new Map();
+      window.CourseRoadmap.adminGroups(c, curLs()).forEach(group => group.items.forEach((lesson, index) => bounds.set(lesson.i, {up:index === 0,down:index === group.items.length - 1})));
+      $$('[data-lup],[data-ldown]').forEach(button => {
+        const bound = bounds.get(Number(button.dataset.lup ?? button.dataset.ldown));
+        button.disabled = lessonOrderPending.has(pid) || !bound || (button.hasAttribute('data-lup') ? bound.up : bound.down);
+      });
+    }
+    return saved;
   }
   $$('[data-ldel]').forEach(b => b.onclick = () => {
     if (!confirm('حذف هذا الدرس؟')) return;
@@ -6949,6 +7046,33 @@ function editPromo(codeValue) {
 
 
 const lessonSaveQueues = new Map();
+const chapterSaveQueues = new Map();
+const lessonOrderPending = new Set();
+function saveLessonOrder(pid, indices) {
+  const ls = window.LESSONS[pid] || [], identities = ls.slice();
+  const orders = indices.map(idx => ({idx,displayOrder:ls[idx].displayOrder,displayOrderBase:ls[idx].displayOrderBase ?? null}));
+  try { localStorage.setItem('alsaeed_lessons', JSON.stringify(window.LESSONS)); } catch (e) {}
+  if (!A().live) { A().toast('✅ حُفظ ترتيب الدروس محلياً'); return true; }
+  if (!A().adminLessonsReady(pid) || lessonOrderPending.has(pid)) return false;
+  const token = A().token, actor = A().me?.()?.id, courseKey = A().pack(pid)?.course || 'package:' + pid;
+  const sameActor = () => A().token === token && A().me?.()?.id === actor && (!A().isAdmin || A().isAdmin());
+  lessonOrderPending.add(pid); A().beginCatalogWrite?.();
+  const pending = (chapterSaveQueues.get(courseKey) || lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
+    if (!sameActor()) return false;
+    // Only an acknowledged earlier local save may advance a queued move's base.
+    for (const order of orders) if (window.LESSONS[pid] === ls && ls[order.idx] === identities[order.idx])
+      order.displayOrderBase = ls[order.idx].displayOrderBase ?? null;
+    await A().api('/admin/lessons/' + encodeURIComponent(pid), {method:'PUT',body:{kind:'display-order',expectedCount:ls.length,orders}});
+    if (!sameActor()) return false;
+    for (const order of orders) if (window.LESSONS[pid] === ls && ls[order.idx] === identities[order.idx])
+      ls[order.idx].displayOrderBase = order.displayOrder;
+    A().toast('✅ حُفظ ترتيب الدروس على الخادم');
+    return true;
+  }).catch(error => { if (sameActor()) A().toast('تعذّر حفظ ترتيب الدروس: ' + error.message); return false; })
+    .finally(() => { lessonOrderPending.delete(pid); A().endCatalogWrite?.(); });
+  lessonSaveQueues.set(pid,pending); chapterSaveQueues.set(courseKey,pending);
+  return pending;
+}
 function saveLessons(notify) {
   const pid = window.__vidPk || 'grcp-full';
   if (A().live && !A().adminLessonsReady(pid)) {
@@ -6961,7 +7085,7 @@ function saveLessons(notify) {
   if (pk) pk.videos = ls.filter(l => l.vimeo).length;
   try { localStorage.setItem('alsaeed_lessons', JSON.stringify(window.LESSONS)); } catch (e) {}
   if (A().live) {
-    const snapshot = JSON.parse(JSON.stringify(ls));
+    const snapshot = JSON.parse(JSON.stringify(ls)), identities = ls.slice();
     const chapters = JSON.parse(JSON.stringify(A().course(pk?.course)?.chapters || []));
     const token = A().token, actor = A().me?.()?.id, inputVersion = A().editorRevision, route = A().route;
     const sameActor = () => A().token === token && A().me?.()?.id === actor && (!A().isAdmin || A().isAdmin());
@@ -6969,7 +7093,10 @@ function saveLessons(notify) {
       JSON.stringify(ls) === JSON.stringify(snapshot) && A().editorRevision === inputVersion && lessonSaveQueues.get(pid) === pending;
     let chaptersSaved = false, lessonsSaved = false;
     A().beginCatalogWrite?.();
-    const pending = (lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
+    // Packages of the same course share chapter metadata. Keep their complete
+    // save transactions ordered as well as retaining each package's draft guard.
+    const courseQueueKey = pk?.course || 'package:' + pid;
+    const pending = (chapterSaveQueues.get(courseQueueKey) || lessonSaveQueues.get(pid) || Promise.resolve()).catch(() => {}).then(async () => {
       if (!sameActor()) return false;
       // A new lesson must never be persisted before its chapter identity exists.
       if (pk?.course) await A().api('/admin/course-chapters/' + encodeURIComponent(pk.course), {
@@ -6979,6 +7106,13 @@ function saveLessons(notify) {
       await A().api('/admin/lessons/' + encodeURIComponent(pid), { method: 'PUT', body: snapshot });
       lessonsSaved = true;
       if (!sameActor()) return false;
+      // Advance only baselines acknowledged by this save. A newer raw input or
+      // staged rank stays untouched when the guarded reread is intentionally skipped.
+      snapshot.forEach((lesson, i) => {
+        if (lesson.displayOrder === undefined) return;
+        lesson.displayOrderBase = lesson.displayOrder;
+        if (window.LESSONS[pid] === ls && ls[i] === identities[i]) ls[i].displayOrderBase = lesson.displayOrder;
+      });
       const response = await fetch('/api/catalog-availability', { cache: 'no-store' });
       const availability = response.ok ? await response.json() : null;
       if (availability && sameActor() && lessonSaveQueues.get(pid) === pending) window.CATALOG_AVAILABILITY = availability;
@@ -6987,9 +7121,11 @@ function saveLessons(notify) {
         // Re-check after the request: another edit, queued save or logout may have happened while it was in flight.
         if (unchanged() && Array.isArray(rows)) {
           window.LESSONS[pid] = rows.map(l => ({ ch:l.chapter || 0, t:l.title || '', t_en:l.title_en || '',
-            dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '' }));
+            dur:l.duration || '', vimeo:l.vimeo || '', free:!!l.free, files:l.files || [], quiz:l.quiz || [], notes:l.notes || '', notes_en:l.notes_en || '',
+  ...(Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?{displayOrder:l.displayOrder}:{}),
+  ...(Object.hasOwn(l,'displayOrder')?{displayOrderBase:Number.isSafeInteger(l.displayOrder)&&l.displayOrder>=0&&l.displayOrder<=1000000?l.displayOrder:null}:{}) }));
           A().rememberLessons?.(pid);
-          if (A().route === route) A().render();
+          if (A().route === route && (window.__vidPk || 'grcp-full') === pid) A().render();
         }
       }
       if (notify && sameActor()) A().toast('✅ حُفظ على الخادم — ' + ls.length + ' درساً');
@@ -7001,6 +7137,7 @@ function saveLessons(notify) {
       return false;
     }).finally(() => A().endCatalogWrite?.());
     lessonSaveQueues.set(pid, pending);
+    chapterSaveQueues.set(courseQueueKey, pending);
     return pending;
   } else if (notify) {
     A().toast('✅ حُفظ محلياً — اربط الخادم ليُحفظ للجميع');
@@ -7522,7 +7659,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261018-exam-order"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/unified-exam.js?v=20261009-3"></script><script src="/course-roadmap.js?v=20261018-editable-hierarchy"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=15"></script><script src="/package-journey.js?v=1"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <script src="/v17-interactive.js?v=20261015-canonical-playlist"></script>

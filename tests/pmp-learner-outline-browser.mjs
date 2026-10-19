@@ -69,9 +69,9 @@ try {
     await page.locator('[data-lt="content"]').first().click();
     await page.waitForSelector('.learning-outline');
     assert.equal(await page.locator('[data-lesson-index]').count(),8);
-    assert.deepEqual(await page.locator('.learning-outline > details[data-learning-group]').evaluateAll(els=>els.map(e=>e.dataset.learningGroup)),['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
-    assert.deepEqual(await page.locator('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group]').evaluateAll(els=>els.map(e=>e.dataset.learningGroup)),['journey']);
-    assert.equal(await page.locator('.learning-outline > [data-learning-group="exam"] > .pmp-topic-reading').count(),1);
+    assert.deepEqual(await page.locator('.learning-outline > details[data-learning-group]').evaluateAll(els=>els.map(e=>e.dataset.learningGroup)),['intro','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
+    assert.deepEqual(await page.locator('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group]').evaluateAll(els=>els.map(e=>e.dataset.learningGroup)),['exam','journey']);
+    assert.equal(await page.locator('[data-learning-group="intro"] > .learning-outline-children > [data-learning-group="exam"] > .pmp-topic-reading').count(),1);
     const predictive=page.locator('.learning-outline > [data-learning-group="predictive"]');
     await predictive.locator(':scope > summary').click();
     const planning=predictive.locator(':scope > .learning-outline-children > [data-learning-group="planning"]');
@@ -92,15 +92,15 @@ try {
       if(process.env.OUTLINE_SCREENSHOT_DIR){await mkdir(process.env.OUTLINE_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.OUTLINE_SCREENSHOT_DIR,'learner-outline-'+lang+'-'+width+'.png')});}
     }
     await page.locator('[data-lt="plan"]').first().click();
-    assert.equal(await page.locator('[data-plan-topic]').count(),17);
-    assert.deepEqual(await page.locator('[data-plan-topic]').evaluateAll(els=>els.map(e=>e.dataset.planTopic)),['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
+    assert.equal(await page.locator('[data-plan-topic]').count(),16);
+    assert.deepEqual(await page.locator('[data-plan-topic]').evaluateAll(els=>els.map(e=>e.dataset.planTopic)),['intro','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
     assert.equal(await page.locator('.wk.done [data-week="1"]').count(),1);
   }
   await page.evaluate(()=>{APP.pack('pmp-sim').kinds=['exam','quiz'];APP.go('learn/pmp-sim')});
   await page.locator('[data-lt="plan"]').first().click();
   assert.equal(await page.locator('.learner-course-outline [data-lt="content"]').count(),0);
   assert.deepEqual(errors,[]);
-  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 17 root topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
+  console.log('PASS: real learner SPA in AR/EN; exact video index playback and close/reopen, unchanged progress, 16 root topics, 5 nested phases; plan IDs preserved; quiz-only navigation gated; 1440/390/320px without overflow.');
   await context.close();
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 

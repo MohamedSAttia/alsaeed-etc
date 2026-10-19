@@ -177,15 +177,36 @@ export function mountAdmin(app, db, cfg) {
       .all(req.params.pkg));
   });
   r.put('/api/lessons/:pkg', guard, (req, res) => {
-    const list = Array.isArray(req.body) ? req.body : [];
-    const del = db.prepare('DELETE FROM lessons WHERE package_id=?');
-    const ins = db.prepare(`INSERT INTO lessons (package_id,idx,title,chapter,duration,vimeo,free)
-      VALUES (?,?,?,?,?,?,?)`);
+    const list = req.body;
+    if (!Array.isArray(list) || list.some(l => !l || typeof l !== 'object' || Array.isArray(l) ||
+        typeof (l.t || l.title) !== 'string' || !(l.t || l.title).trim() ||
+        ['t','title','dur','duration','vimeo'].some(key => l[key] !== undefined && typeof l[key] !== 'string') ||
+        ['ch','chapter'].some(key => l[key] !== undefined && !(typeof l[key] === 'string' || Number.isSafeInteger(l[key]) && l[key] >= 0)) ||
+        l.free !== undefined && ![true,false,0,1].includes(l.free)))
+      return res.status(400).json({ error: 'قائمة الدروس غير صحيحة' });
+    const existing = db.prepare('SELECT * FROM lessons WHERE package_id=? ORDER BY idx').all(req.params.pkg);
+    // This legacy editor has no stable-order UI. Reject physical row moves rather
+    // than moving progress keys; use the unified content editor for ordering.
+    if (list.some((l, i) => {
+      if (l.idx !== undefined && l.idx !== i) return true;
+      const title = l.t || l.title, video = l.vimeo;
+      const match = existing.filter(row => row.title === title || video && row.vimeo === video);
+      return match.length === 1 && match[0].idx !== i;
+    })) return res.status(409).json({ error: 'استخدم محرر المحتوى الموحد لترتيب الدروس دون تغيير تقدم المتدربين' });
+    const update = db.prepare('UPDATE lessons SET title=?,chapter=?,duration=?,vimeo=?,free=? WHERE package_id=? AND idx=?');
+    const insert = db.prepare('INSERT INTO lessons (package_id,idx,title,chapter,duration,vimeo,free) VALUES (?,?,?,?,?,?,?)');
     db.transaction(() => {
-      del.run(req.params.pkg);
-      list.forEach((l, i) => ins.run(req.params.pkg, i, l.t || l.title || '',
-        l.ch != null ? l.ch : (l.chapter || 0), l.dur || l.duration || '',
-        l.vimeo || '', l.free ? 1 : 0));
+      list.forEach((l, i) => {
+        const old = existing.find(row => row.idx === i), title = l.t || l.title;
+        const chapter = l.ch ?? l.chapter ?? old?.chapter ?? 0;
+        const duration = l.dur ?? l.duration ?? old?.duration ?? '';
+        const video = l.vimeo ?? old?.vimeo ?? '', free = l.free === undefined ? old?.free || 0 : l.free ? 1 : 0;
+        // UPDATE intentionally leaves translations, notes, files, quizzes and
+        // presentation order untouched, even when a legacy payload omits them.
+        if (old) update.run(title,chapter,duration,video,free,req.params.pkg,i);
+        else insert.run(req.params.pkg,i,title,chapter,duration,video,free);
+      });
+      db.prepare('DELETE FROM lessons WHERE package_id=? AND idx>=?').run(req.params.pkg,list.length);
     })();
     res.json({ ok: true, count: list.length });
   });

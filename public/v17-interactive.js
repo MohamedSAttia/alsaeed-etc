@@ -98,7 +98,7 @@ function visibleVideoGroups(pkgId) {
   const lessons=(window.LESSONS&&window.LESSONS[pkgId])||[];
   const course=window.APP.course(window.APP.pack(pkgId)?.course);
   let groups;
-  if(course?.id==='pmp'&&window.CourseRoadmap?.videoGroups)groups=window.CourseRoadmap.videoGroups(course,lessons);
+  if(course&&window.CourseRoadmap?.videoGroups)groups=window.CourseRoadmap.videoGroups(course,lessons);
   else if(course?.id==='pmp'&&window.CourseRoadmap?.learnerGroups)groups=window.CourseRoadmap.learnerGroups(course,lessons);
   else {
     // Other courses retain the existing saved-chapter playback order.
@@ -175,6 +175,11 @@ function nextVideo(focus=false) {
   if(position<0)return;
   const index=order[position+1];
   if(index!==undefined) selectVideo(index,focus?'#ivNext':null);
+}
+function previousVideo() {
+  if (!V) return;
+  const order=visibleVideoOrder(V.pkgId),position=order.indexOf(V.lessonIdx);
+  if(position>0)selectVideo(order[position-1],'#ivPrev');
 }
 function selectVideo(index,focusSelector) {
   if (!V || !visibleVideoOrder(V.pkgId).includes(index)) return;
@@ -325,6 +330,7 @@ function render() {
           'Dots on the bar are short checkpoints — click one to answer, or wait for it while watching.')}</p>` : ''}
         <div class="iv-controls">
           <button class="btn o" id="ivPause" type="button">${T('إيقاف الفيديو مؤقتاً','Pause video')}</button>
+          <button class="btn o" id="ivPrev" type="button" ${position>0?'':'disabled'}>${T('الفيديو السابق','Previous video')}</button>
           <button class="btn p" id="ivNext" type="button" ${hasNext?'':'disabled'}>${T('الفيديو التالي','Next video')} ${T('←','→')}</button>
           <label class="iv-autoplay"><input type="checkbox" id="ivAutoNext" ${V.autoNext?'checked':''}> ${T('تشغيل التالي تلقائياً','Autoplay next video')}</label>
         </div>
@@ -434,6 +440,7 @@ function bind() {
   const auto=$('#ivAutoNext');if(auto)auto.onchange=()=>{V.autoNext=auto.checked;localStorage.setItem('alsaeed_auto_next',String(auto.checked));};
   const pause=$('#ivPause');if(pause)pause.onclick=async()=>{if(!player)return;try{const stopped=await player.getPaused();if(stopped){await player.play();pause.textContent=T('إيقاف الفيديو مؤقتاً','Pause video');}else{await player.pause();pause.textContent=T('استئناف الفيديو','Resume video');}}catch(e){}};
   const next=$('#ivNext');if(next)next.onclick=()=>nextVideo(true);
+  const previous=$('#ivPrev');if(previous)previous.onclick=previousVideo;
   const quiz = $('#ivLessonQuiz'); if (quiz) quiz.onclick = () => {
     const pkg = V.pkgId, idx = V.lessonIdx;
     close(); if(window.PackageJourney)window.PackageJourney.lessonTest(pkg,idx);else if(window.runLessonQuiz)window.runLessonQuiz(pkg,'lesson'+idx);
@@ -483,3 +490,4 @@ if (document.body) {
   mo.observe(document.body, { childList: true, subtree: true }); hook();
 });
 })();
+

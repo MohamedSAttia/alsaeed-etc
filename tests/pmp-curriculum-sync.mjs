@@ -1,3 +1,4 @@
+import { chapterSlotFloor, validChapterAllocation } from '../curriculum-slots.js';
 /** Self-contained local regression; all courses, IDs, lessons and progress are synthetic.
  * Run from the repository root: node tests/pmp-curriculum-sync.mjs
  * No browser, network, database, live snapshot, or external test dependency is used.
@@ -67,14 +68,14 @@ const progress = { lessons: { 0: true, 3: true, 7: true, 17: true }, weeks: { 2:
 const original = JSON.stringify({ course, lessons, progress });
 freeze(course); freeze(lessons); freeze(progress);
 const tree = r.learnerGroups(course, lessons);
-assert.equal(tree.filter(group => !group.originalChapter).length, 17);
-assert.deepEqual(keys(tree[0].children), ['journey']);
+assert.equal(tree.filter(group => !group.originalChapter).length, 16);
+assert.deepEqual(keys(tree[0].children), ['exam','journey']);
 assert.deepEqual(indices(find(tree, 'intro')), [0, 1, 2, 3, 5, 6, 10, 14]);
 assert.deepEqual(indices(find(tree, 'framework')), [7, 8, 9]);
 assert.deepEqual(indices(find(tree, 'exam-guidelines')), [11, 12, 13, 15, 16]);
 assert.equal(tree.at(-1).key, 'exam-guidelines');
 assert.deepEqual(indices(find(tree, 'exam')), [4]);
-assert.deepEqual(keys(r.topics(course)), ['intro','exam','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
+assert.deepEqual(keys(r.topics(course)), ['intro','framework','agile','predictive','hybrid','people','process','business','value','principles','lifecycles','ai','final-reviews','workshops','exam-eve','exam-guidelines']);
 for (const groupKey of ['source_0', 'source_1']) assert.equal(find(tree, groupKey), undefined);
 for (const ref of ['chapter:0', 'chapter:1']) assert(!r.chapterChoices(course).some(choice => choice.ref === ref));
 const readings = flatten(tree).flatMap(group => [group.readingKey, ...(group.readings || []).map(reading => reading.key)]).filter(Boolean);
@@ -174,7 +175,7 @@ r.renameChapter(authored, 'chapter:1', 'فصل محفوظ ومعدل', 'Renamed 
 reload(); verifyAuthored('Legacy source rename');
 assert.deepEqual(indices(find(r.learnerGroups(authored, authoredLessons), 'source_1')), [1]);
 
-for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline:exam', -1], ['outline:executing', 1], ['outline:review', -1]]) {
+for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline:journey', -1], ['outline:executing', 1], ['outline:review', -1]]) {
   const beforeChapters = clone(authored.chapters);
   assert.equal(r.moveChapter(authored, ref, delta), true, ref + ' moves');
   reload(); verifyAuthored('Move ' + ref);
@@ -186,9 +187,9 @@ for (const [ref, delta] of [['outline:framework', 1], [customRef, -1], ['outline
     }
   }
 }
-const beforeSingletonMove = JSON.stringify(authored);
+const beforeBoundaryMove = JSON.stringify(authored);
 assert.equal(r.moveChapter(authored, 'outline:journey', -1), false);
-assert.equal(JSON.stringify(authored), beforeSingletonMove);
+assert.equal(JSON.stringify(authored), beforeBoundaryMove);
 for (let n = 0; n < 80; n++) {
   const publishedKeys = keys(flatten(r.topics(authored)));
   const choices = r.chapterChoices(authored).filter(choice => publishedKeys.includes(choice.key));
@@ -216,8 +217,8 @@ assert(start >= 0 && end > start);
 let handler, storedCourses = JSON.stringify([{ id: 'pmp', chapters: [] }]), writes = 0;
 vm.runInNewContext(server.slice(start, end), {
   app: { put: (_path, ...handlers) => { handler = handlers.at(-1); } }, auth() {}, admin() {},
-  setting: () => storedCourses,
-  db: { prepare: () => ({ run: value => { storedCourses = value; writes++; } }) }
+  chapterSlotFloor, validChapterAllocation, setting: key => key === 'content_courses' ? storedCourses : '[]',
+  db: { transaction: fn => fn, prepare: () => ({ all: () => [], run: value => { storedCourses = value; writes++; } }) }
 });
 let status = 200, response;
 handler({ params: { course: 'pmp' }, body: { chapters: clone(authored.chapters) } }, {
