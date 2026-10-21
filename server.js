@@ -1,3 +1,4 @@
+import { mountCourseReviews } from './course-reviews.js';
 import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
 import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent } from './trainee-tracking.js';
 /* ============================================================
@@ -157,6 +158,7 @@ const readList = key => {
   try { const value = JSON.parse(setting(key) || '[]'); return Array.isArray(value) ? value : []; }
   catch { return []; }
 };
+mountCourseReviews({ app, db, auth, readList });
 let v15Catalog = { courses:[], packages:[], systems:[], promos:DEFAULT_PROMOS_V15 };
 try {
   const parsed = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'v15-catalog.json'), 'utf8'));

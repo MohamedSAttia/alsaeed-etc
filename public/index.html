@@ -4544,7 +4544,7 @@ function courseView(id) {
   const minimums=Object.values(pkgs.reduce((groups,p)=>{if(p.price!==null&&p.price!==''&&Number.isFinite(Number(p.price))&&Number(p.price)>=0&&(!groups[p.currency]||Number(p.price)<Number(groups[p.currency].price)))groups[p.currency]=p;return groups},Object.create(null)));
   const prices=minimums.map(p=>`<span class="cd-price-value"><bdi dir="ltr"><b>${money(p.price)}</b> <span>${esc(p.currency||'')}</span></bdi></span>`).join('');
   const groupLink='https://wa.me/'+(B.saudiWhatsapp||B.whatsapp)+'?text='+encodeURIComponent(tr('أرغب في الاستفسار عن تدريب مجموعة في برنامج ','I would like to ask about team training for ')+publicTitle(c));
-  const sectionNav=[['cd-overview',tr('نظرة عامة','Overview')],['cd-outcomes',tr('ما ستتعلّمه','Learning outcomes')],['cd-topics',tr('المحاور','Course topics')],['v25-choose',tr('الباقات والأسعار','Packages & prices')],['cd-schedule',tr('المواعيد','Schedule')],['cd-questions',tr('أسئلة شائعة','FAQs')]];
+  const sectionNav=[['cd-overview',tr('نظرة عامة','Overview')],['cd-outcomes',tr('ما ستتعلّمه','Learning outcomes')],['cd-topics',tr('المحاور','Course topics')],['v25-choose',tr('الباقات والأسعار','Packages & prices')],['cd-schedule',tr('المواعيد','Schedule')],['cd-questions',tr('أسئلة شائعة','FAQs')],['cd-reviews',tr('التقييمات','Reviews')]];
   return `<section class="course-hero-v8 course-design-hero" data-course-experience="${esc(c.id)}"><div class="wrap cd-hero-grid">
     <div class="cd-hero-copy"><div class="crumb"><a href="#programs" data-r="programs">${tr('البرامج التدريبية','Training programs')}</a><span aria-hidden="true"> / </span><bdi dir="ltr">${esc(c.code)}</bdi></div>
       <span class="cd-category">${esc(publicTitle(trackVisual(c)))}</span><h1>${esc(publicTitle(c))}</h1><p class="cd-lead">${esc(summary)}</p>
@@ -4981,6 +4981,7 @@ function dash() {
           <span><b class="num" style="color:var(--ink)">${pc}%</b> ${siteEnglish()?'complete':'مكتمل'}</span>
           <span>${siteEnglish()?'Days remaining':'يتبقّى'} <b class="num" style="color:var(--ink)">${left}</b> ${siteEnglish()?'':'يومًا'}</span>
         </div>
+        <a class="btn o full" href="#course/${esc(x.p.course)}">★ ${siteEnglish()?'Rate your course':'قيّم دورتك'}</a>
         <button class="btn p full" data-r="learn/${x.id}">${siteEnglish()?(pc?'Continue learning':'Start learning'):(pc?'أكمل الدراسة':'ابدأ الآن')} ←</button>
       </div>`;
     }).join('')}</div>`
@@ -7768,6 +7769,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/public-experience.js?v=20261010-design"></script>
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
 <script src="/package-experience.js?v=20261014-completion-only"></script>
+<link rel="stylesheet" href="/course-reviews.css?v=20261021"><script src="/course-reviews.js?v=20261021"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
 <script src="/completion-certificate.js?v=20261015-reference"></script>
 <script src="/certificate-library.js?v=20261015"></script>
