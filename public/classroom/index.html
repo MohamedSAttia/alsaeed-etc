@@ -550,10 +550,84 @@ function examQuestion(exam, item) {
 function isLegacyFullExam(exam) {
   return !!exam && ['advanced', 'full'].includes(exam.spec) && exam.items.some(it => !it.id.startsWith('RMPSIM22-'));
 }
-function questionFigure(q) {
-  const f = q.figure;
-  if (!f || !/^\/classroom\/figures\/rmp-sim-\d{3}\.svg$/.test(f.src)) return '';
-  return `<figure class="question-figure" dir="ltr"><img src="${esc(f.src)}" alt="${esc((f.alt || {}).en || 'Risk analysis chart')}" style="display:block;width:100%;max-width:900px;margin:auto;height:auto;background:white;border:1px solid #d9e1e8;border-radius:12px;padding:10px" /></figure>`;
+// Authored chart labels are translated explicitly; unknown labels fail closed.
+const EXAM_FIGURE_AR = {
+  'A':'A', 'B':'B', 'A: fee -40':'A: رسم −40', 'B: certain +110; no fee':'B: عائد مؤكد +110؛ دون رسوم',
+  'Activity A':'النشاط A', 'Activity B':'النشاط B', 'Adaptive decision':'قرار تكيفي',
+  'After':'بعد', 'Before':'قبل', 'After hedging':'بعد التحوط', 'Airport completion duration':'مدة إنجاز المطار',
+  'Bad state (p=.5)':'حالة غير مواتية (احتمال 0.5)', 'Good state (p=.5)':'حالة مواتية (احتمال 0.5)',
+  'Bid decision: amounts in thousand; A fee paid once':'قرار العطاء: المبالغ بالآلاف؛ رسوم A تُدفع مرة واحدة',
+  'Chip plant total modeled cost':'إجمالي تكلفة مصنع الرقائق وفق النموذج',
+  'Component 1 lead time (days)':'مهلة توريد المكوّن 1 (أيام)', 'Component 2 lead time (days)':'مهلة توريد المكوّن 2 (أيام)',
+  'Cost (million)':'التكلفة (بالملايين)', 'Cost change (thousand)':'تغيّر التكلفة (بالآلاف)',
+  'Criticality':'الحرجية', 'Criticality and correlation measure different attributes':'الحرجية والارتباط يقيسان خصائص مختلفة',
+  'Cumulative probability':'الاحتمال التراكمي', 'Days':'الأيام', 'Decision':'القرار',
+  'Dependence unspecified':'الاعتمادية غير محددة', 'Drug development: conditional branch probabilities':'تطوير دواء: احتمالات الفروع الشرطية',
+  'Duration (days)':'المدة (بالأيام)', 'Duration correlation':'ارتباط المدة',
+  'Expected decision value with imperfect information':'القيمة المتوقعة للقرار مع معلومات غير تامة',
+  'Expected value (thousand)':'القيمة المتوقعة (بالآلاف)', 'FX':'سعر الصرف',
+  'Illustrative relative density':'كثافة نسبية توضيحية', 'License reuse succeeds / fails: two conditional modes':'نجاح أو فشل إعادة استخدام الترخيص: نمطان شرطيان',
+  'Marginal probabilities do not determine joint success':'الاحتمالات الهامشية لا تحدد النجاح المشترك',
+  'Marginal probability':'الاحتمال الهامشي', 'Market accepts | success: .7':'قبول السوق بشرط النجاح: 0.7',
+  'Market rejects | success: .3':'رفض السوق بشرط النجاح: 0.3', 'Most likely: 9':'الأرجح: 9',
+  'Observed co-movement: shared customs conditions':'تحرك مشترك مرصود: ظروف جمركية مشتركة',
+  'One-at-a-time sensitivity; other inputs held fixed':'حساسية متغير واحد في كل مرة؛ ثبات بقية المدخلات',
+  'Optimistic: 6':'المتفائل: 6', 'Payoff table: thousand; information precedes decision':'جدول العوائد: بالآلاف؛ المعلومات تسبق القرار',
+  'Pessimistic: 24':'المتشائم: 24', 'Pipeline response comparison':'مقارنة استجابات خط الأنابيب',
+  'Probability of on-time completion':'احتمال الإنجاز في الموعد', 'Productivity':'الإنتاجية',
+  'Research failure: .4':'فشل البحث: 0.4', 'Research success: .6':'نجاح البحث: 0.6', 'Rework':'إعادة العمل',
+  'Sensitivity ranking before and after hedging':'ترتيب الحساسية قبل التحوط وبعده', 'Study cost: 20':'تكلفة الدراسة: 20',
+  'Supplier':'المورّد', 'Tested cost impact range (thousand)':'نطاق أثر التكلفة المختبر (بالآلاف)',
+  'Three-point estimates: conventional PERT inputs':'تقديرات ثلاثية النقاط: مدخلات PERT التقليدية',
+  'Total cost (million)':'التكلفة الإجمالية (بالملايين)', 'Treatment options: same median, different upper tails':'خيارات المعالجة: وسيط واحد وذيول عليا مختلفة',
+  'Within cost':'ضمن التكلفة', 'Within schedule':'ضمن الجدول', 'Without study':'دون دراسة',
+  'before study cost':'قبل تكلفة الدراسة', 'p=.4: -200 before fee':'احتمال 0.4: −200 قبل الرسوم',
+  'p=.6: +400 before fee':'احتمال 0.6: +400 قبل الرسوم'
+};
+const EXAM_FIGURE_CACHE = new Map();
+function examFigureSource(q, lang) {
+  const f = q?.figure;
+  const src = f && (f.sources?.[lang] || f['src_' + lang] || ((f.lang || 'en') === lang || (lang === 'ar' && !f.lang) ? f.src : ''));
+  return typeof src === 'string' && /^\/classroom\/figures\/rmp-sim-\d{3}(?:-(?:ar|en))?\.svg$/.test(src) ? src : '';
+}
+function examFigureNeedsTranslation(q, lang) { return lang === 'ar' && q.figure && !q.figure.sources?.ar && !q.figure.src_ar && q.figure.lang !== 'ar'; }
+async function translatedExamFigure(src) {
+  if (EXAM_FIGURE_CACHE.has(src)) return EXAM_FIGURE_CACHE.get(src);
+  const pending = (async () => {
+    const response = await fetch(src); if (!response.ok) throw new Error('chart-load');
+    const doc = new DOMParser().parseFromString(await response.text(), 'image/svg+xml');
+    if (doc.querySelector('parsererror') || !doc.documentElement || doc.documentElement.localName !== 'svg') throw new Error('chart-format');
+    for (const node of doc.querySelectorAll('text')) {
+      const text = node.textContent.trim();
+      if (!/[a-zA-Z]/.test(text)) continue;
+      if (!Object.prototype.hasOwnProperty.call(EXAM_FIGURE_AR, text)) throw new Error('chart-translation');
+      node.textContent = EXAM_FIGURE_AR[text];
+      if (/[\u0600-\u06ff]/.test(node.textContent)) {
+        node.style.setProperty('direction', 'rtl'); node.style.setProperty('unicode-bidi', 'plaintext');
+        const anchor = node.style.getPropertyValue('text-anchor') || node.getAttribute('text-anchor') || 'start';
+        if (anchor !== 'middle') node.style.setProperty('text-anchor', anchor === 'end' ? 'start' : 'end');
+      }
+    }
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(doc));
+  })();
+  EXAM_FIGURE_CACHE.set(src, pending);
+  try { const result = await pending; EXAM_FIGURE_CACHE.set(src, result); return result; }
+  catch (error) { EXAM_FIGURE_CACHE.delete(src); throw error; }
+}
+async function prepareExamFigures(questions, lang) {
+  await Promise.all(questions.filter(q => examFigureNeedsTranslation(q, lang)).map(q => translatedExamFigure(examFigureSource(q, lang))));
+}
+function questionFigure(q, lang = 'en') {
+  const f = q.figure, src = examFigureSource(q, lang);
+  if (!f) return '';
+  if (!src) return `<p class="muted">${lang === 'en' ? 'Chart unavailable in this language.' : 'الرسم غير متاح بهذه اللغة.'}</p>`;
+  const translated = examFigureNeedsTranslation(q, lang), cached = EXAM_FIGURE_CACHE.get(src), ready = !translated || typeof cached === 'string';
+  return `<figure class="question-figure" dir="${examDirection(lang)}" ${!ready ? `data-exam-figure="${esc(src)}"` : ''}><img ${ready ? `src="${esc(translated ? cached : src)}"` : 'hidden'} alt="${esc(f.alt?.[lang] || (lang === 'en' ? 'Risk analysis chart' : 'رسم تحليل المخاطر'))}" style="display:block;width:100%;max-width:900px;margin:auto;height:auto;background:white;border:1px solid #d9e1e8;border-radius:12px;padding:10px" />${!ready ? '<span>جارٍ تحميل الرسم بالعربية…</span>' : ''}</figure>`;
+}
+function hydrateExamFigures() {
+  $$('[data-exam-figure]', view).forEach(figure => {
+    translatedExamFigure(figure.dataset.examFigure).then(src => { if (!figure.isConnected) return; const img = $('img', figure); img.src = src; img.hidden = false; $('span', figure)?.remove(); }).catch(() => { if (figure.isConnected) figure.textContent = 'الرسم غير متاح بالعربية. لم تُعرض نسخة بلغة أخرى.'; });
+  });
 }
 function applyContent(rows) {
   CONTENT = rows || [];
@@ -664,7 +738,7 @@ function render() {
   const key = routes[name] ? name : 'home';
   $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.k === (key === 'lesson' ? 'learn' : key === 'run' || key === 'result' || key === 'setup' ? 'exams' : key === 'play' || key === 'customgame' ? 'games' : key === 'live' ? 'tasks' : key)));
   view.innerHTML = '';
-  view.className = 'fade';
+  view.className = 'fade'; view.removeAttribute('lang'); view.removeAttribute('dir');
   const blocked = lockedRoute(key, args);
   if (blocked) { view.innerHTML = `<div class="auth-wrap"><div class="card pad stack" style="max-width:670px;margin:auto"><span class="eyebrow">برنامج 27 سبتمبر – 1 أكتوبر 2026</span><h1>هذا اليوم لم يُفتح بعد</h1><p>يمكنك الاطلاع على خطة الأيام الخمسة، وتُفتح دروس وأنشطة وتمارين واختبارات كل يوم في موعده بتوقيت الرياض.</p><p class="small muted">اليوم ${DN[blocked]} يُفتح في ${esc(D.days[blocked-1]?.date.ar || 'موعده المحدد')}. المتاح الآن حتى اليوم ${DN[Math.max(1, RELEASED_DAY)]}.</p><div class="row"><a class="btn" href="#plan">عرض الخطة</a><a class="btn g" href="#learn-${Math.max(1,RELEASED_DAY)}">محتوى اليوم المتاح</a></div></div></div>`; return; }
   routes[key](...args);
@@ -1368,59 +1442,98 @@ const TYPES = {
   weak: () => { const st = qstat(); const w = D.domains.map(d => [d.n, st.byD[d.n] ? st.byD[d.n][0] / st.byD[d.n][1] : 0]).sort((a, b) => a[1] - b[1]).slice(0, 2).map(x => x[0]); return { label: 'أضعف مجالين: ' + w.join(' و'), qs: pickQs(D.q.filter(q => w.includes(q.d)), 30), min: 40 }; },
   custom: () => { const c = S.custom || { doms: [1, 2, 3, 4, 5], n: 20, src: 'all' }; const pool = D.q.filter(q => c.doms.includes(q.d) && (c.src === 'all' || q.src === c.src)); return { label: 'اختبار مخصص — ' + c.n + ' سؤالًا', qs: pickQs(pool, c.n), min: Math.round(c.n * 1.3) }; },
 };
-const TOOLS = [['tr', 'ترجمة السؤال', 'تبديل فوري بين اللغتين', '🌐'], ['flag', 'Flag for Review', 'ارجع إليه لاحقًا', '⚑'], ['strike', 'شطب الخيارات', 'استبعاد بصري', '✕'], ['calc', 'Calculator', 'مع شريط PMP', '🖩'], ['wb', 'Whiteboard', 'سبورة للرسم والحساب', '✎'], ['hl', 'Highlight', 'تظليل نص السؤال', '▍'], ['check', 'Check Answer', 'تحقّق فوري (التدريب فقط)', '✓'], ['ai', 'AI — Dr Mohamed Attia', 'توضيح بعد كشف الإجابة', '✦']];
+// Language belongs to the attempt, not the page or a remembered preference.
+function validExamLanguage(lang) { return lang === 'ar' || lang === 'en'; }
+function examText(value, lang, missing = true) {
+  const text = value && typeof value === 'object' ? value[lang] : '';
+  return typeof text === 'string' && text.trim() ? text : (missing ? (lang === 'en' ? 'Translation unavailable for this language.' : 'الترجمة غير متاحة بهذه اللغة.') : '');
+}
+function examQuestionAvailable(q, lang) {
+  const options = q?.o?.[lang];
+  return validExamLanguage(lang) && (!q?.figure || !!examFigureSource(q, lang)) && !!examText(q?.q, lang, false) && Array.isArray(options) && options.length >= 2 && options.every(x => typeof x === 'string' && x.trim()) && Array.isArray(q.c) && q.c.length > 0 && q.c.every(k => Number.isInteger(k) && k >= 0 && k < options.length);
+}
+function examReference(q, lang) {
+  if (q.ref && typeof q.ref === 'object') return examText(q.ref, lang);
+  const ref = typeof q.ref === 'string' ? q.ref.trim() : '';
+  const arabic = /[\u0600-\u06ff]/.test(ref);
+  return ref && (lang === 'ar' ? arabic : !arabic) ? ref : (lang === 'en' ? 'Reference translation unavailable.' : 'ترجمة المصدر غير متاحة.');
+}
+function examDirection(lang) { return lang === 'en' ? 'ltr' : 'rtl'; }
+function examViewLanguage(lang) { view.lang = lang; view.dir = examDirection(lang); }
+function chooseAttemptLanguage(attempt, resume) {
+  view.innerHTML = `<div class="card pad stack"><h2>اختر لغة المحاولة المحفوظة / Choose the saved attempt language</h2><p>ستبقى إجاباتك ووقتك المحفوظ كما هما. / Your saved answers and time will be preserved.</p><div class="row"><button class="btn" data-resume-lang="ar">العربية</button><button class="btn" data-resume-lang="en">English</button></div><a href="#exams" class="btn g">رجوع / Back</a></div>`;
+  $$('[data-resume-lang]', view).forEach(b => b.onclick = () => { attempt.lang = b.dataset.resumeLang; save(); resume(); });
+}
+const TOOLS = [['flag', 'تعليم للمراجعة', 'Flag for review', 'ارجع إليه لاحقًا', 'Return to it later', '⚑'], ['strike', 'شطب الخيارات', 'Strike out options', 'استبعاد بصري', 'Visual elimination', '✕'], ['calc', 'الآلة الحاسبة', 'Calculator', 'للحسابات أثناء الاختبار', 'Calculations during the exam', '🖩'], ['wb', 'السبورة', 'Whiteboard', 'للرسم والحساب', 'Drawing and calculations', '✎'], ['hl', 'تظليل', 'Highlight', 'تظليل نص السؤال', 'Highlight question text', '▍'], ['check', 'تحقّق من الإجابة', 'Check answer', 'التدريب فقط', 'Practice mode only', '✓'], ['ai', 'المساعد الذكي', 'AI assistant', 'توضيح بعد كشف الإجابة', 'Explanation after revealing the answer', '✦']];
 function startExam(spec, mode) { go('#setup-' + spec.replace(':', '~') + (mode ? '~' + mode : '')); }
 document.addEventListener('click', e => {
   const s = e.target.closest('[data-start]'); if (s) { e.preventDefault(); startExam(s.dataset.start, s.dataset.mode); }
   const g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); go(g.dataset.go); }
 });
-// ------------------------------------------------ setup screen (like the real pre-exam screen)
+// Every new entry, including retries and assignments, requires a fresh explicit choice.
 routes.setup = (...args) => {
   const parts = args.join('-').split('~');
   const spec = parts[0] + (parts[1] && !['exam', 'practice'].includes(parts[1]) ? ':' + parts[1] : '');
   const forced = parts.find(p => p === 'exam' || p === 'practice');
-  const [t, a] = spec.split(':');
-  if (!TYPES[t]) return go('#exams');
-  const def = TYPES[t](a);
-  const P = S.prefs || (S.prefs = { name: '', lang: 'ar', tools: { tr: 1, flag: 1, strike: 1, calc: 1, wb: 1, hl: 1, check: 1, ai: 1 }, proctor: 'none', mode: 'practice' });
-  if (forced) P.mode = forced;
-  if (def.full) P.mode = P.mode || 'exam';
-  const nAr = def.qs.filter(q => q.q.ar).length, nEn = def.qs.filter(q => q.q.en).length;
-  view.innerHTML = `<div class="setup card">
-    <div class="setup-head"><span class="brand-mark">RMP</span><div><b>أكاديمية RMP</b><span class="tiny muted en">Dr. Mohamed Attia · PMI-RMP ATP</span></div></div>
-    <h2>${esc(def.label)}</h2>
-    <p class="small muted">اقرأ الإرشادات قبل البدء — ${P.mode === 'exam' ? 'لا يمكن إيقاف المؤقّت بعد البدء إلا في الاستراحة المسموحة.' : 'وضع التدريب يسمح بالتحقق الفوري من الإجابة.'}</p>
-    <div class="row small" style="gap:14px"><span>📝 <b class="num">${def.qs.length}</b> سؤالًا</span><span>⏱ <b class="num">${def.min}</b> دقيقة</span><span>🧩 اختيار من متعدد + متعدد الإجابات</span>${def.full ? '<span>☕ استراحة 10 دقائق بعد السؤال 58</span>' : ''}</div>
-    <label class="f"><b class="setup-lbl">👤 اسم المتدرب</b><input type="text" id="sName" value="${esc(P.name)}" placeholder="اكتب اسمك كما سيظهر في التقرير"></label>
-    <div><b class="setup-lbl">🌐 لغة الاختبار</b><p class="tiny muted">تُعرض الأسئلة بهذه اللغة، ويمكنك ترجمة أي سؤال أثناء الاختبار بضغطة.</p>
-      <div class="grid g2">${[['ar', 'SA', 'العربية', nAr], ['en', 'GB', 'English', nEn]].map(l => `<button class="choice ${P.lang === l[0] ? 'on' : ''}" data-lang2="${l[0]}"><span class="en" style="font-weight:700">${l[1]}</span><b>${l[2]}</b><span class="tiny muted">${l[3]} متاح</span></button>`).join('')}</div></div>
-    <div><b class="setup-lbl">🛠 الأدوات</b><div class="grid g4" style="margin-top:6px">${TOOLS.map(x => `<label class="tool ${P.tools[x[0]] ? 'on' : ''}"><input type="checkbox" data-tool="${x[0]}" ${P.tools[x[0]] ? 'checked' : ''}><span class="ti">${x[3]}</span><span><b class="${/[a-z]/i.test(x[1][0]) ? 'en' : ''}">${x[1]}</b><span class="tiny muted" style="display:block">${x[2]}</span></span></label>`).join('')}</div></div>
-    <div><b class="setup-lbl">🎓 الوضع</b><div class="grid g2" style="margin-top:6px">${[['practice', 'تدريب', 'تحقّق فوري وتفسير لكل سؤال'], ['exam', 'اختبار حقيقي', 'مؤقّت كامل، بلا تصحيح حتى التسليم، تقرير تدريبي بمستويات أداء مشابهة لـ PMI']].map(m => `<button class="choice ${P.mode === m[0] ? 'on' : ''}" data-mode2="${m[0]}"><b>${m[1]}</b><span class="tiny muted">${m[2]}</span></button>`).join('')}</div></div>
-    <div><b class="setup-lbl">📹 المراقبة (OnVUE)</b><div class="grid g2" style="margin-top:6px">${[['cam', 'مع المراقبة', 'كاميرا + كشف ضوضاء السلوك + ملء الشاشة'], ['none', 'بلا مراقبة', 'تدريب هادئ']].map(m => `<button class="choice ${P.proctor === m[0] ? 'on' : ''}" data-pr="${m[0]}"><b>${m[1]}</b><span class="tiny muted">${m[2]}</span></button>`).join('')}</div></div>
-    <div class="blk small"><b>📌 إرشادات</b><ul style="margin:6px 0 0;padding-inline-start:18px">
-      <li>تُعطَّل أوامر النسخ والطباعة المعتادة داخل الاختبار، وتُسجَّل بعض مخالفات التنقل. لا يستطيع المتصفح منع تصوير الشاشة أو التصوير الخارجي بصورة مضمونة.</li>
-      <li>المؤقّت لا يتوقف إلا في الاستراحة المسموحة، وعند انتهائه يُسلَّم الاختبار تلقائيًا.</li>
-      <li>الأسئلة غير المُجاب عنها تُحتسب خاطئة — لا خصم على التخمين.</li>
-      <li>في وضع المراقبة: مغادرة الشاشة أو الخروج من ملء الشاشة تُسجَّل مخالفة، وبعد 5 مخالفات يُسلَّم الاختبار تلقائيًا.</li>
-      <li>يُعرض تقرير أداء تدريبي بمستويات PMI (فوق/ضمن/دون المستهدف/يحتاج تحسين) بعد التسليم.</li></ul></div>
-    <div class="row" style="justify-content:flex-start"><button class="btn acc" id="goExam">ابدأ الاختبار</button><a class="btn g" href="#exams">رجوع</a></div>
-  </div>`;
-  $('#sName').oninput = e => { P.name = e.target.value; save(); };
-  $$('[data-lang2]').forEach(b => b.onclick = () => { P.lang = b.dataset.lang2; save(); render(); });
-  $$('[data-mode2]').forEach(b => b.onclick = () => { P.mode = b.dataset.mode2; save(); render(); });
-  $$('[data-pr]').forEach(b => b.onclick = () => { P.proctor = b.dataset.pr; save(); render(); });
-  $$('[data-tool]').forEach(c => c.onchange = () => { P.tools[c.dataset.tool] = c.checked ? 1 : 0; save(); c.closest('.tool').classList.toggle('on', c.checked); });
-  $('#goExam').onclick = async () => {
-    if (!def.qs.length) return toast('لا توجد أسئلة كافية لهذا الاختبار');
-    S.cur = { spec, label: def.label, mode: P.mode, full: !!def.full, name: P.name || 'المتدرب', lang: P.lang, tools: Object.assign({}, P.tools), proctor: P.proctor,
-      bankRevision: 'eco2022-simulation-v2', questions: Object.fromEntries(def.qs.map(q => [q.id, JSON.parse(JSON.stringify(q))])),
-      items: def.qs.map(q => ({ id: q.id, ord: (NOSHUF.test(q.o.en.concat(q.o.ar).join(' ')) ? q.o.en.map((_, i) => i) : shuffle(q.o.en.map((_, i) => i))) })),
-      ans: {}, fl: {}, sk: {}, hl: {}, tr: {}, i: 0, start: Date.now(), dur: def.min * 60, used: 0, brk: false, shown: {}, viol: [], fs: 16, aid: window.__pendingAid ? window.__pendingAid(spec) : null };
-    if (P.mode === 'practice') S.cur.dur = def.min * 60;
-    save();
-    if (P.proctor === 'cam') await proctorStart();
-    go('#run');
+  const [type, key] = spec.split(':');
+  if (!TYPES[type]) return go('#exams');
+  const def = TYPES[type](key);
+  const P = S.prefs || (S.prefs = { name: '', tools: { flag: 1, strike: 1, calc: 1, wb: 1, hl: 1, check: 1, ai: 1 }, proctor: 'none', mode: 'practice' });
+  P.tools = P.tools || {}; P.mode = forced || P.mode || (def.full ? 'exam' : 'practice');
+  let selectedLang = null, starting = false;
+  const setupHash = location.hash;
+  const drawSetup = () => {
+    const lang = selectedLang || (S.lang === 'en' ? 'en' : 'ar'), t = (ar, en) => lang === 'en' ? en : ar;
+    const available = l => def.qs.filter(q => examQuestionAvailable(q, l)).length;
+    const missing = selectedLang ? def.qs.length - available(selectedLang) : 0;
+    const incompleteFull = def.full && def.qs.length !== 115;
+    const missingExplanations = selectedLang ? def.qs.filter(q => !examText(q.x, selectedLang, false)).length : 0;
+    examViewLanguage(lang);
+    view.innerHTML = `<div class="setup card">
+      <div class="setup-head"><span class="brand-mark">RMP</span><div><b>${t('أكاديمية RMP', 'RMP Academy')}</b><span class="tiny muted">${t('د. محمد عطية · مدرب PMI-RMP', 'Dr. Mohamed Attia · PMI-RMP ATP')}</span></div></div>
+      <h2>${esc(lang === 'en' ? examEnglishTitle({spec}) : def.label)}</h2>
+      <div><b class="setup-lbl">🌐 ${selectedLang ? t('لغة الاختبار', 'Exam language') : 'اختر لغة الاختبار / Choose your exam language'}</b><p class="tiny muted">${t('اختر اللغة قبل كل محاولة. تظهر الأسئلة والخيارات والمراجعة باللغة المختارة فقط، دون تبديل تلقائي.', 'Choose a language before every attempt. Questions, options and review use only that language, without automatic fallback.')}</p>
+        <div class="grid g2">${[['ar', 'العربية'], ['en', 'English']].map(([l, label]) => `<button class="choice ${selectedLang === l ? 'on' : ''}" data-lang2="${l}" aria-pressed="${selectedLang === l}"><b>${label}</b><span class="tiny muted">${available(l)}/${def.qs.length} ${t('سؤالًا متاحًا', 'questions available')}</span></button>`).join('')}</div></div>
+      ${incompleteFull ? `<div class="blk" role="alert">${t('الاختبار الكامل يتطلب 115 سؤالًا. البنك الحالي غير مكتمل؛ لم تبدأ المحاولة.', 'The full exam requires 115 questions. The current bank is incomplete; no attempt has started.')}</div>` : ''}
+      ${missing ? `<div class="blk" role="alert">${t('لا يمكن بدء هذه المجموعة: ترجمة السؤال أو أحد الخيارات أو الرسم غير مكتملة في', 'This set cannot start: a question, option or chart translation is missing in')} ${missing} ${t('سؤال. اختر اللغة الأخرى أو ارجع إلى الاختبارات. لن نستبدل اللغة أو نقلّل عدد الأسئلة تلقائيًا.', 'question(s). Choose the other language or return to exams. Language and question count will not change automatically.')}</div>` : ''}
+      ${missingExplanations ? `<p class="small muted">${missingExplanations} ${t('تفسير غير متاح بهذه اللغة. ستظهر ملاحظة واضحة عند المراجعة دون عرض اللغة الأخرى.', 'explanation(s) unavailable in this language. Review will show an explicit notice, not another language.')}</p>` : ''}
+      <p class="small muted">${P.mode === 'exam' ? t('لا يتوقف المؤقّت بعد البدء إلا في الاستراحة المسموحة.', 'The timer only pauses during the permitted break.') : t('وضع التدريب يسمح بالتحقق الفوري من الإجابة.', 'Practice mode allows immediate answer checking.')}</p>
+      <div class="row small" style="gap:14px"><span>📝 <b class="num">${def.qs.length}</b> ${t('سؤالًا', 'questions')}</span><span>⏱ <b class="num">${def.min}</b> ${t('دقيقة', 'minutes')}</span><span>🧩 ${t('اختيار من متعدد ومتعدد الإجابات', 'Single and multiple answer questions')}</span>${def.full ? `<span>☕ ${t('استراحة 10 دقائق بعد السؤال 58', '10-minute break after question 58')}</span>` : ''}</div>
+      <label class="f"><b class="setup-lbl">👤 ${t('اسم المتدرب', 'Candidate name')}</b><input type="text" id="sName" value="${esc(P.name || '')}" placeholder="${t('اسمك كما سيظهر في التقرير', 'Your name as shown in the report')}"></label>
+      <div><b class="setup-lbl">🛠 ${t('الأدوات', 'Tools')}</b><div class="grid g4" style="margin-top:6px">${TOOLS.map(x => `<label class="tool ${P.tools[x[0]] ? 'on' : ''}"><input type="checkbox" data-tool="${x[0]}" ${P.tools[x[0]] ? 'checked' : ''}><span class="ti">${x[5]}</span><span><b>${t(x[1], x[2])}</b><span class="tiny muted" style="display:block">${t(x[3], x[4])}</span></span></label>`).join('')}</div></div>
+      <div><b class="setup-lbl">🎓 ${t('الوضع', 'Mode')}</b><div class="grid g2" style="margin-top:6px">${[['practice', t('تدريب', 'Practice'), t('تحقّق فوري وتفسير لكل سؤال', 'Immediate answer checking and explanations')], ['exam', t('اختبار حقيقي', 'Exam'), t('مؤقّت كامل وتصحيح بعد التسليم', 'Timed exam; answers revealed after submission')]].map(m => `<button class="choice ${P.mode === m[0] ? 'on' : ''}" data-mode2="${m[0]}"><b>${m[1]}</b><span class="tiny muted">${m[2]}</span></button>`).join('')}</div></div>
+      <div><b class="setup-lbl">📹 ${t('المراقبة', 'Proctoring')}</b><div class="grid g2" style="margin-top:6px">${[['cam', t('مع المراقبة', 'With proctoring'), t('كاميرا ومراقبة التنقل وملء الشاشة', 'Camera, browser activity and full screen')], ['none', t('بلا مراقبة', 'Without proctoring'), t('تدريب هادئ', 'Quiet practice')]].map(m => `<button class="choice ${P.proctor === m[0] ? 'on' : ''}" data-pr="${m[0]}"><b>${m[1]}</b><span class="tiny muted">${m[2]}</span></button>`).join('')}</div></div>
+      <div class="blk small"><b>📌 ${t('إرشادات', 'Instructions')}</b><ul style="margin:6px 0 0;padding-inline-start:18px">
+        <li>${t('تُعطَّل أوامر النسخ والطباعة المعتادة وتُسجَّل مخالفات التنقل. لا يستطيع المتصفح منع تصوير الشاشة بصورة مضمونة.', 'Common copy and print commands are disabled and browser activity is logged. The browser cannot guarantee prevention of screenshots.')}</li>
+        <li>${t('عند انتهاء الوقت يُسلَّم الاختبار تلقائيًا. الأسئلة غير المُجابة تُحتسب خاطئة، ولا خصم على التخمين.', 'The exam submits automatically when time expires. Unanswered questions count as incorrect; there is no guessing penalty.')}</li>
+        <li>${t('في وضع المراقبة تُسجَّل مغادرة الشاشة أو الخروج من ملء الشاشة. بعد 5 مخالفات يُسلَّم الاختبار تلقائيًا.', 'Proctored exams record leaving the window or full screen. After five violations, the exam submits automatically.')}</li>
+        <li>${t('التقرير تدريبي وليس نتيجة رسمية أو شهادة من PMI.', 'This is a training report, not an official PMI result or certificate.')}</li></ul></div>
+      <div class="row"><button class="btn acc" id="goExam" ${!selectedLang || missing || incompleteFull || !def.qs.length || starting ? 'disabled' : ''}>${t('ابدأ الاختبار', 'Start exam')}</button><a class="btn g" href="#exams">${t('رجوع', 'Back')}</a></div>
+    </div>`;
+    $('#sName').oninput = e => { P.name = e.target.value; save(); };
+    $$('[data-lang2]', view).forEach(b => b.onclick = () => { selectedLang = b.dataset.lang2; drawSetup(); });
+    $$('[data-mode2]', view).forEach(b => b.onclick = () => { P.mode = b.dataset.mode2; save(); drawSetup(); });
+    $$('[data-pr]', view).forEach(b => b.onclick = () => { P.proctor = b.dataset.pr; save(); drawSetup(); });
+    $$('[data-tool]', view).forEach(c => c.onchange = () => { P.tools[c.dataset.tool] = c.checked ? 1 : 0; save(); c.closest('.tool').classList.toggle('on', c.checked); });
+    $('#goExam').onclick = async () => {
+      if (starting || incompleteFull || !validExamLanguage(selectedLang) || !def.qs.length || def.qs.some(q => !examQuestionAvailable(q, selectedLang))) return;
+      if (S.cur && !S.cur.done && !confirm(t('هناك محاولة غير مكتملة. هل تريد استبدالها بمحاولة جديدة؟', 'There is an unfinished attempt. Replace it with a new attempt?'))) return;
+      starting = true; const setupNode = view.firstElementChild;
+      $$('button, input', setupNode).forEach(control => { control.disabled = true; });
+      const language = selectedLang, previousAttempt = S.cur;
+      try { await prepareExamFigures(def.qs, language); }
+      catch (_) { starting = false; if (location.hash === setupHash && setupNode.isConnected) { drawSetup(); toast(language === 'en' ? 'A chart could not be loaded. Your attempt has not started.' : 'تعذّر تحميل الرسم بالعربية أو لم تكتمل ترجمة عناوينه. لم تبدأ المحاولة.'); } return; }
+      if (location.hash !== setupHash || !setupNode.isConnected || S.cur !== previousAttempt) return;
+      S.cur = { spec, label: language === 'en' ? examEnglishTitle({spec}) : def.label, mode: P.mode, full: !!def.full, name: P.name || (language === 'en' ? 'Candidate' : 'المتدرب'), lang: language, tools: Object.assign({}, P.tools, {tr: 0}), proctor: P.proctor,
+        bankRevision: 'eco2022-simulation-v2', questions: Object.fromEntries(def.qs.map(q => [q.id, JSON.parse(JSON.stringify(q))])),
+        items: def.qs.map(q => { const order = q.o[language].map((_, i) => i); return { id: q.id, ord: NOSHUF.test(q.o[language].join(' ')) ? order : shuffle(order) }; }),
+        ans: {}, fl: {}, sk: {}, hl: {}, tr: {}, i: 0, start: Date.now(), dur: def.min * 60, used: 0, brk: false, shown: {}, viol: [], fs: 16, aid: window.__pendingAid ? window.__pendingAid(spec) : null };
+      save();
+      if (P.proctor === 'cam') await proctorStart();
+      if (location.hash === setupHash) go('#run');
+    };
   };
+  drawSetup();
 };
 // ------------------------------------------------ proctoring
 const PR = { stream: null, on: false };
@@ -1435,8 +1548,8 @@ function violation(k, m) {
   const X = S.cur; if (!X || X.done || X.paused) return; if (X.proctor !== 'cam' && !['copy','key'].includes(k)) return;
   X.viol.push({ t: Date.now(), k, m }); save();
   const n = X.viol.filter(v => v.k !== 'cam').length;
-  const w = $('#prWarn'); if (w) { w.hidden = false; w.innerHTML = `⚠ مخالفة مراقبة (${n}/5): ${esc(m)}`; }
-  if (n >= 5 && window.__finishExam) { toast('تجاوزت حد المخالفات — سُلِّم الاختبار'); window.__finishExam(); }
+  const w = $('#prWarn'); if (w) { w.hidden = false; w.innerHTML = `⚠ ${X.lang === 'en' ? 'Proctoring violation' : 'مخالفة مراقبة'} (${n}/5): ${esc(examViolationText({k}, X.lang))}`; }
+  if (n >= 5 && window.__finishExam) { toast(X.lang === 'en' ? 'Violation limit reached. The exam was submitted.' : 'تجاوزت حد المخالفات — سُلِّم الاختبار'); window.__finishExam(); }
 }
 document.addEventListener('visibilitychange', () => { if (location.hash === '#run') { document.body.classList.toggle('exam-obscured', document.hidden); if (document.hidden) violation('tab', 'مغادرة نافذة الاختبار'); } });
 window.addEventListener('blur', () => { if (location.hash === '#run') setTimeout(() => { if (!document.hasFocus()) { document.body.classList.add('exam-obscured'); violation('blur', 'فقدان تركيز نافذة الاختبار'); } }, 400); });
@@ -1471,13 +1584,24 @@ routes.exams = () => {
 };
 // ------------------------------------------------ exam runner
 let tick = null;
-routes.run = () => {
+routes.run = async () => {
   const X = S.cur; if (!X || X.done) return go('#exams');
+  clearInterval(tick);
+  if (!validExamLanguage(X.lang)) return chooseAttemptLanguage(X, routes.run);
+  const lang = X.lang, t = (ar, en) => lang === 'en' ? en : ar;
+  examViewLanguage(lang);
+  if (X.items.some(it => !examQuestionAvailable(examQuestion(X, it), lang))) {
+    view.innerHTML = `<div class="card pad stack"><h2>${t('هذه المحاولة غير متاحة بالكامل باللغة المختارة', 'This attempt is not fully available in the selected language')}</h2><p>${t('ترجمة سؤال أو خيار أو رسم غير مكتملة. لم تتغير إجاباتك أو وقتك المحفوظ، ولن نعرض لغة أخرى تلقائيًا.', 'A question, option or chart translation is missing. Your answers and saved time are unchanged; another language will not be shown automatically.')}</p><a class="btn" href="#exams">${t('العودة إلى الاختبارات', 'Back to exams')}</a></div>`;
+    return;
+  }
+  try { await prepareExamFigures(X.items.map(it => examQuestion(X, it)), lang); }
+  catch (_) { if (S.cur === X && location.hash === '#run') view.innerHTML = `<div class="card pad stack"><p>${t('تعذّر تحميل رسم بهذه اللغة. لم تتغير إجاباتك أو وقتك المحفوظ.', 'A chart could not be loaded in this language. Your answers and saved time are unchanged.')}</p><button class="btn" id="retryExamFigures">${t('إعادة المحاولة', 'Try again')}</button><a href="#exams">${t('رجوع', 'Back')}</a></div>`; const retry = $('#retryExamFigures'); if (retry) retry.onclick = () => routes.run(); return; }
+  if (S.cur !== X || location.hash !== '#run') return;
   if (isLegacyFullExam(X)) {
-    view.innerHTML = `<div class="card pad stack"><h2>هذه محاولة محفوظة من بنك سابق</h2><p>لم نحذف إجاباتك. لفتح البنك المحدّث ابدأ محاولة جديدة؛ المراجعة السابقة تخص أسئلة محاولتك الأصلية.</p><div class="row"><a class="btn acc" href="#exams">فتح الاختبارات المحدّثة</a><button class="btn g" id="continueLegacy">استكمال المحاولة السابقة</button></div></div>`;
+    view.innerHTML = `<div class="card pad stack"><h2>${t('هذه محاولة محفوظة من بنك سابق', 'Saved attempt from a previous question bank')}</h2><p>${t('لم نحذف إجاباتك. لفتح البنك المحدّث ابدأ محاولة جديدة؛ المراجعة السابقة تخص أسئلة محاولتك الأصلية.', 'Your answers were preserved. Start a new attempt for the updated bank; this attempt retains its original questions.')}</p><div class="row"><a class="btn acc" href="#exams">${t('فتح الاختبارات المحدّثة', 'Open updated exams')}</a><button class="btn g" id="continueLegacy">${t('استكمال المحاولة السابقة', 'Resume saved attempt')}</button></div></div>`;
     if (!X.legacyAcknowledged) { $('#continueLegacy').onclick = () => { X.legacyAcknowledged = true; save(); routes.run(); }; return; }
   }
-  X.hl = X.hl || {}; X.tr = X.tr || {}; X.viol = X.viol || []; X.tools = X.tools || { tr: 1, flag: 1, strike: 1, calc: 1, wb: 1, hl: 1, check: 1, ai: 1 }; X.fs = X.fs || 16; X.lang = X.lang || 'ar'; X.name = X.name || (S.prefs && S.prefs.name) || 'المتدرب'; if (!X.dur) X.dur = X.items.length * 80;
+  X.hl = X.hl || {}; X.tr = X.tr || {}; X.viol = X.viol || []; X.tools = X.tools || { tr: 1, flag: 1, strike: 1, calc: 1, wb: 1, hl: 1, check: 1, ai: 1 }; X.fs = X.fs || 16; X.name = X.name || (S.prefs && S.prefs.name) || t('المتدرب', 'Candidate'); if (!X.dur) X.dur = X.items.length * 80;
   clearInterval(tick);
   document.body.classList.add('in-exam');
   const Q = X.items, TL = X.tools, practice = X.mode === 'practice';
@@ -1486,52 +1610,51 @@ routes.run = () => {
   const draw = () => {
     const it = Q[X.i], q = qOf(it), multi = q.c.length > 1, a = X.ans[X.i] || [];
     const shown = practice && X.shown[X.i];
-    const L1 = X.lang, L2 = L1 === 'ar' ? 'en' : 'ar', showTr = TL.tr && X.tr[X.i];
-    const pick = (o, l) => (o && (o[l] || o[l === 'ar' ? 'en' : 'ar'])) || '';
+    const L1 = X.lang;
     const hlWrap = s => { let h = esc(s); (X.hl[X.i] || []).forEach(w => { const e = esc(w); if (e) h = h.split(e).join(`<mark data-hl="${esc(w)}">${e}</mark>`); }); return h; };
     const answered = Object.keys(X.ans).length, flagged = Object.values(X.fl).filter(Boolean).length;
     const locked = X.full && X.brk && X.i < 58;
     const left = X.dur - X.used;
-    view.innerHTML = `<div class="xm" style="--fs:${X.fs}px">
+    view.innerHTML = `<div class="xm" lang="${lang}" dir="${examDirection(lang)}" style="--fs:${X.fs}px">
       <header class="xm-top">
-        <div class="xm-id"><span class="brand-mark sm">RMP</span><div><b>${esc(X.name)}</b><span>${esc(X.label)}</span></div></div>
-        <div class="xm-mid"><div class="xm-q"><span>السؤال</span><b class="num">${X.i + 1}</b><span class="num">/ ${Q.length}</span></div><div class="xm-t"><span>الوقت المتبقي</span><b class="num ${left < 300 ? 'low' : ''}" id="tmr">${fmtTime(left)}</b></div></div>
+        <div class="xm-id"><span class="brand-mark sm">RMP</span><div><b>${esc(X.name)}</b><span>${esc(lang === 'en' ? examEnglishTitle(X) : X.label)}</span></div></div>
+        <div class="xm-mid"><div class="xm-q"><span>${t('السؤال', 'Question')}</span><b class="num">${X.i + 1}</b><span class="num">/ ${Q.length}</span></div><div class="xm-t"><span>${t('الوقت المتبقي', 'Time remaining')}</span><b class="num ${left < 300 ? 'low' : ''}" id="tmr">${fmtTime(left)}</b></div></div>
         <div class="xm-tools">
-          ${TL.wb ? `<button class="xt" id="tWb">✎ <span class="en">Whiteboard</span></button>` : ''}
-          ${TL.calc ? `<button class="xt" id="tCalc">🖩 <span class="en">Calculator</span></button>` : ''}
-          ${TL.ai ? `<button class="xt" id="tAi" ${!practice ? 'disabled title="متاح بعد التسليم في وضع الاختبار"' : (!shown ? 'disabled title="اكشف الإجابة أولًا"' : '')}>✦ <span class="en">AI</span></button>` : ''}
-          ${TL.tr ? `<button class="xt ${showTr ? 'on' : ''}" id="tTr">🌐 <span class="en">${L2.toUpperCase()}</span></button>` : ''}
-          ${TL.check && practice ? `<button class="xt" id="tChk" ${a.length === q.c.length && !shown ? '' : 'disabled'}>✓ تحقّق</button>` : ''}
-          <span class="xt fsz"><button id="fsP" aria-label="تكبير">+A</button><span class="num">${X.fs}px</span><button id="fsM" aria-label="تصغير">−A</button></span>
-          ${TL.flag ? `<button class="xt ${X.fl[X.i] ? 'flag' : ''}" id="tFl">⚑ <span class="en">Flag</span></button>` : ''}
+          ${TL.wb ? `<button class="xt" id="tWb">✎ <span class="en">${t('السبورة', 'Whiteboard')}</span></button>` : ''}
+          ${TL.calc ? `<button class="xt" id="tCalc">🖩 <span class="en">${t('الآلة الحاسبة', 'Calculator')}</span></button>` : ''}
+          ${TL.ai ? `<button class="xt" id="tAi" ${!practice ? `disabled title="${t('متاح بعد التسليم في وضع الاختبار', 'Available after submitting the exam')}"` : (!shown ? `disabled title="${t('اكشف الإجابة أولًا', 'Reveal the answer first')}"` : '')}>✦ <span>${t('المساعد الذكي', 'AI')}</span></button>` : ''}
+
+          ${TL.check && practice ? `<button class="xt" id="tChk" ${a.length === q.c.length && !shown ? '' : 'disabled'}>✓ ${t('تحقّق', 'Check')}</button>` : ''}
+          <span class="xt fsz"><button id="fsP" aria-label="${t('تكبير', 'Increase font size')}">+A</button><span class="num">${X.fs}px</span><button id="fsM" aria-label="${t('تصغير', 'Decrease font size')}">−A</button></span>
+          ${TL.flag ? `<button class="xt ${X.fl[X.i] ? 'flag' : ''}" id="tFl">⚑ <span class="en">${t('تعليم', 'Flag')}</span></button>` : ''}
         </div>
       </header>
       <div id="prWarn" class="xm-warn" hidden></div>
       <main class="xm-body">
         <article class="xm-card" ${L1 === 'en' ? 'dir="ltr"' : ''}>
-          <div class="row" style="gap:8px"><span class="xm-n num">${X.i + 1}</span><span class="chip">${multi ? 'اختيار متعدد — اختر ' + q.c.length : 'اختيار من متعدد'}</span><span class="chip" style="color:${DOMC[q.d]}">${esc(D.domains[q.d - 1].t.ar)}</span>${q.src === 'deck' ? `<span class="chip">${esc(q.scen || '')}</span>` : ''}</div>
-          ${locked ? '<div class="nrc">هذا السؤال في القسم الأول وقد أُقفل بعد الاستراحة — كما في الاختبار الحقيقي.</div>' : ''}
-          <div class="xm-stem" id="stem">${hlWrap(pick(q.q, L1))}</div>${questionFigure(q)}
-          ${showTr ? `<div class="xm-tr" dir="${L2 === 'ar' ? 'rtl' : 'ltr'}">${esc(pick(q.q, L2))}</div>` : ''}
+          <div class="row" style="gap:8px"><span class="xm-n num">${X.i + 1}</span><span class="chip">${multi ? t('اختر ', 'Select ') + q.c.length : t('اختر إجابة واحدة', 'Select one answer')}</span><span class="chip" style="color:${DOMC[q.d]}">${esc(examText(D.domains[q.d - 1]?.t, lang))}</span></div>
+          ${locked ? `<div class="nrc">${t('هذا السؤال في القسم الأول وقد أُقفل بعد الاستراحة.', 'This question is in the first section, which was locked after the break.')}</div>` : ''}
+          <div class="xm-stem" id="stem">${hlWrap(examText(q.q, L1))}</div>${questionFigure(q, lang)}
+
           <div class="xm-opts">${it.ord.map((k, j) => {
             let cls = a.includes(k) ? 'sel' : '';
             if (shown) cls = q.c.includes(k) ? 'right' : a.includes(k) ? 'wrong' : '';
             const stk = (X.sk[X.i] || []).includes(k);
-            return `<div class="xo ${cls} ${stk ? 'strike' : ''}" data-k="${k}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${a.includes(k)}" tabindex="0"><span class="xr ${multi ? 'xr-square' : ''}"></span><b class="en">${LET[j]}.</b><span class="txt">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L1))}${showTr ? `<span class="xm-tr sm" dir="${L2 === 'ar' ? 'rtl' : 'ltr'}">${esc(pick({ ar: q.o.ar[k], en: q.o.en[k] }, L2))}</span>` : ''}</span>${TL.strike ? `<button class="strk" data-s="${k}" title="شطب">✕</button>` : ''}</div>`;
+            return `<div class="xo ${cls} ${stk ? 'strike' : ''}" data-k="${k}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${a.includes(k)}" tabindex="0"><span class="xr ${multi ? 'xr-square' : ''}"></span><b class="en">${LET[j]}.</b><span class="txt">${esc(q.o[lang][k])}</span>${TL.strike ? `<button class="strk" data-s="${k}" title="${t('شطب', 'Strike out')}">✕</button>` : ''}</div>`;
           }).join('')}</div>
-          ${shown ? explain(q, it, a) : ''}
-          ${TL.hl ? '<div class="tiny muted" style="margin-top:10px">للتظليل: حدّد نصًا في السؤال. اضغط على النص المظلَّل لإزالته.</div>' : ''}
+          ${shown ? explain(q, it, a, lang) : ''}
+          ${TL.hl ? `<div class="tiny muted" style="margin-top:10px">${t('للتظليل: حدّد نصًا في السؤال. اضغط على النص المظلَّل لإزالته.', 'Select question text to highlight it. Click highlighted text to remove it.')}</div>` : ''}
         </article>
       </main>
       <footer class="xm-bot">
-        <div class="row"><button class="btn sm g" id="endX">🗎 إنهاء وتسليم</button><span class="small"><span class="ok-t">✓ <b class="num">${answered}</b> مُجاب</span> · <span class="num">${Q.length - answered}</span> متبقٍّ · <span class="acc-t">⚑ <b class="num">${flagged}</b> معلَّم</span></span></div>
-        <div class="row"><button class="btn sm g" id="tNav">▦ <span class="en">Navigator</span></button><button class="btn sm g" id="prev" ${X.i === 0 || (X.full && X.brk && X.i === 58) ? 'disabled' : ''}>→ السابق</button><button class="btn sm" id="next">${X.i === Q.length - 1 ? 'المراجعة والتسليم' : 'التالي ←'}</button></div>
+        <div class="row"><button class="btn sm g" id="endX">🗎 ${t('إنهاء وتسليم', 'Finish and submit')}</button><span class="small"><span class="ok-t">✓ <b class="num">${answered}</b> ${t('مُجاب', 'answered')}</span> · <span class="num">${Q.length - answered}</span> ${t('متبقٍّ', 'remaining')} · <span class="acc-t">⚑ <b class="num">${flagged}</b> ${t('معلَّم', 'flagged')}</span></span></div>
+        <div class="row"><button class="btn sm g" id="tNav">▦ <span class="en">${t('التنقل', 'Navigator')}</span></button><button class="btn sm g" id="prev" ${X.i === 0 || (X.full && X.brk && X.i === 58) ? 'disabled' : ''}>${t('→ السابق', '← Previous')}</button><button class="btn sm" id="next">${X.i === Q.length - 1 ? t('المراجعة والتسليم', 'Review and submit') : t('التالي ←', 'Next →')}</button></div>
       </footer>
-      ${PR.stream ? '<video id="camv" class="cam" autoplay muted playsinline></video>' : (X.proctor === 'cam' ? '<div class="cam off">● مراقبة السلوك</div>' : '')}
-      <div class="xm-panel" id="pCalc" ${panel.calc ? '' : 'hidden'}><div class="row between"><b class="en">Calculator</b><button class="strk" data-close="calc">✕</button></div>${calcHtml()}</div>
-      <div class="xm-panel wb" id="pWb" ${panel.wb ? '' : 'hidden'}><div class="row between"><b class="en">Whiteboard</b><div class="row"><button class="btn sm g" id="wbPen">✎</button><button class="btn sm g" id="wbEr">⌫ ممحاة</button><button class="btn sm g" id="wbClr">مسح</button><button class="strk" data-close="wb">✕</button></div></div><canvas id="wbC" width="560" height="340"></canvas></div>
-      <div class="xm-panel nav" id="pNav" ${panel.nav ? '' : 'hidden'}><div class="row between"><b>مراجعة الأسئلة</b><button class="strk" data-close="nav">✕</button></div>
-        <div class="seg" id="navF">${[['all', 'الكل'], ['un', 'غير مُجاب'], ['fl', 'معلَّم']].map(f => `<button data-f="${f[0]}" class="${(X.navF || 'all') === f[0] ? 'on' : ''}">${f[1]}</button>`).join('')}</div>
+      ${PR.stream ? '<video id="camv" class="cam" autoplay muted playsinline></video>' : (X.proctor === 'cam' ? `<div class="cam off">● ${t('مراقبة السلوك', 'Activity monitoring')}</div>` : '')}
+      <div class="xm-panel" id="pCalc" ${panel.calc ? '' : 'hidden'}><div class="row between"><b class="en">${t('الآلة الحاسبة', 'Calculator')}</b><button class="strk" data-close="calc">✕</button></div>${calcHtml()}</div>
+      <div class="xm-panel wb" id="pWb" ${panel.wb ? '' : 'hidden'}><div class="row between"><b class="en">${t('السبورة', 'Whiteboard')}</b><div class="row"><button class="btn sm g" id="wbPen">✎</button><button class="btn sm g" id="wbEr">⌫ ${t('ممحاة', 'Eraser')}</button><button class="btn sm g" id="wbClr">${t('مسح', 'Clear')}</button><button class="strk" data-close="wb">✕</button></div></div><canvas id="wbC" width="560" height="340"></canvas></div>
+      <div class="xm-panel nav" id="pNav" ${panel.nav ? '' : 'hidden'}><div class="row between"><b>${t('مراجعة الأسئلة', 'Question navigator')}</b><button class="strk" data-close="nav">✕</button></div>
+        <div class="seg" id="navF">${[['all', t('الكل', 'All')], ['un', t('غير مُجاب', 'Unanswered')], ['fl', t('معلَّم', 'Flagged')]].map(f => `<button data-f="${f[0]}" class="${(X.navF || 'all') === f[0] ? 'on' : ''}">${f[1]}</button>`).join('')}</div>
         <div class="navgrid">${Q.map((_, k) => { const f = X.navF || 'all'; if (f === 'un' && X.ans[k]) return ''; if (f === 'fl' && !X.fl[k]) return ''; const c = []; if (X.ans[k]) c.push('ans'); if (k === X.i) c.push('cur'); if (X.fl[k]) c.push('fl'); if (practice && X.shown[k]) c.push(sameSet(X.ans[k] || [], qOf(Q[k]).c) ? 'r' : 'w'); return `<button class="${c.join(' ')}" data-j="${k}" ${X.full && X.brk && k < 58 ? 'disabled' : ''}>${k + 1}</button>`; }).join('')}</div></div>
     </div>`;
     if (PR.stream) { const v = $('#camv'); if (v) v.srcObject = PR.stream; }
@@ -1552,9 +1675,8 @@ routes.run = () => {
     }
     const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
     on('#tFl', () => { X.fl[X.i] = !X.fl[X.i]; save(); draw(); });
-    on('#tTr', () => { X.tr[X.i] = !X.tr[X.i]; save(); draw(); });
     on('#tChk', () => { if ((X.ans[X.i] || []).length !== q.c.length) return; X.shown[X.i] = true; if (QBY.get(q.id)) record(q.id, sameSet(X.ans[X.i] || [], q.c)); save(); draw(); });
-    on('#tAi', () => aiExplain(q, it, a));
+    on('#tAi', () => aiExplain(q, it, a, lang));
     on('#fsP', () => { X.fs = Math.min(24, X.fs + 1); save(); draw(); });
     on('#fsM', () => { X.fs = Math.max(13, X.fs - 1); save(); draw(); });
     on('#tCalc', () => { panel.calc = !panel.calc; $('#pCalc').hidden = !panel.calc; });
@@ -1589,12 +1711,12 @@ routes.run = () => {
   const breakScreen = () => {
     // Showing the choice does not start a break or lock earlier answers.
     X.paused = false; save();
-    view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>أنهيت 58 سؤالًا — هل تريد استراحة؟</h2><p class="muted">يمكنك المتابعة بدون راحة مع إمكانية مراجعة جميع الأسئلة. عند بدء الاستراحة فقط يُغلق القسم الأول ويتوقف مؤقّت الاختبار لمدة 10 دقائق.</p><div class="row" style="justify-content:center"><button class="btn" id="goOn">متابعة بدون راحة — مع إتاحة المراجعة</button><button class="btn g" id="back1">مراجعة الأسئلة السابقة</button><button class="btn acc" id="takeBreak">بدء الاستراحة وإغلاق القسم الأول</button></div></div>`;
+    view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>${t('أنهيت 58 سؤالًا — هل تريد استراحة؟', 'You finished 58 questions. Take a break?')}</h2><p class="muted">${t('يمكنك المتابعة بدون راحة مع إمكانية مراجعة جميع الأسئلة. عند بدء الاستراحة فقط يُغلق القسم الأول ويتوقف مؤقّت الاختبار لمدة 10 دقائق.', 'Continue without a break to keep all questions open for review. Starting a break locks section one and pauses the timer for 10 minutes.')}</p><div class="row" style="justify-content:center"><button class="btn" id="goOn">${t('متابعة بدون راحة — مع إتاحة المراجعة', 'Continue without a break and keep review available')}</button><button class="btn g" id="back1">${t('مراجعة الأسئلة السابقة', 'Review previous questions')}</button><button class="btn acc" id="takeBreak">${t('بدء الاستراحة وإغلاق القسم الأول', 'Start break and lock section one')}</button></div></div>`;
     $('#goOn').onclick = () => { X.breakSkipped = true; X.paused = false; X.i = 58; save(); draw(); };
     $('#back1').onclick = () => { save(); draw(); };
     $('#takeBreak').onclick = () => {
       X.brk = true; X.paused = true; X.i = 58; save();
-      view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>استراحة — 10 دقائق</h2><p class="muted">بدأت الاستراحة وأُغلق القسم الأول. يمكنك استئناف القسم الثاني الآن أو بعد انتهاء الاستراحة.</p><div class="timer" id="brkT" style="align-self:center">10:00</div><button class="btn" id="resumeExam">استئناف القسم الثاني</button></div>`;
+      view.innerHTML = `<div class="card pad stack" style="max-width:640px;margin:40px auto;text-align:center"><h2>${t('استراحة — 10 دقائق', '10-minute break')}</h2><p class="muted">${t('بدأت الاستراحة وأُغلق القسم الأول. يمكنك استئناف القسم الثاني الآن أو بعد انتهاء الاستراحة.', 'The break has started and section one is locked. Resume section two now or when the break ends.')}</p><div class="timer" id="brkT" style="align-self:center">10:00</div><button class="btn" id="resumeExam">${t('استئناف القسم الثاني', 'Resume section two')}</button></div>`;
       let remaining = 600;
       const resume = () => { clearInterval(bt); X.paused = false; save(); draw(); };
       const bt = setInterval(() => { remaining--; const el = $('#brkT'); if (el) el.textContent = fmtTime(remaining); if (remaining <= 0) resume(); }, 1000);
@@ -1603,11 +1725,11 @@ routes.run = () => {
   };
   const reviewScreen = () => {
     const un = Q.map((_, k) => k).filter(k => !X.ans[k]), fl = Q.map((_, k) => k).filter(k => X.fl[k]);
-    view.innerHTML = `<div class="card pad stack" style="max-width:860px;margin:24px auto"><h2>شاشة المراجعة</h2>
-      <p class="small muted">راجع الأسئلة غير المُجابة أو المعلَّمة قبل التسليم. بعد التسليم لا يمكن تعديل الإجابات.</p>
-      <div class="grid g3"><div class="kpi"><span class="small muted">مُجاب</span><b>${Q.length - un.length}</b></div><div class="kpi"><span class="small muted">Unanswered</span><b style="color:var(--bad)">${un.length}</b></div><div class="kpi"><span class="small muted">معلَّم للمراجعة</span><b style="color:var(--accent)">${fl.length}</b></div></div>
+    view.innerHTML = `<div class="card pad stack" style="max-width:860px;margin:24px auto"><h2>${t('شاشة المراجعة', 'Review screen')}</h2>
+      <p class="small muted">${t('راجع الأسئلة غير المُجابة أو المعلَّمة قبل التسليم. بعد التسليم لا يمكن تعديل الإجابات.', 'Review unanswered or flagged questions before submitting. Answers cannot be changed after submission.')}</p>
+      <div class="grid g3"><div class="kpi"><span class="small muted">${t('مُجاب', 'Answered')}</span><b>${Q.length - un.length}</b></div><div class="kpi"><span class="small muted">${t('غير مُجاب', 'Unanswered')}</span><b style="color:var(--bad)">${un.length}</b></div><div class="kpi"><span class="small muted">${t('معلَّم للمراجعة', 'Flagged for review')}</span><b style="color:var(--accent)">${fl.length}</b></div></div>
       <div class="navgrid">${Q.map((_, k) => `<button class="${X.ans[k] ? 'ans' : ''} ${X.fl[k] ? 'fl' : ''}" data-j="${k}" ${X.full && X.brk && k < 58 ? 'disabled' : ''}>${k + 1}</button>`).join('')}</div>
-      <div class="row"><button class="btn g" id="rvUn" ${un.length ? '' : 'disabled'}>مراجعة غير المُجاب</button><button class="btn g" id="rvFl" ${fl.length ? '' : 'disabled'}>مراجعة المعلَّم</button><button class="btn g" id="rvBack">عودة للسؤال الحالي</button><button class="btn acc" id="rvEnd">تسليم الاختبار</button></div></div>`;
+      <div class="row"><button class="btn g" id="rvUn" ${un.length ? '' : 'disabled'}>${t('مراجعة غير المُجاب', 'Review unanswered')}</button><button class="btn g" id="rvFl" ${fl.length ? '' : 'disabled'}>${t('مراجعة المعلَّم', 'Review flagged')}</button><button class="btn g" id="rvBack">${t('عودة للسؤال الحالي', 'Return to current question')}</button><button class="btn acc" id="rvEnd">${t('تسليم الاختبار', 'Submit exam')}</button></div></div>`;
     $$('.navgrid button', view).forEach(b => b.onclick = () => { X.i = +b.dataset.j; save(); draw(); });
     const jump = arr => { const k = arr.find(x => !(X.full && X.brk && x < 58)); if (k != null) { X.i = k; save(); draw(); } };
     $('#rvUn').onclick = () => jump(un); $('#rvFl').onclick = () => jump(fl); $('#rvBack').onclick = () => draw();
@@ -1618,7 +1740,7 @@ routes.run = () => {
     if (X.done) return; X.done = true;
     const res = { byD: {}, r: 0 };
     Q.forEach((it, k) => { const q = qOf(it); const ok = sameSet(X.ans[k] || [], q.c); if (ok) res.r++; res.byD[q.d] = res.byD[q.d] || [0, 0]; res.byD[q.d][1]++; if (ok) res.byD[q.d][0]++; if (!X.shown[k] && QBY.get(it.id)) record(q.id, ok); });
-    const att = { id: Date.now(), label: X.label, spec: X.spec, mode: X.mode, name: X.name, date: new Date().toISOString(), n: Q.length, r: res.r, pct: pct(res.r, Q.length), byD: res.byD, dur: X.used, viol: X.viol, proctor: X.proctor, exam: X };
+    const att = { id: Date.now(), label: X.label, spec: X.spec, lang: X.lang, mode: X.mode, name: X.name, date: new Date().toISOString(), n: Q.length, r: res.r, pct: pct(res.r, Q.length), byD: res.byD, dur: X.used, viol: X.viol, proctor: X.proctor, exam: X };
     S.hist.push(att); if (S.hist.length > 40) S.hist.shift();
     S.hist.forEach((h, k) => { if (k < S.hist.length - 6) delete h.exam; });
     if (window.__onExamDone) window.__onExamDone(att, X);
@@ -1628,26 +1750,27 @@ routes.run = () => {
   draw();
   tick = setInterval(() => {
     if (X.paused || location.hash !== '#run' || X.done) return;
-    X.used++; const t = $('#tmr'); const left = X.dur - X.used;
-    if (t) { t.textContent = fmtTime(left); t.classList.toggle('low', left < 300); }
+    X.used++; const timer = $('#tmr'); const left = X.dur - X.used;
+    if (timer) { timer.textContent = fmtTime(left); timer.classList.toggle('low', left < 300); }
     if (X.used % 10 === 0) save();
-    if (left <= 0) { toast('انتهى الوقت — تم التسليم تلقائيًا'); finish(); }
+    if (left <= 0) { toast(t('انتهى الوقت — تم التسليم تلقائيًا', 'Time expired. The exam was submitted automatically.')); finish(); }
   }, 1000);
 };
 window.addEventListener('hashchange', () => { if (!['#run', '#play-', '#customgame-'].some(p => location.hash.startsWith(p))) { document.body.classList.remove('in-exam', 'exam-obscured'); document.querySelector('.exam-watermark')?.remove(); } });
 function sameSet(a, b) { return a.length === b.length && a.every(x => b.includes(x)); }
 function record(id, ok) { const v = S.qs[id] || { n: 0, r: 0 }; v.n++; if (ok) v.r++; v.last = ok ? 1 : 0; S.qs[id] = v; }
-function explain(q, it, a) {
-  const ok = sameSet(a, q.c);
+function explain(q, it, a, lang = S.cur?.lang) {
+  const t = (ar, en) => lang === 'en' ? en : ar, ok = sameSet(a, q.c);
   const letters = q.c.map(k => LET[it.ord.indexOf(k)]).sort().join(' + ');
-  return `<div class="expl ${ok ? '' : 'bad'}" dir="rtl"><div class="row between"><b style="color:var(--${ok ? 'ok' : 'bad'})">${ok ? '✓ إجابة صحيحة' : '✗ الإجابة الصحيحة: ' + letters}</b>${q.fixed ? '<span class="chip warn">مفتاح مُصحَّح بعد المراجعة</span>' : ''}</div>
-    <div style="margin-top:6px">${bi(q.x)}</div>${q.ref ? `<div class="tiny muted" style="margin-top:6px">المصدر: ${esc(q.ref)}</div>` : ''}<div id="aiExOut"></div></div>`;
+  return `<div class="expl ${ok ? '' : 'bad'}" dir="${examDirection(lang)}" lang="${lang}"><div class="row between"><b style="color:var(--${ok ? 'ok' : 'bad'})">${ok ? t('✓ إجابة صحيحة', '✓ Correct answer') : t('✗ الإجابة الصحيحة: ', '✗ Correct answer: ') + letters}</b>${q.fixed ? `<span class="chip warn">${t('مفتاح مُصحَّح بعد المراجعة', 'Answer key corrected after review')}</span>` : ''}</div>
+    <div style="margin-top:6px">${esc(examText(q.x, lang))}</div>${q.ref ? `<div class="tiny muted" style="margin-top:6px">${t('المصدر', 'Reference')}: ${esc(examReference(q, lang))}</div>` : ''}<div id="aiExOut"></div></div>`;
 }
-async function aiExplain(q, it, a) {
+async function aiExplain(q, it, a, lang = S.cur?.lang) {
+  if (!validExamLanguage(lang)) return;
   const out = $('#aiExOut'); if (!out) return; out.innerHTML = '<div class="msg a">…</div>';
-  const opts = it.ord.map((k, j) => `${LET[j]}) ${q.o.en[k]}${q.o.ar[k] && q.o.ar[k] !== q.o.en[k] ? ' / ' + q.o.ar[k] : ''}`).join('\n');
+  const opts = it.ord.map((k, j) => `${LET[j]}) ${q.o[lang][k]}`).join('\n');
   const corr = q.c.map(k => LET[it.ord.indexOf(k)]).join(', '), mine = a.map(k => LET[it.ord.indexOf(k)]).join(', ') || '—';
-  await AIX.ask(`اشرح سؤال PMI-RMP التالي لمتدرب: لماذا الإجابة الصحيحة (${corr}) هي الأفضل، ولماذا كل خيار آخر أضعف (سطر لكل خيار)، وما «الكلمة المفتاحية» في السؤال، ونصيحة اختبار واحدة. إجابة المتدرب: ${mine}.\n\nالسؤال: ${q.q.en}\n${q.q.ar}\n\nالخيارات:\n${opts}\n\nالتفسير المرجعي: ${q.x.en || ''} ${q.x.ar || ''}`, { onText: t => { out.innerHTML = `<div class="msg a" style="margin-top:8px">${esc(t)}</div>`; } });
+  await AIX.ask(`Respond only in ${lang === 'en' ? 'English' : 'Arabic'}. Explain why answer (${corr}) is best and each other option is weaker, identify the key phrase, and give one exam tip. Candidate answer: ${mine}.\nQuestion: ${examText(q.q, lang)}\nOptions:\n${opts}\nReference explanation: ${examText(q.x, lang)}`, { onText: text => { if (out.isConnected) out.innerHTML = `<div class="msg a" dir="${examDirection(lang)}" style="margin-top:8px">${esc(text)}</div>`; } });
 }
 let calcV = '';
 function calcHtml() { return `<div class="calc"><div class="scr" id="cscr">${esc(calcV || '0')}</div>${['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', '.', '=', '+', 'C', '(', ')', '⌫', '√', 'x²', '%', '±'].map(k => `<button data-c="${k}">${k}</button>`).join('')}</div>`; }
@@ -1684,37 +1807,46 @@ function examEnglishTitle(h) {
   if (type === 'dom') return `Domain ${num}: ${D.domains[num - 1]?.t.en || 'Practice Exam'}`;
   if (type === 'ch') return `Chapter Exam: ${D.chapters.find(c => c.k === key)?.t.en || key}`;
   if (type === 'task') return `Task ${key} Practice Exam`;
+  if (type === 'advanced') return 'PMI-RMP® Advanced Practice Exam';
   if (type === 'full') return 'PMI-RMP® Full Practice Exam';
   if (type === 'mini') return '50-Question Practice Exam';
   if (type === 'scen') return `Trainer Scenario Practice${num ? ` · Day ${num}` : ''}`;
   if (type === 'qc') return `Risk Council Case Practice · Day ${num}`;
   return ({ wrong:'Mistakes Review', weak:'Weak Domains Practice', custom:'Custom Practice Exam' })[type] || 'Practice Exam';
 }
-function scoreSheet(h, I) {
-  const rating = level(h.pct);
-  const domainRows = I.domains.map(d => `<tr><td>${esc(d.t.en)}</td><td>${d.total >= 3 ? esc(level(d.p)[2]) : 'Insufficient sample'}</td></tr>`).join('');
-  return `<section class="score-sheet" dir="ltr" lang="en" aria-label="Training exam performance report"><header class="score-head"><div><div class="score-brand">ALSAEED</div><span class="tiny">Training Platform</span></div><div class="score-head-title">Training Exam Report</div></header><div class="score-body">
-  <table class="score-meta"><tbody><tr><td><small>Candidate</small><strong>${esc(h.name || ME?.name || '—')}</strong></td><td><small>Exam</small><strong>${esc(examEnglishTitle(h))}</strong></td></tr><tr><td><small>Test date</small><strong>${esc(new Date(h.date).toLocaleString('en-GB'))}</strong></td><td><small>Attempt ID</small><strong>${esc(String(h.id))}</strong></td></tr></tbody></table>
-  <p class="score-result">Your Overall Score Performance: <strong>${esc(rating[2])}</strong></p><p class="score-sub">${h.pct >= DAY_TARGET ? 'Training target met' : 'Further practice recommended'} · ${h.r}/${h.n} correct (${h.pct}%) · Time used ${fmtTime(h.dur)}</p>
-  <div class="score-track-labels"><span>Failing range</span><span>Training target range</span></div><div class="score-track" aria-label="Performance levels"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div><div class="score-pointer" style="--score:${Math.max(0,Math.min(100,Number(h.pct)||0))}%"><span>YOU</span></div>
-  <div class="score-track-labels"><span>Needs Improvement</span><span>Below Target</span><span>Target</span><span>Above Target</span></div>
-  <h2 class="score-domain-title">Your Performance by Domain</h2><table class="score-domain-table"><thead><tr><th>Domain</th><th>Performance</th></tr></thead><tbody>${domainRows}</tbody></table><div class="score-foot">Performance bands and the ${DAY_TARGET}% goal are ALSAEED training estimates. Fewer than three questions in a domain cannot provide a reliable domain rating. This is not an official PMI examination result or certificate.</div></div></section>`;
+function scoreSheet(h, I, lang = h.lang || h.exam?.lang) {
+  const t = (ar, en) => lang === 'en' ? en : ar, rating = level(h.pct), ri = lang === 'en' ? 2 : 1;
+  const domainRows = I.domains.map(d => `<tr><td>${esc(examText(d.t, lang))}</td><td>${d.total >= 3 ? esc(level(d.p)[ri]) : t('عينة غير كافية', 'Insufficient sample')}</td></tr>`).join('');
+  return `<section class="score-sheet" dir="${examDirection(lang)}" lang="${lang}" aria-label="${t('تقرير أداء الاختبار التدريبي', 'Training exam performance report')}"><header class="score-head"><div><div class="score-brand">ALSAEED</div><span class="tiny">${t('منصة التدريب', 'Training Platform')}</span></div><div class="score-head-title">${t('تقرير الاختبار التدريبي', 'Training Exam Report')}</div></header><div class="score-body">
+  <table class="score-meta"><tbody><tr><td><small>${t('المتدرب', 'Candidate')}</small><strong>${esc(h.name || ME?.name || '—')}</strong></td><td><small>${t('الاختبار', 'Exam')}</small><strong>${esc(lang === 'en' ? examEnglishTitle(h) : h.label)}</strong></td></tr><tr><td><small>${t('تاريخ الاختبار', 'Test date')}</small><strong>${esc(new Date(h.date).toLocaleString(lang === 'en' ? 'en-GB' : 'ar'))}</strong></td><td><small>${t('رقم المحاولة', 'Attempt ID')}</small><strong>${esc(String(h.id))}</strong></td></tr></tbody></table>
+  <p class="score-result">${t('مستوى الأداء الإجمالي', 'Your Overall Score Performance')}: <strong>${esc(rating[ri])}</strong></p><p class="score-sub">${h.pct >= DAY_TARGET ? t('تحقق الهدف التدريبي', 'Training target met') : t('يوصى بمزيد من التدريب', 'Further practice recommended')} · ${h.r}/${h.n} ${t('إجابة صحيحة', 'correct')} (${h.pct}%) · ${t('الوقت المستخدم', 'Time used')} ${fmtTime(h.dur)}</p>
+  <div class="score-track-labels"><span>${t('نطاق يحتاج تحسينًا', 'Failing range')}</span><span>${t('نطاق الهدف التدريبي', 'Training target range')}</span></div><div class="score-track" aria-label="${t('مستويات الأداء', 'Performance levels')}"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div><div class="score-pointer" style="--score:${Math.max(0,Math.min(100,Number(h.pct)||0))}%"><span>${t('أنت', 'YOU')}</span></div>
+  <div class="score-track-labels"><span>${t('يحتاج تحسينًا', 'Needs Improvement')}</span><span>${t('دون المستهدف', 'Below Target')}</span><span>${t('يحقق المستهدف', 'Target')}</span><span>${t('فوق المستهدف', 'Above Target')}</span></div>
+  <h2 class="score-domain-title">${t('الأداء حسب المجال', 'Your Performance by Domain')}</h2><table class="score-domain-table"><thead><tr><th>${t('المجال', 'Domain')}</th><th>${t('الأداء', 'Performance')}</th></tr></thead><tbody>${domainRows}</tbody></table><div class="score-foot">${t(`مستويات الأداء وهدف ${DAY_TARGET}% تقديرات تدريبية لمنصة السعيد. أقل من ثلاثة أسئلة لا تكفي لتقييم مجال بصورة موثوقة. هذا ليس نتيجة اختبار رسمية أو شهادة من PMI.`, `Performance bands and the ${DAY_TARGET}% goal are ALSAEED training estimates. Fewer than three questions in a domain cannot provide a reliable domain rating. This is not an official PMI examination result or certificate.`)}</div></div></section>`;
+}
+function examViolationText(v, lang) {
+  const messages = {cam:['الكاميرا غير متاحة؛ استُخدمت مراقبة السلوك فقط', 'Camera unavailable; browser activity was monitored.'], tab:['مغادرة نافذة الاختبار', 'Left the exam window'], blur:['فقدان تركيز نافذة الاختبار', 'Exam window lost focus'], fs:['الخروج من وضع ملء الشاشة', 'Exited full screen'], copy:['محاولة نسخ محتوى الاختبار', 'Attempted to copy exam content'], key:['محاولة طباعة أو حفظ أو نسخ', 'Attempted to print, save or copy']};
+  return (messages[v.k] || ['حدث مراقبة', 'Proctoring event'])[lang === 'en' ? 1 : 0];
 }
 routes.result = (id) => {
   const h = S.hist.find(x => String(x.id) === id); if (!h) return go('#progress');
-  const X = h.exam; const I = examInsights(h);
-  const viol = (h.viol || []).filter(v => v.k !== 'cam');
-  view.innerHTML = `<div class="stack report">${scoreSheet(h, I)}<div class="card pad stack" dir="ltr" lang="en">
-      <div class="grid g3"><div class="kpi"><span class="small muted">Correct answers</span><b class="num">${h.r}/${h.n}</b></div><div class="kpi"><span class="small muted">Unanswered</span><b class="num">${I.unanswered == null ? '—' : I.unanswered}</b></div><div class="kpi"><span class="small muted">Flagged for review</span><b class="num">${I.flagged == null ? '—' : I.flagged}</b></div></div>
-      <div class="blk stack"><h3>Performance analysis and next steps</h3>${I.weak.length ? I.weak.map(d => `<p class="small">Review <b>${esc(d.t.en)}</b> (${d.correct}/${d.total} · ${d.p}%). Study this domain and retake the practice exam; aim for at least ${DAY_TARGET}%.</p>`).join('') : '<p class="small">No measured domain is below the study goal. Continue practice exams to confirm consistency.</p>'}${I.unmeasured.length ? `<p class="small muted">More questions needed: ${I.unmeasured.map(d => esc(d.t.en)).join(', ')}.</p>` : ''}<a class="btn sm o" href="#plan-post">Open the study plan</a></div>
-      ${h.proctor === 'cam' ? `<h3>Proctoring record</h3>${viol.length ? `<div class="scroll"><table><thead><tr><th>Time</th><th>Event</th></tr></thead><tbody>${viol.map(v => `<tr><td class="num small">${new Date(v.t).toLocaleTimeString('en-GB')}</td><td>${esc(v.m)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="chip ok">No events recorded</div>'}${(h.viol || []).some(v => v.k === 'cam') ? '<div class="tiny muted">Camera unavailable; browser activity was monitored.</div>' : ''}` : ''}
-      <div class="row"><button class="btn g" id="examPdf">Save PDF report</button><button class="btn g" id="examWord">Download Word</button><button class="btn" data-start="${h.spec}">Retake similar exam</button><button class="btn o" data-start="wrong">Review mistakes</button><button class="btn g" id="advise">AI study plan</button></div><div id="advOut"></div></div>
-    ${X ? `${isLegacyFullExam(X) ? '<div class="blk">هذه نتيجة محاولة سابقة من البنك القديم. الأسئلة أدناه هي الأسئلة التي أُجيبت في تلك المحاولة. افتح الاختبارات لبدء البنك المحدّث.</div>' : ''}<h2 lang="en" dir="ltr">Answer review</h2><div class="stack">${X.items.map((it, k) => { const q = examQuestion(X, it); if (!q) return ''; const a = X.ans[k] || []; const ok = sameSet(a, q.c); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc((q.q.ar || q.q.en).slice(0, 140))}${(q.q.ar || q.q.en).length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
-      <div class="stack" style="margin-top:10px"><div>${bi(q.q)}</div>${questionFigure(q)}<div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${bi({ ar: q.o.ar[o], en: q.o.en[o] })}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${bi(q.x)}${q.ref ? `<div class="tiny muted">Reference: ${esc(q.ref)}</div>` : ''}</div></div></details>`; }).join('')}</div>` : '<p class="muted">Detailed answer review is retained for the most recent six exams.</p>'}</div>`;
-  const examReport = () => `<!doctype html><html lang="en" dir="ltr"><meta charset="utf-8"><title>ALSAEED | Training Exam Report</title><style>body{font:15px Arial,sans-serif;color:#173552;line-height:1.55;margin:30px auto;max-width:850px}.score-sheet{border:1px solid #cbdde9}.score-head{display:flex;justify-content:space-between;align-items:center;padding:22px 28px;background:#f2f8fc;border-bottom:2px solid #c6dbe8}.score-brand{font-size:25px;font-weight:900;letter-spacing:2px;color:#155275}.score-head-title{font-size:20px;font-weight:800}.score-body{padding:26px 30px}.score-meta,.score-domain-table{width:100%;border-collapse:collapse}.score-meta{margin:12px 0 28px}.score-sheet[dir="ltr"] .score-meta td,.score-sheet[dir="ltr"] .score-domain-table th,.score-sheet[dir="ltr"] .score-domain-table td{text-align:left}.score-meta td{width:50%;padding:11px 14px;border:1px solid #ccdae4}.score-meta small{display:block;color:#58748a}.score-result{font-size:23px;font-weight:800;border-top:2px solid #acc9dc;padding-top:18px}.score-result strong,.score-domain-table td:last-child{color:#087a88}.score-sub,.score-foot{color:#58748a}.score-track-labels{display:flex;justify-content:space-between;direction:ltr;font-size:12px;color:#56738a;margin:9px 0}.score-track{display:flex;height:34px;direction:ltr}.s1{width:50%}.s2,.s3{width:15%}.s4{width:20%}.s1{background:#eab9c3}.s2{background:#f4e4a2}.s3{background:#a9ddd8}.s4{background:#087f8f}.score-pointer{height:38px;position:relative}.score-pointer span{position:absolute;left:clamp(2%,var(--score),98%);transform:translateX(-50%);text-align:center;font-size:11px;font-weight:bold;white-space:nowrap}.score-domain-title{color:#174b68}.score-domain-table th,.score-domain-table td{border:1px solid #cbdde9;padding:10px;text-align:left}.score-domain-table th{background:#e9f4fa}.score-foot{font-size:12px;border-top:1px solid #d7e5ed;padding-top:12px;margin-top:20px}@media print{body{margin:0}.score-head,.score-track span,.score-domain-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>${scoreSheet(h,I)}<h2>Study plan</h2>${I.weak.length ? `<ol>${I.weak.map(d=>`<li>Review ${esc(d.t.en)}, then retake a domain practice exam. Current score: ${d.p}%; training goal: ${DAY_TARGET}%.</li>`).join('')}</ol>` : '<p>Continue practicing across all domains to maintain your performance.</p>'}${I.unmeasured.length ? `<p>More questions are needed to assess: ${I.unmeasured.map(d=>esc(d.t.en)).join(', ')}.</p>` : ''}</html>`;
+  const X = h.exam, lang = h.lang || X?.lang;
+  if (!validExamLanguage(lang)) return chooseAttemptLanguage(h, () => routes.result(id));
+  const t = (ar, en) => lang === 'en' ? en : ar, I = examInsights(h), viol = (h.viol || []).filter(v => v.k !== 'cam');
+  examViewLanguage(lang);
+  const studyPlan = () => `${I.weak.length ? I.weak.map(d => `<p class="small">${t('راجع', 'Review')} <b>${esc(examText(d.t, lang))}</b> (${d.correct}/${d.total} · ${d.p}%). ${t(`ادرس هذا المجال وأعد اختباره؛ استهدف ${DAY_TARGET}% على الأقل.`, `Study this domain and retake its practice exam; aim for at least ${DAY_TARGET}%.`)}</p>`).join('') : `<p class="small">${t('لا يوجد مجال مقاس دون هدف الدراسة. واصل التدريب للتأكد من ثبات الأداء.', 'No measured domain is below the study goal. Continue practice exams to confirm consistency.')}</p>`}${I.unmeasured.length ? `<p class="small muted">${t('تحتاج أسئلة إضافية', 'More questions needed')}: ${I.unmeasured.map(d => esc(examText(d.t, lang))).join(lang === 'en' ? ', ' : '، ')}.</p>` : ''}`;
+  view.innerHTML = `<div class="stack report" lang="${lang}" dir="${examDirection(lang)}">${scoreSheet(h, I, lang)}<div class="card pad stack">
+      <div class="grid g3"><div class="kpi"><span class="small muted">${t('إجابات صحيحة', 'Correct answers')}</span><b class="num">${h.r}/${h.n}</b></div><div class="kpi"><span class="small muted">${t('غير مُجاب', 'Unanswered')}</span><b class="num">${I.unanswered == null ? '—' : I.unanswered}</b></div><div class="kpi"><span class="small muted">${t('معلَّم للمراجعة', 'Flagged for review')}</span><b class="num">${I.flagged == null ? '—' : I.flagged}</b></div></div>
+      <div class="blk stack"><h3>${t('تحليل الأداء والخطوات التالية', 'Performance analysis and next steps')}</h3>${studyPlan()}<a class="btn sm o" href="#plan-post">${t('فتح خطة الدراسة', 'Open the study plan')}</a></div>
+      ${h.proctor === 'cam' ? `<h3>${t('سجل المراقبة', 'Proctoring record')}</h3>${viol.length ? `<div class="scroll"><table><thead><tr><th>${t('الوقت', 'Time')}</th><th>${t('الحدث', 'Event')}</th></tr></thead><tbody>${viol.map(v => `<tr><td class="num small">${new Date(v.t).toLocaleTimeString(lang === 'en' ? 'en-GB' : 'ar')}</td><td>${esc(examViolationText(v, lang))}</td></tr>`).join('')}</tbody></table></div>` : `<div class="chip ok">${t('لم تُسجّل مخالفات', 'No events recorded')}</div>`}${(h.viol || []).some(v => v.k === 'cam') ? `<div class="tiny muted">${t('الكاميرا غير متاحة؛ روقب نشاط المتصفح.', 'Camera unavailable; browser activity was monitored.')}</div>` : ''}` : ''}
+      <div class="row"><button class="btn g" id="examPdf">${t('حفظ التقرير بصيغة PDF', 'Save PDF report')}</button><button class="btn g" id="examWord">${t('تنزيل Word', 'Download Word')}</button><button class="btn" data-start="${esc(h.spec)}">${t('إعادة اختبار مشابه', 'Retake similar exam')}</button><button class="btn o" data-start="wrong">${t('مراجعة الأخطاء', 'Review mistakes')}</button><button class="btn g" id="advise">${t('خطة دراسة بالذكاء الاصطناعي', 'AI study plan')}</button></div><div id="advOut"></div></div>
+    ${X ? `${isLegacyFullExam(X) ? `<div class="blk">${t('هذه نتيجة محاولة سابقة من البنك القديم. المراجعة تخص الأسئلة الأصلية في محاولتك.', 'This result is from an earlier question bank. Review shows the original questions in your attempt.')}</div>` : ''}<h2>${t('مراجعة الإجابات', 'Answer review')}</h2><div class="stack">${X.items.map((it, k) => { const q = examQuestion(X, it); if (!q) return `<p>${t('هذا السؤال المحفوظ غير متاح.', 'This saved question is unavailable.')}</p>`; const a = X.ans[k] || [], ok = sameSet(a, q.c), stem = examText(q.q, lang); return `<details class="card pad"><summary class="row between" style="cursor:pointer;list-style:none"><span class="row" style="gap:8px;min-width:0;flex:1"><span class="chip ${ok ? 'ok' : 'bad'} num">${k + 1}</span><span style="flex:1;min-width:0">${esc(stem.slice(0, 140))}${stem.length > 140 ? '…' : ''}</span></span>${X.fl[k] ? '<span class="chip a">⚑</span>' : ''}</summary>
+      <div class="stack" style="margin-top:10px"><div>${esc(stem)}</div>${questionFigure(q, lang)}<div class="opts">${it.ord.map((o, j) => `<div class="opt ${q.c.includes(o) ? 'right' : a.includes(o) ? 'wrong' : ''}" style="cursor:default"><span class="k">${LET[j]}</span><span class="txt">${esc(examText({[lang]: q.o?.[lang]?.[o]}, lang))}</span><span></span></div>`).join('')}</div><div class="expl ${ok ? '' : 'bad'}">${esc(examText(q.x, lang))}${q.ref ? `<div class="tiny muted">${t('المصدر', 'Reference')}: ${esc(examReference(q, lang))}</div>` : ''}</div></div></details>`; }).join('')}</div>` : `<p class="muted">${t('تُحفظ المراجعة التفصيلية لآخر ست محاولات فقط.', 'Detailed answer review is retained for the most recent six exams.')}</p>`}</div>`;
+  hydrateExamFigures();
+  const examReport = () => `<!doctype html><html lang="${lang}" dir="${examDirection(lang)}"><meta charset="utf-8"><title>ALSAEED | ${t('تقرير الاختبار التدريبي', 'Training Exam Report')}</title><style>body{font:15px Arial,sans-serif;color:#173552;line-height:1.55;margin:30px auto;max-width:850px}.score-sheet{border:1px solid #cbdde9}.score-head{display:flex;justify-content:space-between;align-items:center;padding:22px 28px;background:#f2f8fc;border-bottom:2px solid #c6dbe8}.score-brand{font-size:25px;font-weight:900;letter-spacing:2px;color:#155275}.score-head-title{font-size:20px;font-weight:800}.score-body{padding:26px 30px}.score-meta,.score-domain-table{width:100%;border-collapse:collapse}.score-meta{margin:12px 0 28px}.score-sheet[dir="ltr"] .score-meta td,.score-sheet[dir="ltr"] .score-domain-table th,.score-sheet[dir="ltr"] .score-domain-table td{text-align:start}.score-meta td{width:50%;padding:11px 14px;border:1px solid #ccdae4}.score-meta small{display:block;color:#58748a}.score-result{font-size:23px;font-weight:800;border-top:2px solid #acc9dc;padding-top:18px}.score-result strong,.score-domain-table td:last-child{color:#087a88}.score-sub,.score-foot{color:#58748a}.score-track-labels{display:flex;justify-content:space-between;direction:ltr;font-size:12px;color:#56738a;margin:9px 0}.score-track{display:flex;height:34px;direction:ltr}.s1{width:50%}.s2,.s3{width:15%}.s4{width:20%}.s1{background:#eab9c3}.s2{background:#f4e4a2}.s3{background:#a9ddd8}.s4{background:#087f8f}.score-pointer{height:38px;position:relative}.score-pointer span{position:absolute;left:clamp(2%,var(--score),98%);transform:translateX(-50%);text-align:center;font-size:11px;font-weight:bold;white-space:nowrap}.score-domain-title{color:#174b68}.score-domain-table th,.score-domain-table td{border:1px solid #cbdde9;padding:10px;text-align:start}.score-domain-table th{background:#e9f4fa}.score-foot{font-size:12px;border-top:1px solid #d7e5ed;padding-top:12px;margin-top:20px}@media print{body{margin:0}.score-head,.score-track span,.score-domain-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>${scoreSheet(h,I,lang)}<h2>${t('خطة الدراسة', 'Study plan')}</h2>${studyPlan()}</html>`;
   $('#examPdf').onclick = () => printReport(examReport());
   $('#examWord').onclick = () => exportWord('ALSAEED-RMP-report.doc',examReport());
-  $('#advise').onclick = () => AIX.ask(`My practice exam result for ${examEnglishTitle(h)}: ${h.r}/${h.n} (${h.pct}%). Domains: ${Object.entries(h.byD).map(([d, v]) => D.domains[d - 1].t.en + ' ' + v[0] + '/' + v[1]).join(', ')}. Write a seven-day study plan in English, 1–2 hours a day, starting with the weakest domain and recommending suitable domain, chapter, task, and full practice exams.`, { onText: t => { $('#advOut').innerHTML = `<div class="msg a">${esc(t)}</div>`; } });
+  $('#advise').onclick = () => { const out = $('#advOut'); AIX.ask(`My practice exam result: ${h.r}/${h.n} (${h.pct}%). Domains: ${Object.entries(h.byD).map(([d, v]) => examText(D.domains[d - 1]?.t, lang) + ' ' + v[0] + '/' + v[1]).join(', ')}. Write only in ${lang === 'en' ? 'English' : 'Arabic'} a seven-day study plan, 1–2 hours a day, starting with the weakest domain and recommending suitable domain, chapter, task, and full practice exams.`, { onText: text => { if (out.isConnected) out.innerHTML = `<div class="msg a">${esc(text)}</div>`; } }); };
 };
 
 // ---------------------------------------------------------------- PROGRESS
@@ -2494,7 +2626,7 @@ window.__gate = () => {
 
 function loginView() {
   $$('#nav a').forEach(a => a.classList.remove('on'));
-  view.className = 'fade';
+  view.className = 'fade'; view.removeAttribute('lang'); view.removeAttribute('dir');
   view.innerHTML = `<div class="auth-wrap"><div class="card auth">
     <div class="row" style="gap:12px"><span class="brand-mark">${CLS ? 'AL' : 'EA'}</span><div><b style="font-size:18px">${CLS ? 'منصة السعيد — الفصل الخاص' : 'أكاديمية إياد'}</b><span class="tiny muted" style="display:block">${CLS ? 'AL-LTC Private Classroom' : 'Eyad Academy'} · Dr. Mohamed Attia, PMI-ATP Instructor</span></div></div>
     <h1 style="font-size:1.45rem;margin-top:8px">تسجيل الدخول</h1>
@@ -2570,7 +2702,7 @@ window.__pendingAid = spec => (PENDING && PENDING.spec === spec ? PENDING.aid : 
 window.__onExamDone = (att, X) => {
   if (!SERVER || !ME) return;
   API.post('attempts', { kind: 'exam', ref: 'exam:' + att.spec, title: att.label + (att.mode === 'exam' ? ' (اختبار)' : ' (تدريب)'), score: att.r, max: att.n, dur: att.dur || 0, assignment_id: X.aid || null,
-    detail: { mode: att.mode, byD: att.byD, viol: (att.viol || []).length, proctor: att.proctor } }).then(() => { if (X.aid) toast('سُجّلت نتيجتك لدى المدرّب'); }).catch(e => toast(e.message));
+    detail: { mode: att.mode, lang: att.lang, byD: att.byD, viol: (att.viol || []).length, proctor: att.proctor } }).then(() => { if (X.aid) toast('سُجّلت نتيجتك لدى المدرّب'); }).catch(e => toast(e.message));
   PENDING = null;
 };
 async function recordGame(g) {

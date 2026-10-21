@@ -4,6 +4,7 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import QRCode from 'qrcode';
+import { createManualInvoiceIssuer } from './manual-invoices.js';
 
 export function installV16(ctx) {
   const { db, setting, setSetting, uid, sendJson, readJson, grant, jwtSecret } = ctx;
@@ -117,6 +118,8 @@ export function installV16(ctx) {
     db.prepare("UPDATE invoices SET status='issued', issued_at=? WHERE order_id=? OR purchase_id=?")
       .run(paidAt || Date.now(), orderId, orderId);
   }
+
+  const issueManualInvoice = createManualInvoiceIssuer({ db, uid, config, createInvoice, markPaid });
 
   const initial = [
     ['why-pmo-fails', 'لماذا يفشل مكتب إدارة المشاريع في أول سنتين؟', 'Why PMOs Fail in Their First Two Years', 'إدارة المشاريع', 'قراءة عملية لأسباب التعثر وكيفية بناء مكتب يحقق أثرًا قابلًا للقياس.'],
@@ -299,7 +302,12 @@ export function installV16(ctx) {
     console.error('Package question bank copy skipped:', copyError.message);
   }
 
-  async function handleAdmin(req, res, parts, method) {
+  async function handleAdmin(req, res, parts, method, actor) {
+    if (parts[0] === 'manual-invoices' && parts.length === 1 && method === 'POST') {
+      let body; try { body = await readJson(req); } catch { return sendJson(res,400,{error:'بيانات غير صحيحة'}); }
+      try { return sendJson(res,200,issueManualInvoice(actor?.id,body)); }
+      catch (error) { return sendJson(res,error.status || 400,{error:error.message}); }
+    }
     if (parts[0] === 'blogs') {
       if (method === 'GET' && parts.length === 1) {
         return sendJson(res, 200, db.prepare('SELECT * FROM blogs ORDER BY created DESC').all().map(function (x) {
@@ -425,6 +433,8 @@ export function installV16(ctx) {
       const row = db.prepare('SELECT i.* FROM invoices i WHERE (i.id=? OR i.order_id=? OR i.invoice_no=?)').get(key, key, key);
       if (!row) return sendJson(res, 404, { error: 'الفاتورة غير موجودة' });
       if (user.role !== 'admin' && row.user_id !== user.id) return sendJson(res, 403, { error: 'لا يمكنك عرض هذه الفاتورة' });
+      if (user.role !== 'admin' && row.status !== 'issued')
+        return sendJson(res,409,{error:'الفاتورة لم تصدر بعد؛ يلزم تأكيد الدفع أولاً'});
       // A reference QR, not an ETA or ZATCA certified electronic-invoice code.
       const qr = await QRCode.toDataURL(JSON.stringify({ reference:row.invoice_no,
         date:new Date(row.issued_at || row.created).toISOString(), seller:row.seller_name,

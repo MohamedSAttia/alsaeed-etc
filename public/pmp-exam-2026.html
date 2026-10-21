@@ -296,7 +296,7 @@ footer{padding:26px 0;text-align:center;color:var(--dim);font-size:.78rem;border
     <div class="qhead">
       <div class="lft"><span class="badge bg-gold" id="qType"></span><span class="badge bg-t" id="qCh"></span></div>
       <div class="rgt">
-        <button class="btn btn-sm btn-v" id="bLang" onclick="toggleLang()">🌐 عربي</button>
+        <span class="badge bg-info" id="examLanguage"></span>
         <button class="btn btn-sm btn-v" id="bAI" onclick="openAI()">🤖 اسأل د. محمد عطية</button>
         <button class="btn btn-sm btn-o" id="bFlag" onclick="toggleFlag()">🚩 علّم</button>
         <button class="btn btn-sm btn-t" id="bGold" onclick="toggleGold()">⭐ ذهبي</button>
@@ -372,15 +372,102 @@ window.PMPEXAMS={"exam1":{"caseId":"case1","s2":[685,254,590,157,702,282,618,367
 <script>
 const BANK=window.PMPBANK||[], EXAMS=window.PMPEXAMS||{}, CASES=window.PMPCASES||{};
 const byId={}; BANK.forEach(b=>byId[b.id]=b);
+// Reviewed corrections to the legacy English fields. Keep option positions and scoring unchanged.
+const LEGACY_ENGLISH_OPTIONS={197:{3:'Ask the project sponsor to intervene and motivate the underperforming stakeholders.'}};
+const LEGACY_ENGLISH_GRAPHIC_LABELS={'لوحة مؤشرات المسار التنبؤي':'Predictive workstream dashboard','سعر المورّد':'Supplier price','أجر العمالة':'Labor cost','تكلفة المواد':'Material cost','سعر العملة':'Exchange rate'};
+function englishGraphic(svg){return svg?svg.replace(/[\u0600-\u06ff]+(?:[ \t]+[\u0600-\u06ff]+)*/g,label=>LEGACY_ENGLISH_GRAPHIC_LABELS[label]||label):null;}
+function englishExplanation(text){return text?text.replace('Keywords | الكلمات المفتاحية:','Keywords:').replace('المراجع | References:','References:').replace('teaة likely','team likely'):text;}
+
 const DOM_AR={people:'الأشخاص',process:'العمليات',business:'بيئة الأعمال'};
 const DOM_EN={people:'People',process:'Process',business:'Business Environment'};
 const AP_AR={predictive:'تنبؤي',agile:'رشيق',hybrid:'مختلط',general:'عام'};
 const AP_EN={predictive:'Predictive',agile:'Agile',hybrid:'Hybrid',general:'General'};
-const TYPE_AR={S:'اختيار مفرد',M:'اختيار متعدد (اختر كل ما ينطبق)',MT:'توصيل (Matching)',GR:'سؤال رسم بياني (Graphic)',HS:'نقر على الصورة (Point & Click)',OR:'ترتيب/سحب (Drag & Drop)',FB:'إكمال فراغ (Fill-in-blank)',EM:'مطابقة معزّزة — سحب وإفلات (Enhanced Matching)',PD:'قائمة منسدلة (Pull-down List)',GRM:'سؤال رسم/مستند — اختيار متعدد (Graphic-Based)'};
+const TYPE_AR={S:'اختيار مفرد',M:'اختيار متعدد (اختر كل ما ينطبق)',MT:'توصيل',GR:'سؤال رسم بياني',HS:'نقر على الصورة',OR:'ترتيب',FB:'إكمال فراغ',EM:'مطابقة معزّزة',PD:'قائمة منسدلة',GRM:'رسم أو مستند — اختيار متعدد'};
 const PASS=0.65, ABOVE=0.75, LOW=0.55;
 const EXAM_CFG={breakSec:600,caseCount:10,sectionTwoEnd:94,totalQuestions:180};
 const MODE_AR={exam1:'الاختبار الكامل 1',exam2:'الاختبار الكامل 2',exam3:'الاختبار الكامل 3',exam4:'الاختبار الكامل 4',approach:'حسب النهج',domain:'حسب المجال',chapter:'حسب الموضوع',golden:'الاختبار الذهبي',custom:'تدريب مخصّص'};
 let S=null, timerInt=null, paused=false, breakInt=null;
+const TYPE_EN={S:'Single choice',M:'Multiple choice (select all that apply)',MT:'Matching',GR:'Graphic question',HS:'Point and click',OR:'Ordering',FB:'Fill in the blank',EM:'Enhanced matching',PD:'Pull-down list',GRM:'Graphic or document: multiple choice'};
+const MODE_EN={exam1:'Full exam 1',exam2:'Full exam 2',exam3:'Full exam 3',exam4:'Full exam 4',approach:'By approach',domain:'By domain',chapter:'By topic',golden:'Golden exam',custom:'Custom practice'};
+const CH_AR={'Project Management Framework':'إطار إدارة المشاريع','Change-Driven Life Cycle ( Adaptive/Agile)':'دورة الحياة التكيفية والرشيقة','Scope':'النطاق','Finance':'التمويل','Governance':'الحوكمة','Introduction':'مقدمة','Risk':'المخاطر','Value Delivery and Benefits Realization':'تسليم القيمة وتحقيق الفوائد','Plan-Driven Life Cycle (Waterfall)':'دورة الحياة التنبؤية','Hybrid Life Cycle':'دورة الحياة المختلطة','Stakeholders':'أصحاب المصلحة','Resources':'الموارد','Schedule':'الجدول الزمني','Artificial Intelligence':'الذكاء الاصطناعي','Al Saeed Authored':'أسئلة السعيد','Al Saeed Authored — v8':'أسئلة السعيد — الإصدار 8'};
+const T=(ar,en)=>S&&S.lang==='en'?en:ar;
+const chapterName=it=>S&&S.lang==='ar'?(it.chAr||CH_AR[it.ch]||'موضوع عام'):(it.ch||'General topic');
+const optionText=it=>S.lang==='ar'?it.optsAr:it.opts;
+const questionText=it=>S.lang==='ar'?it.qAr:it.q;
+const feedbackText=it=>explanationInLanguage(it,S.lang)||T('الشرح غير متاح بالعربية لهذا السؤال.','An English explanation is not available for this question.');
+const staticWords=new Map([
+ ['منصة السعيد','Al Saeed Platform'],['محاكي الاختبار الدولي — نمط','International exam simulator'],['ECO يوليو 2026','July 2026 ECO'],
+ ['🏠 الرئيسية','🏠 Home'],['⭐ الاختبار الذهبي','⭐ Golden exam'],['🔄 اختبار جديد','🔄 New exam'],
+ ['📄 دراسة الحالة —','📄 Case study'],['🤖 اسأل د. محمد عطية','🤖 Ask Dr. Mohamed Attia'],['🚩 علّم','🚩 Flag'],['⭐ ذهبي','⭐ Golden'],
+ ['→ السابق','← Previous'],['✔️ فحص الإجابة','✔️ Check answer'],['التالي ←','Next →'],['خريطة الأسئلة','Question map'],
+ ['مُجابة','Answered'],['الحالية','Current'],['فارغة','Unanswered'],['معلّمة','Flagged'],['🔒 قسم مقفول','🔒 Locked section'],
+ ['🧮 آلة حاسبة','🧮 Calculator'],['مسح','Clear'],['📝 ملاحظات','📝 Notes'],['اكتب ملاحظاتك هنا…','Write your notes here…'],
+ ['د. محمد عطية — مساعد ذكي','Dr. Mohamed Attia — Assistant'],['لماذا الإجابة الصحيحة؟','Why is this answer correct?'],['لماذا باقي الخيارات خطأ؟','Why are the other choices wrong?'],['بسّط السؤال','Simplify the question'],['قاعدة/نصيحة','Rule or tip'],['المرجع والمجال','Reference and domain'],['اسأل عن السؤال…','Ask about this question…'],['إرسال','Send'],['⚙️ تفعيل الذكاء الاصطناعي المتقدّم (مفتاح API اختياري)','⚙️ Enable advanced AI (optional API key)'],
+ ['الاختبار متوقّف مؤقتًا','Exam paused'],['▶️ استئناف','▶️ Resume'],['استراحة','Break'],['استرِح قليلاً. بعد بدء الاستراحة','Take a short break. Once the break starts'],['لا يمكنك الرجوع إلى أسئلة القسم السابق','you cannot return to the previous section'],['— تمامًا كما في اختبار PMI الرسمي.','as in the official PMI exam.'],['▶️ متابعة القسم التالي الآن','▶️ Continue to the next section now'],
+ ['المحتوى محمي — عُد إلى النافذة لمتابعة الاختبار','Protected content: return to this window to continue'],['تم إخفاء الأسئلة مؤقتًا لحماية المحتوى.','Questions are temporarily hidden to protect this content.'],
+ ['إيقاف مؤقت','Pause'],['آلة حاسبة','Calculator'],['ملاحظات','Notes'],['إنهاء وتسليم','Finish and submit'],
+ ['© منصة السعيد','© Al Saeed Platform'],['— إعداد وتصميم وبرمجة د. محمد عطية · Al Saeed ETC · محتوى محمي · نمط ECO يوليو 2026','— Dr. Mohamed Attia · Al Saeed ETC · Protected content · July 2026 ECO']
+]);
+const originalUI=new WeakMap();
+function applyExamLanguage(lang=S.lang){
+  document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  for(const root of document.querySelectorAll('header,#exam,#calc,#notes,#ai,#pauseOv,#breakOv,#blurOv,footer')){
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+    while((n=walker.nextNode())){
+      const old=originalUI.get(n),base=old===undefined?n.nodeValue:old,trim=base.trim();
+      if(staticWords.has(trim)){originalUI.set(n,base);n.nodeValue=base.replace(trim,lang==='en'?staticWords.get(trim):trim);}
+    }
+    for(const el of root.querySelectorAll('[title],[placeholder]'))for(const attr of ['title','placeholder']){
+      if(!el.hasAttribute(attr))continue;
+      const key='original'+attr,base=el.dataset[key]||el.getAttribute(attr);
+      if(staticWords.has(base)){el.dataset[key]=base;el.setAttribute(attr,lang==='en'?staticWords.get(base):base);}
+    }
+  }
+}
+function completeText(v){return typeof v==='string'&&!!v.trim();}
+function textInLanguage(v,lang){return completeText(v)&&(lang!=='en'||!/[\u0600-\u06ff]/.test(v));}
+function explanationInLanguage(it,lang){const value=lang==='ar'?it.fAr:it.f;return textInLanguage(value,lang)?value:'';}
+function completeList(v,n){return Array.isArray(v)&&v.length===n&&v.every(completeText);}
+function itemHasLanguage(it,lang){
+  const ar=lang==='ar',opts=ar?it.optsAr:it.opts;
+  if(!textInLanguage(ar?it.qAr:it.q,lang))return false;
+  if(it.t!=='FB'&&(!completeList(opts,it.opts.length)||!opts.every(o=>textInLanguage(o,lang))))return false;
+  if(it.prompts&&!it.prompts.every(pr=>textInLanguage(ar?pr.a:pr.e,lang)))return false;
+  if(it.pdSentence&&!textInLanguage(ar?it.pdSentence.a:it.pdSentence.e,lang))return false;
+  if(it.t==='FB'&&!(ar?it.acceptA:it.accept)?.some(value=>textInLanguage(value,lang)))return false;
+  const cs=it.caseId&&CASES[it.caseId];
+  if(it.caseId&&(!cs||!textInLanguage(ar?cs.sc?.a:cs.sc?.e,lang)||(cs.title&&!textInLanguage(ar?cs.title.a:cs.title.e,lang))))return false;
+  // Graphics need authored labels in the selected language as well.
+  if(it.svg){
+    const graphic=ar?it.svgAr:it.svgEn||it.svg;
+    if(!graphic)return false;
+    if(!ar&&/[\u0600-\u06ff]/.test(graphic))return false;
+  }
+  return true;
+}
+function validateExamLanguage(items,lang){
+  const missing=items.filter(it=>!itemHasLanguage(it,lang)).length;
+  if(items.length&&!missing){
+    const noExplanation=items.filter(it=>!explanationInLanguage(it,lang)).length;
+    if(noExplanation&&!confirm(lang==='ar'?`لا يتوفر شرح عربي لـ ${noExplanation} سؤال. ستبقى الأسئلة والخيارات بالعربية، وسيظهر تنبيه بدلاً من الشرح المفقود. بدء الاختبار؟`:`${noExplanation} question(s) have no English explanation. Questions and choices remain in English; review will show an unavailable notice. Start the exam?`))return false;
+    return true;
+  }
+  const msg=lang==='ar'?`لا يمكن بدء الاختبار: النسخة العربية غير مكتملة في ${missing} سؤال، بما يشمل الخيارات والأشكال. لم يبدأ المؤقّت. اختر الإنجليزية أو انتظر تحديث المحتوى.`
+    :`Cannot start: the English version is incomplete for ${missing} question(s), including choices or graphics. The timer has not started. Choose another language or wait for updated content.`;
+  const el=document.getElementById('examLanguageError');if(el){el.lang=lang;el.dir=lang==='ar'?'rtl':'ltr';el.textContent=msg;}else alert(msg);
+  return false;
+}
+function requestExamLanguage(run){
+  if(document.getElementById('examLanguageDialog'))return;
+  const dialog=document.createElement('dialog');dialog.id='examLanguageDialog';
+  dialog.style.cssText='border:1px solid #ddd;border-radius:18px;padding:28px;max-width:480px;width:calc(100% - 32px);margin:auto';
+  dialog.innerHTML='<h3>اختر لغة الاختبار / Choose exam language</h3><p>تُطبّق على الأسئلة والخيارات والشرح. / Applies to questions, choices and review.</p><div class="cfg"><button class="btn btn-g" data-exam-language="ar">العربية</button><button class="btn btn-g" data-exam-language="en">English</button></div><p id="examLanguageError" role="alert"></p><button class="btn btn-o" id="examLanguageCancel">إلغاء / Cancel</button>';
+  document.body.appendChild(dialog);
+  dialog.querySelectorAll('[data-exam-language]').forEach(b=>b.onclick=()=>{if(run(b.dataset.examLanguage)){dialog.close();dialog.remove();}});
+  dialog.querySelector('#examLanguageCancel').onclick=()=>{dialog.close();dialog.remove();};dialog.oncancel=()=>dialog.remove();dialog.showModal();
+}
+function resetAttemptTimers(){clearInterval(timerInt);clearInterval(breakInt);paused=false;document.getElementById('breakOv').classList.remove('on');document.getElementById('pauseOv').classList.remove('on');document.getElementById('ai').classList.remove('on');}
+
 function loadGold(){try{return JSON.parse(localStorage.getItem('pmpGold'))||{flag:[],wrong:[]}}catch(e){return{flag:[],wrong:[]}}}
 function saveGold(g){localStorage.setItem('pmpGold',JSON.stringify(g))}
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML}
@@ -414,7 +501,11 @@ function pickMode(el){document.querySelectorAll('.mode').forEach(m=>m.classList.
   document.getElementById('setupInfo').textContent=isFullExam(MODE)?'180 سؤالاً خلال 240 دقيقة: 10 أسئلة سيناريو + استراحة 10 دقائق + الأسئلة 11–94 + استراحة 10 دقائق + الأسئلة 95–180.':'تدريب مركّز بدون قسم حالة/استراحة.';}
 /* build item per type */
 function mkItem(q,shufA){
-  const it={id:q.id,q:q.q,qa:q.qa,t:q.t,dm:q.dm,ap:q.ap,ch:q.ch,ex:q.ex,f:q.f,fa:q.fa,svg:q.svg||null,caseId:q.caseId||null,
+  const corrected=LEGACY_ENGLISH_OPTIONS[q.id];
+  if(corrected)q={...q,o:q.o.map((o,i)=>corrected[i]||o)};
+  // This legacy matching question stored the Arabic/English prompt fields in reverse.
+  if(q.id===856)q={...q,prompts:q.prompts.map(pr=>({a:pr.e,e:pr.a}))};
+  const it={id:q.id,q:q.q,qa:q.qa,t:q.t,dm:q.dm,ap:q.ap,ch:q.ch,chAr:q.chAr,ex:q.ex,f:englishExplanation(q.f),fa:q.fa,svg:q.svg||null,svgAr:q.svgAr||null,svgEn:q.svgEn||englishGraphic(q.svg),caseId:q.caseId||null,
     accept:q.accept||null,acceptA:q.acceptA||null,prompts:q.prompts||null,
     sel:[],match:{},order:[],text:'',qAr:q.qa||null,optsAr:null,fAr:q.fa||null,ai:[],rat:null};
   it.emMap=q.emMap||null; it.pdSentence=q.pdSentence||null; it.emPick=null;
@@ -440,12 +531,13 @@ function buildQuestions(mode){let ids=[];
   const n=Math.min(parseInt(document.getElementById('numQ').value)||30,pool.length);
   return shuffle(pool.map(b=>b.id)).slice(0,n).map(id=>byId[id]);
 }
-function startExam(){
+function startExam(lang){
+  if(!['ar','en'].includes(lang)){requestExamLanguage(startExam);return false;}
   const shufA=document.getElementById('chkShufA').checked;
   const practice=document.getElementById('chkPractice').checked, noTimer=document.getElementById('chkNoTimer').checked;
   let items=[], sections=null, name=(document.getElementById('trainName').value||'').trim();
   if(isFullExam(MODE)){
-    const ex=EXAMS[MODE]; if(!ex){alert('هذا الاختبار غير متوفر.');return;}
+    const ex=EXAMS[MODE]; if(!ex){alert(lang==='ar'?'هذا الاختبار غير متوفر.':'This exam is unavailable.');return;}
     const caseQ=CASES[ex.caseId].qids.map(id=>byId[id]).filter(Boolean);
     let s2=ex.s2.slice(); shuffle(s2); s2=s2.slice(0,EXAM_CFG.totalQuestions-caseQ.length);
     const s2q=s2.map(id=>byId[id]).filter(Boolean);
@@ -453,33 +545,36 @@ function startExam(){
     const nCase=caseQ.length, secondEnd=EXAM_CFG.sectionTwoEnd;
     const useBreaks=document.getElementById('chkBreaks').checked;
     sections=[
-      {name:'السيناريو الطويل — الأسئلة 1–10',start:0,end:nCase,brk:useBreaks?EXAM_CFG.breakSec:0},
-      {name:'الأسئلة 11–94',start:nCase,end:secondEnd,brk:useBreaks?EXAM_CFG.breakSec:0},
-      {name:'الأسئلة 95–180',start:secondEnd,end:items.length,brk:0},
+      {name:lang==='ar'?'السيناريو الطويل — الأسئلة 1–10':'Case study — questions 1–10',start:0,end:nCase,brk:useBreaks?EXAM_CFG.breakSec:0},
+      {name:lang==='ar'?'الأسئلة 11–94':'Questions 11–94',start:nCase,end:secondEnd,brk:useBreaks?EXAM_CFG.breakSec:0},
+      {name:lang==='ar'?'الأسئلة 95–180':'Questions 95–180',start:secondEnd,end:items.length,brk:0},
     ];
   } else {
     const qs=buildQuestions(MODE);
-    if(!qs.length){alert(MODE==='golden'?'لا توجد أسئلة ذهبية بعد — علّم أسئلة بزر ⭐، وستُضاف الأخطاء تلقائيًا.':'لا توجد أسئلة مطابقة.');return;}
+    if(!qs.length){alert(lang==='ar'?(MODE==='golden'?'لا توجد أسئلة ذهبية بعد — علّم أسئلة بزر ⭐، وستُضاف الأخطاء تلقائيًا.':'لا توجد أسئلة مطابقة.'):'No matching questions are available for this exam.');return;}
     items=shuffle(qs.slice()).map(q=>mkItem(q,shufA));
   }
+  if(!validateExamLanguage(items,lang))return false;
+  resetAttemptTimers();
   const dur=noTimer?0:(isFullExam(MODE)?240*60:Math.round(items.length*1.3*60));
-  S={items,idx:0,practice,noTimer,dur,left:dur,name,mode:MODE,start:Date.now(),checked:{},flags:{},done:false,lang:'en',sections,curSection:0};
+  S={items,idx:0,practice,noTimer,dur,left:dur,name,mode:MODE,start:Date.now(),checked:{},flags:{},done:false,lang,sections,curSection:0};
   document.getElementById('setup').classList.add('hide');document.getElementById('report').classList.add('hide');
   document.getElementById('exam').classList.remove('hide');document.getElementById('bCheck').style.display=practice?'':'none';
-  buildWatermark();renderQ();buildGrid();startTimer();window.scrollTo(0,0);
+  applyExamLanguage();buildWatermark();buildGrid();renderQ();startTimer();window.scrollTo(0,0);
+  return true;
 }
 </script>
 <script>
 function curSec(){return S.sections?S.sections[S.curSection]:null}
 function renderQ(){const it=S.items[S.idx], ar=S.lang==='ar';
   const sec=curSec();
-  document.getElementById('xSec').textContent=sec?('📑 '+sec.name):'📝 تدريب';
+  document.getElementById('xSec').textContent=sec?('📑 '+sec.name):T('📝 تدريب','📝 Practice');
   document.getElementById('xSec').classList.toggle('hide',!sec);
-  document.getElementById('xQnum').textContent=`سؤال ${S.idx+1} / ${S.items.length}`;
-  document.getElementById('xDom').textContent='🗂️ '+DOM_AR[it.dm];
-  document.getElementById('xAp').textContent='🧭 '+AP_AR[it.ap];
-  document.getElementById('qType').textContent=TYPE_AR[it.t]||'سؤال';
-  document.getElementById('qCh').textContent='📚 '+(it.ch||'—');
+  document.getElementById('xQnum').textContent=`${T('سؤال','Question')} ${S.idx+1} / ${S.items.length}`;
+  document.getElementById('xDom').textContent='🗂️ '+(ar?DOM_AR:DOM_EN)[it.dm];
+  document.getElementById('xAp').textContent='🧭 '+(ar?AP_AR:AP_EN)[it.ap];
+  document.getElementById('qType').textContent=(ar?TYPE_AR:TYPE_EN)[it.t]||T('سؤال','Question');
+  document.getElementById('qCh').textContent='📚 '+chapterName(it);
   // case: two-panel split (scenario left | question right)
   const cs=document.getElementById('caseSplit'), qc=document.getElementById('qCard'), pane=document.getElementById('casePane');
   if(it.caseId&&CASES[it.caseId]){
@@ -493,12 +588,12 @@ function renderQ(){const it=S.items[S.idx], ar=S.lang==='ar';
   }
   // svg
   const sv=document.getElementById('qSvg');
-  if(it.svg){sv.classList.remove('hide');sv.innerHTML=it.svg;if(it.t==='HS')wireHotspots(it);}else{sv.classList.add('hide');sv.innerHTML='';}
+  if(it.svg){sv.classList.remove('hide');sv.innerHTML=ar?it.svgAr:(it.svgEn||it.svg);if(it.t==='HS')wireHotspots(it);}else{sv.classList.add('hide');sv.innerHTML='';}
   // stem
-  const qt=document.getElementById('qText');qt.className='qtext '+(ar?'ar':'en');qt.textContent=ar?(it.qAr||'… جارٍ الترجمة'):it.q;
-  document.getElementById('bLang').innerHTML=ar?'🌐 English':'🌐 عربي';
-  document.getElementById('bFlag').innerHTML=S.flags[it.id]?'🚩 إزالة':'🚩 علّم';
-  const g=loadGold();document.getElementById('bGold').innerHTML=g.flag.includes(it.id)?'⭐ ✓':'⭐ ذهبي';
+  const qt=document.getElementById('qText');qt.className='qtext '+(ar?'ar':'en');qt.textContent=questionText(it);
+  document.getElementById('examLanguage').textContent=ar?'العربية':'English';
+  document.getElementById('bFlag').innerHTML=S.flags[it.id]?T('🚩 إزالة','🚩 Unflag'):T('🚩 علّم','🚩 Flag');
+  const g=loadGold();document.getElementById('bGold').innerHTML=g.flag.includes(it.id)?'⭐ ✓':T('⭐ ذهبي','⭐ Golden');
   // body by type
   const body=document.getElementById('qBody');const checked=S.checked[it.id];
   if(it.t==='MT')renderMatching(it,ar,checked,body);
@@ -511,14 +606,13 @@ function renderQ(){const it=S.items[S.idx], ar=S.lang==='ar';
   // nav lock
   document.getElementById('bPrev').disabled=sec?(S.idx<=sec.start):(S.idx<=0);
   updateGrid();updateNavStats();
-  if(ar&&!it.qAr)translateItem(it).then(()=>{if(S.items[S.idx]===it)renderQ()});
 }
-function renderChoice(it,ar,checked,body){body.innerHTML='';const opts=ar&&it.optsAr?it.optsAr:it.opts;
+function renderChoice(it,ar,checked,body){body.innerHTML='';const opts=ar?it.optsAr:it.opts;
   it.opts.forEach((o,i)=>{const sel=it.sel.includes(i);let cls='opt '+(ar?'ar':'en')+(sel?' sel':'');
     if(checked){if(it.correct.includes(i))cls='opt '+(ar?'ar':'en')+' correct';else if(sel)cls='opt '+(ar?'ar':'en')+' wrong';}
     const d=document.createElement('div');d.className=cls;d.onclick=()=>pick(i);
-    let rat='';if(checked&&it.rat&&it.rat[i])rat=`<div class="rat">${esc(ar?it.rat[i].a:it.rat[i].e)}</div>`;
-    d.innerHTML=`<div class="mk">${String.fromCharCode(65+i)}</div><div class="ot">${esc(opts[i]||o)}</div>${rat}`;body.appendChild(d);});
+    let rat='';if(checked&&it.rat&&it.rat[i])rat=`<div class="rat">${esc((ar?it.rat[i].a:it.rat[i].e)||T('شرح الخيار غير متاح بالعربية.','An English explanation for this option is unavailable.'))}</div>`;
+    d.innerHTML=`<div class="mk">${String.fromCharCode(65+i)}</div><div class="ot">${esc(opts[i])}</div>${rat}`;body.appendChild(d);});
 }
 function pick(i){const it=S.items[S.idx];if(S.checked[it.id])return;
   if(it.t==='M'||it.t==='GRM'){const k=it.sel.indexOf(i);if(k>=0)it.sel.splice(k,1);else it.sel.push(i);}else it.sel=[i];renderQ();}
@@ -529,62 +623,62 @@ function wireHotspots(it){setTimeout(()=>{const sv=document.getElementById('qSvg
 });},0);}
 function renderMatching(it,ar,checked,body){body.innerHTML='';
   it.prompts.forEach((pr,pi)=>{let cls='mrow';if(checked){cls+=(it.match[pi]===it.correct[pi])?' ok':' no';}
-    const opts=ar&&it.optsAr?it.optsAr:it.opts;
-    let sel='<option value="">— اختر —</option>'+it.opts.map((o,oi)=>`<option value="${oi}" ${it.match[pi]===oi?'selected':''}>${esc(opts[oi]||o)}</option>`).join('');
+    const opts=ar?it.optsAr:it.opts;
+    let sel=`<option value="">${T('— اختر —','— Select —')}</option>`+it.opts.map((o,oi)=>`<option value="${oi}" ${it.match[pi]===oi?'selected':''}>${esc(opts[oi])}</option>`).join('');
     const d=document.createElement('div');d.className=cls;
     d.innerHTML=`<div class="mp">${esc(ar?pr.a:pr.e)}</div><select ${checked?'disabled':''} onchange="matchPick(${pi},this.value)">${sel}</select>`;body.appendChild(d);});
 }
 function pdPick(v){const it=S.items[S.idx];if(S.checked[it.id])return;it.sel=(v===''?[]:[parseInt(v)]);updateGrid();updateNavStats();}
 function matchPick(pi,v){const it=S.items[S.idx];if(S.checked[it.id])return;if(v==='')delete it.match[pi];else it.match[pi]=parseInt(v);updateGrid();updateNavStats();}
 function renderEM(it,ar,checked,body){body.innerHTML='';
-  const opts=ar&&it.optsAr?it.optsAr:it.opts;
+  const opts=ar?it.optsAr:it.opts;
   const wrap=document.createElement('div');wrap.className='em-wrap';
   const targets=document.createElement('div');targets.style.flex='1';
   const boxes=document.createElement('div');boxes.className='em-boxes';
-  boxes.innerHTML='<div style="font-size:.74rem;font-weight:800;color:var(--dim);margin-bottom:2px">صناديق الحالة</div>';
+  boxes.innerHTML=`<div style="font-size:.74rem;font-weight:800;color:var(--dim);margin-bottom:2px">${T('صناديق الحالة','Answer boxes')}</div>`;
   it.opts.forEach((o,i)=>{const used=Object.values(it.match).includes(i);
     const b=document.createElement('div');b.className='em-box'+(it.emPick===i?' active':'')+(used?' used':'');
-    b.textContent=opts[i]||o;
+    b.textContent=opts[i];
     if(!checked)b.onclick=()=>{it.emPick=(it.emPick===i?null:i);renderQ();};
     boxes.appendChild(b);});
   const tl=document.createElement('div');tl.className='em-targets';
-  tl.innerHTML='<div style="font-size:.74rem;font-weight:800;color:var(--dim)">اضغط صندوقًا ثم اضغط النقطة المناسبة</div>';
+  tl.innerHTML=`<div style="font-size:.74rem;font-weight:800;color:var(--dim)">${T('اضغط صندوقًا ثم اضغط النقطة المناسبة','Select a box, then select the matching target')}</div>`;
   it.prompts.forEach((pr,pi)=>{let cls='em-t';const has=it.match[pi]!==undefined;
     if(has)cls+=' filled';
     if(checked)cls+=(it.match[pi]===it.correct[pi])?' ok':' no';
     const d=document.createElement('div');d.className=cls;
-    const lbl=has?(opts[it.match[pi]]||it.opts[it.match[pi]]):'— أفلِت هنا —';
+    const lbl=has?(opts[it.match[pi]]):T('— أفلِت هنا —','— Drop here —');
     d.innerHTML=`<div class="tl">${esc(ar?pr.a:pr.e)}</div><div class="drop">${esc(lbl)}</div>`;
     if(!checked)d.onclick=()=>{if(it.emPick!==null){it.match[pi]=it.emPick;it.emPick=null;}else if(it.match[pi]!==undefined){delete it.match[pi];}renderQ();};
     tl.appendChild(d);});
   targets.appendChild(tl);wrap.appendChild(targets);wrap.appendChild(boxes);body.appendChild(wrap);
 }
 function renderPD(it,ar,checked,body){body.innerHTML='';
-  const opts=ar&&it.optsAr?it.optsAr:it.opts;
+  const opts=ar?it.optsAr:it.opts;
   const sent=it.pdSentence?(ar?it.pdSentence.a:it.pdSentence.e):'______';
   const parts=sent.split('______');
   let cls='';if(checked)cls=isCorrect(it)?'ok':'no';
-  const selHtml=`<select ${checked?'disabled':''} class="${cls}" onchange="pdPick(this.value)"><option value="">Select…</option>`+
-    it.opts.map((o,i)=>`<option value="${i}" ${it.sel[0]===i?'selected':''}>${esc(opts[i]||o)}</option>`).join('')+`</select>`;
+  const selHtml=`<select ${checked?'disabled':''} class="${cls}" onchange="pdPick(this.value)"><option value="">${T('اختر…','Select…')}</option>`+
+    it.opts.map((o,i)=>`<option value="${i}" ${it.sel[0]===i?'selected':''}>${esc(opts[i])}</option>`).join('')+`</select>`;
   const d=document.createElement('div');d.className='pd-sent '+(ar?'ar':'en');
   d.innerHTML=esc(parts[0])+selHtml+esc(parts[1]||'');
   body.appendChild(d);
   if(checked&&it.rat){const r=document.createElement('div');r.style.cssText='margin-top:4px';
-    r.innerHTML=it.opts.map((o,i)=>`<div style="font-size:.8rem;padding:7px 12px;border-radius:9px;margin-bottom:6px;background:${it.correct.includes(i)?'var(--emeraldS)':'#F8FAFC'};border:1px solid ${it.correct.includes(i)?'#A7F3D0':'var(--line)'}"><b>${esc(opts[i]||o)}:</b> ${esc(it.rat[i]?(ar?it.rat[i].a:it.rat[i].e):'')}</div>`).join('');
+    r.innerHTML=it.opts.map((o,i)=>`<div style="font-size:.8rem;padding:7px 12px;border-radius:9px;margin-bottom:6px;background:${it.correct.includes(i)?'var(--emeraldS)':'#F8FAFC'};border:1px solid ${it.correct.includes(i)?'#A7F3D0':'var(--line)'}"><b>${esc(opts[i])}:</b> ${esc((it.rat[i]?(ar?it.rat[i].a:it.rat[i].e):'')||T('شرح الخيار غير متاح بالعربية.','An English explanation for this option is unavailable.'))}</div>`).join('');
     body.appendChild(r);}
 }
-function renderOrder(it,ar,checked,body){body.innerHTML='<p class="muted" style="margin-bottom:10px">اضغط العناصر بالترتيب الصحيح. اضغط «إعادة» للبدء من جديد.</p>';
-  const opts=ar&&it.optsAr?it.optsAr:it.opts;
+function renderOrder(it,ar,checked,body){body.innerHTML=`<p class="muted" style="margin-bottom:10px">${T('اضغط العناصر بالترتيب الصحيح. اضغط «إعادة» للبدء من جديد.','Select the items in the correct order. Use Reset to start again.')}</p>`;
+  const opts=ar?it.optsAr:it.opts;
   it.dispOrder.forEach(orig=>{const pos=it.order.indexOf(orig);let cls='ord-item'+(pos>=0?' picked':'');
     if(checked){const correctPos=it.correct.indexOf(orig);if(pos===correctPos)cls+=' ok';else cls+=' no';}
     const d=document.createElement('div');d.className=cls;d.onclick=()=>orderPick(orig);
     d.innerHTML=`<div class="oi-num">${pos>=0?pos+1:'•'}</div><div class="ot">${esc(opts[orig])}</div>`;body.appendChild(d);});
-  if(!checked){const r=document.createElement('button');r.className='btn btn-o btn-sm';r.textContent='🔄 إعادة الترتيب';r.onclick=()=>{it.order=[];renderQ();};body.appendChild(r);}
+  if(!checked){const r=document.createElement('button');r.className='btn btn-o btn-sm';r.textContent=T('🔄 إعادة الترتيب','🔄 Reset order');r.onclick=()=>{it.order=[];renderQ();};body.appendChild(r);}
 }
 function orderPick(orig){const it=S.items[S.idx];if(S.checked[it.id])return;const k=it.order.indexOf(orig);if(k>=0)it.order.splice(k,1);else it.order.push(orig);renderQ();}
 function renderFB(it,ar,checked,body){const val=esc(it.text);let cls='fb-input';if(checked){cls+=isCorrect(it)?' ok':' no';}
-  body.innerHTML=`<input class="${cls}" id="fbIn" ${checked?'disabled':''} placeholder="اكتب إجابتك هنا…" value="${val}" oninput="fbInput(this.value)">`+
-    (checked?`<div class="muted">✅ الإجابة المقبولة: ${esc((ar?it.acceptA:it.accept||[]).join(' / ')||(it.accept||[]).join(' / '))}</div>`:'');
+  body.innerHTML=`<input class="${cls}" id="fbIn" ${checked?'disabled':''} placeholder="${T('اكتب إجابتك هنا…','Type your answer…')}" value="${val}" oninput="fbInput(this.value)">`+
+    (checked?`<div class="muted">✅ ${T('الإجابة المقبولة','Accepted answer')}: ${esc((ar?it.acceptA:it.accept||[]).join(' / '))}</div>`:'');
 }
 function fbInput(v){const it=S.items[S.idx];it.text=v;updateGrid();updateNavStats();}
 function answered(it){if(it.t==='EM')return Object.keys(it.match).length===it.prompts.length;if(it.t==='PD')return it.sel.length>0;if(it.t==='MT')return Object.keys(it.match).length===it.prompts.length;if(it.t==='OR')return it.order.length===it.opts.length;if(it.t==='FB')return it.text.trim()!=='';return it.sel.length>0;}
@@ -598,16 +692,16 @@ function isCorrect(it){
 function showFb(){const it=S.items[S.idx],ok=isCorrect(it),ar=S.lang==='ar';
   const fb=document.getElementById('qFb');fb.className='fb show '+(ok?'ok':'no');
   let ans='';
-  if(it.t==='EM')ans=it.prompts.map((pr,pi)=>`${esc(ar?pr.a:pr.e)} → ${esc((ar&&it.optsAr?it.optsAr:it.opts)[it.correct[pi]])}`).join('؛ ');
-  else if(it.t==='PD')ans=esc((ar&&it.optsAr?it.optsAr:it.opts)[it.correct[0]]);
-  else if(it.t==='MT')ans=it.prompts.map((pr,pi)=>`${esc(ar?pr.a:pr.e)} → ${esc((ar&&it.optsAr?it.optsAr:it.opts)[it.correct[pi]])}`).join('؛ ');
-  else if(it.t==='OR')ans=it.correct.map((orig,i)=>`${i+1}) ${esc((ar&&it.optsAr?it.optsAr:it.opts)[orig])}`).join('  ');
-  else if(it.t==='FB')ans=(ar?it.acceptA:it.accept||[]).join(' / ')||(it.accept||[]).join(' / ');
+  if(it.t==='EM')ans=it.prompts.map((pr,pi)=>`${esc(ar?pr.a:pr.e)} → ${esc((ar?it.optsAr:it.opts)[it.correct[pi]])}`).join(T('؛ ','; '));
+  else if(it.t==='PD')ans=esc((ar?it.optsAr:it.opts)[it.correct[0]]);
+  else if(it.t==='MT')ans=it.prompts.map((pr,pi)=>`${esc(ar?pr.a:pr.e)} → ${esc((ar?it.optsAr:it.opts)[it.correct[pi]])}`).join(T('؛ ','; '));
+  else if(it.t==='OR')ans=it.correct.map((orig,i)=>`${i+1}) ${esc((ar?it.optsAr:it.opts)[orig])}`).join('  ');
+  else if(it.t==='FB')ans=(ar?it.acceptA:it.accept||[]).join(' / ');
   else ans=it.correct.map(c=>String.fromCharCode(65+c)).join(' + ');
-  const expl=ar?(it.fAr||it.f):it.f;
-  fb.innerHTML=`<div class="ttl">${ok?'✅ إجابة صحيحة':'❌ إجابة غير صحيحة'} — الإجابة: ${esc(ans)}</div><div class="expl" style="${ar?'direction:rtl;text-align:right':'direction:ltr;text-align:left'}">${esc(expl||'')}</div><div class="ref"><span class="badge bg-info">${DOM_AR[it.dm]}</span><span class="badge bg-p">${AP_AR[it.ap]} / ${AP_EN[it.ap]}</span><span class="badge bg-t">${esc(it.ch||'PMBOK 8 / ECO')}</span></div>`;
-  if(ar&&!it.fAr&&it.f)translateItem(it).then(()=>{if(S.items[S.idx]===it&&S.checked[it.id])showFb()});}
-function checkAnswer(){const it=S.items[S.idx];if(!answered(it)){alert('أجب عن السؤال أولاً.');return;}S.checked[it.id]=true;if(!isCorrect(it)){const g=loadGold();if(!g.wrong.includes(it.id)){g.wrong.push(it.id);saveGold(g);}}renderQ();}
+  const expl=feedbackText(it);
+  fb.innerHTML=`<div class="ttl">${ok?T('✅ إجابة صحيحة','✅ Correct'):T('❌ إجابة غير صحيحة','❌ Incorrect')} — ${T('الإجابة','Answer')}: ${esc(ans)}</div><div class="expl" style="${ar?'direction:rtl;text-align:right':'direction:ltr;text-align:left'}">${esc(expl||'')}</div><div class="ref"><span class="badge bg-info">${(ar?DOM_AR:DOM_EN)[it.dm]}</span><span class="badge bg-p">${(ar?AP_AR:AP_EN)[it.ap]}</span><span class="badge bg-t">${esc(chapterName(it))}</span></div>`;
+}
+function checkAnswer(){const it=S.items[S.idx];if(!answered(it)){alert(T('أجب عن السؤال أولاً.','Answer the question first.'));return;}S.checked[it.id]=true;if(!isCorrect(it)){const g=loadGold();if(!g.wrong.includes(it.id)){g.wrong.push(it.id);saveGold(g);}}renderQ();}
 function go(d){const sec=curSec();
   if(d>0){
     if(sec&&S.idx+1>=sec.end){ // end of section
@@ -622,87 +716,87 @@ function go(d){const sec=curSec();
   renderQ();window.scrollTo({top:0,behavior:'smooth'});}
 function advanceSection(){S.curSection++;S.idx=S.sections[S.curSection].start;renderQ();buildGrid();window.scrollTo({top:0,behavior:'smooth'});}
 function startBreak(sec){paused=true;const ov=document.getElementById('breakOv');ov.classList.add('on');
-  document.getElementById('breakTitle').textContent='استراحة 10 دقائق — '+(S.curSection===0?'انتهت أسئلة السيناريو 1–10':'انتهت الأسئلة 11–94');
+  document.getElementById('breakTitle').textContent=T('استراحة 10 دقائق — ','10-minute break — ')+(S.curSection===0?T('انتهت أسئلة السيناريو 1–10','Case questions 1–10 finished'):T('انتهت الأسئلة 11–94','Questions 11–94 finished'));
   let left=sec;const t=document.getElementById('breakTimer');t.textContent=p2(Math.floor(left/60))+':'+p2(left%60);
   clearInterval(breakInt);breakInt=setInterval(()=>{left--;t.textContent=p2(Math.floor(left/60))+':'+p2(left%60);if(left<=0)endBreak();},1000);}
 function endBreak(){clearInterval(breakInt);document.getElementById('breakOv').classList.remove('on');paused=false;advanceSection();}
 function toggleFlag(){const it=S.items[S.idx];S.flags[it.id]=!S.flags[it.id];renderQ();}
 function toggleGold(){const it=S.items[S.idx];const g=loadGold();const k=g.flag.indexOf(it.id);if(k>=0)g.flag.splice(k,1);else g.flag.push(it.id);saveGold(g);renderQ();}
-/* translation */
-function tmem(){try{return JSON.parse(localStorage.getItem('pmpTM'))||{}}catch(e){return{}}}
-function tmemSave(m){try{localStorage.setItem('pmpTM',JSON.stringify(m))}catch(e){}}
-async function gtrans(text,to){if(!text)return '';
-  try{const u='https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+to+'&dt=t&q='+encodeURIComponent(text);const r=await fetch(u);const j=await r.json();return j[0].map(s=>s[0]).join('');}
-  catch(e){try{const u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,480))+'&langpair=en|'+to;const r=await fetch(u);const j=await r.json();return j.responseData.translatedText;}catch(e2){return '(تعذّرت الترجمة — تحقّق من الإنترنت)';}}}
-async function trOne(text,mem){if(!text)return '';if(mem[text])return mem[text];const r=await gtrans(text,'ar');if(r&&!r.startsWith('(تعذّرت'))mem[text]=r;return r;}
-async function translateItem(it){if(it.qAr&&it.optsAr&&(it.fAr||!it.f))return;const mem=tmem();
-  if(!it.qAr)it.qAr=await trOne(it.q,mem);
-  if(!it.optsAr&&it.opts&&it.opts.length){it.optsAr=[];for(const o of it.opts)it.optsAr.push(await trOne(o,mem));}
-  if(!it.fAr&&it.f)it.fAr=await trOne(it.f,mem);tmemSave(mem);}
-function toggleLang(){S.lang=S.lang==='ar'?'en':'ar';const it=S.items[S.idx];if(S.lang==='ar'&&!it.qAr){document.getElementById('bLang').innerHTML='⏳ …';translateItem(it).then(()=>renderQ());}else renderQ();}
+/* Exam language is chosen and validated before the attempt, never machine-translated mid-exam. */
 </script>
 <script>
 /* AI assistant */
-function openAI(){document.getElementById('ai').classList.add('on');const it=S.items[S.idx];if(!it.ai.length)aiPush('bot','السلام عليكم 👋 أنا مساعدك الذكي «د. محمد عطية». اسألني عن هذا السؤال أو اختر من الأزرار.');renderAI();}
+function openAI(){document.getElementById('ai').classList.add('on');const it=S.items[S.idx];if(!it.ai.length)aiPush('bot',T('أهلاً 👋 اختر أحد الأزرار لمراجعة هذا السؤال.','Hello 👋 Choose a button to review this question.'));renderAI();}
 function aiPush(who,txt){S.items[S.idx].ai.push({who,txt});}
-function renderAI(){const m=document.getElementById('aiMsgs');const it=S.items[S.idx];m.innerHTML=it.ai.map(x=>`<div class="ai-msg ${x.who}">${x.who==='bot'?'<b style="color:var(--violet)">د. محمد عطية:</b><br>':''}${esc(x.txt).replace(/\n/g,'<br>')}</div>`).join('');m.scrollTop=m.scrollHeight;}
-function corrText(it){if(it.t==='EM')return it.prompts.map((pr,pi)=>pr.e+' → '+it.opts[it.correct[pi]]).join('؛ ');if(it.t==='PD')return it.opts[it.correct[0]];if(it.t==='MT')return it.prompts.map((pr,pi)=>pr.e+' → '+it.opts[it.correct[pi]]).join('؛ ');if(it.t==='OR')return it.correct.map((o,i)=>(i+1)+') '+it.opts[o]).join('  ');if(it.t==='FB')return (it.accept||[]).join(' / ');return it.correct.map(c=>String.fromCharCode(65+c)+') '+it.opts[c]).join('  |  ');}
-function aiQuick(k){const it=S.items[S.idx];let r='';
-  if(k==='why')r=`الإجابة الصحيحة: ${corrText(it)}\n\nالسبب: ${it.f||'راجع المفهوم في المرجع.'}`;
-  else if(k==='wrong'){if(it.opts&&it.opts.length){r='🔍 تحليل الخيارات الخاطئة:\n';it.opts.forEach((o,i)=>{const isC=(it.t==='S'||it.t==='M'||it.t==='HS'||it.t==='GR')?it.correct.includes(i):false;if(!isC&&(it.t==='S'||it.t==='M'||it.t==='HS'||it.t==='GR'))r+=`\n• ${String.fromCharCode(65+i)}) ${o}\n  ↳ غير مناسب: لا يعالج جوهر الموقف كما الإجابة الصحيحة.\n`;});r+=`\n📌 القاعدة: الأصح يتوافق مع نهج ${AP_AR[it.ap]} ويعالج المطلوب مباشرةً.\n\n${it.f||''}`;}else r=it.f||'راجع الشرح.';}
-  else if(k==='simplify')r=`باختصار، السؤال في مجال «${DOM_AR[it.dm]}» ضمن نهج «${AP_AR[it.ap]}». نوعه: ${TYPE_AR[it.t]}. المطلوب: تحديد الإجراء/الترتيب/التوصيل الأصح. ركّز على الكلمات المفتاحية.`;
-  else if(k==='tip'){const tips={predictive:'التنبؤي: اتبع الخطة وخط الأساس وضبط التغيير الرسمي (CCB) والتوثيق.',agile:'الرشيق: القيادة الخادمة، تمكين الفريق، إزالة المعوقات، التسليم التدريجي.',hybrid:'المختلط: وثّق الأجزاء المستقرة ومرِّن المتغيّرة.',general:'افهم الموقف واجمع المعلومات قبل التصعيد، وفضّل الإجراء الاستباقي التشاركي.'};r=tips[it.ap]||tips.general;}
-  else if(k==='ref')r=`المجال: ${DOM_AR[it.dm]} / ${DOM_EN[it.dm]}\nالنهج: ${AP_AR[it.ap]}\nالنوع: ${TYPE_AR[it.t]}\nالمرجع: ${it.ch||'PMBOK® 8 / ECO 2026'}`;
+function renderAI(){const m=document.getElementById('aiMsgs');const it=S.items[S.idx];m.innerHTML=it.ai.map(x=>`<div class="ai-msg ${x.who}">${x.who==='bot'?`<b style="color:var(--violet)">${T('د. محمد عطية','Dr. Mohamed Attia')}:</b><br>`:''}${esc(x.txt).replace(/\n/g,'<br>')}</div>`).join('');m.scrollTop=m.scrollHeight;}
+function corrText(it){const opts=optionText(it),ar=S.lang==='ar';if(it.t==='EM')return it.prompts.map((pr,pi)=>(ar?pr.a:pr.e)+' → '+opts[it.correct[pi]]).join(T('؛ ','; '));if(it.t==='PD')return opts[it.correct[0]];if(it.t==='MT')return it.prompts.map((pr,pi)=>(ar?pr.a:pr.e)+' → '+opts[it.correct[pi]]).join(T('؛ ','; '));if(it.t==='OR')return it.correct.map((o,i)=>(i+1)+') '+opts[o]).join('  ');if(it.t==='FB')return ((ar?it.acceptA:it.accept)||[]).join(' / ');return it.correct.map(c=>String.fromCharCode(65+c)+') '+opts[c]).join('  |  ');}
+function aiQuick(k){const it=S.items[S.idx],ar=S.lang==='ar';let r='';
+  if(k==='why'||k==='wrong')r=T('الإجابة الصحيحة: ','Correct answer: ')+corrText(it)+'\n\n'+feedbackText(it);
+  else if(k==='simplify')r=questionText(it)+'\n\n'+T('حدّد المطلوب ثم قارن الخيارات.','Identify what is being asked, then compare the choices.');
+  else if(k==='tip')r=feedbackText(it);
+  else if(k==='ref')r=T('المجال: ','Domain: ')+(ar?DOM_AR:DOM_EN)[it.dm]+'\n'+T('النهج: ','Approach: ')+(ar?AP_AR:AP_EN)[it.ap]+'\n'+chapterName(it);
   aiPush('bot',r);renderAI();}
 function aiSend(){const inp=document.getElementById('aiInput');const q=inp.value.trim();if(!q)return;inp.value='';aiPush('usr',q);renderAI();
-  const key=localStorage.getItem('pmpAIKey');if(key){aiPush('bot','⏳ جارٍ التفكير…');renderAI();aiLLM(q,key);return;}
+  const key=localStorage.getItem('pmpAIKey');if(key){aiPush('bot',T('⏳ جارٍ التفكير…','⏳ Thinking…'));renderAI();aiLLM(q,key);return;}
   const t=q.toLowerCase();
-  if(/لماذا|why|صح|correct/.test(t))aiQuick('why');else if(/خطأ|wrong|باقي/.test(t))aiQuick('wrong');else if(/بسّط|بسط|simpl|اشرح/.test(t))aiQuick('simplify');else if(/نصيح|قاعد|tip/.test(t))aiQuick('tip');else if(/مرجع|مجال|ref/.test(t))aiQuick('ref');
-  else{aiPush('bot','سؤال جيّد! '+(S.items[S.idx].f||'راجع الشرح.')+'\n\n(لحوار حر أعمق فعّل الذكاء المتقدّم بمفتاح API ⚙️)');renderAI();}}
-async function aiLLM(q,key){const it=S.items[S.idx];const sys='أنت د. محمد عطية، مدرّب PMP خبير من Al Saeed ETC. اشرح بالعربية بإيجاز مستندًا إلى PMBOK 8 و ECO 2026.';
-  const ctx=`السؤال: ${it.q}\nالنوع: ${it.t}\nالخيارات: ${(it.opts||[]).map((o,i)=>String.fromCharCode(65+i)+') '+o).join(' | ')}\nالإجابة الصحيحة: ${corrText(it)}\nالشرح: ${it.f}\nاستفسار: ${q}`;
-  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-3-5-haiku-latest',max_tokens:600,system:sys,messages:[{role:'user',content:ctx}]})});const j=await r.json();const txt=(j.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n')||'(لا رد)';S.items[S.idx].ai.pop();aiPush('bot',txt);renderAI();}
-  catch(e){S.items[S.idx].ai.pop();aiPush('bot','تعذّر الاتصال. سأجيب محليًا:');renderAI();aiQuick('why');}}
-function aiSetKey(){const cur=localStorage.getItem('pmpAIKey')||'';const k=prompt('الصق مفتاح Anthropic API (يُحفظ محليًا فقط). اتركه فارغًا للإلغاء.',cur);if(k===null)return;if(k.trim()){localStorage.setItem('pmpAIKey',k.trim());alert('✅ تم التفعيل.');}else{localStorage.removeItem('pmpAIKey');alert('تم الإلغاء — المساعد يعمل محليًا.');}}
+  if(/مرجع|مجال|ref/.test(t))aiQuick('ref');else if(/بسّط|بسط|simpl/.test(t))aiQuick('simplify');else aiQuick('why');}
+async function aiLLM(q,key){const it=S.items[S.idx],lang=S.lang;
+  const sys=lang==='ar'?'أنت مساعد تدريب PMP. أجب بالعربية فقط اعتماداً على السؤال والشرح المتاحين. لا تخترع شرحاً مفقوداً.':'You are a PMP study assistant. Answer only in English, using the provided question and explanation. Do not invent a missing explanation.';
+  const ctx=questionText(it)+'\n'+optionText(it).join(' | ')+'\n'+corrText(it)+'\n'+feedbackText(it)+'\n'+q;
+  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-3-5-haiku-latest',max_tokens:600,system:sys,messages:[{role:'user',content:ctx}]})});const j=await r.json();const txt=(j.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('\n');
+    if(!S||!S.items.includes(it))return;it.ai.pop();it.ai.push({who:'bot',txt:txt||feedbackText(it)});if(S.items[S.idx]===it)renderAI();}
+  catch(e){if(!S||!S.items.includes(it))return;it.ai.pop();it.ai.push({who:'bot',txt:feedbackText(it)});if(S.items[S.idx]===it)renderAI();}}
+
+function aiSetKey(){const cur=localStorage.getItem('pmpAIKey')||'';const k=prompt(T('الصق مفتاح Anthropic API (يُحفظ محليًا فقط). اتركه فارغًا للإلغاء.','Paste your Anthropic API key (stored only locally). Leave blank to disable.'),cur);if(k===null)return;if(k.trim()){localStorage.setItem('pmpAIKey',k.trim());alert(T('✅ تم التفعيل.','✅ Enabled.'));}else{localStorage.removeItem('pmpAIKey');alert(T('تم الإلغاء — المساعد يعمل محليًا.','Disabled. The assistant works locally.'));}}
 /* grid/timer */
 function buildGrid(){const gr=document.getElementById('ngrid');gr.innerHTML='';const sec=curSec();
-  document.getElementById('secNote').textContent=sec?`(القسم الحالي: ${sec.name})`:'';
+  document.getElementById('secNote').textContent=sec?`(${T('القسم الحالي','Current section')}: ${sec.name})`:'';
   S.items.forEach((it,i)=>{const c=document.createElement('div');c.className='ncell';c.textContent=i+1;
     const locked=sec&&(i<sec.start);c.onclick=()=>{if(locked)return;const s2=curSec();if(s2&&i>=s2.end)return;S.idx=i;renderQ();window.scrollTo({top:0,behavior:'smooth'})};gr.appendChild(c);});updateGrid();}
 function updateGrid(){const g=loadGold();const sec=curSec();[...document.getElementById('ngrid').children].forEach((c,i)=>{const it=S.items[i];c.className='ncell';
   if(answered(it))c.classList.add('ans');if(i===S.idx)c.classList.add('cur');if(S.flags[it.id])c.classList.add('flag');if(g.flag.includes(it.id))c.classList.add('gold');
   if(sec&&(i<sec.start||i>=sec.end))c.classList.add('locked');});}
-function updateNavStats(){const ans=S.items.filter(it=>answered(it)).length;document.getElementById('navStats').textContent=`مُجابة: ${ans} / ${S.items.length}  ·  متبقٍّ: ${S.items.length-ans}  ·  معلّمة: ${Object.values(S.flags).filter(Boolean).length}`;}
-function startTimer(){clearInterval(timerInt);if(S.noTimer){document.getElementById('xTimer').textContent='∞';return;}timerInt=setInterval(()=>{if(paused)return;S.left--;const t=document.getElementById('xTimer');if(S.left<=0){clearInterval(timerInt);finishExam();return;}t.textContent=`${p2(Math.floor(S.left/3600))}:${p2(Math.floor(S.left%3600/60))}:${p2(S.left%60)}`;t.classList.toggle('warn',S.left<300);},1000);}
+function updateNavStats(){const ans=S.items.filter(it=>answered(it)).length;document.getElementById('navStats').textContent=`${T('مُجابة','Answered')}: ${ans} / ${S.items.length}  ·  ${T('متبقٍّ','Remaining')}: ${S.items.length-ans}  ·  ${T('معلّمة','Flagged')}: ${Object.values(S.flags).filter(Boolean).length}`;}
+function startTimer(){clearInterval(timerInt);if(S.noTimer){document.getElementById('xTimer').textContent='∞';return;}document.getElementById('xTimer').textContent=`${p2(Math.floor(S.left/3600))}:${p2(Math.floor(S.left%3600/60))}:${p2(S.left%60)}`;timerInt=setInterval(()=>{if(paused)return;S.left--;const t=document.getElementById('xTimer');if(S.left<=0){clearInterval(timerInt);finishExam(true);return;}t.textContent=`${p2(Math.floor(S.left/3600))}:${p2(Math.floor(S.left%3600/60))}:${p2(S.left%60)}`;t.classList.toggle('warn',S.left<300);},1000);}
 function togglePause(){if(document.getElementById('breakOv').classList.contains('on'))return;paused=!paused;document.getElementById('pauseOv').classList.toggle('on',paused);}
 /* report */
-function cat(pc){return pc>=ABOVE?['at','Above Target']:pc>=PASS?['tg','Target']:pc>=LOW?['bt','Below Target']:['ni','Needs Improvement'];}
-function finishExam(){if(!S||S.done)return;if(!confirm('إنهاء الاختبار وعرض النتيجة؟'))return;S.done=true;clearInterval(timerInt);clearInterval(breakInt);document.getElementById('breakOv').classList.remove('on');paused=false;
+function cat(pc){return pc>=ABOVE?['at',T('أعلى من المستهدف','Above Target')]:pc>=PASS?['tg',T('المستهدف','Target')]:pc>=LOW?['bt',T('أقل من المستهدف','Below Target')]:['ni',T('يحتاج تحسيناً','Needs Improvement')];}
+function finishExam(expired=false){if(!S||S.done)return;if(!expired&&!confirm(T('إنهاء الاختبار وعرض النتيجة؟','Finish the exam and show results?')))return;S.done=true;resetAttemptTimers();
+  const ar=S.lang==='ar',dir=ar?'rtl':'ltr';
   const g=loadGold();S.items.forEach(it=>{if(answered(it)&&!isCorrect(it)&&!g.wrong.includes(it.id))g.wrong.push(it.id);});saveGold(g);
   const total=S.items.length;let correct=0;const dm={people:[0,0],process:[0,0],business:[0,0]},ap={predictive:[0,0],agile:[0,0],hybrid:[0,0],general:[0,0]};
-  S.items.forEach(it=>{const ok=isCorrect(it);if(ok)correct++;dm[it.dm][1]++;if(ok)dm[it.dm][0]++;ap[it.ap][1]++;if(ok)ap[it.ap][0]++;});
+  S.items.forEach(it=>{const ok=isCorrect(it);if(ok)correct++;if(dm[it.dm]){dm[it.dm][1]++;if(ok)dm[it.dm][0]++;}if(ap[it.ap]){ap[it.ap][1]++;if(ok)ap[it.ap][0]++;}});
   const pct=total?correct/total:0,pass=pct>=PASS;
-  pushHist({date:new Date().toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'}),modeAr:MODE_AR[S.mode]||'اختبار',pct:Math.round(pct*100),correct,total,pass});
+  S.secs=Math.round((Date.now()-S.start)/1000);
+  pushHist({date:new Date().toLocaleString(ar?'ar-EG':'en-GB',{dateStyle:'short',timeStyle:'short'}),mode:S.mode,modeAr:MODE_AR[S.mode]||'اختبار',lang:S.lang,secs:S.secs,pct:Math.round(pct*100),correct,total,pass});
   document.getElementById('exam').classList.add('hide');document.getElementById('wm').classList.remove('on');
-  const R=document.getElementById('report');R.classList.remove('hide');const overall=cat(pct);
-  const cats=[['ni','Needs Improvement','#FADBE1','#E11D48'],['bt','Below Target','#FDEFD0','#D97706'],['tg','Target','#D8F3F0','#0284C7'],['at','Above Target','#B8ECE7','#0D8A8A']];
+  const R=document.getElementById('report');R.classList.remove('hide');R.dir=dir;R.lang=S.lang;const overall=cat(pct);
+  const cats=[['ni',T('يحتاج تحسيناً','Needs Improvement'),'#FADBE1','#E11D48'],['bt',T('أقل من المستهدف','Below Target'),'#FDEFD0','#D97706'],['tg',T('المستهدف','Target'),'#D8F3F0','#0284C7'],['at',T('أعلى من المستهدف','Above Target'),'#B8ECE7','#0D8A8A']];
   const barsHtml=cats.map(c=>{const hit=c[0]===overall[0];return `<div class="cat-row ${hit?'hit':''}"><div class="cat-bar" style="background:${hit?c[3]:c[2]}"></div><div class="cat-lbl">${c[1]}</div></div>`;}).join('');
   const domRates=['people','process','business'].map(d=>{const v=dm[d];const pc=v[1]?v[0]/v[1]:0;const c=cat(pc);return `<td class="rate ${c[0]}">${c[1]}<div style="font-size:.66rem;color:#8a97a8;font-weight:400;margin-top:2px">${v[0]}/${v[1]}</div></td>`;}).join('');
-  const apRows=Object.entries(ap).filter(([k,v])=>v[1]).map(([k,v])=>{const pc=v[1]?v[0]/v[1]:0;const c=cat(pc);return `<tr><td style="text-align:right">${AP_AR[k]} / ${AP_EN[k]}</td><td class="rate ${c[0]}">${c[1]}</td><td>${v[0]}/${v[1]}</td></tr>`;}).join('');
-  const dt=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});const pid='AS-'+Date.now().toString().slice(-7);
+  const apRows=Object.entries(ap).filter(([k,v])=>v[1]).map(([k,v])=>{const pc=v[1]?v[0]/v[1]:0;const c=cat(pc);return `<tr><td>${(ar?AP_AR:AP_EN)[k]}</td><td class="rate ${c[0]}">${c[1]}</td><td>${v[0]}/${v[1]}</td></tr>`;}).join('');
+  const dt=new Date().toLocaleDateString(ar?'ar-EG':'en-GB',{day:'2-digit',month:'short',year:'numeric'});const pid='AS-'+Date.now().toString().slice(-7);
   const wrongs=S.items.filter(it=>!isCorrect(it));
-  const wrongHtml=wrongs.map((it,i)=>`<div class="rev-q"><div class="qt" dir="ltr" style="text-align:left">${i+1}. [${it.t}] ${esc(it.q)}</div><div class="ans-line ok-c" dir="ltr" style="text-align:left">Correct: ${esc(corrText(it))}</div><div class="ans-line" style="color:var(--dim);white-space:pre-wrap;margin-top:6px" dir="ltr">${esc(it.f||'')}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="badge bg-info">${DOM_AR[it.dm]}</span><span class="badge bg-p">${AP_AR[it.ap]}</span><span class="badge bg-t">${esc(it.ch)}</span></div></div>`).join('');
-  R.innerHTML=`<div class="pmi-doc"><div class="pmi-hdr"><div><div class="k">Candidate</div><div class="v">${esc(S.name||'—')}</div></div><div><div class="k">Credential</div><div class="v" dir="ltr">Project Management Professional (PMP)<sup>®</sup></div></div><div><div class="k">Trainee ID</div><div class="v">${pid}</div></div><div><div class="k">Date</div><div class="v">${dt}</div></div><div><div class="k">TC ID</div><div class="v">Al Saeed ETC</div></div></div>
-    <div class="pmi-sec"><h3>Your Overall Score Performance: <span class="${pass?'pmi-pass':'pmi-fail'}">${pass?'Pass':'Fail'}</span></h3><p>${pass?'مبروك! اجتزت محاكاة نمط 2026 بنجاح.':'لم تجتز هذه المرة — راجع الأخطاء ثم أعد.'}</p><div class="cat-bars">${barsHtml}</div></div>
-    <div class="pmi-sec pmi-defs"><h3>What does this diagram mean?</h3><p>أربع فئات لتقييم أدائك العام. Four Performance Rating Categories.</p><p><b>Above Target:</b> يتجاوز الحد الأدنى.</p><p><b>Target:</b> يلبّي الحد الأدنى.</p><p><b>Below Target:</b> أقل قليلًا.</p><p><b>Needs Improvement:</b> أقل بكثير.</p><h3 style="margin-top:14px">How is your score determined?</h3><p>كل سؤال بنقطة، حدّ النجاح ${Math.round(PASS*100)}%.</p></div>
-    <div class="pmi-sec"><h3>Your Performance by Domain:</h3><p>وفق أوزان ECO يوليو 2026 (People 33% · Process 41% · Business 26%).</p><table class="dom-table"><tr><th>People</th><th>Process</th><th>Business Environment</th></tr><tr>${domRates}</tr></table><table class="dom-table" style="margin-top:14px"><tr><th style="text-align:right">النهج</th><th>التقييم</th><th>الصحيحة</th></tr>${apRows}</table></div>
-    <div class="pmi-sec" style="border-bottom:none"><h3>What Can You Do Next?</h3><p>${pass?'احتفل بإنجازك ونزّل شهادتك أدناه.':'تدرّب على أخطائك عبر الاختبار الذهبي ثم أعد.'}</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-g" onclick="showSetup()">🔄 اختبار جديد</button><button class="btn btn-o" onclick="retryWrong()">🎯 تدرّب على الأخطاء (${wrongs.length})</button><button class="btn btn-t" onclick="openGolden()">⭐ الاختبار الذهبي</button></div></div></div>
-    ${pass?`<div id="certWrap"><h2 class="sec" style="text-align:center;margin-top:26px">🏅 شهادة اجتياز المحاكاة</h2><canvas id="certCv" width="1240" height="960"></canvas><br><button class="btn btn-g" style="margin-top:12px" onclick="dlCert()">⬇️ تنزيل الشهادة (PNG)</button><div class="disc">⚠️ شهادة اجتياز محاكاة تدريبي — ليست شهادة <bdi class="tm">PMI®</bdi> الرسمية.</div></div>`:''}
-    ${wrongs.length?`<h2 class="sec" style="margin-top:28px">مراجعة الأخطاء (${wrongs.length})</h2>${wrongHtml}`:'<p class="muted" style="margin-top:20px;text-align:center">🌟 ممتاز — لا أخطاء!</p>'}`;
+  const wrongHtml=wrongs.map((it,i)=>`<div class="rev-q"><div class="qt" dir="${dir}" style="text-align:start">${i+1}. ${esc(questionText(it))}</div><div class="ans-line ok-c" dir="${dir}" style="text-align:start">${T('الإجابة الصحيحة','Correct answer')}: ${esc(corrText(it))}</div><div class="ans-line" style="color:var(--dim);white-space:pre-wrap;margin-top:6px" dir="${dir}">${esc(feedbackText(it))}</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="badge bg-info">${(ar?DOM_AR:DOM_EN)[it.dm]}</span><span class="badge bg-p">${(ar?AP_AR:AP_EN)[it.ap]}</span><span class="badge bg-t">${esc(chapterName(it))}</span></div></div>`).join('');
+  R.innerHTML=`<div class="pmi-doc"><div class="pmi-hdr"><div><div class="k">${T('المتدرب','Candidate')}</div><div class="v">${esc(S.name||'—')}</div></div><div><div class="k">${T('الاختبار','Exam')}</div><div class="v">${T('محاكاة محترف إدارة المشاريع','Project Management Professional simulation')} (PMP)</div></div><div><div class="k">${T('معرف المتدرب','Trainee ID')}</div><div class="v">${pid}</div></div><div><div class="k">${T('التاريخ','Date')}</div><div class="v">${dt}</div></div></div>
+    <div class="pmi-sec"><h3>${T('نتيجتك الإجمالية','Your overall score')}: ${Math.round(pct*100)}% <span class="${pass?'pmi-pass':'pmi-fail'}">${pass?T('ناجح','Pass'):T('لم يجتز','Fail')}</span></h3><p>${pass?T('مبروك! اجتزت المحاكاة بنجاح.','Congratulations! You passed the simulation.'):T('لم تجتز هذه المرة. راجع الأخطاء ثم أعد.','Not passed this time. Review your mistakes, then try again.')}</p><div class="cat-bars">${barsHtml}</div></div>
+    <div class="pmi-sec pmi-defs"><h3>${T('كيف تُحسب النتيجة؟','How is the score calculated?')}</h3><p>${T('كل سؤال بنقطة. حد النجاح','Each question is worth one point. Pass mark')}: ${Math.round(PASS*100)}%.</p><p>${T('أربع فئات لتقييم أدائك العام.','Four rating categories describe your overall performance.')}</p></div>
+    <div class="pmi-sec"><h3>${T('الأداء حسب المجال','Performance by domain')}</h3><table class="dom-table"><tr><th>${(ar?DOM_AR:DOM_EN).people}</th><th>${(ar?DOM_AR:DOM_EN).process}</th><th>${(ar?DOM_AR:DOM_EN).business}</th></tr><tr>${domRates}</tr></table><table class="dom-table" style="margin-top:14px"><tr><th>${T('النهج','Approach')}</th><th>${T('التقييم','Rating')}</th><th>${T('الصحيحة','Correct')}</th></tr>${apRows}</table></div>
+    <div class="pmi-sec" style="border-bottom:none"><h3>${T('الخطوة التالية','What can you do next?')}</h3><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-g" onclick="showSetup()">🔄 ${T('اختبار جديد','New exam')}</button><button class="btn btn-o" onclick="retryWrong()">🎯 ${T('تدرّب على الأخطاء','Practise mistakes')} (${wrongs.length})</button><button class="btn btn-t" onclick="openGolden()">⭐ ${T('الاختبار الذهبي','Golden exam')}</button></div></div></div>
+    ${pass?`<div id="certWrap"><h2 class="sec" style="text-align:center;margin-top:26px">🏅 ${T('شهادة اجتياز المحاكاة','Simulation completion certificate')}</h2><canvas id="certCv" width="1240" height="960"></canvas><br><button class="btn btn-g" style="margin-top:12px" onclick="dlCert()">⬇️ ${T('تنزيل الشهادة','Download certificate')} (PNG)</button><div class="disc">⚠️ ${T('شهادة محاكاة تدريبية، وليست شهادة PMI الرسمية.','A training simulation certificate, not an official PMI credential.')}</div></div>`:''}
+    ${wrongs.length?`<h2 class="sec" style="margin-top:28px">${T('مراجعة الأخطاء','Review mistakes')} (${wrongs.length})</h2>${wrongHtml}`:`<p class="muted" style="margin-top:20px;text-align:center">🌟 ${T('ممتاز — لا أخطاء!','Excellent, no mistakes!')}</p>`}`;
   if(pass)drawCert(pct,correct,total,pid);window.scrollTo(0,0);}
-function retryWrong(){const w=S.items.filter(it=>!isCorrect(it)).map(it=>it.id);if(!w.length){alert('لا أخطاء 🎉');return;}document.getElementById('report').classList.add('hide');runCustom(w.map(id=>byId[id]));}
-function runCustom(qs){const items=shuffle(qs.slice()).map(q=>mkItem(q,true));S={items,idx:0,practice:true,noTimer:true,dur:0,left:0,name:S?S.name:'',mode:'custom',start:Date.now(),checked:{},flags:{},done:false,lang:S?S.lang:'en',sections:null,curSection:0};document.getElementById('setup').classList.add('hide');document.getElementById('exam').classList.remove('hide');document.getElementById('bCheck').style.display='';buildWatermark();renderQ();buildGrid();startTimer();window.scrollTo(0,0);}
-function openGolden(){const g=loadGold();const ids=[...new Set([...g.flag,...g.wrong])];if(!ids.length){alert('الاختبار الذهبي فارغ. علّم أسئلة بزر ⭐، وستُضاف الأخطاء تلقائيًا.');return;}if(!confirm(`الاختبار الذهبي ${ids.length} سؤالاً. تشغيل؟`))return;document.getElementById('report').classList.add('hide');runCustom(ids.map(id=>byId[id]).filter(Boolean));}
+function retryWrong(){const w=S.items.filter(it=>!isCorrect(it)).map(it=>it.id);if(!w.length){alert(T('لا أخطاء 🎉','No errors 🎉'));return;}runCustom(w.map(id=>byId[id]).filter(Boolean));}
+function runCustom(qs,lang){
+  if(!['ar','en'].includes(lang)){requestExamLanguage(chosen=>runCustom(qs,chosen));return false;}
+  const items=shuffle(qs.slice()).map(q=>mkItem(q,true));
+  if(!validateExamLanguage(items,lang))return false;
+  resetAttemptTimers();
+  S={items,idx:0,practice:true,noTimer:true,dur:0,left:0,name:S?S.name:'',mode:'custom',start:Date.now(),checked:{},flags:{},done:false,lang,sections:null,curSection:0};
+  document.getElementById('setup').classList.add('hide');document.getElementById('report').classList.add('hide');document.getElementById('exam').classList.remove('hide');document.getElementById('bCheck').style.display='';
+  applyExamLanguage();buildWatermark();buildGrid();renderQ();startTimer();window.scrollTo(0,0);return true;
+}
+function openGolden(){const g=loadGold();const ids=[...new Set([...g.flag,...g.wrong])];if(!ids.length){alert(T('الاختبار الذهبي فارغ. علّم أسئلة بزر ⭐، وستُضاف الأخطاء تلقائيًا.','The golden exam is empty. Star questions; mistakes are added automatically.'));return;}runCustom(ids.map(id=>byId[id]).filter(Boolean));}
 /* certificate */
 function drawCert(pct,correct,total,pid){const cv=document.getElementById('certCv');if(!cv)return;const x=cv.getContext('2d');const W=cv.width,H=cv.height;
   x.fillStyle='#2E1F5E';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.fillRect(40,40,W-80,H-80);x.strokeStyle='#2E1F5E';x.lineWidth=2;x.strokeRect(56,56,W-112,H-112);
@@ -731,7 +825,7 @@ function drawSeal(x,cx,cy,r){x.save();x.translate(cx,cy);x.strokeStyle='#B0B7C3'
 function wrapText(x,t,cx,y,maxW,lh){const words=t.split(' ');let line='',yy=y;for(const w of words){const test=line+w+' ';if(x.measureText(test).width>maxW&&line){x.fillText(line,cx,yy);line=w+' ';yy+=lh;}else line=test;}x.fillText(line,cx,yy);}
 function dlCert(){const cv=document.getElementById('certCv');const a=document.createElement('a');a.download='AlSaeed_PMP_Certificate.png';a.href=cv.toDataURL('image/png');a.click();}
 /* watermark + protection */
-function buildWatermark(){const wm=document.getElementById('wm');const nm=(S&&S.name?S.name+' · ':'')+'Al Saeed PMP · محتوى محمي';let h='';for(let r=0;r<10;r++)for(let c=0;c<6;c++)h+=`<div style="top:${r*130}px;right:${c*260-100}px">${esc(nm)}</div>`;wm.innerHTML=h;wm.classList.add('on');}
+function buildWatermark(){const wm=document.getElementById('wm');const nm=(S&&S.name?S.name+' · ':'')+T('السعيد PMP · محتوى محمي','Al Saeed PMP · Protected content');let h='';for(let r=0;r<10;r++)for(let c=0;c<6;c++)h+=`<div style="top:${r*130}px;right:${c*260-100}px">${esc(nm)}</div>`;wm.innerHTML=h;wm.classList.add('on');}
 document.addEventListener('copy',e=>{if(inExam())e.preventDefault();});
 document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(inExam()&&(e.ctrlKey||e.metaKey)&&['p','c','s','u'].includes(k)){e.preventDefault();return false;}if((e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k))||k==='f12'){if(inExam()){e.preventDefault();return false;}}});
 function inExam(){return S&&!S.done&&!document.getElementById('exam').classList.contains('hide')}
@@ -740,9 +834,9 @@ window.addEventListener('blur',()=>{if(inExam()&&!document.getElementById('break
 window.addEventListener('focus',()=>document.getElementById('blurOv').classList.remove('on'));
 function tog(id){document.getElementById(id).classList.toggle('on')}
 let cbuf='';function cc(v){cbuf+=v;document.getElementById('calcScr').textContent=cbuf}
-function ceq(){try{cbuf=String(Function('return '+cbuf.replace(/[^-()\d/*+.]/g,''))());document.getElementById('calcScr').textContent=cbuf}catch(e){document.getElementById('calcScr').textContent='خطأ';cbuf=''}}
+function ceq(){try{cbuf=String(Function('return '+cbuf.replace(/[^-()\d/*+.]/g,''))());document.getElementById('calcScr').textContent=cbuf}catch(e){document.getElementById('calcScr').textContent=T('خطأ','Error');cbuf=''}}
 function cclr(){cbuf='';document.getElementById('calcScr').textContent='0'}
-function showSetup(){if(S&&!S.done&&inExam()&&!confirm('إنهاء الاختبار الحالي والعودة للإعدادات؟'))return;clearInterval(timerInt);clearInterval(breakInt);document.getElementById('breakOv').classList.remove('on');paused=false;document.getElementById('wm').classList.remove('on');document.getElementById('exam').classList.add('hide');document.getElementById('report').classList.add('hide');document.getElementById('setup').classList.remove('hide');initStats();window.scrollTo(0,0);}
+function showSetup(){if(S&&!S.done&&inExam()&&!confirm(T('إنهاء الاختبار الحالي والعودة للإعدادات؟','End this attempt and return to settings?')))return;clearInterval(timerInt);clearInterval(breakInt);document.getElementById('breakOv').classList.remove('on');paused=false;document.getElementById('wm').classList.remove('on');document.getElementById('exam').classList.add('hide');document.getElementById('report').classList.add('hide');document.getElementById('setup').classList.remove('hide');applyExamLanguage('ar');initStats();window.scrollTo(0,0);}
 initStats();
 const m0=document.querySelector('.mode[data-mode="exam1"]');m0.classList.add('on');pickMode(m0);
 </script>

@@ -651,7 +651,7 @@ async function handleContentAdmin(req, res, requestUrl) {
     return sendJson(res,200,rows.map(u=>({...u,enrollments:ens.filter(e=>e.user_id===u.id)})));
   }
 
-  const v16Result = await v16.handleAdmin(req, res, parts, method);
+  const v16Result = await v16.handleAdmin(req, res, parts, method, admin);
   if (v16Result !== false) return v16Result;
 
   return sendJson(res, 404, { error: 'مسار إدارة المحتوى غير معروف' });

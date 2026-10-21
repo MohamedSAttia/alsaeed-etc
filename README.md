@@ -52,3 +52,31 @@ Open `http://localhost:3000`. Configure the first admin through `ADMIN_EMAIL` an
   تضبط `KASHIER_SECRET_KEY`. يُتحقق من توقيع الحدث ومبلغ الطلب وعملته قبل
   تفعيل الوصول؛ ويلزم إجراء عملية شراء حقيقية صغيرة ثم مراجعة الفاتورة والتسوية
   للتأكد من تفعيل حساب التاجر ومطابقة إعدادات البوابة.
+
+## Manual enrollment and offline-payment invoices
+
+Administrative enrollment (including bulk grants) grants learning access only. It
+never creates a payment or invoice. In Content Admin → Invoices, the separate
+manual-invoice action requires the active owner account matching ADMIN_EMAIL,
+an existing active learner enrollment, the actual received amount and currency,
+receipt date, payment method, and two explicit confirmations: payment received
+and invoice issuance approved. A reference is optional for cash only.
+
+The server atomically saves the paid manual order, invoice and approval audit in
+manual_invoice_approvals; it does not change learning access or past records.
+Identical retries return the same invoice. Existing invoices (including pending
+checkout drafts) or prior paid orders block a second manual invoice for the same
+learner/package and require accounting review, not automatic replacement.
+Gateway-confirmed purchases automatically issue invoices without owner approval,
+even if the learner already had administrative access before paying. Only the
+separate offline/manual payment action requires owner approval. No manual-origin
+classification, gateway invoice hold, or historical backfill is introduced. Learners can
+list pending checkout drafts but cannot render them as issued invoice documents.
+No email delivery is added. The owner check uses the existing administrative
+account-security model; it does not redesign other administrators' privileges.
+
+Focused local tests (synthetic in-memory data only):
+- node --test tests/manual-invoices.mjs
+- node --test tests/manual-invoice-ui.mjs (requires jsdom as a test-only tool)
+- node tests/runtime-packaging.mjs
+- node tests/production-image.mjs
