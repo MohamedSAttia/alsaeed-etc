@@ -1,6 +1,6 @@
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
 const context={window:{},MutationObserver:class{observe(){}},document:{body:{}}};vm.createContext(context);
-vm.runInContext(fs.readFileSync('public/course-roadmap.js','utf8'),context);vm.runInContext(fs.readFileSync('public/course-assessments.js','utf8'),context);
+vm.runInContext(fs.readFileSync('public/course-roadmap.js','utf8'),context);vm.runInContext(fs.readFileSync('public/pmp-shared-case.js','utf8'),context);vm.runInContext(fs.readFileSync('public/course-assessments.js','utf8'),context);
 const held=new Set(JSON.parse(fs.readFileSync('data/pmp-editorial-holds-2026.json','utf8')).items.map(x=>x.id));
 const bank=['data/pmp-v5-import.json','data/pmp-framework-agile-2026.json','data/pmp-pmi-reference-2026.json'].flatMap(f=>JSON.parse(fs.readFileSync(f,'utf8'))).filter(q=>q.id!=='pmp-v5-0076'&&!held.has(q.id)&&!['PMP exam structure','Introduction'].includes(q.topic));
 const routing=JSON.parse(fs.readFileSync('data/pmp-topic-routing-2026.json','utf8'));for(const q of bank)if(routing[q.id])q.meta={...q.meta,primaryTopic:routing[q.id]};

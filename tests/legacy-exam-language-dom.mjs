@@ -17,7 +17,7 @@ async function load(file){
  w.addEventListener('error',event=>errors.push(event.message));
  for(const script of [...w.document.scripts]){
    const src=script.getAttribute('src');
-   if(src){if(src==='/assets/pmp-bank.js')vm.runInContext(readFileSync(resolve('public','.'+src),'utf8'),ctx);continue;}
+   if(src){if(['/assets/pmp-bank.js','/pmp-shared-case.js'].includes(src))vm.runInContext(readFileSync(resolve('public','.'+src),'utf8'),ctx);continue;}
    if(script.textContent.trim())vm.runInContext(script.textContent,ctx);
  }
  await new Promise(done=>setTimeout(done,0));

@@ -10,8 +10,8 @@ for(const file of copied.filter(f=>f.endsWith('.js'))){
  const source=fs.readFileSync(file,'utf8');
  for(const match of source.matchAll(/(?:from\s+|require\(|import\()['"](\.\/[^'"]+)['"]/g)){
   const target=path.posix.normalize(path.posix.join(path.posix.dirname(file),match[1]));
-  assert.ok(copied.includes(target),`${file} import ${target} must be copied`);
-  assert.ok(ignore.includes('!'+target),`${target} must pass Docker context allowlist`);
+  assert.ok(copied.includes(target)||(target.startsWith('public/')&&docker.includes('COPY public ./public')),`${file} import ${target} must be copied`);
+  assert.ok(ignore.includes('!'+target)||(target.startsWith('public/')&&ignore.includes('!public/**')),`${target} must pass Docker context allowlist`);
   assert.ok(fs.existsSync(target),`${target} source must exist`);edges++;
  }
 }

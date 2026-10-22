@@ -20,7 +20,7 @@ const raw={id:'q',type:'scenario',question_ar:'ما القرار الصحيح؟'
 const visible=html=>html.replace(/<[^>]*>/g,'');
 const noArabic=html=>assert(!/[\u0600-\u06ff]/.test(visible(html)),visible(html));
 const selected=(html,lang,ar,en)=>{assert(html.includes(lang==='ar'?ar:en));assert(!html.includes(lang==='ar'?en:ar));if(lang==='en')noArabic(html)};
-function stateFor(lang,q=e.normalize([raw])[0]){return{lang,pid:'pmp-full',eid:'ch0',config:{},p:{ar:'باقة عربية',en:'English package'},c:{id:'pmp',code:'PMP',domains:[{k:'people',ar:'الأفراد',en:'People'}]},course:{id:'pmp',domains:[{k:'people',ar:'الأفراد',en:'People'}]},items:[q],idx:0,sectionStart:0,left:1200,started:null,answers:{},flags:new Set(),breaks:[],breakDone:new Set(),practice:false}}
+function stateFor(lang,q=e.normalize([raw])[0]){return{ownerId:null,lang,pid:'pmp-full',eid:'ch0',config:{},p:{ar:'باقة عربية',en:'English package'},c:{id:'pmp',code:'PMP',domains:[{k:'people',ar:'الأفراد',en:'People'}]},course:{id:'pmp',domains:[{k:'people',ar:'الأفراد',en:'People'}]},items:[q],idx:0,sectionStart:0,left:1200,started:null,answers:{},flags:new Set(),breaks:[],breakDone:new Set(),practice:false}}
 for(const lang of ['ar','en']){
  nodes.clear();const state=stateFor(lang),q=state.items[0];e.setState(state);
  e.renderInstructions();selected(node('#ux').innerHTML,lang,'المحاكاة الكاملة','Full Mock Exam');selected(node('#ux').innerHTML,lang,'بدون كاميرا','Without camera');assert.equal(node('#ux').attrs.lang,lang);

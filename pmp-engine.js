@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import './public/pmp-shared-case.js';
 
 const EXAM_CODE = 'pmp-2026-full-180';
 const SOURCE_TAG = 'alsaeed-pmp-upload-903-v21';
@@ -15,7 +16,7 @@ const CONFIG = Object.freeze({
   },
   scenarioBlock: { startQuestion: 1, endQuestion: 10, count: 10 },
   breaks: [
-    { afterQuestion: 10, durationMinutes: 5, labelAr: 'الاستراحة الأولى' },
+    { afterQuestion: 10, durationMinutes: 10, labelAr: 'الاستراحة الأولى' },
     { afterQuestion: 94, durationMinutes: 10, labelAr: 'الاستراحة الثانية' }
   ],
   timerPausesDuringBreak: true,
@@ -91,6 +92,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     );
     CREATE INDEX IF NOT EXISTS idx_exam_sessions_user ON exam_sessions(user_id,exam_code,status);
   `);
+  ensureColumn(db,'exam_sessions','session_state','TEXT');
   ensureColumn(db,'questions','approach','TEXT');
   ensureColumn(db,'questions','source_exam','TEXT');
   ensureColumn(db,'questions','source_id','TEXT');
@@ -131,6 +133,14 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     tx(); return { imported:n, total:bank.length };
   }
 
+  function ensureSharedCase(){
+    const insert=db.prepare(`INSERT OR IGNORE INTO questions (id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,correct,explanation_ar,explanation_en,reference,active,created,updated,approach,source_exam,source_id,correct_json,meta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    for(const q of globalThis.PmpSharedCase.questions()){
+      const meta={...q.meta,caseId:q.meta.sharedCaseId,scenarioText_ar:q.meta.scenarioText.ar,scenarioText_en:q.meta.scenarioText.en,options_ar:q.options_ar,options_en:q.options_en};
+      insert.run(q.id,packageId,q.domain,q.topic,q.difficulty,q.type,q.question_ar,q.question_en,JSON.stringify(q.options_ar),q.correct,q.explanation_ar,q.explanation_en,'Original Al-Saeed practice case',1,Date.now(),Date.now(),q.approach,'shared-case-v1',q.id,JSON.stringify(q.correct_json),JSON.stringify(meta));
+    }
+  }
+
   function ensureExamTemplate() {
     const config={...CONFIG,packageId};
     const old=db.prepare('SELECT id FROM exams WHERE id=?').get(EXAM_CODE);
@@ -144,6 +154,7 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     }
   }
 
+  ensureSharedCase();
   ensureExamTemplate();
   console.log(`PMP 2026 engine: package=${packageId}; bank=${db.prepare('SELECT COUNT(*) c FROM questions WHERE package_id=?').get(packageId).c}`);
 
@@ -177,20 +188,10 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
     for(const [d,t] of Object.entries(CONFIG.domainTargets)) if(byDomain[d].length<t.count) throw new Error(`بنك ${d} لا يكفي: ${byDomain[d].length}/${t.count}`);
 
     const selected=[]; const ids=new Set(); const used={people:0,process:0,business:0};
-    const scenarioPool=shuffle(rows.filter(q=>looksScenario(q))).sort((a,b)=>String(b.question_ar||'').length-String(a.question_ar||'').length).slice(0,160);
-    for(const q of shuffle(scenarioPool)){
-      if(selected.length>=CONFIG.scenarioBlock.count)break;
-      const d=String(q.domain||'').toLowerCase();
-      if(!byDomain[d] || used[d]>=CONFIG.domainTargets[d].count || ids.has(q.id))continue;
-      selected.push(q);ids.add(q.id);used[d]++;
-    }
-    if(selected.length<10){
-      for(const q of shuffle(rows)){
-        if(selected.length>=10)break;const d=String(q.domain||'').toLowerCase();
-        if(!byDomain[d]||used[d]>=CONFIG.domainTargets[d].count||ids.has(q.id))continue;
-        selected.push(q);ids.add(q.id);used[d]++;
-      }
-    }
+    // Versioned authored case items are immutable, so issued attempts keep their meaning.
+    const caseRows=questionRowsByIds(globalThis.PmpSharedCase.questions().map(q=>q.id));
+    if(caseRows.length!==10)throw new Error('دراسة الحالة غير مكتملة');
+    for(const q of caseRows){const d=String(q.domain).toLowerCase();selected.push(q);ids.add(q.id);used[d]++;}
 
     const activeTypes=[...new Set(rows.map(q=>normalizeType(q.type)))];
     const chosenTypes=new Set(selected.map(q=>normalizeType(q.type)));
@@ -222,14 +223,23 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
       id:q.id,index:index+1,domain:String(q.domain||'').toLowerCase(),topic:q.topic,difficulty:q.difficulty,
       type:normalizeType(q.type),question:q.question_ar||q.question_en||'',question_en:q.question_en||'',
       options:safeJson(q.options,[]),approach:q.approach||'',scenario:index<10,
-      meta:{scenarioText:meta.scenarioText||'',image:meta.image||'',pairs:meta.pairs||null,hotspots:meta.hotspots||null}
+      options_ar:meta.options_ar||safeJson(q.options,[]),options_en:meta.options_en||safeJson(q.options,[]),
+      meta:{caseId:meta.caseId||'',caseTitle:meta.caseTitle||null,scenarioText_ar:meta.scenarioText_ar||'',scenarioText_en:meta.scenarioText_en||'',scenarioText:meta.scenarioText||'',image:meta.image||'',pairs:meta.pairs||null,hotspots:meta.hotspots||null}
     };
   }
 
+  function readState(row){
+    const state=safeJson(row.session_state,null);if(!state)return null;
+    const now=Date.now();
+    if(state.breakUntil){if(now>=state.breakUntil){state.remainingMs=Math.max(0,state.remainingMs-(now-state.breakUntil));state.breakUntil=null;state.currentIndex=state.sectionStart;}}
+    else state.remainingMs=Math.max(0,state.remainingMs-(now-state.timerUpdatedAt));
+    state.timerUpdatedAt=now;return state;
+  }
+  function saveState(id,state){db.prepare('UPDATE exam_sessions SET session_state=?,updated=? WHERE id=?').run(JSON.stringify(state),Date.now(),id);}
   function publicSession(row) {
     const ids=safeJson(row.question_ids,[]),answers=safeJson(row.answers,{}),flagged=safeJson(row.flagged,[]);
     const qs=questionRowsByIds(ids).map(sanitizeQuestion);
-    return {id:row.id,status:row.status,started:row.started,updated:row.updated,config:{...CONFIG,packageId},questions:qs,answers,flagged};
+    const state=readState(row);return {id:row.id,status:row.status,started:row.started,updated:row.updated,config:{...CONFIG,packageId},questions:qs,answers,flagged,state};
   }
 
   function equivalentAnswer(q,answer) {
@@ -267,22 +277,43 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
       return sendJson(res,200,{packageId,config:CONFIG,bank});
     }
     if(method==='POST' && sub==='/start'){
+      let body;try{body=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}
       let qs; try { qs=chooseExamQuestions(); } catch(e) { return sendJson(res,409,{error:e.message}); }
       const id=uid('PMPSESS-'),now=Date.now();
       db.prepare(`INSERT INTO exam_sessions (id,user_id,package_id,exam_code,question_ids,answers,flagged,started,updated,status) VALUES (?,?,?,?,?,?,?,?,?,?)`)
         .run(id,u.id,packageId,EXAM_CODE,JSON.stringify(qs.map(q=>q.id)),'{}','[]',now,now,'active');
+      saveState(id,{version:1,language:body.language==='en'?'en':'ar',currentIndex:0,sectionStart:0,completedBreaks:[],breakUntil:null,remainingMs:CONFIG.durationMinutes*60000,timerUpdatedAt:now});
       return sendJson(res,200,publicSession(db.prepare('SELECT * FROM exam_sessions WHERE id=?').get(id)));
     }
-    const m=sub.match(/^\/session\/([^/]+)(?:\/(answer|flag|finish))?$/);
+    const m=sub.match(/^\/session\/([^/]+)(?:\/(answer|flag|finish|progress|break|resume))?$/);
     if(m){
       const sid=decodeURIComponent(m[1]),action=m[2]||'';
       const row=db.prepare('SELECT * FROM exam_sessions WHERE id=? AND user_id=?').get(sid,u.id);
       if(!row)return sendJson(res,404,{error:'جلسة الاختبار غير موجودة'});
       if(method==='GET'&&!action)return sendJson(res,200,publicSession(row));
       if(row.status!=='active'&&action!=='finish')return sendJson(res,409,{error:'الاختبار منتهٍ'});
+      if(method==='POST'&&['progress','break','resume'].includes(action)){
+        let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})}
+        const state=readState(row);if(!state)return sendJson(res,409,{error:'هذه محاولة قديمة؛ تابعها في واجهتها الأصلية'});
+        const boundary=CONFIG.breaks.find(x=>x.afterQuestion>state.sectionStart)?.afterQuestion||CONFIG.totalQuestions;
+        if(action==='progress'){
+          if(state.breakUntil)return sendJson(res,409,{error:'الاستراحة جارية',state});
+          if(!Number.isInteger(b.currentIndex)||b.currentIndex<state.sectionStart||b.currentIndex>=boundary)return sendJson(res,400,{error:'السؤال خارج القسم الحالي'});
+          state.currentIndex=b.currentIndex;
+        }else if(action==='break'){
+          const point=CONFIG.breaks.find(x=>x.afterQuestion===b.afterQuestion);
+          if(state.completedBreaks.includes(b.afterQuestion)){saveState(sid,state);return sendJson(res,200,{ok:true,state});}
+          if(!point||b.afterQuestion!==boundary||state.breakUntil)return sendJson(res,400,{error:'موضع استراحة غير صالح'});
+          const answers=safeJson(row.answers,{}),ids=safeJson(row.question_ids,[]);
+          if(ids.slice(state.sectionStart,b.afterQuestion).some(id=>answers[id]==null))return sendJson(res,409,{error:'أكمل إجابات القسم قبل الاستراحة'});
+          state.completedBreaks.push(b.afterQuestion);state.sectionStart=b.afterQuestion;state.currentIndex=b.afterQuestion;state.breakUntil=Date.now()+point.durationMinutes*60000;
+        }else if(state.breakUntil){state.breakUntil=null;state.timerUpdatedAt=Date.now();state.currentIndex=state.sectionStart;}
+        saveState(sid,state);return sendJson(res,200,{ok:true,state});
+      }
       if(method==='POST'&&action==='answer'){
         let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'إجابة غير صحيحة'})}
-        const ids=safeJson(row.question_ids,[]);const qid=String(b.questionId||'');if(!ids.includes(qid))return sendJson(res,400,{error:'السؤال غير موجود في هذه المحاولة'});
+        const ids=safeJson(row.question_ids,[]);const qid=String(b.questionId||'');
+        const state=readState(row);if(state){const index=ids.indexOf(qid),end=CONFIG.breaks.find(x=>x.afterQuestion>state.sectionStart)?.afterQuestion||ids.length;if(state.breakUntil||index<state.sectionStart||index>=end)return sendJson(res,409,{error:'السؤال غير متاح في القسم الحالي'});saveState(sid,state);}if(!ids.includes(qid))return sendJson(res,400,{error:'السؤال غير موجود في هذه المحاولة'});
         const ans=safeJson(row.answers,{});ans[qid]=b.answer;db.prepare('UPDATE exam_sessions SET answers=?,updated=? WHERE id=?').run(JSON.stringify(ans),Date.now(),sid);return sendJson(res,200,{ok:true});
       }
       if(method==='POST'&&action==='flag'){
