@@ -1,3 +1,4 @@
+import { mountAdminCohorts } from './admin-cohorts.js';
 import { mountCourseReviews } from './course-reviews.js';
 import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
 import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent } from './trainee-tracking.js';
@@ -133,17 +134,18 @@ function auth(req, res, next) {
   if (!t) return res.status(401).json({ error: 'يلزم تسجيل الدخول' });
   try {
     const p = jwt.verify(t, JWT_SECRET);
-    req.user = db.prepare('SELECT id,name,email,role,phone,created FROM users WHERE id=?').get(p.id);
+    req.user = db.prepare('SELECT id,name,email,role,phone,created,active FROM users WHERE id=?').get(p.id);
     if (!req.user) return res.status(401).json({ error: 'الحساب غير موجود' });
     next();
   } catch (e) { res.status(401).json({ error: 'الجلسة منتهية — سجّل الدخول من جديد' }); }
 }
 function admin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin')
+  if (!req.user || req.user.role !== 'admin' || req.user.active !== 1)
     return res.status(403).json({ error: 'هذه العملية للمشرفين' });
   next();
 }
 mountEnrollmentExtensions({ app, db, auth });
+const cohorts = mountAdminCohorts({app, db, auth, admin});
 const setting = k => { const r = db.prepare('SELECT v FROM settings WHERE k=?').get(k); return r ? r.v : ''; };
 const setSetting = (k, v) => db.prepare('INSERT INTO settings (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=?').run(k, v, v);
 
@@ -652,7 +654,7 @@ app.get('/api/admin/stats', auth, admin, (req, res) => {
   });
 });
 app.get('/api/admin/users', auth, admin, (req, res) => {
-  const users = db.prepare('SELECT id,name,email,role,phone,created FROM users ORDER BY created DESC').all();
+  const users = db.prepare('SELECT id,name,email,role,phone,created,active FROM users ORDER BY created DESC').all();
   const en = db.prepare('SELECT id,user_id,package_id,source,expires,created FROM enrollments').all();
   res.json(users.map(u => ({ ...u, packages: en.filter(e => e.user_id === u.id) })));
 });
@@ -669,6 +671,7 @@ app.get('/api/admin/overview', auth, admin, (req, res) => {
   const enrollments=db.prepare('SELECT id,user_id,package_id,source,expires,created FROM enrollments').all();
   const catalog=JSON.parse(setting('catalog')||'[]');
   const names=new Map(catalog.map(x=>[x.id,x.ar||x.id]));
+  const cohortRows=cohorts.list();
   const students=users.map(u=>{
     const ens=enrollments.filter(e=>e.user_id===u.id);
     const details=ens.map(e=>({...e,...progressSummary(u.id,e.package_id,e.created),...enrollmentTiming(e,now)}));
@@ -681,7 +684,7 @@ app.get('/api/admin/overview', auth, admin, (req, res) => {
   const activeEnrollments=enrollments.filter(e=>!e.expires||e.expires>now).length;
   res.json({
     stats:{students:users.length,orders:db.prepare('SELECT COUNT(*) c FROM orders').get().c,paid:db.prepare("SELECT COUNT(*) c FROM orders WHERE status='paid'").get().c,revenue:db.prepare("SELECT COALESCE(SUM(amount),0) s FROM orders WHERE status='paid'").get().s,certificates:db.prepare('SELECT COUNT(*) c FROM certificates').get().c,activeEnrollments},
-    students,recentOrders:orders,serverNow:now
+    students:students.map(u=>({...u,cohortIds:cohortRows.filter(g=>g.memberIds.includes(u.id)).map(g=>g.id)})),cohorts:cohortRows,recentOrders:orders,serverNow:now
   });
 });
 
@@ -722,11 +725,13 @@ app.put('/api/admin/users/:id', auth, admin, (req, res) => {
     const n = db.prepare("SELECT COUNT(*) c FROM users WHERE role='admin'").get().c;
     if (n <= 1) return res.status(400).json({ error: 'لا يمكن تخفيض آخر مشرف في النظام' });
   }
+  try { cohorts.mutate(req.body?.cohortId, [u.id], () => {
   db.prepare(`UPDATE users SET name=?, email=?, phone=?, role=?, active=? WHERE id=?`)
     .run(name || u.name, (email || u.email).toLowerCase(), phone !== undefined ? phone : u.phone,
          role || u.role, active === undefined ? (u.active === undefined ? 1 : u.active) : (active ? 1 : 0), u.id);
   if (password && String(password).length >= 6)
     db.prepare('UPDATE users SET pass=? WHERE id=?').run(bcrypt.hashSync(password, 10), u.id);
+  }); } catch(e) { return res.status(e.status||500).json({error:e.status?e.message:'تعذّر حفظ الحساب'}); }
   res.json({ ok: true });
 });
 
@@ -736,7 +741,8 @@ app.post('/api/admin/users/:id/toggle', auth, admin, (req, res) => {
   if (!u) return res.status(404).json({ error: 'غير موجود' });
   if (u.role === 'admin') return res.status(400).json({ error: 'لا يمكن تعطيل حساب مشرف' });
   const nv = (u.active === 0) ? 1 : 0;
-  db.prepare('UPDATE users SET active=? WHERE id=?').run(nv, u.id);
+  try { cohorts.mutate(req.body?.cohortId, [u.id], ()=>db.prepare('UPDATE users SET active=? WHERE id=?').run(nv, u.id)); }
+  catch(e){return res.status(e.status||500).json({error:e.status?e.message:'تعذّر حفظ الحساب'});}
   res.json({ ok: true, active: nv });
 });
 
@@ -767,8 +773,10 @@ app.post('/api/admin/bulk', auth, admin, (req, res) => {
   const { action, ids, packageId, days } = req.body || {};
   if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'لا مستخدمين محدّدين' });
   let n = 0;
+  if(req.body.cohortId && !['enable','grant'].includes(action))return res.status(400).json({error:'اختيار المجموعة متاح للتفعيل أو المنح فقط'});
+  try { cohorts.mutate(req.body.cohortId, ids, ()=>{
   if (action === 'grant' && packageId) {
-    ids.forEach(id => { try { grant(id, packageId, days || 365, 'منح جماعي'); n++; } catch (e) {} });
+    ids.forEach(id => { grant(id, packageId, days || 365, 'منح جماعي'); n++; });
   } else if (action === 'revoke' && packageId) {
     ids.forEach(id => {
       const r = db.prepare('DELETE FROM enrollments WHERE user_id=? AND package_id=?').run(id, packageId);
@@ -787,7 +795,8 @@ app.post('/api/admin/bulk', auth, admin, (req, res) => {
       if (r.changes) { db.prepare('DELETE FROM enrollments WHERE user_id=?').run(id);
         db.prepare('DELETE FROM progress WHERE user_id=?').run(id); n++; }
     });
-  } else return res.status(400).json({ error: 'إجراء غير معروف' });
+  } else { const e=new Error('إجراء غير معروف');e.status=400;throw e; }
+  }); } catch(e){return res.status(e.status||500).json({error:e.status?e.message:'تعذّر تنفيذ العملية الجماعية'});}
   res.json({ ok: true, affected: n });
 });
 
@@ -814,7 +823,8 @@ app.delete('/api/admin/users/:id', auth, admin, (req, res) => {
 app.post('/api/admin/grant', auth, admin, (req, res) => {
   const { userId, packageId, days } = req.body || {};
   if (!userId || !packageId) return res.status(400).json({ error: 'ناقص' });
-  grant(userId, packageId, days || 365, 'منح إداري');
+  try { cohorts.mutate(req.body?.cohortId, [userId], ()=>grant(userId, packageId, days || 365, 'منح إداري')); }
+  catch(e){return res.status(e.status||500).json({error:e.status?e.message:'تعذّر منح الباقة'});}
   res.json({ ok: true });
 });
 app.delete('/api/admin/grant', auth, admin, (req, res) => {

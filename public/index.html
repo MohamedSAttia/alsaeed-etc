@@ -3060,7 +3060,7 @@ async function syncAdminData() {
     if(!sameActor())return false;
     const current = DB.users.find(x => x.id === DB.session);
     DB.users = users.map(u => ({
-      id:u.id,name:u.name,email:u.email,role:u.role,phone:u.phone,joined:u.created,
+      id:u.id,name:u.name,email:u.email,role:u.role,phone:u.phone,joined:u.created,active:u.active,
       packages:(u.packages||[]).map(e=>({id:e.package_id,enrollmentId:e.id,source:e.source,expires:e.expires,at:e.created||Date.now()}))
     }));
     if (current && !DB.users.some(x=>x.id===current.id)) DB.users.unshift(current);
@@ -5005,7 +5005,7 @@ function admin(sub) {
     }
   }
   const O=A().adminOverview||localOverview(); const S=O.stats||{};
-  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['tracking','التقدم والترتيب'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
+  const tabs=[['overview','نظرة عامة'],['users','المسجلون'],['cohorts','مجموعات المتابعة'],['tracking','التقدم والترتيب'],['orders','الطلبات'],['cms','✏️ تحرير الموقع'],['catalog','الدورات والباقات'],['learning','🗂️ الخطة والبطاقات'],['questions','❓ بنك الأسئلة'],['systems','الأنظمة المستقلة'],['promos','أكواد الخصم'],['content','Vimeo والمحتوى'],['pay','الدفع']];
   return `<section class="dash-hd"><div class="wrap"><h1>مركز تحكم السعيد</h1><p>تابع المسجلين والتقدم والمبيعات والمحتوى، وعدّل واجهات الموقع من حساب الإدارة.</p></div></section>
   <div class="wrap" style="padding-bottom:60px">
     <div class="admin-kpis-v8">
@@ -5121,6 +5121,7 @@ function learningAdminView() {
 
 function adminTab() {
   const D=A().DB, O=A().adminOverview||localOverview();
+  if(admTab==='cohorts')return window.AlsaeedAdminCohorts.render();
   if(admTab==='tracking')return window.AlsaeedTraineeTracking.render(A().live?A().adminOverview:null,id=>A().pack(id));
   if(admTab==='overview'){
     const students=(O.students||[]).slice(0,7), orders=(O.recentOrders||[]).slice(0,7);
@@ -5170,6 +5171,7 @@ function adminTab() {
       ${sel.length?`<div class="note info" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
         <b>${sel.length} محدّد</b>
         <button class="btn p sm" data-bulk="grant">🎁 منح باقة للكل</button>
+        <button class="btn o sm" data-bulk="cohort">👥 إضافة إلى مجموعة</button>
         <button class="btn o sm" data-bulk="enable">✅ تفعيل</button>
         <button class="btn o sm" data-bulk="disable">⛔ تعطيل</button>
         <button class="btn o sm" data-bulk="delete">🗑️ حذف</button>
@@ -6000,6 +6002,7 @@ function exportStudentsCSV(){
 
 function bind() {
   window.AlsaeedTraineeTracking?.bind();
+  window.AlsaeedAdminCohorts?.bind();
   const mb = $('#megaBtn');
   if (mb) mb.onclick = e => { e.stopPropagation(); window.__mega = !window.__mega; A().render(); };
   $$('[data-mtrack]').forEach(b => b.onclick = e => { e.stopPropagation();
@@ -7260,6 +7263,7 @@ function editUser(id) {
     <label style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
       <input type="checkbox" id="euActive" ${u.active !== 0 ? 'checked' : ''}>
       <span style="font-size:.88rem">الحساب نشط</span></label>
+    ${window.AlsaeedAdminCohorts.selector('euCohort')}
     <div class="mdl-act"><button class="btn p" id="euSave">حفظ التعديلات</button>
       <button class="btn o" data-close>إلغاء</button></div>`, () => {
     $('#euSave').onclick = () => {
@@ -7268,11 +7272,8 @@ function editUser(id) {
         active: $('#euActive').checked };
       const pw = $('#euPass').value.trim(); if (pw) body.password = pw;
       if (!body.name || !body.email) { A().toast('أكمل الاسم والبريد'); return; }
-      if (A().live) A().api('/admin/users/' + id, { method: 'PUT', body })
-        .then(() => { A().closeModal(); refreshUsers(); A().toast('✅ حُفظت التعديلات'); })
-        .catch(e => A().toast(e.message));
-      else { Object.assign(u, body, { active: body.active ? 1 : 0 });
-        A().save(); A().closeModal(); A().render(); A().toast('✅ حُفظت'); }
+      Object.assign(body,window.AlsaeedAdminCohorts.value('euCohort'));
+      window.AlsaeedAdminCohorts.save($('#euSave'),'/admin/users/'+encodeURIComponent(id),body,'PUT','✅ حُفظت التعديلات');
     };
   });
 }
@@ -7362,33 +7363,28 @@ function resetPass(id) {
 }
 
 function toggleUser(id) {
-  if (A().live) A().api('/admin/users/' + id + '/toggle', { method: 'POST' })
-    .then(d => { refreshUsers(); A().toast(d.active ? '✅ فُعّل الحساب' : '⛔ عُطّل الحساب'); })
-    .catch(e => A().toast(e.message));
-  else { const u = A().DB.users.find(x => x.id === id);
-    if (u) { u.active = u.active === 0 ? 1 : 0; A().save(); A().render();
-      A().toast(u.active ? '✅ فُعّل' : '⛔ عُطّل'); } }
+  const u=A().DB.users.find(x=>x.id===id); if(!u)return;
+  const path='/admin/users/'+encodeURIComponent(id)+'/toggle';
+  window.AlsaeedAdminCohorts.chooseAction(u.active===0?'تفعيل الحساب وإضافته لمجموعة':'تعطيل الحساب',path,{},u.active===0?'✅ فُعّل الحساب':'⛔ عُطّل الحساب');
 }
 
 function bulkAction(action) {
-  const ids = window.__usel || [];
+  const ids = [...(window.__usel || [])];
   if (!ids.length) return;
+  if(action==='cohort'){window.AlsaeedAdminCohorts.bulkAssign(ids);return;}
+  if(action==='enable'){window.AlsaeedAdminCohorts.chooseAction('تفعيل '+ids.length+' مستخدمًا','/admin/bulk',{action,ids},'✅ فُعّلت الحسابات',()=>{window.__usel=[];});return;}
   if (action === 'grant') {
     A().modal(`<h3>منح باقة لـ ${ids.length} مستخدماً</h3>
       <label class="f"><span>الباقة</span><select id="bkPk">
         ${window.PACKAGES.map(p => `<option value="${p.id}">${esc(p.ar)}</option>`).join('')}<option value="rmp-private-classroom">الفصل الخاص · باقة مخفية</option>
       </select></label>
       <label class="f"><span>مدة الوصول (يوماً)</span><input type="number" id="bkDays" value="365"></label>
+      ${window.AlsaeedAdminCohorts.selector('bkCohort')}
       <div class="mdl-act"><button class="btn p" id="bkGo">امنح للجميع</button>
         <button class="btn o" data-close>إلغاء</button></div>`, () => {
       $('#bkGo').onclick = () => {
         const pid = $('#bkPk').value, days = +$('#bkDays').value || 365;
-        if (A().live) A().api('/admin/bulk', { method: 'POST', body: { action: 'grant', ids, packageId: pid, days } })
-          .then(d => { A().closeModal(); window.__usel = []; refreshUsers();
-            A().toast(`🎁 مُنحت لـ ${d.affected} مستخدماً`); }).catch(e => A().toast(e.message));
-        else { ids.forEach(id => { const u = A().DB.users.find(x => x.id === id);
-            if (u && !u.packages.some(p => p.id === pid)) u.packages.push({ id: pid, at: Date.now(), source: 'منح جماعي' }); });
-          A().save(); A().closeModal(); window.__usel = []; A().render(); A().toast('🎁 مُنحت'); }
+        window.AlsaeedAdminCohorts.save($('#bkGo'),'/admin/bulk',{action:'grant',ids,packageId:pid,days,...window.AlsaeedAdminCohorts.value('bkCohort')},'POST','🎁 مُنحت الباقة',()=>{window.__usel=[];});
       };
     });
     return;
@@ -7429,11 +7425,12 @@ function grantPkg() {
     <label class="f"><span>المستخدم</span><select id="gpUser">${D.users.filter(u=>u.role==='student').map(u=>`<option value="${u.id}">${esc(u.name)} — ${esc(u.email)}</option>`).join('')}</select></label>
     <label class="f"><span>الباقة</span><select id="gpPk">${window.PACKAGES.map(p=>`<option value="${p.id}">${esc(p.ar)}</option>`).join('')}<option value="rmp-private-classroom">الفصل الخاص · باقة مخفية</option></select></label>
     <label class="f"><span>مدة الوصول بالأيام</span><input class="num" id="gpDays" type="number" min="1" value="365"></label>
+    ${window.AlsaeedAdminCohorts.selector('gpCohort')}
     <div class="mdl-act"><button class="btn p" id="gpGo">امنح الباقة</button><button class="btn o" data-close>إلغاء</button></div>`,()=>{
       $('#gpGo').onclick=async()=>{
         if(!A().live){A().toast('منح الباقة يحتاج تشغيل الخادم.');return;}
         const userId=$('#gpUser').value, packageId=$('#gpPk').value, days=Math.max(1,+$('#gpDays').value||365);
-        try{await A().api('/admin/grant',{method:'POST',body:{userId,packageId,days}});await A().syncAdminData();A().closeModal();A().render();A().toast('🎁 مُنحت الباقة في قاعدة البيانات');}catch(e){A().toast(e.message)}
+        await window.AlsaeedAdminCohorts.save($('#gpGo'),'/admin/grant',{userId,packageId,days,...window.AlsaeedAdminCohorts.value('gpCohort')},'POST','🎁 مُنحت الباقة في قاعدة البيانات');
       };
     });
 }
@@ -7735,7 +7732,8 @@ return { mount, toggle, send, get messages() { return msgs; } };
 })();
 </script>
 <link rel="stylesheet" href="/instructors.css?v=20261015"><script src="/instructor-directory.js?v=20261015-default"></script>
-<script src="/trainee-tracking.js?v=20261015"></script>
+<script src="/trainee-tracking.js?v=20261022-cohorts"></script>
+<script src="/admin-cohorts.js?v=20261022"></script>
 <script src="/admin-enrollment-extension.js?v=20261015-2"></script>
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
