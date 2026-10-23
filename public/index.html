@@ -1150,7 +1150,8 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <script src="/lesson-video.js?v=20261009-1"></script>
 <link rel="stylesheet" href="/auth-entry.css?v=20261023-reference">
 <link rel="stylesheet" href="/learning-polish.css?v=20261023-2">
-<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-2"><script src="/course-covers.js?v=20261023-2"></script><script src="/visual-learning-home.js?v=20261023-2"></script><script src="/learner-navigation.js?v=20261023-2"></script>
+<link rel="stylesheet" href="/exam-reference.css?v=20261023-1">
+<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-reference"><script src="/course-covers.js?v=20261023-2"></script><script src="/visual-learning-home.js?v=20261023-2"></script><script src="/learner-navigation.js?v=20261023-2"></script>
 <link rel="stylesheet" href="/course-chat.css?v=20261023-1">
 <script defer src="/course-chat.js?v=20261023-1"></script>
 <script src="/progress-sync.js?v=20261023-sync2"></script>
@@ -3414,6 +3415,7 @@ function render() {
   else if (head === 'pkg') html = V.pkg(arg);
   else if (head === 'learn') html = owns(arg) ? V.learn(arg) : V.locked(arg);
   else if (head === 'dash') html = me() ? V.dash() : V.needLogin();
+  else if (head === 'chat') html = me() ? V.community() : V.needLogin();
   else if (head === 'trainer') html = isAdmin() ? V.trainer() : V.needLogin(true);
   else if (head === 'admin') html = isAdmin() ? V.admin(arg) : V.needLogin(true);
   else if (head === 'about') html = V.about();
@@ -3442,7 +3444,7 @@ function renderNav() {
     <a href="#library" class="${on('library') ? 'on' : ''}" data-r="library">${T.library}</a>
     <a href="#blog" class="${on('blog') ? 'on' : ''}" data-r="blog">${T.blog}</a>
     <a href="#contact" class="${on('contact') ? 'on' : ''}" data-r="contact">${T.contact}</a>
-    ${u ? `<a href="#dash" class="${on('dash') ? 'on' : ''}" data-r="dash">${T.dash}</a>` : ''}
+    ${u ? `<a href="#dash" class="${on('dash') ? 'on' : ''}" data-r="dash">${T.dash}</a><a href="#chat" class="${on('chat') ? 'on' : ''}" data-r="chat">${lang==='en'?'Messages':'الدردشة'}</a>` : ''}
     ${isAdmin() ? `<a href="#trainer" data-r="trainer">صفحة المدرب</a><a href="#admin" class="${on('admin') ? 'on' : ''}" data-r="admin">${T.admin}</a>` : ''}`;
 
   $('#hdrAct').innerHTML = `
@@ -4948,7 +4950,7 @@ function learn(id) {
   let body;
   if(!available)body=`<p class="package-empty" role="status">${siteEnglish()?'This content type is not included in this package.':'هذا النوع من المحتوى غير مشمول في هذه الباقة.'}</p>`;
   else if(learnTab==='home')body=window.VisualLearningHome?.home(p,c,pr,ls,user)||'';
-  else if(learnTab==='community')body=`<section data-learning-points="${esc(p.id)}" data-points-full><p role="status">${siteEnglish()?'Loading your community…':'جارٍ تحميل مجتمعك…'}</p></section><section data-course-chat data-package="${esc(p.id)}"></section>`;
+  else if(learnTab==='community')body=`<p><a class="btn o" href="#chat" data-r="chat">${siteEnglish()?'General room and direct messages':'الدردشة العامة والرسائل الخاصة'}</a></p><section data-learning-points="${esc(p.id)}" data-points-full><p role="status">${siteEnglish()?'Loading your community…':'جارٍ تحميل مجتمعك…'}</p></section><section data-course-chat data-package="${esc(p.id)}"></section>`;
   else if(learnTab==='library'){
     const activityBody=kinds.includes('activity')?(pkTab='activities',pkgTab(p,c,true)):'';
     body=`<p class="package-intro">${siteEnglish()?'Read a guide, complete a workshop or apply a template. Your saved work stays with your account.':'اقرأ دليلًا، نفّذ ورشة، أو طبّق قالبًا. أعمالك المحفوظة تبقى مع حسابك.'}</p><nav class="library-section-links" aria-label="${siteEnglish()?'Library tools':'أدوات المكتبة'}">${kinds.includes('game')?`<button class="btn o" data-lt="games">${siteEnglish()?'Learning games':'ألعاب تعليمية'}</button>`:''}${kinds.includes('flash')?`<button class="btn o" data-lt="flash">${siteEnglish()?'Review cards':'بطاقات مراجعة'}</button>`:''}<button class="btn o" data-lt="workspace">${siteEnglish()?'Application workspace':'مساحة التطبيق'}</button></nav>${c.id==='pmp'?`<details class="learner-library-part" open><summary>${siteEnglish()?'Readings and template guides':'القراءات وأدلة القوالب'}</summary><section data-pmp-library="${esc(p.id)}" data-pmp-library-view="files"><p data-pmp-library-status role="status">${siteEnglish()?'Loading library…':'جارٍ تحميل المكتبة…'}</p></section></details>`:''}<details class="learner-library-part" open><summary>${siteEnglish()?'Workshops, activities and simulations':'ورش العمل والأنشطة والمحاكاة'}</summary>${activityBody||`<p class="package-empty">${siteEnglish()?'No practical activities are included in this package.':'لا تتضمن هذه الباقة أنشطة تطبيقية.'}</p>`}</details>`;
@@ -4990,6 +4992,7 @@ function loadReminderSettings() {
     if(A().route==='dash') A().render();
   }).catch(()=>{window.__reminderUser=null;});
 }
+function community(){return `<section class="community-page"><div class="wrap"><header class="learning-section-strip"><a class="btn o" href="#dash" data-r="dash">${siteEnglish()?'My courses':'دوراتي'}</a><div><h1>${siteEnglish()?'Al-Saeed community':'مجتمع السعيد'}</h1><p>${siteEnglish()?'The general room is visible to active platform members. Direct messages are private to their two participants.':'الدردشة العامة متاحة لأعضاء المنصة النشطين. الرسائل الخاصة لا يراها إلا طرفا المحادثة.'}</p></div></header><section data-community-chat><p role="status">${siteEnglish()?'Loading messages…':'جارٍ تحميل الدردشة…'}</p></section></div></section>`}
 function dash() {
   const u = A().me();
   loadReminderSettings();
@@ -5002,7 +5005,7 @@ function dash() {
       : (siteEnglish()?'You have no packages yet. Choose your next program.':'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.')}</p>
   </div></section>
   <div class="wrap" style="padding-bottom:60px">
-    <div class="v32-dash-actions"><button type="button" class="btn o" data-learner-profile>${siteEnglish()?'My profile':'ملفي الشخصي'}</button><button class="btn o" id="dashInvoices" type="button">${siteEnglish()?'My invoices':'فواتيري'} ↗</button><a class="btn o" href="#programs">${siteEnglish()?'Explore programs':'استكشف البرامج'} ↗</a>${classroom?`<a class="btn p" href="/classroom/">${siteEnglish()?'Open private classroom':'افتح الفصل الخاص'} ↗</a>`:''}</div>
+    <div class="v32-dash-actions"><a class="btn o" href="#chat" data-r="chat">${siteEnglish()?'Messages':'الدردشة'}</a><button type="button" class="btn o" data-learner-profile>${siteEnglish()?'My profile':'ملفي الشخصي'}</button><button class="btn o" id="dashInvoices" type="button">${siteEnglish()?'My invoices':'فواتيري'} ↗</button><a class="btn o" href="#programs">${siteEnglish()?'Explore programs':'استكشف البرامج'} ↗</a>${classroom?`<a class="btn p" href="/classroom/">${siteEnglish()?'Open private classroom':'افتح الفصل الخاص'} ↗</a>`:''}</div>
     <div class="readiness-explain mb"><span aria-hidden="true">🔔</span><div style="flex:1">
       <b>${siteEnglish()?'Study reminders':'تذكيرات الدراسة'}</b>
       <p>${siteEnglish()?'Receive an email when your video lessons are unfinished and you have not studied for several days. You can stop reminders at any time.':'تصل رسالة إلى بريدك عند عدم إكمال الفيديوهات والتوقف عن الدراسة عدة أيام. يمكنك إيقافها في أي وقت.'}</p>
@@ -7484,7 +7487,7 @@ function grantPkg() {
 function closeMega() { window.__mega = false; }
 
 return { home, courses, programs, closeMega, systems, library, blog, academic, degree, consulting, megaMenu,
-  course: courseView, pkg: pkgView, learn, dash, admin, trainer,
+  course: courseView, pkg: pkgView, learn, dash, community, admin, trainer,
   about, contact, locked, needLogin, bind };
 })();
 </script>
@@ -7784,7 +7787,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/pmp-shared-case.js?v=20261021-case"></script><script src="/unified-exam.js?v=20261023-3"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-3"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/pmp-shared-case.js?v=20261021-case"></script><link rel="stylesheet" href="/exam-setup.css?v=20261023-1"><script src="/exam-setup.js?v=20261023-1"></script><script src="/unified-exam.js?v=20261023-reference-setup"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-3"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <link rel="stylesheet" href="/learning-workspace.css?v=20261023-1"><script src="/learning-workspace.js?v=20261023-1"></script>
@@ -7824,6 +7827,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/pmp-learning-library.js?v=20261023-1"></script>
 <link rel="stylesheet" href="/pmp-practice-tools.css?v=20261023-1">
 <script src="/pmp-practice-tools.js?v=20261023-1"></script>
+<link rel="stylesheet" href="/community-chat.css?v=20261023-1"><script src="/community-chat.js?v=20261023-1"></script>
 </body>
 </html>
 

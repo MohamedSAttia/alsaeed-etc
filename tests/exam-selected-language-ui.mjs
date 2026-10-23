@@ -3,10 +3,10 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const nodes=new Map();let bodyHtml='',timerStarts=0,attempts=0,progress={};
-const node=key=>{if(!nodes.has(key))nodes.set(key,{innerHTML:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},focus(){},scrollIntoView(){},insertAdjacentHTML(where,html){this.innerHTML+=html},remove(){nodes.delete(key)}});return nodes.get(key)};
+const node=key=>{if(!nodes.has(key))nodes.set(key,{innerHTML:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},focus(){},after(){},scrollIntoView(){},insertAdjacentHTML(where,html){this.innerHTML+=html},remove(){nodes.delete(key)}});return nodes.get(key)};
 const context={
  window:{APP:{esc:String,me:()=>({name:'متدرّب',nameEn:'Learner'}),prog:()=>progress,save(){},toast(){}},print(){}},
- document:{querySelector:node,querySelectorAll:()=>[],body:{insertAdjacentHTML(where,html){bodyHtml=html},classList:{add(){},remove(){}}}},
+ document:{createElement:()=>({dataset:{}}),querySelector:node,querySelectorAll:()=>[],body:{insertAdjacentHTML(where,html){bodyHtml=html},classList:{add(){},remove(){}}}},
  DOMParser:class{parseFromString(value){return{querySelectorAll:()=>[],body:{innerHTML:value}}}},
  fetch:()=>{attempts++;return Promise.resolve({ok:true})},
  localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,setTimeout,clearTimeout,
@@ -51,5 +51,5 @@ console.log('PASS: chosen-only Arabic/English instructions, questions, tools, br
 // Closing or replacing an attempt while camera permission is pending must not start it.
 let resolveCamera,cameraCalls=0,stopped=0;
 context.navigator.mediaDevices.getUserMedia=()=>{cameraCalls++;return new Promise(r=>resolveCamera=r)};
-const cameraState=stateFor('en');e.setState(cameraState);e.renderInstructions();node('input[name=uxCameraMode]:checked').value='on';const start=node('#uxStartMock').onclick,before=timerStarts,pending=start();await start();assert.equal(cameraCalls,1);e.setState(null);resolveCamera({getTracks:()=>[{stop(){stopped++}}]});await pending;assert.equal(stopped,1);assert.equal(timerStarts,before);
+const cameraState=stateFor('en');e.setState(cameraState);e.renderInstructions();node('input[name=uxCameraMode]:checked').value='on';node('#uxCameraConsent').checked=true;const start=node('#uxStartMock').onclick,before=timerStarts,pending=start();await start();assert.equal(cameraCalls,1);e.setState(null);resolveCamera({getTracks:()=>[{stop(){stopped++}}]});await pending;assert.equal(stopped,1);assert.equal(timerStarts,before);
 console.log('PASS: pending camera start cannot be duplicated and closes its stream without starting an abandoned exam');

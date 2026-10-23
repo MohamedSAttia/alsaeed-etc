@@ -58,6 +58,7 @@ try {
   assert.ok(APP && window.PACKAGES?.length, 'Real application and catalog loaded');
   window.eval(await readFile('public/package-experience.js', 'utf8'));
   const pids = window.PACKAGES.filter(pkg => pkg.active !== false).map(pkg => pkg.id);
+  APP.go('chat'); await settle(); assert(!document.querySelector('[data-community-chat]'),'anonymous chat route is gated');
   const originalData = JSON.stringify({ packages: window.PACKAGES, courses: window.COURSES });
   for (const language of ['ar', 'en']) {
     window.__lang = language;
@@ -90,6 +91,9 @@ try {
   // All access/progress exists in memory inside this isolated DOM. No API or database writes.
   APP.DB.users.push({ id: 'ui-fixture', name: 'Fixture', role: 'student', packages: pids.map(id => ({ id })) });
   APP.DB.session = 'ui-fixture';
+  APP.go('chat'); await settle(); assert.equal(document.querySelectorAll('[data-community-chat]').length,1); assert(document.querySelector('#nav [data-r="chat"]'));
+  APP.go('dash'); await settle(); assert(document.querySelector('.v32-dash-actions [data-r="chat"]'));
+
   const order = ['home', 'content', 'exams', 'resources', 'library', 'community'];
   for (const language of ['ar', 'en']) {
     window.__lang = language; window.I18.set(language);

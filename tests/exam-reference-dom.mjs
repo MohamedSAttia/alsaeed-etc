@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {JSDOM} from 'jsdom';
+const code=fs.readFileSync('public/unified-exam.js','utf8');
+for(const lang of ['ar','en']){
+ const dom=new JSDOM('<body><main id="lnBody"></main></body>',{url:'https://exam.test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,d=w.document;
+ w.setInterval=()=>1;w.clearInterval=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.confirm=()=>true;w.alert=()=>{};
+ w.APP={esc:x=>String(x).replaceAll('&','&amp;').replaceAll('<','&lt;'),pack:()=>({course:'pmp',ar:'باقة',en:'Package'}),course:()=>({id:'pmp',code:'PMP',questions:180,examMin:240}),me:()=>({id:'owner',name:'اسم المتدرب',nameEn:'Learner Name'}),prog:()=>({}),save(){},toast(){}};
+ w.eval(code);
+ const items=Array.from({length:4},(_,i)=>({id:'q'+i,type:'single',domain:'people',question_ar:'ما القرار المناسب؟',question_en:'Which decision is appropriate?',options_ar:['الخيار الأول','الخيار الثاني','الخيار الثالث','الخيار الرابع'],options_en:['First option','Second option','Third option','Fourth option'],correct:'A',meta:{}}));
+ await w.UnifiedExam.open('pmp-full','chapter_framework',{items});d.querySelector(lang==='ar'?'#uxChooseAr':'#uxChooseEn').click();d.querySelector('#uxConfirmLanguage').click();
+ assert.equal(d.querySelector('.ux-title b').textContent,lang==='ar'?'اسم المتدرب':'Learner Name');
+ assert.equal(d.querySelector('.ux-header-position b').textContent,'1 / 4');
+ assert.equal(d.querySelectorAll('#uxTime').length,1);assert.equal(d.querySelectorAll('#uxNext').length,1);assert.equal(d.querySelectorAll('#uxMap').length,1);
+ assert(d.querySelector('#uxQuestionMap').hidden);assert.equal(d.querySelector('#uxMap').getAttribute('aria-expanded'),'false');
+ d.querySelector('#uxMap').click();assert(!d.querySelector('#uxQuestionMap').hidden);assert.equal(d.activeElement.id,'uxMapTitle');d.querySelector('#uxMap').click();assert(d.querySelector('#uxQuestionMap').hidden);
+ const answer=d.querySelector('[data-opt="D"]');answer.dispatchEvent(new w.KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true}));assert.equal(d.querySelector('[data-opt="D"]').getAttribute('aria-checked'),'true');assert(d.querySelector('.ux-dock-status').textContent.includes('1/4'));
+ d.querySelector('#uxFlag').click();assert.equal(d.querySelectorAll('.ux-dock-status b')[1].textContent,'1');d.querySelector('#uxNext').click();assert.equal(d.querySelector('.ux-header-position b').textContent,'2 / 4');d.querySelector('#uxPrev').click();assert.equal(d.querySelector('[data-opt="D"]').getAttribute('aria-checked'),'true');
+ d.querySelector('#uxMap').click();d.querySelector('[data-i="3"]').click();w.confirm=()=>false;d.querySelector('#uxNext').click();assert(d.querySelector('#uxAnswers'),'cancelled submission keeps the active attempt');
+ assert.equal(d.querySelectorAll('.ux-opt').length,4);assert(d.querySelector('.ux-main').compareDocumentPosition(d.querySelector('.ux-exam-dock'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
+ w.UnifiedExam.close();
+ const variants=[{...items[0],type:'fill_blank',correct:'1'},{...items[1],type:'drag_drop',meta:{sourceV5:{t:'dd',b:[[{ar:'أ',en:'A'},{ar:'ب',en:'B'}],[{ar:'ج',en:'C'},{ar:'د',en:'D'}]],c:[0,1]}}}];
+ await w.UnifiedExam.open('pmp-full','chapter_framework',{items:variants});d.querySelector(lang==='ar'?'#uxChooseAr':'#uxChooseEn').click();d.querySelector('#uxConfirmLanguage').click();
+ const input=d.querySelector('#uxText');input.focus();input.value='answer';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelector('[data-answer-count]').textContent,'1/2');assert.equal(d.activeElement,input);assert(d.querySelector('[data-i="0"]').classList.contains('ans'));input.value=' ';input.dispatchEvent(new w.Event('input'));assert.equal(d.querySelector('[data-answer-count]').textContent,'0/2');assert(!d.querySelector('[data-i="0"]').classList.contains('ans'));
+ d.querySelector('#uxNext').click();const selects=[...d.querySelectorAll('[data-source-select]')];assert.equal(selects.length,2);selects[0].value='0';selects[0].dispatchEvent(new w.Event('change'));assert.equal(d.querySelector('[data-answer-count]').textContent,'0/2');selects[1].value='1';selects[1].dispatchEvent(new w.Event('change'));assert.equal(d.querySelector('[data-answer-count]').textContent,'1/2');selects[0].value='';selects[0].dispatchEvent(new w.Event('change'));assert.equal(d.querySelector('[data-answer-count]').textContent,'0/2');
+ w.UnifiedExam.close();w.close();
+}
+const css=fs.readFileSync('public/exam-reference.css','utf8');assert(css.includes('env(safe-area-inset-bottom,0px)'));assert(css.includes('@media(max-height:520px)'));assert(css.includes('.ux-exam-dock,#ux .ux-head{position:static}'));assert(css.includes('.ux-nav[hidden]{display:none!important}'));
+console.log('PASS: reference exam frame AR/EN, real identity/count, one timer/action set, map visibility/focus, fourth answer retained, flag/status and dock ordering');

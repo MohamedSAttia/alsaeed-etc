@@ -7,7 +7,7 @@ RUN npm ci --omit=dev
 
 COPY server.js learner-profiles.js pmp-practice-tools.js pmp-learning-library.js progress-records.js lesson-actions.js curriculum-slots.js trainee-tracking.js enrollment-extensions.js instructor-certificates.js admin.js proxy.js gateway.js pmp-engine.js v16-backend.js v18-seed.js v18-build.js ai-assistant.js corporate-workflow.js classroom.js pmp-topic-seed.js rmp-advanced-seed.js ./
 COPY public ./public
-COPY learning-feedback.js course-chat.js learning-points.js manual-invoices.js course-reviews.js admin-cohorts.js ./
+COPY learning-feedback.js community-chat.js course-chat.js learning-points.js manual-invoices.js course-reviews.js admin-cohorts.js ./
 COPY data ./data
 COPY grcp-exam.html rmp-exam.html pba-exam.html grcp-study.html rmp-study.html pba-study.html ./public/
 

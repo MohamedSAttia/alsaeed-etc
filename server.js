@@ -1,3 +1,4 @@
+import { mountCommunityChat } from './community-chat.js';
 import { mountCourseChat } from './course-chat.js';
 import { mountLearningPoints } from './learning-points.js';
 import { mountLearnerProfiles } from './learner-profiles.js';
@@ -168,6 +169,7 @@ const readList = key => {
 mountCourseReviews({ app, db, auth, readList });
 mountLearningFeedback({app,db,auth,getPackages:()=>readList('content_packages'),getCourses:()=>readList('content_courses')});
 mountCourseChat({app,db,auth,getPackages:()=>readList('content_packages')});
+mountCommunityChat({app,db,auth});
 const learningPoints=mountLearningPoints({app,db,auth,getPackages:()=>readList('content_packages'),getLearning:()=>{try{return JSON.parse(setting('content_learning')||'{}')}catch{return {}}},library:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-learning-library.json'),'utf8')),toolDefinitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-practice-tools.json'),'utf8'))});
 let v15Catalog = { courses:[], packages:[], systems:[], promos:DEFAULT_PROMOS_V15 };
 try {
