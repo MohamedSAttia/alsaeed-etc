@@ -369,7 +369,7 @@
   }
   async function markRead(host, state) {
     if (!ensure(host, state) || state.denied || document.hidden || !state.roomId || state.reading || !nearBottom(state.refs.messages)) return;
-    const id = state.messages.at(-1)?.id, roomId = state.roomId, epoch = state.epoch;
+    const id = state.messages[state.messages.length - 1]?.id, roomId = state.roomId, epoch = state.epoch;
     if (!id || (state.readIds.get(roomId) || 0) >= id) return;
     state.reading = true;
     try {

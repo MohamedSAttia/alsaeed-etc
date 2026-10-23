@@ -8,6 +8,9 @@ import { mountCourseReviews } from './course-reviews.js';
 import { mountLearningFeedback } from './learning-feedback.js';
 import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
 import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent, readRecordedExamAttempts, readPracticeToolSummary } from './trainee-tracking.js';
+import { catalogAvailability } from './learner-question-catalog.js';
+import './public/course-roadmap.js';
+import './public/pmp-shared-case.js';
 /* ============================================================
    منصة السعيد — الخادم
    حسابات · اشتراكات · دفع بتحقّق من الخادم · شهادات قابلة للتحقّق
@@ -403,6 +406,8 @@ app.get('/api/lessons/:pkg', (req, res) => {
   /* رقم الفيديو يُحجب عن غير المشترك — وهذا ما يمنع نسخ الروابط */
   res.json(rows.map(r => r.deleted_at ? {idx:r.idx,deleted:true,title:'',chapter:0,vimeo:null,files:[],quiz:[],notes:'',notes_en:''} : ({ ...r, files: (enrolled || r.free) ? JSON.parse(r.files || '[]') : [],
     quiz: (enrolled || r.free) ? JSON.parse(r.quiz || '[]') : [],
+    notes: (enrolled || r.free) ? (r.notes || '') : '',
+    notes_en: (enrolled || r.free) ? (r.notes_en || '') : '',
     vimeo: (enrolled || r.free) ? r.vimeo : null })));
 });
 app.get('/api/lesson-files/:id', auth, (req, res) => {
@@ -1209,28 +1214,14 @@ app.put('/api/admin/learning/:course', auth, admin, (req, res) => {
   res.json({ ok:true, cards });
 });
 /* أرقام الكتالوج من المحتوى المنشور فعلاً، دون كشف الروابط أو الأسئلة. */
+const catalogEditorialHolds = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'pmp-editorial-holds-2026.json'), 'utf8')).items.map(item => item.id);
+const catalogTopicRouting = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'pmp-topic-routing-2026.json'), 'utf8'));
 app.get('/api/catalog-availability', (req, res) => {
-  const packages = JSON.parse(setting('content_packages') || '[]');
-  const videos = db.prepare("SELECT package_id, duration FROM lessons WHERE deleted_at IS NULL AND TRIM(COALESCE(vimeo,'')) <> ''")
-    .all().reduce((map, row) => {
-      const entry = map[row.package_id] ||= { count: 0, minutes: 0 };
-      entry.count++;
-      const parts = String(row.duration || '').split(':').map(Number);
-      if (parts.length === 2 && parts.every(Number.isFinite)) entry.minutes += parts[0] + parts[1] / 60;
-      return map;
-    }, {});
-  const hasQuestions = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='questions'").get();
-  const questions = hasQuestions ? Object.fromEntries(db.prepare('SELECT package_id, COUNT(*) AS n FROM questions WHERE active=1 GROUP BY package_id')
-    .all().map(row => [row.package_id, row.n])) : {};
-  const result = {};
-  for (const p of packages) {
-    const source = packages.find(x => x.id === p.sourcePackageId && x.course === p.course)?.id || p.id;
-    const candidates = [p.course, ...packages.filter(x => x.course === p.course).map(x => x.id)];
-    const bank = questions[p.id] ? p.id : candidates.reduce((best, id) =>
-      (questions[id] || 0) > (questions[best] || 0) ? id : best, p.id);
-    result[p.id] = { videos: videos[source]?.count || 0, videoMins: Math.round(videos[source]?.minutes || 0), questions: questions[bank] || 0 };
-  }
-  res.json(result);
+  const packages = readList('content_packages');
+  const pmpPackageId = packages.find(p => /pmp/i.test([p.id,p.code,p.en,p.ar].filter(Boolean).join(' ')))?.id;
+  res.set('Cache-Control', 'no-store').json(catalogAvailability({db, packages, courses:readList('content_courses'),
+    roadmap:globalThis.CourseRoadmap, sharedCase:globalThis.PmpSharedCase,
+    editorialHolds:catalogEditorialHolds, topicRouting:catalogTopicRouting, pmpPackageId}));
 });
 function validCourseChapterKeys(courseId, chapters) {
   // Both catalog writers use the same bounded validation before any settings write.

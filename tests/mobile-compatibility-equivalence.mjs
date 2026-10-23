@@ -1,0 +1,10 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const code=fs.readFileSync('public/unified-exam.js','utf8');
+assert(!code.includes('(?<='));assert(!code.includes('(?<!'));
+const fn=code.match(/function briefOptionNote\(q,i\)\{[^\n]+/)[0];const ctx={S:{lang:'ar'},optionNotes:q=>[q.note]};vm.createContext(ctx);vm.runInContext(fn,ctx);
+const cases=['','text','First. Second','الأول؟ الثاني','One!\tTwo','One.\nTwo','One\nTwo','One.\r\nTwo','... next','end.','\nleading','😀! next','a.\u00a0b','a.\u2028b'];
+for(const a of ['','a','نص','😀'])for(const b of ['.','!','؟','?','\n',''])for(const c of [' ','\t','\n','\r\n','\u00a0','x',''])cases.push(a+b+c+'tail');
+for(const note of cases)assert.equal(ctx.briefOptionNote({note},0),note?note.split(/(?<=[.!؟])\s|\n/)[0]:'',JSON.stringify(note));
+const chat=fs.readFileSync('public/community-chat.js','utf8');assert(!chat.includes('.at('));assert(chat.includes('state.messages[state.messages.length - 1]?.id'));
+for(const messages of [[],[{id:0}],[{id:1},{id:2}],Array(3)])assert.equal(messages[messages.length-1]?.id,messages.at(-1)?.id);
+console.log('PASS: first-sentence extraction equivalent on '+cases.length+' Unicode/boundary cases; final-message ID equivalent for empty/sparse/populated arrays; targeted production lookbehind/Array.at removed. Not a full old-Safari compatibility guarantee.');

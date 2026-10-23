@@ -17,6 +17,16 @@ for(const language of ['ar','en']){
  request.reject(new Error('Invalid credentials'));await new Promise(r=>setTimeout(r,0));assert.equal(d.querySelector('#authError').hidden,false);assert(!d.querySelector('#aGo').disabled);
  form.dispatchEvent(new w.Event('submit',{cancelable:true}));request.resolve({token:'test-only-token',user:{id:'test-person',name:'Learner',role:'student'}});await new Promise(r=>setTimeout(r,0));assert.equal(route,'dash');assert.equal(w.DB.session,'test-person');assert.equal(w.API.progressOwner,'test-person');assert.equal(w.authRequestPending,false);
  w.openAuth('login');d.querySelector('#authHelp').click();assert.equal(route,'contact');
+ // Registration is a real POST, repeated clicks are held, and interrupted requests cannot duplicate.
+ w.openAuth('reg');d.querySelector('#aName').value='New Learner';d.querySelector('#aMail').value='new@example.com';d.querySelector('#aPass').value='longpassword123';
+ const registration=d.querySelector('#authForm'),before=calls.length;
+ registration.dispatchEvent(new w.Event('submit',{cancelable:true}));registration.dispatchEvent(new w.Event('submit',{cancelable:true}));
+ assert.equal(calls.length,before+1);assert.equal(calls.at(-1)[0],'/auth/register');assert.equal(calls.at(-1)[1].body.email,'new@example.com');
+ w.closeModal();w.openAuth('login');assert(!d.querySelector('#authForm'),'pending request cannot be reopened or duplicated');
+ request.resolve({token:'test-registration-token',user:{id:'new-learner',name:'New Learner',role:'student'}});await new Promise(r=>setTimeout(r,0));
+ assert.equal(w.DB.session,'new-learner');assert.equal(route,'dash');assert.equal(w.authRequestPending,false);
+ w.openAuth('login');assert(d.querySelector('#authForm'),'entry remains usable after interrupted completion');
+
  assert(!auth.match(/accounts\.google|facebook\.com|appleid|linkedin\.com|oauth\/callback/));
  dom.window.close();
 }

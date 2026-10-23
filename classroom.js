@@ -293,6 +293,13 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
     }
     const max = Math.max(0, +b.max || 0), score = Math.max(0, Math.min(+b.score || 0, max || 1e9));
     const pct = max ? Math.round(score / max * 1000) / 10 : 0;
+    // New unified attempts carry a stable opaque key. An exact retry reuses the
+    // existing saved record instead of appending an older result after a newer one.
+    const attemptKey=typeof b.detail?.attemptKey==='string'?b.detail.attemptKey:'';
+    if(attemptKey && /^[A-Za-z0-9_-]{8,128}$/.test(attemptKey)){
+      const prior=q1("SELECT id,pct FROM cls_attempts WHERE user_id=? AND kind=? AND ref=? AND json_valid(detail) AND json_extract(detail,'$.attemptKey')=? ORDER BY id LIMIT 1",req.user.id,kind,ref,attemptKey);
+      if(prior)return res.json({ok:true,id:prior.id,pct:prior.pct,replayed:true});
+    }
     const x = run('INSERT INTO cls_attempts (user_id, assignment_id, kind, ref, title, score, max, pct, dur, detail, created) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
       req.user.id, aid, kind, ref, str(b.title, 200), score, max, pct, Math.max(0, +b.dur || 0), b.detail ? JSON.stringify(b.detail).slice(0, 400000) : null, now());
     afterSave(req.user.id,packageId);

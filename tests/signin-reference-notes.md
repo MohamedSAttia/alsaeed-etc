@@ -13,3 +13,10 @@ Reference: user supplied split illustration/form screen. Uses existing original 
 - node tests/signin-reference-dom.mjs: Arabic/English rendering, labels/autocomplete, password show/hide, mode-switch draft preservation, single request, pending state, failed login, successful session/progress hydration, contact help, responsive/reduced-motion source contracts.
 - All inline scripts parse with node vm.Script; auth-visual.js passes node --check.
 - Pixel/browser screenshots remain unavailable because the approved local browser cannot launch in this environment; DOM checks are not pixel QA.
+
+## Returning-user navigation correction (2026-10-23)
+The public mobile stylesheet hid both account buttons under680px, leaving them only inside the collapsed menu. Removed that hiding rule. A dedicated second mobile header row now keeps Log in / Create account visible while signed out, or My dashboard / Logout while signed in. Desktop also has an explicit dashboard destination instead of a noninteractive first-name label. Logout clears the existing session/token/cache, closes stale menus, routes to the public homepage and opens the login form; dismissing that form still leaves visible header entry points. No protected-content guest access added.
+
+Added account-navigation-dom.mjs and extended signin-reference-dom.mjs for real register endpoint selection, duplicate submission suppression, interrupted request completion and reopening. Both pass in AR/EN. Existing public-experience-dom.mjs passes. Pixel test public-experience.mjs is blocked at Chromium launch (sandbox socket permission); no screenshot acceptance claim.
+
+Provider readiness remains blocked before setup: repository only implements email/password; no Google, Apple or LinkedIn callback/token validation/account-linking implementation or declared provider keys exists. Metadata-only production configuration inquiry is pending with the deployment owner. Existing email login or a Gmail integration is not evidence that the website has a Google OAuth client. No secrets read or new credentials/grants/settings changed.

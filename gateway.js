@@ -1,3 +1,4 @@
+import {createPracticeState} from './practice-state.js';
 import { createLearningPoints } from './learning-points.js';
 import { createPmpPracticeTools } from './pmp-practice-tools.js';
 import { createPmpLearningLibrary } from './pmp-learning-library.js';
@@ -13,6 +14,7 @@ import jwt from 'jsonwebtoken';
 import { createPmpEngine } from './pmp-engine.js';
 import { seedPmpTopics, seedPmpSource, seedPmpReference, seedPmpReferenceMerge } from './pmp-topic-seed.js';
 import { createAiAssistant } from './ai-assistant.js';
+import { questionSourcePackageId as selectQuestionSourcePackageId, learnerQuestionSelection, learnerQuestionMeta } from './learner-question-catalog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_PORT = Number(process.env.PORT || 3000);
@@ -281,18 +283,7 @@ function courseIdForPackage(packageId) {
   return String(pkg?.course||id.split('-')[0]||id).toLowerCase();
 }
 function questionSourcePackageId(packageId, activeOnly=true) {
-  const id=String(packageId||'');
-  const activeSql=activeOnly?' AND active=1':'';
-  const exact=db.prepare(`SELECT COUNT(*) c FROM questions WHERE package_id=?${activeSql}`).get(id).c;
-  if(exact>0)return id;
-  const course=courseIdForPackage(id);
-  const candidates=[course,...getPackages().filter(p=>String(p.course||'').toLowerCase()===course).map(p=>String(p.id))];
-  let best=id,bestCount=0;
-  for(const candidate of [...new Set(candidates)]){
-    const count=db.prepare(`SELECT COUNT(*) c FROM questions WHERE package_id=?${activeSql}`).get(candidate).c;
-    if(count>bestCount){best=candidate;bestCount=count}
-  }
-  return bestCount?best:id;
+  return selectQuestionSourcePackageId({db,packages:getPackages()},packageId,activeOnly);
 }
 
 function sendJson(res, status, body) {
@@ -505,20 +496,10 @@ function handleLearnerQuestionBank(req,res,url){
     if(!en)return sendJson(res,403,{error:'بنك الأسئلة متاح للمشتركين في هذه الباقة فقط'});
     if(en.expires && en.expires<Date.now())return sendJson(res,403,{error:'انتهت مدة الوصول إلى الباقة'});
   }
-  const sourcePackageId=questionSourcePackageId(packageId,true);
   const requested=Math.max(1,Math.min(2000,Number(url.searchParams.get('limit')||2000)));
-  const filters=['package_id=?','active=1'], params=[sourcePackageId];
-  // Learners see the current PMP source cohorts; legacy imports remain available to administrators for editorial review.
-  const pmpQualityGate=sourcePackageId===pmp.packageId||getPackages().some(p=>p.id===packageId&&String(p.course).toLowerCase()==='pmp');
-  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') NOT IN ('PMP exam structure','Introduction') AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8') OR (id LIKE 'pmp-ref-somu-%' AND json_valid(meta) AND json_extract(meta,'$.referenceMergeReviewed')=1))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
-
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
-  if(domain){
-    const aliases={people:['people','e'],process:['process','r'],business:['business','business environment','b']}[domain]||[domain];
-    filters.push(`LOWER(TRIM(domain)) IN (${aliases.map(()=>'?').join(',')})`);params.push(...aliases)
-  }
-  if(topic){filters.push('topic=?');params.push(topic)}
+  const {sourcePackageId,pmpQualityGate,filters,params}=learnerQuestionSelection({db,packages:getPackages(),pmpPackageId:pmp.packageId,editorialHolds:pmpEditorialHolds},packageId,{domain,topic});
   const rows=db.prepare(`SELECT * FROM questions WHERE ${filters.join(' AND ')}
     ORDER BY COALESCE(is_official,0) DESC, COALESCE(priority,0) DESC, RANDOM()
     LIMIT ?`).all(...params,requested);
@@ -528,10 +509,12 @@ function handleLearnerQuestionBank(req,res,url){
     options_ar:o.ar,options_en:o.en,
     correct:q.correct||'',correct_json:parseJson(q.correct_json,[]),
     explanation_ar:q.explanation_ar||'',explanation_en:q.explanation_en||'',reference:q.reference||'',approach:q.approach||'',
-    meta:{...parseJson(q.meta,{}),...(pmpQualityGate&&pmpTopicRouting[q.source_id]?{primaryTopic:pmpTopicRouting[q.source_id]}:{})},phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
+    meta:learnerQuestionMeta(q,pmpQualityGate,pmpTopicRouting),phase:String(parseJson(q.meta,{}).phase||''),source_exam:q.source_exam||'',is_official:!!q.is_official,priority:Number(q.priority||0),review_status:q.review_status||'needs_review'
   }});
   return sendJson(res,200,{packageId,sourcePackageId,total:rows.length,filters:{domain:domain||null,topic:topic||null},questions});
 }
+
+const handlePracticeState=createPracticeState({db,getPackages,getQuestions:pid=>{const {filters,params}=learnerQuestionSelection({db,packages:getPackages(),pmpPackageId:pmp.packageId,editorialHolds:pmpEditorialHolds},pid);return db.prepare(`SELECT id FROM questions WHERE ${filters.join(' AND ')}`).all(...params)},userFromToken,readJson,sendJson});
 
 function lessonAccess(user, packageId) {
   if(!user)return false;
@@ -675,6 +658,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
     if(url.pathname.startsWith('/api/pmp-practice-tools/'))return await handlePmpPracticeTools(req,res,url);
     if(url.pathname.startsWith('/api/pmp-learning-library/'))return await handlePmpLearningLibrary(req,res,url);
+    if(url.pathname.startsWith('/api/practice-state/'))return handlePracticeState(req,res,url);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-question-bank/'))return handleLearnerQuestionBank(req,res,url);
     if(url.pathname.startsWith('/api/lesson-discussions/'))return await handleLessonDiscussions(req,res,url);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-resources/'))return handleLearnerResources(req,res,url);

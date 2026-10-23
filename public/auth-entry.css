@@ -236,3 +236,15 @@
 }
 @media(max-width:350px){.auth-form-panel{padding-inline:16px}.auth-tabs{gap:12px}.auth-tabs button{font-size:14px}}
 @media(max-height:680px) and (min-width:761px){.auth-form-panel{padding:25px 34px}.auth-layout{min-height:570px}}
+
+/* Short mobile browser sheets: keep the primary action reachable above safe areas. */
+@media(max-width:760px){
+ #ov.auth-overlay{padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+ #ov .mdl.auth-dialog,.auth-layout{max-height:calc(100dvh - 16px - env(safe-area-inset-bottom))}
+ .auth-visual{height:96px;min-height:96px}.auth-scenes{height:96px;width:53%}.auth-scene .auth-art{height:96px;max-height:96px}
+ .auth-visual-top{top:20px;width:43%}#ov .auth-visual h3{font-size:18px}.auth-scene-controls{display:none}
+ .auth-form-panel{padding:14px 22px max(22px,env(safe-area-inset-bottom))}.auth-brand{margin-bottom:8px;min-height:30px}.auth-brand svg{height:30px}
+ .auth-eyebrow{display:none}#ov .auth-form-panel h2{font-size:24px;margin-bottom:8px}#ov .auth-form-panel .auth-intro{display:none}
+ .auth-tabs{margin-bottom:12px}.auth-tabs button{min-height:40px;padding:7px 8px}#ov .auth-method-note{margin-bottom:12px}
+ #authForm .f{margin-bottom:12px}#authForm input{min-height:48px}.auth-submit{margin-top:10px;min-height:48px}.auth-switch{margin-top:12px!important}
+}

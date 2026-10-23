@@ -25,5 +25,5 @@ const otherAxes=a.courseAxes('r',other);assert.equal(otherAxes.length,2);assert.
 assert.deepEqual(Array.from(a.axisRows([{id:'ar',topic:'تخطيط مخاطر خاص'},{id:'en',topic:'Custom risk planning'},{id:'no',topic:'Risk'},{id:'idx',chapter_index:0}],otherAxes[0],other),q=>q.id),['ar','en','idx']);
 const source=fs.readFileSync('public/course-assessments.js','utf8');
 assert(source.includes("${key==='chapters'?'open':''}"));
-assert(source.includes("'chapter_'+axis.key"));
+assert(source.includes('data-practice-hub'));
 console.log('PASS: course-authored axis order, renamed labels, nested phases, explicit metadata, stable IDs, bilingual exact custom mapping, disabled unknown axes, and non-PMP sparse chapter slots.');

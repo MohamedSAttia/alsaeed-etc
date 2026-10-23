@@ -1107,7 +1107,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 <link rel="stylesheet" href="/experience-v32.css?v=32.0">
 <link rel="stylesheet" href="/checkout-v33.css?v=33.0">
 <link rel="stylesheet" href="/media-v34.css?v=44.3"><link rel="stylesheet" href="/learning-design.css?v=20261015-learner-outline">
-<link rel="stylesheet" href="/public-experience.css?v=20261010-design">
+<link rel="stylesheet" href="/public-experience.css?v=account-return-20261010-design">
 <link rel="stylesheet" href="/package-experience.css?v=20261009-certificate">
 <link rel="stylesheet" href="/course-experience.css?v=20261010-design2">
 <link rel="stylesheet" href="/lesson-video.css?v=20261009-1">
@@ -1148,14 +1148,16 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 .hero .v24-slide{opacity:0!important;visibility:hidden!important}.hero .v24-slide.is-current{opacity:1!important;visibility:visible!important}
 </style>
 <script src="/lesson-video.js?v=20261009-1"></script>
-<link rel="stylesheet" href="/auth-entry.css?v=20261023-reference">
+<link rel="stylesheet" href="/auth-entry.css?v=20261023-corrective1">
 <link rel="stylesheet" href="/learning-polish.css?v=20261023-2">
-<link rel="stylesheet" href="/exam-reference.css?v=20261023-1">
-<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-reference"><script src="/course-covers.js?v=20261023-2"></script><script src="/visual-learning-home.js?v=20261023-2"></script><script src="/learner-navigation.js?v=20261023-2"></script>
+<link rel="stylesheet" href="/exam-reference.css?v=20261023-corrective1">
+<link rel="stylesheet" href="/lesson-question-frame.css?v=20261023-corrective1">
+<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-corrective1"><script src="/course-covers.js?v=20261023-2"></script><script src="/visual-learning-home.js?v=20261023-2"></script><script src="/learner-navigation.js?v=20261023-2"></script>
 <link rel="stylesheet" href="/course-chat.css?v=20261023-1">
 <script defer src="/course-chat.js?v=20261023-1"></script>
 <script src="/progress-sync.js?v=20261023-sync2"></script>
 <link rel="stylesheet" href="/learner-profile.css?v=20261023">
+<link rel="stylesheet" href="/course-preview.css?v=20261023-1">
 </head>
 <body>
 
@@ -1216,6 +1218,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
     <div class="ftr-bot">
       <span data-public-footer="copyright">© 2026 السعيد للتعليم والتدريب والخدمات الاستشارية. جميع الحقوق محفوظة.</span>
       <span>فضول · وضوح · نزاهة · شراكة · شمول</span>
+      <small data-interface-build="2026.10.23-C1" dir="ltr">UI · 2026.10.23-C1</small>
     </div>
   </div>
 </footer>
@@ -3451,7 +3454,7 @@ function renderNav() {
     <div class="lang"><button class="lang-b" id="langBtn">🌐 ${esc(L.k.toUpperCase())} ▾</button>
       ${window.__langOpen ? `<div class="lang-m" id="langM">${window.LANGS.map(x => `<button class="${x.k === lang ? 'on' : ''}" data-lang="${x.k}"><span class="fl">${x.fl}</span><span class="nm">${esc(x.ar)}<span class="nt" style="display:block">${esc(x.en)}</span></span>${x.k === lang ? '<span>✓</span>' : ''}</button>`).join('')}</div>` : ''}
     </div>
-    ${u ? `<span class="btn gh sm" style="cursor:default">${esc(u.name.split(' ')[0])}</span><button class="btn gh sm" id="logout">${T.logout}</button>` : `<button class="btn gh sm" id="btnLogin">${T.login}</button><button class="btn p sm" id="btnReg">${T.register}</button>`}`;
+    <div class="account-entry-actions" aria-label="${lang === 'en' ? 'Your account' : 'حسابك'}">${u ? `<a href="#dash" class="btn p sm" id="btnDashboard" data-r="dash">${lang === 'en' ? 'My dashboard' : 'لوحتي'}</a><button class="btn gh sm" id="logout">${T.logout}</button>` : `<button class="btn p sm" id="btnLogin">${lang === 'en' ? 'Log in' : 'تسجيل الدخول'}</button><button class="btn gh sm" id="btnReg">${T.register}</button>`}</div>`;
 
   const mg = document.getElementById('megaHost');
   if (mg) mg.innerHTML = window.VIEWS.megaMenu ? window.VIEWS.megaMenu() : '';
@@ -3603,7 +3606,11 @@ function bindAll() {
   const lo = $('#logout'); if (lo) lo.onclick = () => {
     DB.session = null; API.token = null; API.progressOwner=null; progressRequests.clear(); progressErrors.clear(); resetLessonCaches();
     try { localStorage.removeItem('alsaeed_token'); } catch (e) {}
-    save(); go('home'); toast('خرجت من حسابك');
+    window.__mega = false; window.__langOpen = false;
+    $('#nav')?.classList.remove('open'); document.body.classList.remove('public-menu-open');
+    save(); go('home'); toast(window.__lang === 'en' ? 'You are signed out' : 'خرجت من حسابك');
+    // Keep the way back explicit, without ever reopening protected learning content.
+    openAuth('login');
   };
   const bl = $('#btnLogin'); if (bl) bl.onclick = () => openAuth('login');
   const br = $('#btnReg'); if (br) br.onclick = () => openAuth('reg');
@@ -4509,8 +4516,24 @@ function certificationGuide(c) {
 }
 
 /* ═══════════ صفحة الدورة ═══════════ */
-function publicCourseTopics(c) {
+function publishedCoursePackage(c) {
+  return (window.PACKAGES||[]).filter(p=>p.course===c.id&&p.active!==false).sort((a,b)=>(window.CATALOG_AVAILABILITY?.[b.id]?.videos||0)-(window.CATALOG_AVAILABILITY?.[a.id]?.videos||0))[0];
+}
+function publicCourseTopics(c, pid) {
+  const id=pid||publishedCoursePackage(c)?.id, published=window.CATALOG_AVAILABILITY?.[id]?.curriculum;
+  if(Array.isArray(published))return published;
+  if(A().live)return [];
+  const lessons=window.LESSONS?.[id];
+  if(Array.isArray(lessons)&&window.CourseRoadmap?.videoGroups)return CourseRoadmap.videoGroups(c,lessons).map(function project(g){return {key:g.key,ar:g.title,en:g.en,children:(g.children||[]).map(project)}});
   return window.CourseRoadmap?.topics?.(c) || c.chapters || [];
+}
+function publicAssessmentPreview(c,pid){
+  if(c.id!=='pmp')return '';
+  const tr=(ar,en)=>siteEnglish()?en:ar,id=pid||publishedCoursePackage(c)?.id,actual=window.CATALOG_AVAILABILITY?.[id]?.assessments;
+  const outline=window.CourseRoadmap?.assessmentOutline?.(c);if(!outline)return '';
+  const group=(name,rows,counts)=>`<section><h4>${name}</h4><ol>${rows.map(row=>{const count=counts?.find(x=>x.key===row.key)?.questionCount;return `<li><b>${esc(siteEnglish()?row.en:row.ar)}</b> <span>${Number.isInteger(count)?count+' '+tr('سؤال منشور','published questions'):tr('التوافر قيد التحقق','Availability not verified')}</span></li>`}).join('')}</ol></section>`;
+  const mocks=actual?.fullMocks;
+  return `<section class="public-assessment-preview" data-public-assessment-preview><h3>${tr('الاختبارات داخل الباقة','Package assessments')}</h3>${group(tr('اختبارات الفصول','Chapter tests'),outline.chapters,actual?.chapters)}${group(tr('اختبارات المجالات','Domain tests'),outline.domains,actual?.domains)}<section><h4>${tr('المحاكاة الكاملة','Full mock exams')}</h4><ol>${outline.mocks.map(row=>`<li>${esc(siteEnglish()?row.en:row.ar)} · ${mocks?.status==='verified'?(mocks.availableCount>=row.number?tr('متاحة','Available'):tr('غير متاحة حاليًا','Not currently available')):tr('التوافر قيد التحقق','Availability not verified')}</li>`).join('')}</ol></section><p class="muted">${tr('هذه معاينة للعناوين والتوافر فقط. محتوى الاختبارات والفيديوهات للمشتركين.','This preview shows titles and availability only. Exam and video content requires enrollment.')}</p></section>`;
 }
 function publicTopicBody(topic, path) {
   const en=siteEnglish(),title=typeof topic==='object'?(en?topic.en||topic.ar:topic.ar||topic.en):topic;
@@ -4543,6 +4566,7 @@ function courseTabBody(c) {
     return `<h3>${tr('ما الذي ستتعلّمه؟','What you will learn')}</h3><div class="out-g">${outcomes.map((o,i)=>`<div class="out-c reveal d${i%4+1}"><span class="out-n num">${i+1}</span><p>${esc(o)}</p></div>`).join('')}</div><div class="note info mt"><b>${tr('لمن هذا البرنامج؟','Who is this for?')}</b> ${esc(en?(c.audience_en||'Professionals exploring this subject and comparing the available study formats.'):c.audience||'للمهتمين بتطوير مهاراتهم في هذا المجال ومقارنة أنماط الدراسة المتاحة.')}</div>`;
   }
   if(t==='exam') {
+    if(c.id==='pmp')return publicAssessmentPreview(c);
     return `<h3>${tr('الاستعداد للاختبار','Exam preparation')}</h3><p class="muted">${tr('تساعدك الباقات المنشورة على دراسة المحاور والتدرّب بالأسئلة المتاحة. تحقّق من دليل الاختبار الحالي وشروط الأهلية واللغة والحجز لدى جهة الشهادة قبل اتخاذ قرار التسجيل.','Published packages help you study the topics and practise with the available questions. Confirm the current exam outline, eligibility, language and booking rules with the certification body before registering.')}</p><div class="v37-domain-list">${(c.domains||[]).map((d,i)=>`<div><span>${String(i+1).padStart(2,'0')}</span><b>${esc(en?d.en||d.ar:d.ar||d.en)}</b></div>`).join('')}</div><a class="btn o mt" href="#contact">${tr('اسأل عن خطة الاستعداد','Discuss a study plan')} ↗</a>`;
   }
   if(t==='modes') {
@@ -4640,7 +4664,7 @@ function pkgView(id) {
   const p = A().pack(id);
   if (!p || p.active===false) return programs();
   const c = A().course(p.course) || {};
-  const topics=c.id==='pmp'&&p.type==='full'?publicCourseTopics(c):(p.chapters||[]);
+  const topics=c.id==='pmp'?publicCourseTopics(c,p.id):(p.chapters||[]);
   const T = (window.PKG_TYPES || []).find(x => x.k === p.type) || {};
   const L = (window.LANG_LABEL || {})[p.lang] || {};
   const has = A().owns(id);
@@ -4649,8 +4673,8 @@ function pkgView(id) {
   const minutes = A().live ? actual?.videoMins : p.videoMins;
   const hrs = minutes ? Math.floor(minutes/60) + ' ساعة ' + (minutes%60) + ' دقيقة' : '—';
   const testCount = (p.quizzes || 0) + (p.shortQuizzes || 0);
-  const questionCount = A().live ? (actual?.questions || '—') : (p.questions || '—');
-  const videoCount = A().live ? (actual?.videos || '—') : (p.videos || '—');
+  const questionCount = A().live ? (actual?.assessments?.status==='verified'?actual.assessments.questions:(c.id==='pmp'?'—':actual?.questions??'—')) : (p.questions || '—');
+  const videoCount = A().live ? (actual?.videos ?? '—') : (p.videos ?? '—');
   const KINDS = window.CONTENT_KINDS || [];
   const promo = window.__promo;
   const siblings=window.PACKAGES.filter(x=>x.course===p.course&&x.active!==false);
@@ -4721,6 +4745,7 @@ function pkgView(id) {
         ${siteEnglish()?'Who is it for?':'الفئة المستهدفة'}</h3>
       <div class="note info" style="margin:0">${esc(p.audience||'')}</div>
 
+      ${publicAssessmentPreview(c,p.id)}
       ${topics.length ? `
       <h3 style="font-family:var(--fd);font-weight:800;font-size:1.25rem;color:var(--navy);margin:26px 0 12px">
         ${siteEnglish()?'Topics covered':'محاور الباقة'}</h3>
@@ -4797,7 +4822,7 @@ function pkgTab(p, c, has) {
     const band=has?A().overallBand(A().readiness(c,scores)):null,full=Number(pr.exams?.full?.score);
     const readiness=band?band.v:pr.exams?.full?.score!=null&&Number.isFinite(full)?full:null;
     const progressSummary=has?`<details class="package-progress-details"><summary>${siteEnglish()?'My progress and practice readiness':'تقدمي ومؤشر الجاهزية التدريبي'}</summary><p>${siteEnglish()?'Package completion':'اكتمال الباقة'}: <b>${A().pct(p.id)}%</b></p><p>${readiness===null?(siteEnglish()?'Complete a domain or full assessment to measure practice readiness.':'أكمل اختبار مجال أو محاكاة كاملة لقياس جاهزيتك التدريبية.'):(siteEnglish()?'Practice readiness':'الجاهزية التدريبية')+': <b>'+readiness+'%</b>'}</p><small>${siteEnglish()?'Completion tracks learning activity. Readiness reflects assessment results and does not predict the official exam outcome.':'الاكتمال يقيس نشاط التعلّم، والجاهزية تعكس نتائج الاختبارات ولا تضمن نتيجة الاختبار الرسمي.'}</small>${Object.keys(scores).length?readinessBar(c,scores):''}</details>`:'';
-    const outline=c.id==='pmp'?`<details class="learner-course-outline card pad mb"><summary>${siteEnglish()?'Course outline':'محاور الدورة'}</summary><ol class="learner-plan-topics">${publicCourseTopics(c).map(t=>`<li data-plan-topic="${esc(t.key)}">${publicTopicBody(t)}</li>`).join('')}</ol>${p.kinds?.some(k=>['video','material'].includes(k))?`<button class="btn o" data-lt="content">${siteEnglish()?'Open course content':'افتح محتوى الدورة'}</button>`:''}</details>`:'';
+    const outline=c.id==='pmp'?`<details class="learner-course-outline card pad mb"><summary>${siteEnglish()?'Course outline':'محاور الدورة'}</summary><ol class="learner-plan-topics">${publicCourseTopics(c,p.id).map(t=>`<li data-plan-topic="${esc(t.key)}">${publicTopicBody(t)}</li>`).join('')}</ol>${p.kinds?.some(k=>['video','material'].includes(k))?`<button class="btn o" data-lt="content">${siteEnglish()?'Open course content':'افتح محتوى الدورة'}</button>`:''}</details>`:'';
     return `${progressSummary}${outline}<div class="package-plan-intro"><div><h3>${siteEnglish()?'Your passing plan':'خطة اجتيازك'}</h3><p>${siteEnglish()?'Complete each week, study its content, then assess your understanding.':'أكمل كل أسبوع، وادرس محتواه، ثم اختبر فهمك للموضوع.'}</p></div><button class="btn p" data-lt="${p.kinds?.includes('video')||p.kinds?.includes('material')?'content':'exams'}">${siteEnglish()?'Continue learning':'ابدأ التعلّم'}</button></div><div class="note info mb"><b>${siteEnglish()?plan.length+'-week plan.':'خطة '+plan.length+' أسابيع.'}</b>
       ${siteEnglish()?'Mark each week complete to update your progress. Adjust the plan to your available time.':'علّم الأسبوع عند إتمامه ليتحدّث تقدّمك تلقائياً — والخطة قابلة للتعديل حسب وقتك.'}</div>
       <div class="plan-w passing-roadmap">${plan.map(w => `
@@ -5863,7 +5888,8 @@ function runLessonQuiz(pid, key) {
     return Array.isArray(options)&&options.length>=2&&options.every(v=>readable(v,lang))&&
       (!Array.isArray(other)||!other.length||options.length===other.length)&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<options.length;
   }
-  const modal = (html,after) => A().modal(`<div class="lesson-question-frame" data-exam-language="${language||''}" lang="${language||'ar'}" dir="${language==='en'?'ltr':'rtl'}"><div class="lesson-question-brand"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"></div>${html}</div>`,after);
+  const lessonAccountCode=()=>{const id=A().me?.()?.id;return id?'L-'+Array.from(String(id)).reduce((n,c)=>Math.imul(n^c.charCodeAt(0),16777619)>>>0,2166136261).toString(36).toUpperCase():''};
+  const modal = (html,after) => A().modal(`<div class="lesson-question-frame" data-exam-language="${language||''}" lang="${language||'ar'}" dir="${language==='en'?'ltr':'rtl'}"><header class="lesson-question-brand"><img class="official-learning-logo" src="/img/logo.png" alt="${say('السعيد','Al-Saeed')}"><div><b>${esc(language==='en'?(A().me?.()?.nameEn||A().me?.()?.name_en||A().me?.()?.name||say('متدرّب','Learner')):(A().me?.()?.name||say('متدرّب','Learner')))}</b><small>${say('اختبار الدرس · السعيد','Lesson assessment · Al-Saeed')}</small></div>${started&&!finished?`<span class="lesson-question-position">${index+1} / ${questions.length}</span>`:''}</header><div class="lesson-question-content">${html}</div><small class="lesson-content-stamp" aria-hidden="true">${esc(A().me?.()?.name||say('متدرّب','Learner'))} · ${esc(lessonAccountCode())} · al-ltc.com</small></div>`,()=>{document.querySelector('.lesson-question-frame')?.closest('.mdl')?.classList.add('lesson-assessment-modal');after?.()});
   function choose(lang) {
     if (started) return;
     language=lang;
@@ -5896,14 +5922,15 @@ function runLessonQuiz(pid, key) {
     const options = kind === 'truefalse' ? (language==='en' ? ['True','False'] : ['صح','خطأ']) : localized(question,'options',language);
     const pairs = localized(question,'pairs',language) || [], targets = pairs.map(p => p[1]);
     if (targets.length > 1) targets.push(targets.shift());
-    modal(`<h3>${say('سؤال','Question')} ${index + 1} / ${questions.length}</h3>
+    modal(`<div class="lesson-question-meta"><span>${say('سؤال','Question')} ${index + 1} / ${questions.length}</span><span>${say('تدريب الدرس','Lesson practice')}</span></div>
       <p data-lesson-question>${esc(questionText)}</p>
-      ${['single','truefalse'].includes(kind) ? (options || []).map((option, n) => `<label class="practice-opt"><input type="radio" name="lessonAnswer" value="${n}"><span>${esc(option)}</span></label>`).join('') : ''}
+      ${['single','truefalse'].includes(kind) ? (options || []).map((option, n) => `<label class="practice-opt"><input type="radio" name="lessonAnswer" value="${n}"><span class="lesson-option-letter" aria-hidden="true">${String.fromCharCode(65+n)}</span><span>${esc(option)}</span></label>`).join('') : ''}
       ${kind === 'essay' ? `<textarea id="essayAnswer" rows="6" maxlength="4000" placeholder="${say('اكتب إجابتك هنا','Write your answer here')}"></textarea><p class="muted">${say('تُرسل الإجابة للمدرب للمراجعة، ولا تُحتسب ضمن الدرجة الآلية.','Your answer is sent to the instructor for review and is not included in the automatic score.')}</p>` : ''}
       ${kind === 'matching' ? pairs.map((pair,i) => `<label class="f"><span>${esc(pair[0])}</span><select data-match="${i}"><option value="">${say('اختر ما يقابله','Choose the match')}</option>${targets.map((target,n) => `<option value="${n}">${esc(target)}</option>`).join('')}</select></label>`).join('') : ''}
       ${kind === 'hotspot' ? `<div id="hotspotImage" style="position:relative;max-width:680px;cursor:crosshair"><p>${say('جارٍ تحميل الصورة…','Loading image…')}</p></div><p class="muted">${say('اضغط على الموضع الصحيح داخل الصورة.','Click the correct location in the image.')}</p>` : ''}
-      <div id="lessonFeedback"></div><div class="mdl-act"><button class="btn p" id="lessonCheck">${say('تحقق من الإجابة','Check answer')}</button><button class="btn o" data-close>${say('إغلاق','Close')}</button></div>`, () => {
+      <div id="lessonFeedback" role="status" aria-live="polite"></div><div class="mdl-act lesson-question-dock"><button class="btn p" id="lessonCheck">${say('تحقق من الإجابة','Check answer')}</button><button class="btn o" data-close>${say('إغلاق','Close')}</button></div>`, () => {
       let checked = false, point = null;
+      $$('[name="lessonAnswer"]').forEach(input=>input.onchange=()=>{$$('[name="lessonAnswer"]').forEach(other=>other.closest('.practice-opt')?.classList.toggle('is-selected',other.checked))});
       if (kind === 'hotspot') {
         const holder=$('#hotspotImage');
         fetch('/api/quiz-images/' + encodeURIComponent(imageFor(question,language)), {
@@ -5950,6 +5977,7 @@ function runLessonQuiz(pid, key) {
         checked = true;
         if (kind !== 'essay') { scored++; if (correct) score++; feedback = (correct ? say('✅ إجابة صحيحة','✅ Correct answer') : say('❌ راجع الإجابة','❌ Review your answer')) + feedback; }
         $('#lessonFeedback').textContent = feedback;
+        $('#lessonFeedback').dataset.status = kind==='essay'?'pending':correct?'correct':'incorrect';
         $$('[name="lessonAnswer"]').forEach(input => input.disabled = true);
         $('#lessonCheck').textContent = index + 1 === questions.length ? say('عرض النتيجة','View result') : say('السؤال التالي','Next question');
       };
@@ -7787,7 +7815,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/pmp-shared-case.js?v=20261021-case"></script><link rel="stylesheet" href="/exam-setup.css?v=20261023-1"><script src="/exam-setup.js?v=20261023-1"></script><script src="/unified-exam.js?v=20261023-reference-setup"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-3"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/pmp-shared-case.js?v=20261021-case"></script><link rel="stylesheet" href="/exam-setup.css?v=20261023-1"><script src="/exam-setup.js?v=20261023-1"></script><script src="/unified-exam.js?v=20261023-corrective1"></script><link rel="stylesheet" href="/practice-hub.css?v=20261023-corrective1"><script src="/practice-hub.js?v=20261023-corrective1"></script><script src="/course-roadmap.js?v=canonical-20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-corrective1"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
 <link rel="stylesheet" href="/learning-workspace.css?v=20261023-1"><script src="/learning-workspace.js?v=20261023-1"></script>
@@ -7809,7 +7837,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 </script>
 <script src="/v18-interface.js?v=18.0"></script>
 <script src="/hotfix-v18.js?v=18.1"></script>
-<script src="/exam-ai-v19.js?v=20261023-brand"></script>
+<script src="/exam-ai-v19.js?v=20261023-corrective1"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=20261008"></script>
 <script src="/experience-v24.js?v=20261008"></script>
@@ -7827,7 +7855,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/pmp-learning-library.js?v=20261023-1"></script>
 <link rel="stylesheet" href="/pmp-practice-tools.css?v=20261023-1">
 <script src="/pmp-practice-tools.js?v=20261023-1"></script>
-<link rel="stylesheet" href="/community-chat.css?v=20261023-1"><script src="/community-chat.js?v=20261023-1"></script>
+<link rel="stylesheet" href="/community-chat.css?v=20261023-1"><script src="/community-chat.js?v=20261023-compat"></script>
 </body>
 </html>
 

@@ -12,17 +12,16 @@ const publicPhases=[['initiating','مرحلة البدء','Initiating'],['planni
 function publicPmpTopics(){
   return [
     {...publicLabels.intro,children:[{...publicLabels.exam},{...publicLabels.journey}]},
-    {...publicLabels.framework},
+    {...publicLabels.framework,children:pmp.slice(3,6).map(([key])=>({...publicLabels[key]}))},
     {key:'agile',ar:'النهج الرشيق',en:'Agile Approach'},
     {key:'predictive',ar:'النهج التنبؤي',en:'Predictive Approach',children:publicPhases.map(([key,ar,en])=>({key,ar,en}))},
     {key:'hybrid',ar:'النهج المختلط',en:'Hybrid Approach'},
     ...pmp.slice(13,16).map(([key])=>({...publicLabels[key]})),
-    ...pmp.slice(3,6).map(([key])=>({...publicLabels[key]})),
     {key:'ai',ar:'الذكاء الاصطناعي',en:'Artificial intelligence'},
     {key:'final-reviews',ar:'المراجعات النهائية',en:'Final reviews',children:[{key:'summaries',ar:'ملخصات',en:'Summaries'},{...publicLabels.review}]},
     {key:'workshops',ar:'ورش العمل التطبيقية',en:'Practical workshops'},
-    {key:'exam-eve',ar:'ليلة الاختبار',en:'Exam eve'},
-    {key:'exam-guidelines',ar:'إرشادات وتعليمات الاختبار الدولي',en:'International Exam Guidelines and Instructions'}
+    {key:'exam-guidelines',ar:'إرشادات وتعليمات الاختبار الدولي',en:'International Exam Guidelines and Instructions'},
+    {key:'exam-eve',ar:'ليلة الاختبار',en:'Exam eve'}
   ];
 }
 function flattenTopics(nodes,depth=0,prefix=''){
@@ -227,6 +226,17 @@ function learnerGroups(c,lessons){
   const node=t=>({key:t.key,title:t.ar,en:t.en,sourceIndex:t.sourceIndex,items:[],children:(t.children||[]).map(node),readingKey:null,assessmentKey:null});
   const outline=topics(c).map(node),byKey=new Map();
   const index=nodes=>nodes.forEach(g=>{byKey.set(g.key,g);index(g.children)});index(outline);
+  // Latest published presentation order does not mutate authored chapter slots.
+  const primary=['intro','framework','agile','predictive','hybrid','people','process','business','ai','final-reviews','workshops','exam-guidelines','exam-eve'];
+  const foundations=['value','principles','lifecycles'],phases=publicPhases.map(([key])=>key),fixed=new Set([...primary,...foundations,...phases]);
+  // Detach all fixed identities first, including nested saved overrides, so a
+  // formerly inverted parent relationship can never introduce a display cycle.
+  const strip=nodes=>nodes.filter(g=>{g.children=strip(g.children);return !fixed.has(g.key);});
+  const extras=strip(outline);
+  byKey.get('framework').children.push(...foundations.map(key=>byKey.get(key)).filter(Boolean));
+  byKey.get('predictive').children.push(...phases.map(key=>byKey.get(key)).filter(Boolean));
+  outline.splice(0,outline.length,...primary.map(key=>byKey.get(key)).filter(Boolean));
+  if(extras.length)outline.splice(Math.max(0,outline.findIndex(g=>g.key==='final-reviews')),0,{key:'additional-topics',title:'محاور إضافية محفوظة',en:'Additional saved topics',items:[],children:extras});
   const legacy=groups(c,lessons),original=new Map(),sourceGroups=new Map();
   const savedLabel=ch=>typeof ch==='string'?ch:ch?[ch.ar,ch.en].filter(Boolean).join(' '):'';
   function sourceGroup(ch){
@@ -299,7 +309,8 @@ function learnerGroups(c,lessons){
   // numbered curriculum and before its final four chapters. Playback uses this
   // same visual order; original records are never hidden, duplicated or rewritten.
   const end=outline.findIndex(g=>['final-reviews','workshops','exam-eve','exam-guidelines'].includes(g.key)),tail=end<0?outline.length:end;
-  return orderGroups([...outline.slice(0,tail),...sourceGroups.values(),...outline.slice(tail)]);
+  const additional=[...sourceGroups.values()];
+  return orderGroups([...outline.slice(0,tail),...(additional.length?[{key:'additional-materials',title:'مواد إضافية محفوظة',en:'Additional saved materials',items:[],children:additional}]:[]),...outline.slice(tail)]);
 }
 // Only presentation ranks change. Never splice lesson records or their progress keys.
 // Rank every sibling together so repeated moves, ties and sparse legacy slots are deterministic.
@@ -322,6 +333,11 @@ function videoGroups(c,lessons){
   return prune(learnerGroups(c,lessons));
 }
 function videoOrder(c,lessons){return videoGroups(c,lessons).flatMap(lessonItems).map(l=>l.i);}
-window.CourseRoadmap={pmp,groups,validLessonOrder,orderedItems,moveLesson,topics,chapterChoices,reserveChapterSlots,ensureChapter,renameChapter,moveChapter,reparentChapter,parentChoices,isRetiredFrameworkChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
+function assessmentOutline(c){
+  if(c.id!=='pmp')return {chapters:[],domains:[],mocks:[]};
+  const canonical=flattenTopics(publicPmpTopics()),get=key=>{const x=canonical.find(t=>t.key===key);return {key,ar:x.ar,en:x.en};};
+  return {chapters:['framework','agile','predictive','hybrid'].map(get),domains:['people','process','business'].map(get),mocks:[1,2,3,4,5].map(number=>({key:'mock_'+number,number,ar:'محاكاة كاملة '+number,en:'Full mock '+number}))};
+}
+(typeof window!=='undefined'?window:globalThis).CourseRoadmap={assessmentOutline,pmp,groups,validLessonOrder,orderedItems,moveLesson,topics,chapterChoices,reserveChapterSlots,ensureChapter,renameChapter,moveChapter,reparentChapter,parentChoices,isRetiredFrameworkChapter,adminGroups,learnerGroups,lessonItems,videoGroups,videoOrder};
 })();
 

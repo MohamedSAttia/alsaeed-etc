@@ -4,6 +4,7 @@
 !package.json
 !package-lock.json
 !server.js
+!learner-question-catalog.js
 !curriculum-slots.js
 !trainee-tracking.js
 !enrollment-extensions.js
@@ -54,3 +55,5 @@
 !learning-feedback.js
 
 !community-chat.js
+
+!practice-state.js

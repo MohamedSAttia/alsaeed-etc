@@ -26,7 +26,7 @@ for(const selected of ['ar','en']){
  const checkSelected=(root=d.querySelector('#ux'))=>{w.I18.sweep(d.body);const text=root.textContent;if(selected==='en')assert(!/[\u0600-\u06ff]/.test(text),text);else{assert(!text.includes('Check Answer'),text);assert(!text.includes('Flag for Review'),text);assert(!text.includes('Dr Mohamed Attia Coach'),text)}};
  assert.equal(d.documentElement.lang,opposite,'exam language must not replace page preference');assert.equal(d.querySelector('#ux').lang,selected);assert.equal(d.querySelector('#ux').dir,selected==='ar'?'rtl':'ltr');
  assert.equal(d.querySelector('.ux-head img').getAttribute('src'),'/img/logo.png');
- d.querySelector('#uxMap').click();assert.equal(d.activeElement.id,'uxMapTitle');
+ d.querySelector('#uxMap').click();assert(d.activeElement.hasAttribute('data-list-close'));checkSelected(d.querySelector('#uxQuestionList'));d.querySelector('[data-list-close]').click();
  assert.equal(d.querySelector('[data-i="0"]').getAttribute('aria-current'),'step');
  assert(d.querySelector('.ux-map-legend'));assert(d.querySelector('.ux-section-range'));
  assert.equal(d.querySelector('#ux .ux-q').textContent,q['question_'+selected]);assert(!d.querySelector('#uxLang'));checkSelected();assert.equal(timers,1);
