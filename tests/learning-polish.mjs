@@ -22,7 +22,7 @@ for(english of [false,true]){
 }
 for(const path of ['public/unified-exam.js','public/pmp-exam-2026.html','rmp-exam.html','pba-exam.html','grcp-exam.html']){
  const text=fs.readFileSync(path,'utf8');assert(text.includes('/img/logo.png'),path);assert(!text.includes('/assets/al-ltc-logo.svg'),path);assert(!text.includes('https://alsaeed-etc.com/main/images/logo/logo3.png'),path);
- if(path.endsWith('.html'))assert(text.includes('/learning-polish.css?v=20261023-1'));
+ if(path.endsWith('.html'))assert(text.includes('/learning-polish.css?v=20261023-2'));
 }
 assert(fs.existsSync('public/img/logo.png'));
 assert.match(fs.readFileSync('public/exam-ai-v19.js','utf8'),/img:not\(\.official-learning-logo\)/,'Observer must only decorate each image once');

@@ -1,0 +1,6259 @@
+{
+  "source": {
+    "repo": "MohamedSAttia/PMP-N",
+    "commit": "cd59db17d10e013490d22808c4eb83f00647b577"
+  },
+  "LIFE": [
+    {
+      "k": "need",
+      "n": 1,
+      "t": [
+        "حاجة العمل",
+        "Business Need"
+      ],
+      "ic": "🎯",
+      "d": [
+        "حدّد المشكلة أو الفرصة التي يوجد المشروع من أجلها — قبل أي حديث عن الحلّ.",
+        "Define the problem or opportunity the project exists to address — before any talk of a solution."
+      ],
+      "f": [
+        {
+          "k": "problem",
+          "l": [
+            "المشكلة أو الفرصة",
+            "Problem or opportunity"
+          ],
+          "ph": [
+            "ما الذي يحدث الآن وتريد تغييره؟",
+            "What is happening now that you want to change?"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "driver",
+          "l": [
+            "الدافع",
+            "Driver"
+          ],
+          "ty": "sel",
+          "opts": [
+            [
+              "regulatory",
+              "مطلب تنظيمي",
+              "Regulatory requirement"
+            ],
+            [
+              "market",
+              "فرصة سوقية",
+              "Market opportunity"
+            ],
+            [
+              "tech",
+              "تقادم تقني",
+              "Technology obsolescence"
+            ],
+            [
+              "strategic",
+              "توجّه استراتيجي",
+              "Strategic direction"
+            ],
+            [
+              "social",
+              "حاجة اجتماعية أو بيئية",
+              "Social or environmental need"
+            ]
+          ]
+        },
+        {
+          "k": "impact",
+          "l": [
+            "أثر عدم الفعل",
+            "Cost of doing nothing"
+          ],
+          "ph": [
+            "ماذا يخسر التنظيم إن لم يُنفَّذ؟",
+            "What does the organization lose if this is not done?"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "benef",
+          "l": [
+            "المستفيدون",
+            "Beneficiaries"
+          ],
+          "ph": [
+            "من يستفيد ومن يتأثّر؟",
+            "Who benefits and who is affected?"
+          ],
+          "rows": 2
+        }
+      ],
+      "proc": [
+        1,
+        23
+      ]
+    },
+    {
+      "k": "feas",
+      "n": 2,
+      "t": [
+        "دراسة الجدوى",
+        "Feasibility Study"
+      ],
+      "ic": "🔍",
+      "d": [
+        "افحص الخيارات على خمسة محاور. الخيار «لا نفعل شيئاً» خيار مشروع يجب تقييمه.",
+        "Examine the options across five dimensions. \"Do nothing\" is a legitimate option that must be assessed."
+      ],
+      "f": [
+        {
+          "k": "options",
+          "l": [
+            "الخيارات المدروسة",
+            "Options considered"
+          ],
+          "ph": [
+            "اذكر ثلاثة خيارات على الأقل، منها «لا نفعل شيئاً»",
+            "List at least three options, including \"do nothing\""
+          ],
+          "rows": 3
+        },
+        {
+          "k": "tech",
+          "l": [
+            "الجدوى التقنية",
+            "Technical feasibility"
+          ],
+          "ty": "score"
+        },
+        {
+          "k": "econ",
+          "l": [
+            "الجدوى الاقتصادية",
+            "Economic feasibility"
+          ],
+          "ty": "score"
+        },
+        {
+          "k": "oper",
+          "l": [
+            "الجدوى التشغيلية",
+            "Operational feasibility"
+          ],
+          "ty": "score"
+        },
+        {
+          "k": "legal",
+          "l": [
+            "الجدوى القانونية والتنظيمية",
+            "Legal and regulatory feasibility"
+          ],
+          "ty": "score"
+        },
+        {
+          "k": "sched",
+          "l": [
+            "الجدوى الزمنية",
+            "Schedule feasibility"
+          ],
+          "ty": "score"
+        },
+        {
+          "k": "rec",
+          "l": [
+            "التوصية",
+            "Recommendation"
+          ],
+          "ph": [
+            "أي خيار توصي به ولماذا؟",
+            "Which option do you recommend and why?"
+          ],
+          "rows": 3
+        }
+      ],
+      "proc": [
+        1
+      ]
+    },
+    {
+      "k": "case",
+      "n": 3,
+      "t": [
+        "حالة العمل",
+        "Business Case"
+      ],
+      "ic": "📊",
+      "d": [
+        "حوّل الجدوى إلى مبرّر استثماري بأرقام. اللجنة ستسألك عنها.",
+        "Convert feasibility into an investment justification with numbers. The board will question them."
+      ],
+      "f": [
+        {
+          "k": "cost",
+          "l": [
+            "الاستثمار المطلوب (مليون)",
+            "Investment required (million)"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "benefit",
+          "l": [
+            "المنفعة السنوية المتوقّعة (مليون)",
+            "Expected annual benefit (million)"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "years",
+          "l": [
+            "أفق التحليل (سنوات)",
+            "Analysis horizon (years)"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "risks",
+          "l": [
+            "أبرز ثلاثة مخاطر",
+            "Top three risks"
+          ],
+          "ph": [
+            "ما الذي قد يمنع تحقّق المنفعة؟",
+            "What could prevent the benefit being realized?"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "align",
+          "l": [
+            "المواءمة الاستراتيجية",
+            "Strategic alignment"
+          ],
+          "ph": [
+            "كيف يخدم هذا المشروع استراتيجية المؤسسة؟",
+            "How does this serve the organizational strategy?"
+          ],
+          "rows": 2
+        }
+      ],
+      "proc": [
+        1
+      ]
+    },
+    {
+      "k": "board",
+      "n": 4,
+      "t": [
+        "جلسة اللجنة",
+        "Board Session"
+      ],
+      "ic": "🎙",
+      "d": [
+        "اعرض حالة عملك على اللجنة. تسمع إجاباتك وتسألك وتقرّر بناءً على تحليل ما قدّمته.",
+        "Present your business case to the board. It listens, questions you, and decides based on analysis of what you presented."
+      ],
+      "f": [],
+      "proc": [
+        1
+      ]
+    },
+    {
+      "k": "env",
+      "n": 5,
+      "t": [
+        "البيئة والأصول",
+        "EEFs and OPAs"
+      ],
+      "ic": "🌐",
+      "d": [
+        "العوامل البيئية لا تسيطر عليها · أصول العمليات تملكها المؤسسة ويمكن تغييرها.",
+        "Enterprise environmental factors you do not control · organizational process assets the organization owns and can change."
+      ],
+      "f": [
+        {
+          "k": "eef_int",
+          "l": [
+            "عوامل بيئية داخلية",
+            "Internal EEFs"
+          ],
+          "ph": [
+            "الثقافة · الهيكل · البنية التحتية · توافر الموارد",
+            "Culture · structure · infrastructure · resource availability"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "eef_ext",
+          "l": [
+            "عوامل بيئية خارجية",
+            "External EEFs"
+          ],
+          "ph": [
+            "اللوائح · ظروف السوق · المعايير · القيود القانونية",
+            "Regulations · market conditions · standards · legal constraints"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "opa_proc",
+          "l": [
+            "أصول: العمليات والسياسات",
+            "OPAs: processes and policies"
+          ],
+          "ph": [
+            "القوالب · الإجراءات · معايير الجودة",
+            "Templates · procedures · quality standards"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "opa_know",
+          "l": [
+            "أصول: قواعد المعرفة",
+            "OPAs: knowledge bases"
+          ],
+          "ph": [
+            "الدروس المستفادة · قواعد التقدير · السجلّات التاريخية",
+            "Lessons learned · estimating databases · historical records"
+          ],
+          "rows": 2
+        }
+      ],
+      "proc": [
+        1,
+        23
+      ]
+    },
+    {
+      "k": "charter",
+      "n": 6,
+      "t": [
+        "ميثاق المشروع",
+        "Project Charter"
+      ],
+      "ic": "📜",
+      "d": [
+        "الوثيقة التي تمنح مدير المشروع سلطة استخدام موارد المؤسسة. يُصدرها الراعي.",
+        "The document granting the project manager authority to apply organizational resources. Issued by the sponsor."
+      ],
+      "f": [
+        {
+          "k": "pm",
+          "l": [
+            "مدير المشروع وصلاحياته",
+            "Project manager and authority"
+          ],
+          "ph": [
+            "من؟ وما حدود اعتماده للتغييرات؟",
+            "Who? And what is their change approval threshold?"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "purpose",
+          "l": [
+            "الغرض والمبرّر",
+            "Purpose and justification"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "obj",
+          "l": [
+            "الأهداف القابلة للقياس",
+            "Measurable objectives"
+          ],
+          "ph": [
+            "سطر لكل هدف بمعيار نجاحه",
+            "One line per objective with its success criterion"
+          ],
+          "rows": 4
+        },
+        {
+          "k": "req",
+          "l": [
+            "المتطلبات عالية المستوى",
+            "High-level requirements"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "risk",
+          "l": [
+            "المخاطر عالية المستوى",
+            "High-level risks"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "mile",
+          "l": [
+            "المعالم الرئيسة",
+            "Summary milestones"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "budget",
+          "l": [
+            "الميزانية الأولية",
+            "Preliminary budget"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "approve",
+          "l": [
+            "معايير الموافقة",
+            "Approval criteria"
+          ],
+          "rows": 2
+        }
+      ],
+      "proc": [
+        1
+      ],
+      "tp": "charter"
+    },
+    {
+      "k": "stake",
+      "n": 7,
+      "t": [
+        "سجلّ أصحاب المصلحة",
+        "Stakeholder Register"
+      ],
+      "ic": "👥",
+      "d": [
+        "سجلّ ديناميكي: كل صاحب مصلحة بنفوذه واهتمامه وموقفه واستراتيجية إشراكه.",
+        "A dynamic register: each stakeholder with power, interest, attitude and engagement strategy."
+      ],
+      "f": [],
+      "dyn": "stake",
+      "proc": [
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "k": "plan",
+      "n": 8,
+      "t": [
+        "التخطيط التفصيلي",
+        "Detailed Planning"
+      ],
+      "ic": "🗂",
+      "d": [
+        "تسع عشرة عملية تخطيط تُنتج خطة إدارة المشروع وخطوط الأساس الثلاثة.",
+        "Nineteen planning processes producing the project management plan and the three baselines."
+      ],
+      "f": [
+        {
+          "k": "scope",
+          "l": [
+            "بيان النطاق وهيكل التجزئة",
+            "Scope statement and WBS"
+          ],
+          "rows": 4
+        },
+        {
+          "k": "sched",
+          "l": [
+            "الجدول والمسار الحرج",
+            "Schedule and critical path"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "cost",
+          "l": [
+            "خط أساس التكلفة والاحتياطيات",
+            "Cost baseline and reserves"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "qual",
+          "l": [
+            "خطة الجودة",
+            "Quality plan"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "res",
+          "l": [
+            "خطة الموارد وRACI",
+            "Resource plan and RACI"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "comm",
+          "l": [
+            "خطة التواصل",
+            "Communications plan"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "risk",
+          "l": [
+            "سجلّ المخاطر والاستجابات",
+            "Risk register and responses"
+          ],
+          "rows": 4
+        },
+        {
+          "k": "proc",
+          "l": [
+            "خطة المشتريات ونوع العقد",
+            "Procurement plan and contract type"
+          ],
+          "rows": 3
+        }
+      ],
+      "proc": [
+        2,
+        3,
+        10,
+        11,
+        12,
+        13,
+        16,
+        17,
+        19,
+        20,
+        21,
+        24,
+        25,
+        30,
+        31,
+        35,
+        36,
+        37,
+        38
+      ]
+    },
+    {
+      "k": "exec",
+      "n": 9,
+      "t": [
+        "التنفيذ",
+        "Execution"
+      ],
+      "ic": "⚙️",
+      "d": [
+        "ثماني عمليات تنفيذ تُنتج المخرجات وبيانات الأداء وطلبات التغيير.",
+        "Eight executing processes producing deliverables, performance data and change requests."
+      ],
+      "f": [
+        {
+          "k": "deliv",
+          "l": [
+            "المخرجات المُنجزة",
+            "Deliverables completed"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "issues",
+          "l": [
+            "سجلّ المشكلات",
+            "Issue log"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "changes",
+          "l": [
+            "طلبات التغيير المقدَّمة",
+            "Change requests raised"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "lessons",
+          "l": [
+            "الدروس أثناء التنفيذ",
+            "Lessons during execution"
+          ],
+          "rows": 3
+        }
+      ],
+      "proc": [
+        4,
+        5,
+        6,
+        26,
+        27,
+        32,
+        33,
+        39
+      ]
+    },
+    {
+      "k": "mon",
+      "n": 10,
+      "t": [
+        "المراقبة والضبط",
+        "Monitoring and Control"
+      ],
+      "ic": "📈",
+      "d": [
+        "عشر عمليات مراقبة. أدخل بيانات الأداء ليحسب النظام المؤشّرات ويقرأها لك.",
+        "Ten monitoring processes. Enter performance data and the system computes and reads the indices for you."
+      ],
+      "f": [
+        {
+          "k": "bac",
+          "l": [
+            "BAC — الميزانية عند الإنجاز",
+            "BAC — budget at completion"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "pv",
+          "l": [
+            "PV — القيمة المخطّطة",
+            "PV — planned value"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "ev",
+          "l": [
+            "EV — القيمة المكتسبة",
+            "EV — earned value"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "ac",
+          "l": [
+            "AC — التكلفة الفعلية",
+            "AC — actual cost"
+          ],
+          "ty": "num"
+        },
+        {
+          "k": "var",
+          "l": [
+            "الانحرافات والإجراءات التصحيحية",
+            "Variances and corrective actions"
+          ],
+          "rows": 3
+        }
+      ],
+      "proc": [
+        7,
+        8,
+        14,
+        15,
+        18,
+        22,
+        28,
+        29,
+        34,
+        40
+      ],
+      "tp": "ev"
+    },
+    {
+      "k": "close",
+      "n": 11,
+      "t": [
+        "الإغلاق",
+        "Closure"
+      ],
+      "ic": "🏁",
+      "d": [
+        "عملية واحدة لكنها تشمل القبول والتسوية والدروس ونقل المعرفة.",
+        "One process, but it covers acceptance, settlement, lessons and knowledge transfer."
+      ],
+      "f": [
+        {
+          "k": "accept",
+          "l": [
+            "قبول المخرجات رسمياً",
+            "Formal deliverable acceptance"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "contract",
+          "l": [
+            "تسوية العقود والمالية",
+            "Contract and financial settlement"
+          ],
+          "rows": 2
+        },
+        {
+          "k": "trans",
+          "l": [
+            "جاهزية الانتقال للتشغيل",
+            "Transition readiness"
+          ],
+          "rows": 3
+        },
+        {
+          "k": "lessons",
+          "l": [
+            "الدروس المستفادة النهائية",
+            "Final lessons learned"
+          ],
+          "rows": 4
+        },
+        {
+          "k": "release",
+          "l": [
+            "تسريح الموارد",
+            "Resource release"
+          ],
+          "rows": 2
+        }
+      ],
+      "proc": [
+        9
+      ],
+      "tp": "closure"
+    }
+  ],
+  "PROC": {
+    "G": {
+      "ar": "الحوكمة",
+      "en": "Governance"
+    },
+    "S": {
+      "ar": "النطاق",
+      "en": "Scope"
+    },
+    "H": {
+      "ar": "الجدول",
+      "en": "Schedule"
+    },
+    "F": {
+      "ar": "المالية",
+      "en": "Finance"
+    },
+    "K": {
+      "ar": "أصحاب المصلحة",
+      "en": "Stakeholders"
+    },
+    "R": {
+      "ar": "الموارد",
+      "en": "Resources"
+    },
+    "X": {
+      "ar": "المخاطر",
+      "en": "Risk"
+    },
+    "GR": {
+      "I": {
+        "ar": "البدء",
+        "en": "Initiating"
+      },
+      "P": {
+        "ar": "التخطيط",
+        "en": "Planning"
+      },
+      "E": {
+        "ar": "التنفيذ",
+        "en": "Executing"
+      },
+      "M": {
+        "ar": "المراقبة والضبط",
+        "en": "Monitoring & Controlling"
+      },
+      "C": {
+        "ar": "الإغلاق",
+        "en": "Closing"
+      }
+    },
+    "L": [
+      {
+        "n": 1,
+        "d": "G",
+        "g": "I",
+        "t": [
+          "بدء المشروع أو المرحلة",
+          "Initiate Project or Phase"
+        ],
+        "i": [
+          "دراسة الجدوى",
+          "حالة العمل",
+          "الاتفاقيات",
+          "العوامل البيئية للمؤسسة",
+          "أصول العمليات التنظيمية"
+        ],
+        "ie": [
+          "Feasibility study",
+          "Business case",
+          "Agreements",
+          "EEFs",
+          "OPAs"
+        ],
+        "o": [
+          "ميثاق المشروع",
+          "سجلّ الافتراضات",
+          "تعيين مدير المشروع"
+        ],
+        "oe": [
+          "Project charter",
+          "Assumption log",
+          "Project manager assignment"
+        ],
+        "tp": "charter"
+      },
+      {
+        "n": 2,
+        "d": "G",
+        "g": "P",
+        "t": [
+          "تكامل ومواءمة خطط المشروع",
+          "Integrate and Align Project Plans"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "مخرجات عمليات التخطيط الأخرى",
+          "العوامل البيئية",
+          "أصول العمليات"
+        ],
+        "ie": [
+          "Project charter",
+          "Outputs from other planning processes",
+          "EEFs",
+          "OPAs"
+        ],
+        "o": [
+          "خطة إدارة المشروع",
+          "خطوط الأساس الثلاثة"
+        ],
+        "oe": [
+          "Project management plan",
+          "The three baselines"
+        ],
+        "tp": "pmplan"
+      },
+      {
+        "n": 3,
+        "d": "G",
+        "g": "P",
+        "t": [
+          "تخطيط استراتيجية التوريد",
+          "Plan Sourcing Strategy"
+        ],
+        "i": [
+          "خطة إدارة المشروع",
+          "وثائق المشروع",
+          "عوامل السوق",
+          "قرار الصنع أو الشراء"
+        ],
+        "ie": [
+          "Project management plan",
+          "Project documents",
+          "Market conditions",
+          "Make-or-buy decision"
+        ],
+        "o": [
+          "خطة إدارة المشتريات",
+          "بيان عمل المشتريات",
+          "معايير اختيار المورّد",
+          "نوع العقد"
+        ],
+        "oe": [
+          "Procurement management plan",
+          "Procurement SOW",
+          "Source selection criteria",
+          "Contract type"
+        ],
+        "tp": "contract"
+      },
+      {
+        "n": 4,
+        "d": "G",
+        "g": "E",
+        "t": [
+          "إدارة تنفيذ المشروع",
+          "Manage Project Execution"
+        ],
+        "i": [
+          "خطة إدارة المشروع",
+          "وثائق المشروع",
+          "طلبات التغيير المعتمدة"
+        ],
+        "ie": [
+          "Project management plan",
+          "Project documents",
+          "Approved change requests"
+        ],
+        "o": [
+          "المخرجات",
+          "بيانات أداء العمل",
+          "سجلّ المشكلات",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Deliverables",
+          "Work performance data",
+          "Issue log",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 5,
+        "d": "G",
+        "g": "E",
+        "t": [
+          "إدارة ضمان الجودة",
+          "Manage Quality Assurance"
+        ],
+        "i": [
+          "خطة إدارة الجودة",
+          "مقاييس الجودة",
+          "وثائق المشروع"
+        ],
+        "ie": [
+          "Quality management plan",
+          "Quality metrics",
+          "Project documents"
+        ],
+        "o": [
+          "تقارير الجودة",
+          "وثائق الاختبار",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Quality reports",
+          "Test documentation",
+          "Change requests"
+        ],
+        "tp": "quality"
+      },
+      {
+        "n": 6,
+        "d": "G",
+        "g": "E",
+        "t": [
+          "إدارة معرفة المشروع",
+          "Manage Project Knowledge"
+        ],
+        "i": [
+          "خطة إدارة المشروع",
+          "المخرجات",
+          "أصول العمليات",
+          "العوامل البيئية"
+        ],
+        "ie": [
+          "Project management plan",
+          "Deliverables",
+          "OPAs",
+          "EEFs"
+        ],
+        "o": [
+          "سجلّ الدروس المستفادة",
+          "تحديث أصول العمليات"
+        ],
+        "oe": [
+          "Lessons learned register",
+          "OPA updates"
+        ],
+        "tp": "lessons"
+      },
+      {
+        "n": 7,
+        "d": "G",
+        "g": "M",
+        "t": [
+          "مراقبة وضبط أداء المشروع",
+          "Monitor and Control Project Performance"
+        ],
+        "i": [
+          "خطة إدارة المشروع",
+          "بيانات أداء العمل",
+          "معلومات أداء العمل",
+          "الاتفاقيات"
+        ],
+        "ie": [
+          "Project management plan",
+          "Work performance data",
+          "Work performance information",
+          "Agreements"
+        ],
+        "o": [
+          "تقارير أداء العمل",
+          "طلبات التغيير",
+          "تنبّؤات الكلفة والجدول"
+        ],
+        "oe": [
+          "Work performance reports",
+          "Change requests",
+          "Cost and schedule forecasts"
+        ],
+        "tp": "ev"
+      },
+      {
+        "n": 8,
+        "d": "G",
+        "g": "M",
+        "t": [
+          "تقييم وتنفيذ التغييرات",
+          "Assess and Implement Changes"
+        ],
+        "i": [
+          "خطة إدارة المشروع",
+          "تقارير أداء العمل",
+          "طلبات التغيير"
+        ],
+        "ie": [
+          "Project management plan",
+          "Work performance reports",
+          "Change requests"
+        ],
+        "o": [
+          "طلبات تغيير معتمدة",
+          "سجلّ التغييرات",
+          "تحديثات خطة المشروع"
+        ],
+        "oe": [
+          "Approved change requests",
+          "Change log",
+          "Plan updates"
+        ],
+        "tp": "change"
+      },
+      {
+        "n": 9,
+        "d": "G",
+        "g": "C",
+        "t": [
+          "إغلاق المشروع أو المرحلة",
+          "Close Project or Phase"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "المخرجات المقبولة",
+          "وثائق المشتريات"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "Accepted deliverables",
+          "Procurement documentation"
+        ],
+        "o": [
+          "المنتج النهائي",
+          "التقرير النهائي",
+          "تحديث أصول العمليات",
+          "إغلاق العقود"
+        ],
+        "oe": [
+          "Final product",
+          "Final report",
+          "OPA updates",
+          "Contract closure"
+        ],
+        "tp": "closure"
+      },
+      {
+        "n": 10,
+        "d": "S",
+        "g": "P",
+        "t": [
+          "تخطيط إدارة النطاق",
+          "Plan Scope Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "العوامل البيئية",
+          "أصول العمليات"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "EEFs",
+          "OPAs"
+        ],
+        "o": [
+          "خطة إدارة النطاق",
+          "خطة إدارة المتطلبات"
+        ],
+        "oe": [
+          "Scope management plan",
+          "Requirements management plan"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 11,
+        "d": "S",
+        "g": "P",
+        "t": [
+          "استخلاص وتحليل المتطلبات",
+          "Elicit and Analyze Requirements"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "سجلّ أصحاب المصلحة",
+          "خطة إدارة المتطلبات"
+        ],
+        "ie": [
+          "Project charter",
+          "Stakeholder register",
+          "Requirements management plan"
+        ],
+        "o": [
+          "وثائق المتطلبات",
+          "مصفوفة تتبّع المتطلبات"
+        ],
+        "oe": [
+          "Requirements documentation",
+          "Requirements traceability matrix"
+        ],
+        "tp": "rtm"
+      },
+      {
+        "n": 12,
+        "d": "S",
+        "g": "P",
+        "t": [
+          "تعريف النطاق",
+          "Define Scope"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "وثائق المتطلبات",
+          "سجلّ الافتراضات"
+        ],
+        "ie": [
+          "Project charter",
+          "Requirements documentation",
+          "Assumption log"
+        ],
+        "o": [
+          "بيان نطاق المشروع",
+          "تحديثات وثائق المشروع"
+        ],
+        "oe": [
+          "Project scope statement",
+          "Project document updates"
+        ],
+        "tp": "scope"
+      },
+      {
+        "n": 13,
+        "d": "S",
+        "g": "P",
+        "t": [
+          "بناء هيكل النطاق",
+          "Develop Scope Structure"
+        ],
+        "i": [
+          "بيان نطاق المشروع",
+          "وثائق المتطلبات",
+          "أصول العمليات"
+        ],
+        "ie": [
+          "Project scope statement",
+          "Requirements documentation",
+          "OPAs"
+        ],
+        "o": [
+          "هيكل تجزئة العمل",
+          "قاموس هيكل التجزئة",
+          "خط أساس النطاق"
+        ],
+        "oe": [
+          "WBS",
+          "WBS dictionary",
+          "Scope baseline"
+        ],
+        "tp": "wbs"
+      },
+      {
+        "n": 14,
+        "d": "S",
+        "g": "M",
+        "t": [
+          "مراقبة وضبط النطاق",
+          "Monitor and Control Scope"
+        ],
+        "i": [
+          "خط أساس النطاق",
+          "بيانات أداء العمل",
+          "مصفوفة التتبّع"
+        ],
+        "ie": [
+          "Scope baseline",
+          "Work performance data",
+          "Traceability matrix"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 15,
+        "d": "S",
+        "g": "M",
+        "t": [
+          "التحقّق من صحة النطاق",
+          "Validate Scope"
+        ],
+        "i": [
+          "المخرجات المُتحقّق منها",
+          "وثائق المتطلبات",
+          "بيانات أداء العمل"
+        ],
+        "ie": [
+          "Verified deliverables",
+          "Requirements documentation",
+          "Work performance data"
+        ],
+        "o": [
+          "المخرجات المقبولة",
+          "طلبات التغيير",
+          "معلومات أداء العمل"
+        ],
+        "oe": [
+          "Accepted deliverables",
+          "Change requests",
+          "Work performance information"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 16,
+        "d": "H",
+        "g": "P",
+        "t": [
+          "تخطيط إدارة الجدول",
+          "Plan Schedule Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "العوامل البيئية"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "EEFs"
+        ],
+        "o": [
+          "خطة إدارة الجدول"
+        ],
+        "oe": [
+          "Schedule management plan"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 17,
+        "d": "H",
+        "g": "P",
+        "t": [
+          "بناء الجدول الزمني",
+          "Develop Schedule"
+        ],
+        "i": [
+          "قائمة الأنشطة",
+          "شبكة التسلسل",
+          "تقديرات المدة",
+          "الموارد المطلوبة",
+          "التقويمات"
+        ],
+        "ie": [
+          "Activity list",
+          "Network diagram",
+          "Duration estimates",
+          "Resource requirements",
+          "Calendars"
+        ],
+        "o": [
+          "خط أساس الجدول",
+          "الجدول الزمني",
+          "بيانات الجدول",
+          "المسار الحرج"
+        ],
+        "oe": [
+          "Schedule baseline",
+          "Project schedule",
+          "Schedule data",
+          "Critical path"
+        ],
+        "tp": "network"
+      },
+      {
+        "n": 18,
+        "d": "H",
+        "g": "M",
+        "t": [
+          "مراقبة وضبط الجدول",
+          "Monitor and Control Schedule"
+        ],
+        "i": [
+          "خط أساس الجدول",
+          "بيانات أداء العمل",
+          "بيانات الجدول"
+        ],
+        "ie": [
+          "Schedule baseline",
+          "Work performance data",
+          "Schedule data"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "تنبّؤات الجدول",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Schedule forecasts",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 19,
+        "d": "F",
+        "g": "P",
+        "t": [
+          "تخطيط الإدارة المالية",
+          "Plan Financial Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "العوامل البيئية"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "EEFs"
+        ],
+        "o": [
+          "خطة إدارة التكلفة"
+        ],
+        "oe": [
+          "Cost management plan"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 20,
+        "d": "F",
+        "g": "P",
+        "t": [
+          "تقدير التكاليف",
+          "Estimate Costs"
+        ],
+        "i": [
+          "خطة إدارة التكلفة",
+          "خط أساس النطاق",
+          "سجلّ المخاطر",
+          "تقديرات الموارد"
+        ],
+        "ie": [
+          "Cost management plan",
+          "Scope baseline",
+          "Risk register",
+          "Resource estimates"
+        ],
+        "o": [
+          "تقديرات التكلفة",
+          "أساس التقديرات"
+        ],
+        "oe": [
+          "Cost estimates",
+          "Basis of estimates"
+        ],
+        "tp": "estimate"
+      },
+      {
+        "n": 21,
+        "d": "F",
+        "g": "P",
+        "t": [
+          "بناء الميزانية",
+          "Develop Budget"
+        ],
+        "i": [
+          "تقديرات التكلفة",
+          "خط أساس النطاق",
+          "الاتفاقيات",
+          "سجلّ المخاطر"
+        ],
+        "ie": [
+          "Cost estimates",
+          "Scope baseline",
+          "Agreements",
+          "Risk register"
+        ],
+        "o": [
+          "خط أساس التكلفة",
+          "متطلبات التمويل",
+          "الاحتياطيات"
+        ],
+        "oe": [
+          "Cost baseline",
+          "Funding requirements",
+          "Reserves"
+        ],
+        "tp": "budget"
+      },
+      {
+        "n": 22,
+        "d": "F",
+        "g": "M",
+        "t": [
+          "مراقبة وضبط المالية",
+          "Monitor and Control Finances"
+        ],
+        "i": [
+          "خط أساس التكلفة",
+          "متطلبات التمويل",
+          "بيانات أداء العمل"
+        ],
+        "ie": [
+          "Cost baseline",
+          "Funding requirements",
+          "Work performance data"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "تنبّؤات التكلفة",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Cost forecasts",
+          "Change requests"
+        ],
+        "tp": "ev"
+      },
+      {
+        "n": 23,
+        "d": "K",
+        "g": "I",
+        "t": [
+          "تحديد أصحاب المصلحة",
+          "Identify Stakeholders"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "حالة العمل",
+          "الاتفاقيات",
+          "العوامل البيئية",
+          "أصول العمليات"
+        ],
+        "ie": [
+          "Project charter",
+          "Business case",
+          "Agreements",
+          "EEFs",
+          "OPAs"
+        ],
+        "o": [
+          "سجلّ أصحاب المصلحة",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Stakeholder register",
+          "Change requests"
+        ],
+        "tp": "stake"
+      },
+      {
+        "n": 24,
+        "d": "K",
+        "g": "P",
+        "t": [
+          "تخطيط إشراك أصحاب المصلحة",
+          "Plan Stakeholder Engagement"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "سجلّ أصحاب المصلحة",
+          "خطة إدارة المشروع"
+        ],
+        "ie": [
+          "Project charter",
+          "Stakeholder register",
+          "Project management plan"
+        ],
+        "o": [
+          "خطة إشراك أصحاب المصلحة"
+        ],
+        "oe": [
+          "Stakeholder engagement plan"
+        ],
+        "tp": "stake"
+      },
+      {
+        "n": 25,
+        "d": "K",
+        "g": "P",
+        "t": [
+          "تخطيط إدارة التواصل",
+          "Plan Communications Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "سجلّ أصحاب المصلحة",
+          "خطة إدارة المشروع"
+        ],
+        "ie": [
+          "Project charter",
+          "Stakeholder register",
+          "Project management plan"
+        ],
+        "o": [
+          "خطة إدارة التواصل"
+        ],
+        "oe": [
+          "Communications management plan"
+        ],
+        "tp": "comms"
+      },
+      {
+        "n": 26,
+        "d": "K",
+        "g": "E",
+        "t": [
+          "إدارة إشراك أصحاب المصلحة",
+          "Manage Stakeholder Engagement"
+        ],
+        "i": [
+          "خطة الإشراك",
+          "خطة التواصل",
+          "سجلّ التغييرات",
+          "سجلّ المشكلات"
+        ],
+        "ie": [
+          "Engagement plan",
+          "Communications plan",
+          "Change log",
+          "Issue log"
+        ],
+        "o": [
+          "طلبات التغيير",
+          "تحديث سجلّ أصحاب المصلحة"
+        ],
+        "oe": [
+          "Change requests",
+          "Stakeholder register updates"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 27,
+        "d": "K",
+        "g": "E",
+        "t": [
+          "إدارة التواصل",
+          "Manage Communications"
+        ],
+        "i": [
+          "خطة التواصل",
+          "تقارير أداء العمل",
+          "سجلّ المشكلات"
+        ],
+        "ie": [
+          "Communications plan",
+          "Work performance reports",
+          "Issue log"
+        ],
+        "o": [
+          "اتصالات المشروع",
+          "تحديثات وثائق المشروع"
+        ],
+        "oe": [
+          "Project communications",
+          "Project document updates"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 28,
+        "d": "K",
+        "g": "M",
+        "t": [
+          "مراقبة إشراك أصحاب المصلحة",
+          "Monitor Stakeholder Engagement"
+        ],
+        "i": [
+          "خطة الإشراك",
+          "بيانات أداء العمل",
+          "سجلّ المشكلات"
+        ],
+        "ie": [
+          "Engagement plan",
+          "Work performance data",
+          "Issue log"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 29,
+        "d": "K",
+        "g": "M",
+        "t": [
+          "مراقبة التواصل",
+          "Monitor Communications"
+        ],
+        "i": [
+          "خطة التواصل",
+          "اتصالات المشروع",
+          "بيانات أداء العمل"
+        ],
+        "ie": [
+          "Communications plan",
+          "Project communications",
+          "Work performance data"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 30,
+        "d": "R",
+        "g": "P",
+        "t": [
+          "تخطيط إدارة الموارد",
+          "Plan Resource Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "وثائق المشروع"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "Project documents"
+        ],
+        "o": [
+          "خطة إدارة الموارد",
+          "ميثاق الفريق"
+        ],
+        "oe": [
+          "Resource management plan",
+          "Team charter"
+        ],
+        "tp": "raci"
+      },
+      {
+        "n": 31,
+        "d": "R",
+        "g": "P",
+        "t": [
+          "تقدير الموارد",
+          "Estimate Resources"
+        ],
+        "i": [
+          "خطة إدارة الموارد",
+          "قائمة الأنشطة",
+          "سجلّ المخاطر"
+        ],
+        "ie": [
+          "Resource management plan",
+          "Activity list",
+          "Risk register"
+        ],
+        "o": [
+          "متطلبات الموارد",
+          "هيكل تجزئة الموارد",
+          "أساس التقديرات"
+        ],
+        "oe": [
+          "Resource requirements",
+          "Resource breakdown structure",
+          "Basis of estimates"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 32,
+        "d": "R",
+        "g": "E",
+        "t": [
+          "الحصول على الموارد",
+          "Acquire Resources"
+        ],
+        "i": [
+          "خطة إدارة الموارد",
+          "متطلبات الموارد",
+          "العوامل البيئية"
+        ],
+        "ie": [
+          "Resource management plan",
+          "Resource requirements",
+          "EEFs"
+        ],
+        "o": [
+          "تعيينات الفريق",
+          "تعيينات الموارد المادية",
+          "تقويمات الموارد"
+        ],
+        "oe": [
+          "Team assignments",
+          "Physical resource assignments",
+          "Resource calendars"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 33,
+        "d": "R",
+        "g": "E",
+        "t": [
+          "قيادة الفريق",
+          "Lead the Team"
+        ],
+        "i": [
+          "خطة إدارة الموارد",
+          "تعيينات الفريق",
+          "ميثاق الفريق",
+          "تقارير الأداء"
+        ],
+        "ie": [
+          "Resource management plan",
+          "Team assignments",
+          "Team charter",
+          "Performance reports"
+        ],
+        "o": [
+          "تقييمات أداء الفريق",
+          "طلبات التغيير",
+          "تحديث العوامل البيئية"
+        ],
+        "oe": [
+          "Team performance assessments",
+          "Change requests",
+          "EEF updates"
+        ],
+        "tp": "team"
+      },
+      {
+        "n": 34,
+        "d": "R",
+        "g": "M",
+        "t": [
+          "مراقبة وضبط الموارد",
+          "Monitor and Control Resourcing"
+        ],
+        "i": [
+          "خطة إدارة الموارد",
+          "تعيينات الموارد",
+          "بيانات أداء العمل",
+          "الاتفاقيات"
+        ],
+        "ie": [
+          "Resource management plan",
+          "Resource assignments",
+          "Work performance data",
+          "Agreements"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Work performance information",
+          "Change requests"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 35,
+        "d": "X",
+        "g": "P",
+        "t": [
+          "تخطيط إدارة المخاطر",
+          "Plan Risk Management"
+        ],
+        "i": [
+          "ميثاق المشروع",
+          "خطة إدارة المشروع",
+          "سجلّ أصحاب المصلحة",
+          "العوامل البيئية"
+        ],
+        "ie": [
+          "Project charter",
+          "Project management plan",
+          "Stakeholder register",
+          "EEFs"
+        ],
+        "o": [
+          "خطة إدارة المخاطر",
+          "هيكل تجزئة المخاطر",
+          "مصفوفة الاحتمالية والأثر"
+        ],
+        "oe": [
+          "Risk management plan",
+          "Risk breakdown structure",
+          "Probability-impact matrix"
+        ],
+        "tp": "riskplan"
+      },
+      {
+        "n": 36,
+        "d": "X",
+        "g": "P",
+        "t": [
+          "تحديد المخاطر",
+          "Identify Risks"
+        ],
+        "i": [
+          "خطة إدارة المخاطر",
+          "خطوط الأساس",
+          "وثائق المشروع",
+          "الاتفاقيات"
+        ],
+        "ie": [
+          "Risk management plan",
+          "Baselines",
+          "Project documents",
+          "Agreements"
+        ],
+        "o": [
+          "سجلّ المخاطر",
+          "تقرير المخاطر"
+        ],
+        "oe": [
+          "Risk register",
+          "Risk report"
+        ],
+        "tp": "risk"
+      },
+      {
+        "n": 37,
+        "d": "X",
+        "g": "P",
+        "t": [
+          "تحليل المخاطر",
+          "Perform Risk Analysis"
+        ],
+        "i": [
+          "سجلّ المخاطر",
+          "خطة إدارة المخاطر",
+          "خطوط الأساس"
+        ],
+        "ie": [
+          "Risk register",
+          "Risk management plan",
+          "Baselines"
+        ],
+        "o": [
+          "تحديث سجلّ المخاطر بالترتيب",
+          "تحليل كمي عند الحاجة",
+          "EMV"
+        ],
+        "oe": [
+          "Prioritized risk register",
+          "Quantitative analysis where needed",
+          "EMV"
+        ],
+        "tp": "risk"
+      },
+      {
+        "n": 38,
+        "d": "X",
+        "g": "P",
+        "t": [
+          "تخطيط استجابات المخاطر",
+          "Plan Risk Responses"
+        ],
+        "i": [
+          "سجلّ المخاطر",
+          "تقرير المخاطر",
+          "خطة إدارة المخاطر"
+        ],
+        "ie": [
+          "Risk register",
+          "Risk report",
+          "Risk management plan"
+        ],
+        "o": [
+          "استراتيجيات الاستجابة",
+          "خطط الطوارئ",
+          "احتياطي الطوارئ",
+          "طلبات التغيير"
+        ],
+        "oe": [
+          "Response strategies",
+          "Contingency plans",
+          "Contingency reserve",
+          "Change requests"
+        ],
+        "tp": "risk"
+      },
+      {
+        "n": 39,
+        "d": "X",
+        "g": "E",
+        "t": [
+          "تنفيذ استجابات المخاطر",
+          "Implement Risk Responses"
+        ],
+        "i": [
+          "خطة إدارة المخاطر",
+          "سجلّ المخاطر",
+          "أصول العمليات"
+        ],
+        "ie": [
+          "Risk management plan",
+          "Risk register",
+          "OPAs"
+        ],
+        "o": [
+          "طلبات التغيير",
+          "تحديثات وثائق المشروع"
+        ],
+        "oe": [
+          "Change requests",
+          "Project document updates"
+        ],
+        "tp": ""
+      },
+      {
+        "n": 40,
+        "d": "X",
+        "g": "M",
+        "t": [
+          "مراقبة المخاطر",
+          "Monitor Risks"
+        ],
+        "i": [
+          "خطة إدارة المخاطر",
+          "سجلّ المخاطر",
+          "بيانات أداء العمل",
+          "تقارير الأداء"
+        ],
+        "ie": [
+          "Risk management plan",
+          "Risk register",
+          "Work performance data",
+          "Performance reports"
+        ],
+        "o": [
+          "معلومات أداء العمل",
+          "طلبات التغيير",
+          "تحديث سجلّ المخاطر"
+        ],
+        "oe": [
+          "Work performance information",
+          "Change requests",
+          "Risk register updates"
+        ],
+        "tp": ""
+      }
+    ]
+  },
+  "TT": {
+    "1": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "جمع البيانات",
+        "Data gathering"
+      ],
+      [
+        "المهارات الشخصية والجماعية",
+        "Interpersonal and team skills"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ],
+      [
+        "تحليل حالة العمل",
+        "Business case analysis"
+      ]
+    ],
+    "2": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "نظام معلومات إدارة المشروع",
+        "PMIS"
+      ],
+      [
+        "ورش عمل تيسيرية",
+        "Facilitated workshops"
+      ],
+      [
+        "التفصيل والتخصيص",
+        "Tailoring"
+      ]
+    ],
+    "3": [
+      [
+        "تحليل الصنع أو الشراء",
+        "Make-or-buy analysis"
+      ],
+      [
+        "تحليل السوق",
+        "Market research"
+      ],
+      [
+        "اختيار نوع العقد",
+        "Contract type selection"
+      ],
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل مصادر التوريد",
+        "Source analysis"
+      ]
+    ],
+    "4": [
+      [
+        "نظام معلومات إدارة المشروع",
+        "PMIS"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ],
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "نظام اعتماد العمل",
+        "Work authorization system"
+      ]
+    ],
+    "5": [
+      [
+        "قوائم التحقّق",
+        "Checklists"
+      ],
+      [
+        "تحليل السبب الجذري",
+        "Root cause analysis"
+      ],
+      [
+        "التدقيق",
+        "Audits"
+      ],
+      [
+        "تحليل العمليات",
+        "Process analysis"
+      ],
+      [
+        "مخطّط السبب والنتيجة",
+        "Cause-and-effect diagram"
+      ]
+    ],
+    "6": [
+      [
+        "إدارة المعرفة",
+        "Knowledge management"
+      ],
+      [
+        "إدارة المعلومات",
+        "Information management"
+      ],
+      [
+        "المهارات الشخصية",
+        "Interpersonal skills"
+      ],
+      [
+        "التيسير",
+        "Facilitation"
+      ],
+      [
+        "جلسات الدروس",
+        "Lessons sessions"
+      ]
+    ],
+    "7": [
+      [
+        "تحليل القيمة المكتسبة",
+        "Earned value analysis"
+      ],
+      [
+        "تحليل الاتجاه",
+        "Trend analysis"
+      ],
+      [
+        "تحليل التباين",
+        "Variance analysis"
+      ],
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "لوحات المعلومات",
+        "Dashboards"
+      ]
+    ],
+    "8": [
+      [
+        "أدوات ضبط التغيير",
+        "Change control tools"
+      ],
+      [
+        "تحليل القرار متعدّد المعايير",
+        "MCDA"
+      ],
+      [
+        "تحليل الأثر",
+        "Impact analysis"
+      ],
+      [
+        "اجتماعات لجنة ضبط التغيير",
+        "CCB meetings"
+      ]
+    ],
+    "9": [
+      [
+        "تحليل الوثائق",
+        "Document analysis"
+      ],
+      [
+        "تحليل الانحدار",
+        "Regression analysis"
+      ],
+      [
+        "التدقيق النهائي",
+        "Final audit"
+      ],
+      [
+        "جلسات الدروس",
+        "Lessons sessions"
+      ],
+      [
+        "المسح والاستبيان",
+        "Surveys"
+      ]
+    ],
+    "10": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل البيانات",
+        "Data analysis"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ]
+    ],
+    "11": [
+      [
+        "المقابلات",
+        "Interviews"
+      ],
+      [
+        "مجموعات التركيز",
+        "Focus groups"
+      ],
+      [
+        "ورش عمل تيسيرية",
+        "Facilitated workshops"
+      ],
+      [
+        "العصف الذهني",
+        "Brainstorming"
+      ],
+      [
+        "المسح والاستبيان",
+        "Questionnaires and surveys"
+      ],
+      [
+        "النماذج الأولية",
+        "Prototypes"
+      ],
+      [
+        "مصفوفة التتبّع",
+        "Traceability matrix"
+      ]
+    ],
+    "12": [
+      [
+        "تحليل المنتج",
+        "Product analysis"
+      ],
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "ورش عمل تيسيرية",
+        "Facilitated workshops"
+      ],
+      [
+        "تحليل أصحاب المصلحة",
+        "Stakeholder analysis"
+      ]
+    ],
+    "13": [
+      [
+        "التجزئة",
+        "Decomposition"
+      ],
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "قوالب هيكل التجزئة",
+        "WBS templates"
+      ],
+      [
+        "قاعدة ١٠٠٪",
+        "The 100% rule"
+      ]
+    ],
+    "14": [
+      [
+        "تحليل التباين",
+        "Variance analysis"
+      ],
+      [
+        "تحليل الاتجاه",
+        "Trend analysis"
+      ],
+      [
+        "مصفوفة التتبّع",
+        "Traceability matrix"
+      ]
+    ],
+    "15": [
+      [
+        "الفحص",
+        "Inspection"
+      ],
+      [
+        "اتخاذ القرار الجماعي",
+        "Group decision-making"
+      ],
+      [
+        "مراجعة القبول",
+        "Acceptance review"
+      ]
+    ],
+    "16": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل البيانات",
+        "Data analysis"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ]
+    ],
+    "17": [
+      [
+        "تحليل الشبكة",
+        "Schedule network analysis"
+      ],
+      [
+        "طريقة المسار الحرج",
+        "Critical path method"
+      ],
+      [
+        "تحسين الموارد",
+        "Resource optimization"
+      ],
+      [
+        "ضغط الجدول",
+        "Schedule compression"
+      ],
+      [
+        "محاكاة مونت كارلو",
+        "Monte Carlo simulation"
+      ],
+      [
+        "التخطيط المسبوق",
+        "Leads and lags"
+      ]
+    ],
+    "18": [
+      [
+        "تحليل القيمة المكتسبة",
+        "Earned value analysis"
+      ],
+      [
+        "تحليل التباين",
+        "Variance analysis"
+      ],
+      [
+        "تحليل الأداء",
+        "Performance reviews"
+      ],
+      [
+        "ضغط الجدول",
+        "Schedule compression"
+      ],
+      [
+        "أداة برمجية للجدولة",
+        "Scheduling software"
+      ]
+    ],
+    "19": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل البيانات",
+        "Data analysis"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ]
+    ],
+    "20": [
+      [
+        "التقدير القياسي",
+        "Analogous estimating"
+      ],
+      [
+        "التقدير البارامتري",
+        "Parametric estimating"
+      ],
+      [
+        "التقدير التصاعدي",
+        "Bottom-up estimating"
+      ],
+      [
+        "التقدير الثلاثي PERT",
+        "Three-point estimating"
+      ],
+      [
+        "تحليل الاحتياطي",
+        "Reserve analysis"
+      ],
+      [
+        "تكلفة الجودة",
+        "Cost of quality"
+      ]
+    ],
+    "21": [
+      [
+        "تجميع التكاليف",
+        "Cost aggregation"
+      ],
+      [
+        "تحليل الاحتياطي",
+        "Reserve analysis"
+      ],
+      [
+        "مراجعة تاريخية",
+        "Historical review"
+      ],
+      [
+        "مطابقة حدود التمويل",
+        "Funding limit reconciliation"
+      ],
+      [
+        "التمويل",
+        "Financing"
+      ]
+    ],
+    "22": [
+      [
+        "تحليل القيمة المكتسبة",
+        "Earned value analysis"
+      ],
+      [
+        "التنبّؤ",
+        "Forecasting"
+      ],
+      [
+        "مؤشّر أداء الإنجاز TCPI",
+        "To-complete performance index"
+      ],
+      [
+        "تحليل التباين",
+        "Variance analysis"
+      ],
+      [
+        "تحليل الاحتياطي",
+        "Reserve analysis"
+      ]
+    ],
+    "23": [
+      [
+        "العصف الذهني",
+        "Brainstorming"
+      ],
+      [
+        "تحليل أصحاب المصلحة",
+        "Stakeholder analysis"
+      ],
+      [
+        "تحليل الوثائق",
+        "Document analysis"
+      ],
+      [
+        "مصفوفة النفوذ والاهتمام",
+        "Power-interest grid"
+      ],
+      [
+        "نموذج البروز",
+        "Salience model"
+      ],
+      [
+        "المقابلات",
+        "Interviews"
+      ]
+    ],
+    "24": [
+      [
+        "مصفوفة تقييم الإشراك",
+        "Engagement assessment matrix"
+      ],
+      [
+        "رسم الذهنية",
+        "Mind mapping"
+      ],
+      [
+        "المهارات الشخصية",
+        "Interpersonal skills"
+      ],
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ]
+    ],
+    "25": [
+      [
+        "تحليل متطلبات التواصل",
+        "Communication requirements analysis"
+      ],
+      [
+        "نماذج التواصل",
+        "Communication models"
+      ],
+      [
+        "تقنيات التواصل",
+        "Communication technology"
+      ],
+      [
+        "حساب قنوات الاتصال",
+        "Channel calculation n(n−1)/2"
+      ],
+      [
+        "أساليب التواصل",
+        "Communication methods"
+      ]
+    ],
+    "26": [
+      [
+        "المهارات الشخصية",
+        "Interpersonal skills"
+      ],
+      [
+        "إدارة النزاع",
+        "Conflict management"
+      ],
+      [
+        "التفاوض",
+        "Negotiation"
+      ],
+      [
+        "الوعي الثقافي",
+        "Cultural awareness"
+      ],
+      [
+        "اتخاذ القرار",
+        "Decision-making"
+      ]
+    ],
+    "27": [
+      [
+        "تقنيات التواصل",
+        "Communication technology"
+      ],
+      [
+        "أساليب التواصل",
+        "Communication methods"
+      ],
+      [
+        "مهارات العرض",
+        "Presentation skills"
+      ],
+      [
+        "الاستماع الفعّال",
+        "Active listening"
+      ],
+      [
+        "حلقات التغذية الراجعة",
+        "Feedback loops"
+      ]
+    ],
+    "28": [
+      [
+        "تحليل البيانات",
+        "Data analysis"
+      ],
+      [
+        "مصفوفة تقييم الإشراك",
+        "Engagement assessment matrix"
+      ],
+      [
+        "المسح والاستبيان",
+        "Surveys"
+      ],
+      [
+        "الملاحظة",
+        "Observation"
+      ],
+      [
+        "المقابلات",
+        "Interviews"
+      ]
+    ],
+    "29": [
+      [
+        "نظام معلومات إدارة المشروع",
+        "PMIS"
+      ],
+      [
+        "الملاحظة",
+        "Observation"
+      ],
+      [
+        "المسح والاستبيان",
+        "Surveys"
+      ],
+      [
+        "تحليل الفعالية",
+        "Effectiveness analysis"
+      ]
+    ],
+    "30": [
+      [
+        "مخطّط تنظيمي",
+        "Organizational charts"
+      ],
+      [
+        "مصفوفة RACI",
+        "RACI matrix"
+      ],
+      [
+        "وصف الأدوار",
+        "Role descriptions"
+      ],
+      [
+        "نظرية التنظيم",
+        "Organizational theory"
+      ],
+      [
+        "ميثاق الفريق",
+        "Team charter"
+      ]
+    ],
+    "31": [
+      [
+        "التقدير التصاعدي",
+        "Bottom-up estimating"
+      ],
+      [
+        "التقدير القياسي",
+        "Analogous estimating"
+      ],
+      [
+        "التقدير البارامتري",
+        "Parametric estimating"
+      ],
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "هيكل تجزئة الموارد",
+        "Resource breakdown structure"
+      ]
+    ],
+    "32": [
+      [
+        "اتخاذ القرار",
+        "Decision-making"
+      ],
+      [
+        "المهارات الشخصية",
+        "Interpersonal skills"
+      ],
+      [
+        "التخصيص المسبق",
+        "Pre-assignment"
+      ],
+      [
+        "التفاوض",
+        "Negotiation"
+      ],
+      [
+        "الفرق الافتراضية",
+        "Virtual teams"
+      ]
+    ],
+    "33": [
+      [
+        "تحديد الموقع المشترك",
+        "Colocation"
+      ],
+      [
+        "التقدير والمكافآت",
+        "Recognition and rewards"
+      ],
+      [
+        "التدريب",
+        "Training"
+      ],
+      [
+        "بناء الفريق",
+        "Team building"
+      ],
+      [
+        "إدارة النزاع",
+        "Conflict management"
+      ],
+      [
+        "الذكاء العاطفي",
+        "Emotional intelligence"
+      ],
+      [
+        "التأثير",
+        "Influencing"
+      ]
+    ],
+    "34": [
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "تحليل الأداء",
+        "Performance reviews"
+      ],
+      [
+        "تحليل التكلفة والمنفعة",
+        "Cost-benefit analysis"
+      ],
+      [
+        "التفاوض",
+        "Negotiation"
+      ],
+      [
+        "تحليل التباين",
+        "Variance analysis"
+      ]
+    ],
+    "35": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "تحليل أصحاب المصلحة",
+        "Stakeholder analysis"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ],
+      [
+        "هيكل تجزئة المخاطر",
+        "Risk breakdown structure"
+      ]
+    ],
+    "36": [
+      [
+        "العصف الذهني",
+        "Brainstorming"
+      ],
+      [
+        "قوائم التحقّق",
+        "Checklists"
+      ],
+      [
+        "تحليل SWOT",
+        "SWOT analysis"
+      ],
+      [
+        "تحليل الافتراضات والقيود",
+        "Assumption and constraint analysis"
+      ],
+      [
+        "تحليل السبب الجذري",
+        "Root cause analysis"
+      ],
+      [
+        "أسلوب دلفي",
+        "Delphi technique"
+      ],
+      [
+        "تحليل الوثائق",
+        "Document analysis"
+      ]
+    ],
+    "37": [
+      [
+        "مصفوفة الاحتمالية والأثر",
+        "Probability and impact matrix"
+      ],
+      [
+        "تقييم جودة بيانات المخاطر",
+        "Risk data quality assessment"
+      ],
+      [
+        "تصنيف المخاطر",
+        "Risk categorization"
+      ],
+      [
+        "محاكاة مونت كارلو",
+        "Monte Carlo simulation"
+      ],
+      [
+        "شجرة القرار",
+        "Decision tree"
+      ],
+      [
+        "القيمة النقدية المتوقّعة EMV",
+        "Expected monetary value"
+      ],
+      [
+        "مخطّط التورنادو",
+        "Tornado diagram"
+      ]
+    ],
+    "38": [
+      [
+        "استراتيجيات التهديد",
+        "Threat strategies — avoid, transfer, mitigate, accept"
+      ],
+      [
+        "استراتيجيات الفرص",
+        "Opportunity strategies — exploit, share, enhance, accept"
+      ],
+      [
+        "تحليل البدائل",
+        "Alternatives analysis"
+      ],
+      [
+        "تحليل التكلفة والمنفعة",
+        "Cost-benefit analysis"
+      ],
+      [
+        "خطط الطوارئ",
+        "Contingency planning"
+      ]
+    ],
+    "39": [
+      [
+        "حكم الخبراء",
+        "Expert judgement"
+      ],
+      [
+        "المهارات الشخصية",
+        "Interpersonal skills"
+      ],
+      [
+        "نظام معلومات إدارة المشروع",
+        "PMIS"
+      ],
+      [
+        "التأثير",
+        "Influencing"
+      ]
+    ],
+    "40": [
+      [
+        "تدقيق المخاطر",
+        "Risk audits"
+      ],
+      [
+        "تحليل التباين والاتجاه",
+        "Variance and trend analysis"
+      ],
+      [
+        "تحليل الاحتياطي",
+        "Reserve analysis"
+      ],
+      [
+        "اجتماعات",
+        "Meetings"
+      ],
+      [
+        "إعادة تقييم المخاطر",
+        "Risk reassessment"
+      ]
+    ]
+  },
+  "OTPL": {
+    "1": {
+      "ar": "**ميثاق المشروع — مسوّدة**\n\n**الغرض**: تسليم فراقة قائدة بقدرة قتالية معتمدة مع خيار لهيكلين تاليين.\n**مدير المشروع**: يُعيَّن بقرار المجلس · عتبة التغيير عشرة ملايين.\n**الأهداف**: التسليم بلا فقد نقاط توقّف · شهادة التصنيف بلا تحفّظات · داخل ٨٤٠ مليون.\n**المخاطر عالية المستوى**: تأخّر المورّدين · توافر المساح · فقد اللحّامين · غموض معايير القبول.\n**المعالم**: قطع أول صفيحة ش٣ · العارضة ش٨ · الإنزال ش٢٠ · التجارب ش٣٣ · التسليم ش٣٦.\n**معايير الموافقة**: نقاط التوقّف · الشهادة · القبول الرسمي · تسوية العقود.",
+      "en": "**Project Charter — Draft**\n\n**Purpose**: deliver a lead frigate with certified combat capability plus an option for two follow-on hulls.\n**Project manager**: appointed by board decision · change threshold ten million.\n**Objectives**: delivery with no hold point lost · class certificate with no qualifications · within 840 million.\n**High-level risks**: supplier delay · surveyor availability · welder loss · ambiguous acceptance criteria.\n**Milestones**: first steel M3 · keel M8 · launch M20 · trials M33 · delivery M36.\n**Approval criteria**: hold points · certificate · formal acceptance · contract settlement."
+    },
+    "9": {
+      "ar": "**تقرير الإغلاق النهائي**\n\n**القبول**: قبول رسمي مكتوب لكل المخرجات · كل نقاط التوقّف مُجتازة · الشهادة صادرة.\n**الأداء النهائي**: CPI = ٠٫٩٦ · SPI = ٠٫٩٨ · التسليم بتأخّر أسبوعين داخل التسامح.\n**التسوية**: ثلاثة عقود مُغلقة · المطالبات مُسوّاة · الاحتياطيات مُفرجة.\n**الانتقال**: فريق التشغيل مُدرَّب · الوثائق مُسلَّمة · نقل المعرفة الضمنية موثّق.\n\n**أبرز ثلاثة دروس**:\n١) معايير القبول تُوثَّق وتُعتمد كتابةً **قبل** بدء كل زيادة\n٢) حجز مساح التصنيف يبدأ قبل ثمانية أسابيع لا أسبوعين\n٣) تسامح العقد الثماني أسابيع أطول مما يحتمله المسار الحرج — يُراجع في الفئة التالية",
+      "en": "**Final Closure Report**\n\n**Acceptance**: formal written acceptance of all deliverables · all hold points passed · certificate issued.\n**Final performance**: CPI = 0.96 · SPI = 0.98 · delivered two weeks late, within tolerance.\n**Settlement**: three contracts closed · claims settled · reserves released.\n**Transition**: operations team trained · documentation handed over · tacit knowledge transfer documented.\n\n**Top three lessons**:\n1) Acceptance criteria are documented and agreed in writing **before** each increment starts\n2) Class surveyor booking begins eight weeks ahead, not two\n3) The eight-week contract tolerance exceeds what the critical path can absorb — revise for the next class"
+    },
+    "13": {
+      "ar": "**هيكل تجزئة العمل — المستوى الثاني**\n\n١٫٠ الهيكل والبناء — ١٫١ التصنيع · ١٫٢ التجميع · ١٫٣ اللحام والتأهيل\n٢٫٠ منظومة الدفع — ٢٫١ التوريد · ٢٫٢ التركيب · ٢٫٣ الاختبار\n٣٫٠ منظومة القتال — ٣٫١ إلى ٣٫٥ الزيادات الخمس\n٤٫٠ التجهيز والأنظمة المساعدة\n٥٫٠ التجارب والقبول — ٥٫١ الميناء · ٥٫٢ البحرية\n٦٫٠ إدارة البرنامج والامتثال\n\n**قاعدة ١٠٠٪**: مجموع المستوى الثاني = كل النطاق لا أكثر ولا أقل.\n**حزمة العمل** = أدنى مستوى قابل للتقدير والإسناد والمراقبة، ولكل حزمة معايير قبول موثّقة.",
+      "en": "**Work Breakdown Structure — Level 2**\n\n1.0 Hull and construction — 1.1 fabrication · 1.2 assembly · 1.3 welding and qualification\n2.0 Propulsion system — 2.1 supply · 2.2 installation · 2.3 testing\n3.0 Combat system — 3.1 to 3.5 the five increments\n4.0 Outfitting and auxiliary systems\n5.0 Trials and acceptance — 5.1 harbour · 5.2 sea\n6.0 Programme management and compliance\n\n**100% rule**: the sum of level 2 equals all the scope, no more and no less.\n**Work package** = the lowest level that can be estimated, assigned and controlled, each with documented acceptance criteria."
+    },
+    "17": {
+      "ar": "**الجدول الزمني والمسار الحرج**\n\n**الشبكة**: A(٤) → B(٩) → D(٧) → E(٣) · وA → C(٢) → D\n**المسارات**: A→B→D→E = **٢٣ أسبوعاً** ← الحرج · A→C→D→E = ١٦ أسبوعاً\n**الفائض**: A·B·D·E = صفر · C = **٧ أسابيع**\n\n**عند الحاجة للضغط**:\n• التسريع — إضافة موارد · كلفة أعلى · مخاطر أقل\n• التتبّع السريع — توازي · بلا كلفة · مخاطر إعادة عمل أعلى\n**بعد أي ضغط**: أعد تحليل الشبكة — قد يظهر مسار حرج جديد.",
+      "en": "**Schedule and Critical Path**\n\n**Network**: A(4) → B(9) → D(7) → E(3) · and A → C(2) → D\n**Paths**: A→B→D→E = **23 weeks** ← critical · A→C→D→E = 16 weeks\n**Float**: A·B·D·E = zero · C = **7 weeks**\n\n**When compression is needed**:\n• Crashing — add resources · higher cost · lower risk\n• Fast tracking — overlap · no cost · higher rework risk\n**After any compression**: re-analyse the network — a new critical path may emerge."
+    },
+    "21": {
+      "ar": "**خط أساس التكلفة**\n\n| البند | المبلغ |\n|---|---|\n| تقديرات حزم العمل | ٧٥٦ مليون |\n| احتياطي الطوارئ (داخل خط الأساس) | ٥٦ مليون |\n| **خط أساس التكلفة** | **٨١٢ مليون** |\n| الاحتياطي الإداري (خارج) | ٢٨ مليون |\n| **الميزانية عند الإنجاز BAC** | **٨٤٠ مليون** |\n\n**متطلبات التمويل**: مرحلية مرتبطة بنقاط التوقّف — الدفعة تُفرج بعد إقرار المرحلة.\n**التمييز الحاسم**: الطوارئ للمخاطر المعروفة بسلطة مدير المشروع · الإداري للمجهول بسلطة المجلس.",
+      "en": "**Cost Baseline**\n\n| Item | Amount |\n|---|---|\n| Work package estimates | 756 million |\n| Contingency reserve (within baseline) | 56 million |\n| **Cost baseline** | **812 million** |\n| Management reserve (outside) | 28 million |\n| **Budget at completion BAC** | **840 million** |\n\n**Funding requirements**: staged against hold points — payment releases after stage approval.\n**The decisive distinction**: contingency for known risks under the project manager · management reserve for the unknown under the board."
+    },
+    "23": {
+      "ar": "**سجلّ أصحاب المصلحة — مستخرج**\n\n| الطرف | النفوذ | الاهتمام | الموقف | الاستراتيجية |\n|---|---|---|---|---|\n| العميل البحري | عالٍ | عالٍ | داعم | أدِرْه عن قرب |\n| جمعية التصنيف | عالٍ | عالٍ | محايد | أدِرْه عن قرب |\n| مجلس البرنامج | عالٍ | متوسط | داعم | أبقِه راضياً |\n| الحوض | متوسط | عالٍ | داعم قوي | أبقِه مُطّلعاً |\n| نقابة الحوض | متوسط | عالٍ | متحفّظ | أبقِه مُطّلعاً |\n\n**فجوة الإشراك**: النقابة متحفّظة والمطلوب محايدة — أشركها في قرارات التأهيل.",
+      "en": "**Stakeholder Register — Extract**\n\n| Party | Power | Interest | Attitude | Strategy |\n|---|---|---|---|---|\n| Naval customer | High | High | Supportive | Manage closely |\n| Class society | High | High | Neutral | Manage closely |\n| Programme board | High | Medium | Supportive | Keep satisfied |\n| The yard | Medium | High | Champion | Keep informed |\n| Yard union | Medium | High | Resistant | Keep informed |\n\n**Engagement gap**: the union is resistant and neutral is required — involve it in qualification decisions."
+    },
+    "30": {
+      "ar": "**مصفوفة RACI**\n\n| النشاط | مدير البرنامج | المجلس | التصنيف | العميل | المورّد |\n|---|---|---|---|---|---|\n| اعتماد الميثاق | R | **A** | I | C | — |\n| تغيير داخل العتبة | **A/R** | I | I | C | I |\n| تغيير فوق العتبة | R | **A** | I | C | I |\n| اجتياز نقطة توقّف | R | I | **A** | I | C |\n| قبول زيادة القتال | R | I | C | **A** | C |\n| تسليم حزمة الدفع | C | I | C | I | **A/R** |\n\n**قواعد التحقّق**: A واحد لكل صف · R واحد على الأقل · قلّل C · I للإبلاغ لا الاستشارة.",
+      "en": "**RACI Matrix**\n\n| Activity | Prog. Manager | Board | Class | Customer | Supplier |\n|---|---|---|---|---|---|\n| Approve charter | R | **A** | I | C | — |\n| Change within threshold | **A/R** | I | I | C | I |\n| Change above threshold | R | **A** | I | C | I |\n| Pass hold point | R | I | **A** | I | C |\n| Accept combat increment | R | I | C | **A** | C |\n| Deliver propulsion | C | I | C | I | **A/R** |\n\n**Validation rules**: exactly one A per row · at least one R · minimize C · I is informed, not consulted."
+    },
+    "36": {
+      "ar": "**سجلّ المخاطر — المخاطر المحدّدة**\n\n| # | الخطر | الفئة | المصدر |\n|---|---|---|---|\n| ١ | تأخّر حزمة الدفع | مورّدون | تحليل الوثائق |\n| ٢ | عدم توافر مساح التصنيف | تنظيمي | قوائم التحقّق |\n| ٣ | رفض زيادات منظومة القتال | فني | السبب الجذري |\n| ٤ | نقص اللحّامين المعتمدين | موارد | العصف الذهني |\n| ٥ | قيود ضوابط التصدير | خارجي | تحليل SWOT |\n\n**تقرير المخاطر**: التعرّض الكلي مرتفع، ومصدره الأكبر **الاعتماد على أطراف خارجية**\n(مورّدون · جمعية تصنيف · شريك تصميم) — ثلاثة من الخمسة.",
+      "en": "**Risk Register — Identified Risks**\n\n| # | Risk | Category | Source |\n|---|---|---|---|\n| 1 | Propulsion package delay | Suppliers | Document analysis |\n| 2 | Class surveyor unavailability | Regulatory | Checklists |\n| 3 | Combat-system increment rejection | Technical | Root cause analysis |\n| 4 | Certified welder shortage | Resources | Brainstorming |\n| 5 | Export control constraints | External | SWOT analysis |\n\n**Risk report**: overall exposure is high, driven mainly by **dependence on external parties**\n(suppliers · class society · design partner) — three of the five."
+    },
+    "38": {
+      "ar": "**استجابات المخاطر**\n\n| # | الخطر | الاستراتيجية | الإجراء | الاحتياطي |\n|---|---|---|---|---|\n| ١ | تأخّر الدفع | تخفيف | خطة تصحيحية + ضغط جدول | ٣ أسابيع |\n| ٢ | المساح | تخفيف | حجز مبكر + بديل معتمد | ٠٫٤ مليون |\n| ٣ | رفض الزيادة | تخفيف | توضيح المعايير عبر ضبط التغيير | ٢ مليون |\n| ٤ | اللحّامون | نقل | تعاقد خارجي معتمد | ١٫٢ مليون |\n| ٥ | التصدير | نقل | شرط تعاقدي على الشريك | — |\n\n**احتياطي الطوارئ** = مجموع EMV للمخاطر الخمس = **٥٦ مليون**.\n**مخاطر ثانوية**: التعاقد الخارجي يُدخل خطر جودة اللحام — يُسجَّل ويُدار.",
+      "en": "**Risk Responses**\n\n| # | Risk | Strategy | Action | Reserve |\n|---|---|---|---|---|\n| 1 | Propulsion delay | Mitigate | Corrective plan + compression | 3 weeks |\n| 2 | Surveyor | Mitigate | Early booking + approved alternate | 0.4 million |\n| 3 | Increment rejection | Mitigate | Clarify criteria via change control | 2 million |\n| 4 | Welders | Transfer | Certified external contracting | 1.2 million |\n| 5 | Export controls | Transfer | Contractual condition on the partner | — |\n\n**Contingency reserve** = sum of EMV across the five = **56 million**.\n**Secondary risk**: external contracting introduces a weld quality risk — logged and managed."
+    }
+  },
+  "CHARTER": {
+    "secs": [
+      {
+        "k": "id",
+        "t": [
+          "١ · بيانات المشروع",
+          "1 · Project Identification"
+        ],
+        "f": [
+          {
+            "k": "name",
+            "l": [
+              "اسم المشروع",
+              "Project name"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "code",
+            "l": [
+              "رمز المشروع",
+              "Project code"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "sponsor",
+            "l": [
+              "الراعي",
+              "Sponsor"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "pm",
+            "l": [
+              "مدير المشروع",
+              "Project manager"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "date",
+            "l": [
+              "تاريخ الإصدار",
+              "Issue date"
+            ],
+            "ty": "d"
+          },
+          {
+            "k": "ver",
+            "l": [
+              "الإصدار",
+              "Version"
+            ],
+            "ty": "t"
+          }
+        ]
+      },
+      {
+        "k": "purpose",
+        "t": [
+          "٢ · الغرض والمبرّر",
+          "2 · Purpose and Justification"
+        ],
+        "f": [
+          {
+            "k": "need",
+            "l": [
+              "حاجة العمل",
+              "Business need"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "just",
+            "l": [
+              "المبرّر — لماذا هذا المشروع الآن؟",
+              "Justification — why this project now?"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "link",
+            "l": [
+              "الارتباط بحالة العمل ودراسة الجدوى",
+              "Link to business case and feasibility study"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      },
+      {
+        "k": "obj",
+        "t": [
+          "٣ · الأهداف ومعايير النجاح",
+          "3 · Objectives and Success Criteria"
+        ],
+        "f": [
+          {
+            "k": "obj",
+            "l": [
+              "الأهداف القابلة للقياس — سطر لكل هدف",
+              "Measurable objectives — one per line"
+            ],
+            "ty": "a",
+            "r": 5
+          },
+          {
+            "k": "succ",
+            "l": [
+              "معايير نجاح المشروع",
+              "Project success criteria"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "exit",
+            "l": [
+              "معايير الخروج أو الإنهاء",
+              "Exit or termination criteria"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      },
+      {
+        "k": "scope",
+        "t": [
+          "٤ · النطاق عالي المستوى",
+          "4 · High-Level Scope"
+        ],
+        "f": [
+          {
+            "k": "in",
+            "l": [
+              "داخل النطاق",
+              "In scope"
+            ],
+            "ty": "a",
+            "r": 4
+          },
+          {
+            "k": "out",
+            "l": [
+              "خارج النطاق",
+              "Out of scope"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "req",
+            "l": [
+              "المتطلبات عالية المستوى",
+              "High-level requirements"
+            ],
+            "ty": "a",
+            "r": 4
+          },
+          {
+            "k": "deliv",
+            "l": [
+              "المخرجات الرئيسة",
+              "Key deliverables"
+            ],
+            "ty": "a",
+            "r": 3
+          }
+        ]
+      },
+      {
+        "k": "time",
+        "t": [
+          "٥ · المعالم والجدول",
+          "5 · Milestones and Schedule"
+        ],
+        "f": [
+          {
+            "k": "start",
+            "l": [
+              "تاريخ البدء المخطّط",
+              "Planned start"
+            ],
+            "ty": "d"
+          },
+          {
+            "k": "end",
+            "l": [
+              "تاريخ الإنجاز المخطّط",
+              "Planned finish"
+            ],
+            "ty": "d"
+          },
+          {
+            "k": "mile",
+            "l": [
+              "المعالم الرئيسة — سطر لكل معلم بتاريخه",
+              "Summary milestones — one per line with date"
+            ],
+            "ty": "a",
+            "r": 5
+          }
+        ]
+      },
+      {
+        "k": "money",
+        "t": [
+          "٦ · الميزانية والموارد",
+          "6 · Budget and Resources"
+        ],
+        "f": [
+          {
+            "k": "budget",
+            "l": [
+              "الميزانية الأولية",
+              "Preliminary budget"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "cont",
+            "l": [
+              "احتياطي الطوارئ — داخل خط الأساس",
+              "Contingency reserve — within baseline"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "mgmt",
+            "l": [
+              "الاحتياطي الإداري — خارج خط الأساس",
+              "Management reserve — outside baseline"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "res",
+            "l": [
+              "الموارد المطلوبة عالية المستوى",
+              "High-level resource requirements"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "fund",
+            "l": [
+              "مصدر التمويل وآلية الصرف",
+              "Funding source and disbursement"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      },
+      {
+        "k": "risk",
+        "t": [
+          "٧ · المخاطر والافتراضات والقيود",
+          "7 · Risks, Assumptions and Constraints"
+        ],
+        "f": [
+          {
+            "k": "risk",
+            "l": [
+              "المخاطر عالية المستوى",
+              "High-level risks"
+            ],
+            "ty": "a",
+            "r": 4
+          },
+          {
+            "k": "assum",
+            "l": [
+              "الافتراضات",
+              "Assumptions"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "const",
+            "l": [
+              "القيود",
+              "Constraints"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "dep",
+            "l": [
+              "الاعتماديات الخارجية",
+              "External dependencies"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      },
+      {
+        "k": "stake",
+        "t": [
+          "٨ · أصحاب المصلحة",
+          "8 · Stakeholders"
+        ],
+        "f": [
+          {
+            "k": "key",
+            "l": [
+              "أصحاب المصلحة الرئيسون",
+              "Key stakeholders"
+            ],
+            "ty": "a",
+            "r": 4
+          },
+          {
+            "k": "comm",
+            "l": [
+              "متطلبات التواصل الأولية",
+              "Initial communication requirements"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      },
+      {
+        "k": "gov",
+        "t": [
+          "٩ · الحوكمة والصلاحيات",
+          "9 · Governance and Authority"
+        ],
+        "f": [
+          {
+            "k": "auth",
+            "l": [
+              "صلاحيات مدير المشروع",
+              "Project manager authority"
+            ],
+            "ty": "a",
+            "r": 3
+          },
+          {
+            "k": "thresh",
+            "l": [
+              "عتبة اعتماد التغيير",
+              "Change approval threshold"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "esc",
+            "l": [
+              "مسار التصعيد",
+              "Escalation path"
+            ],
+            "ty": "a",
+            "r": 2
+          },
+          {
+            "k": "report",
+            "l": [
+              "دورية التقارير ومستقبلوها",
+              "Reporting cadence and recipients"
+            ],
+            "ty": "a",
+            "r": 2
+          },
+          {
+            "k": "appr",
+            "l": [
+              "معايير الموافقة على المشروع",
+              "Project approval criteria"
+            ],
+            "ty": "a",
+            "r": 3
+          }
+        ]
+      },
+      {
+        "k": "sign",
+        "t": [
+          "١٠ · الاعتماد",
+          "10 · Approval"
+        ],
+        "f": [
+          {
+            "k": "spname",
+            "l": [
+              "اسم الراعي وتوقيعه",
+              "Sponsor name and signature"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "spdate",
+            "l": [
+              "تاريخ الاعتماد",
+              "Approval date"
+            ],
+            "ty": "d"
+          },
+          {
+            "k": "pmname",
+            "l": [
+              "اسم مدير المشروع وقبوله",
+              "Project manager name and acceptance"
+            ],
+            "ty": "t"
+          },
+          {
+            "k": "others",
+            "l": [
+              "معتمدون آخرون",
+              "Other approvers"
+            ],
+            "ty": "a",
+            "r": 2
+          }
+        ]
+      }
+    ]
+  },
+  "SREG": {
+    "cols": [
+      {
+        "k": "name",
+        "l": [
+          "الاسم",
+          "Name"
+        ],
+        "ty": "t",
+        "w": "150px"
+      },
+      {
+        "k": "role",
+        "l": [
+          "الدور والمنصب",
+          "Role / position"
+        ],
+        "ty": "t",
+        "w": "150px"
+      },
+      {
+        "k": "org",
+        "l": [
+          "الجهة",
+          "Organization"
+        ],
+        "ty": "t",
+        "w": "120px"
+      },
+      {
+        "k": "type",
+        "l": [
+          "النوع",
+          "Type"
+        ],
+        "ty": "s",
+        "w": "100px",
+        "o": [
+          [
+            "int",
+            "داخلي",
+            "Internal"
+          ],
+          [
+            "ext",
+            "خارجي",
+            "External"
+          ],
+          [
+            "reg",
+            "جهة رقابية",
+            "Regulator"
+          ]
+        ]
+      },
+      {
+        "k": "power",
+        "l": [
+          "النفوذ",
+          "Power"
+        ],
+        "ty": "s",
+        "w": "90px",
+        "o": [
+          [
+            "high",
+            "عالٍ",
+            "High"
+          ],
+          [
+            "med",
+            "متوسط",
+            "Medium"
+          ],
+          [
+            "low",
+            "منخفض",
+            "Low"
+          ]
+        ]
+      },
+      {
+        "k": "interest",
+        "l": [
+          "الاهتمام",
+          "Interest"
+        ],
+        "ty": "s",
+        "w": "90px",
+        "o": [
+          [
+            "high",
+            "عالٍ",
+            "High"
+          ],
+          [
+            "med",
+            "متوسط",
+            "Medium"
+          ],
+          [
+            "low",
+            "منخفض",
+            "Low"
+          ]
+        ]
+      },
+      {
+        "k": "att",
+        "l": [
+          "الموقف الحالي",
+          "Current attitude"
+        ],
+        "ty": "s",
+        "w": "110px",
+        "o": [
+          [
+            "champ",
+            "داعم قوي",
+            "Champion"
+          ],
+          [
+            "sup",
+            "داعم",
+            "Supportive"
+          ],
+          [
+            "neut",
+            "محايد",
+            "Neutral"
+          ],
+          [
+            "res",
+            "متحفّظ",
+            "Resistant"
+          ],
+          [
+            "unaw",
+            "غير مُطّلع",
+            "Unaware"
+          ]
+        ]
+      },
+      {
+        "k": "want",
+        "l": [
+          "الموقف المطلوب",
+          "Desired attitude"
+        ],
+        "ty": "s",
+        "w": "110px",
+        "o": [
+          [
+            "champ",
+            "داعم قوي",
+            "Champion"
+          ],
+          [
+            "sup",
+            "داعم",
+            "Supportive"
+          ],
+          [
+            "neut",
+            "محايد",
+            "Neutral"
+          ],
+          [
+            "unaw",
+            "غير مُطّلع",
+            "Unaware"
+          ]
+        ]
+      },
+      {
+        "k": "need",
+        "l": [
+          "توقّعاته ومتطلباته",
+          "Expectations and requirements"
+        ],
+        "ty": "a",
+        "w": "200px"
+      },
+      {
+        "k": "infl",
+        "l": [
+          "تأثيره على المشروع",
+          "Influence on the project"
+        ],
+        "ty": "a",
+        "w": "180px"
+      },
+      {
+        "k": "strat",
+        "l": [
+          "استراتيجية الإشراك",
+          "Engagement strategy"
+        ],
+        "ty": "a",
+        "w": "200px"
+      },
+      {
+        "k": "chan",
+        "l": [
+          "قناة التواصل والدورية",
+          "Channel and frequency"
+        ],
+        "ty": "t",
+        "w": "150px"
+      },
+      {
+        "k": "owner",
+        "l": [
+          "المسؤول عن العلاقة",
+          "Relationship owner"
+        ],
+        "ty": "t",
+        "w": "130px"
+      }
+    ],
+    "strategies": {
+      "high|high": [
+        "أدِرْه عن قرب — إشراك مكثّف في القرارات ومواءمة مستمرة للتوقّعات",
+        "Manage closely — intensive involvement in decisions and continuous expectation alignment"
+      ],
+      "high|med": [
+        "أبقِه راضياً — تقارير موجزة منتظمة واستشارة في القرارات الكبرى",
+        "Keep satisfied — regular concise reports and consultation on major decisions"
+      ],
+      "high|low": [
+        "أبقِه راضياً — إبلاغ بالمعالم فقط دون إثقال بالتفاصيل",
+        "Keep satisfied — inform at milestones only, without overloading with detail"
+      ],
+      "med|high": [
+        "أبقِه مُطّلعاً — تحديثات دورية وإشراك في القرارات التي تمسّه",
+        "Keep informed — periodic updates and involvement in decisions that affect them"
+      ],
+      "med|med": [
+        "راقبه بجهد معقول — تحديث دوري وتصعيد عند التغيّر",
+        "Monitor with reasonable effort — periodic updates, escalate on change"
+      ],
+      "med|low": [
+        "راقبه — إبلاغ عند الحاجة فقط",
+        "Monitor — inform only when needed"
+      ],
+      "low|high": [
+        "أبقِه مُطّلعاً — نشرة دورية وقناة مفتوحة للاستفسار",
+        "Keep informed — periodic bulletin and an open channel for questions"
+      ],
+      "low|med": [
+        "راقبه — إبلاغ بالمعالم",
+        "Monitor — inform at milestones"
+      ],
+      "low|low": [
+        "راقبه بأقل جهد",
+        "Monitor with minimum effort"
+      ]
+    }
+  },
+  "BOARD": {
+    "Q": [
+      {
+        "k": "problem",
+        "ar": "قبل أن نتحدّث عن الحلّ — ما المشكلة التي يوجد هذا المشروع من أجلها؟",
+        "en": "Before we discuss the solution — what problem does this project exist to address?",
+        "look": [
+          "مشكلة",
+          "فرصة",
+          "خسارة",
+          "تأخّر",
+          "قصور",
+          "حاجة",
+          "problem",
+          "opportunity",
+          "loss",
+          "gap",
+          "need",
+          "delay"
+        ],
+        "w": 20
+      },
+      {
+        "k": "nothing",
+        "ar": "ماذا يحدث إن لم نفعل شيئاً؟ وهل قيّمت خيار «لا نفعل شيئاً»؟",
+        "en": "What happens if we do nothing? Did you assess the \"do nothing\" option?",
+        "look": [
+          "لا نفعل",
+          "خسارة",
+          "غرامة",
+          "تدهور",
+          "منافس",
+          "do nothing",
+          "lose",
+          "fine",
+          "penalty",
+          "competitor",
+          "erode"
+        ],
+        "w": 20
+      },
+      {
+        "k": "money",
+        "ar": "ما الاستثمار المطلوب، وما المنفعة السنوية، ومتى نسترد رأس المال؟",
+        "en": "What is the investment, what is the annual benefit, and when do we recover the capital?",
+        "look": [
+          "مليون",
+          "سنة",
+          "استرداد",
+          "عائد",
+          "payback",
+          "ROI",
+          "million",
+          "year",
+          "return",
+          "benefit"
+        ],
+        "w": 25,
+        "needNum": true
+      },
+      {
+        "k": "risk",
+        "ar": "ما أبرز ثلاثة مخاطر قد تمنع تحقّق المنفعة؟",
+        "en": "What are the top three risks that could prevent the benefit being realized?",
+        "look": [
+          "خطر",
+          "تأخّر",
+          "مورّد",
+          "تنظيمي",
+          "كلفة",
+          "قبول",
+          "risk",
+          "delay",
+          "supplier",
+          "regulatory",
+          "cost",
+          "adoption"
+        ],
+        "w": 20
+      },
+      {
+        "k": "align",
+        "ar": "كيف يخدم هذا المشروع استراتيجيتنا؟ ولماذا الآن؟",
+        "en": "How does this serve our strategy, and why now?",
+        "look": [
+          "استراتيج",
+          "توسّع",
+          "امتثال",
+          "قدرة",
+          "سوق",
+          "strateg",
+          "expand",
+          "complian",
+          "capability",
+          "market",
+          "now"
+        ],
+        "w": 15
+      }
+    ]
+  },
+  "PANEL": [
+    {
+      "id": "chair",
+      "ar": [
+        "د. سارة القحطاني",
+        "رئيسة لجنة الاستثمار"
+      ],
+      "en": [
+        "Dr Sarah Al-Qahtani",
+        "Chair, Investment Board"
+      ],
+      "skin": "#e8c39e",
+      "hair": "#2b2118",
+      "hj": "f",
+      "suit": "#1a3a52",
+      "tie": "#70C0E0",
+      "voice": {
+        "pitch": 1.25,
+        "rate": 0.95
+      }
+    },
+    {
+      "id": "cfo",
+      "ar": [
+        "أ. خالد الدوسري",
+        "المدير المالي"
+      ],
+      "en": [
+        "Khalid Al-Dosari",
+        "Chief Financial Officer"
+      ],
+      "skin": "#d9a878",
+      "hair": "#1c1510",
+      "hj": "m",
+      "suit": "#243447",
+      "tie": "#40C090",
+      "voice": {
+        "pitch": 0.85,
+        "rate": 0.92
+      }
+    },
+    {
+      "id": "ops",
+      "ar": [
+        "م. ريم الشهري",
+        "مديرة العمليات"
+      ],
+      "en": [
+        "Reem Al-Shehri",
+        "Director of Operations"
+      ],
+      "skin": "#efd0b0",
+      "hair": "#3a2a1c",
+      "hj": "f",
+      "suit": "#2d3e50",
+      "tie": "#F07000",
+      "voice": {
+        "pitch": 1.15,
+        "rate": 1
+      }
+    }
+  ],
+  "PANEL_Q": {
+    "problem": "chair",
+    "nothing": "ops",
+    "money": "cfo",
+    "risk": "ops",
+    "align": "chair"
+  },
+  "chains": {
+    "1": {
+      "prev": [],
+      "next": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 9,
+          "t": [
+            "إغلاق المشروع أو المرحلة",
+            "Close Project or Phase"
+          ],
+          "g": "C"
+        },
+        {
+          "n": 10,
+          "t": [
+            "تخطيط إدارة النطاق",
+            "Plan Scope Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 12,
+          "t": [
+            "تعريف النطاق",
+            "Define Scope"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 16,
+          "t": [
+            "تخطيط إدارة الجدول",
+            "Plan Schedule Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 19,
+          "t": [
+            "تخطيط الإدارة المالية",
+            "Plan Financial Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 25,
+          "t": [
+            "تخطيط إدارة التواصل",
+            "Plan Communications Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "2": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        }
+      ],
+      "next": [
+        {
+          "n": 3,
+          "t": [
+            "تخطيط استراتيجية التوريد",
+            "Plan Sourcing Strategy"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 6,
+          "t": [
+            "إدارة معرفة المشروع",
+            "Manage Project Knowledge"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 9,
+          "t": [
+            "إغلاق المشروع أو المرحلة",
+            "Close Project or Phase"
+          ],
+          "g": "C"
+        },
+        {
+          "n": 10,
+          "t": [
+            "تخطيط إدارة النطاق",
+            "Plan Scope Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 16,
+          "t": [
+            "تخطيط إدارة الجدول",
+            "Plan Schedule Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 19,
+          "t": [
+            "تخطيط الإدارة المالية",
+            "Plan Financial Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 25,
+          "t": [
+            "تخطيط إدارة التواصل",
+            "Plan Communications Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "3": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": []
+    },
+    "4": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 5,
+          "t": [
+            "إدارة ضمان الجودة",
+            "Manage Quality Assurance"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 18,
+          "t": [
+            "مراقبة وضبط الجدول",
+            "Monitor and Control Schedule"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 22,
+          "t": [
+            "مراقبة وضبط المالية",
+            "Monitor and Control Finances"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 28,
+          "t": [
+            "مراقبة إشراك أصحاب المصلحة",
+            "Monitor Stakeholder Engagement"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 29,
+          "t": [
+            "مراقبة التواصل",
+            "Monitor Communications"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 33,
+          "t": [
+            "قيادة الفريق",
+            "Lead the Team"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 6,
+          "t": [
+            "إدارة معرفة المشروع",
+            "Manage Project Knowledge"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 9,
+          "t": [
+            "إغلاق المشروع أو المرحلة",
+            "Close Project or Phase"
+          ],
+          "g": "C"
+        },
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 18,
+          "t": [
+            "مراقبة وضبط الجدول",
+            "Monitor and Control Schedule"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 22,
+          "t": [
+            "مراقبة وضبط المالية",
+            "Monitor and Control Finances"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 27,
+          "t": [
+            "إدارة التواصل",
+            "Manage Communications"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 28,
+          "t": [
+            "مراقبة إشراك أصحاب المصلحة",
+            "Monitor Stakeholder Engagement"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 29,
+          "t": [
+            "مراقبة التواصل",
+            "Monitor Communications"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "5": {
+      "prev": [],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "6": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": []
+    },
+    "7": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 18,
+          "t": [
+            "مراقبة وضبط الجدول",
+            "Monitor and Control Schedule"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 22,
+          "t": [
+            "مراقبة وضبط المالية",
+            "Monitor and Control Finances"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 28,
+          "t": [
+            "مراقبة إشراك أصحاب المصلحة",
+            "Monitor Stakeholder Engagement"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 29,
+          "t": [
+            "مراقبة التواصل",
+            "Monitor Communications"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 27,
+          "t": [
+            "إدارة التواصل",
+            "Manage Communications"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 33,
+          "t": [
+            "قيادة الفريق",
+            "Lead the Team"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "8": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 5,
+          "t": [
+            "إدارة ضمان الجودة",
+            "Manage Quality Assurance"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 18,
+          "t": [
+            "مراقبة وضبط الجدول",
+            "Monitor and Control Schedule"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 22,
+          "t": [
+            "مراقبة وضبط المالية",
+            "Monitor and Control Finances"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 28,
+          "t": [
+            "مراقبة إشراك أصحاب المصلحة",
+            "Monitor Stakeholder Engagement"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 29,
+          "t": [
+            "مراقبة التواصل",
+            "Monitor Communications"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 33,
+          "t": [
+            "قيادة الفريق",
+            "Lead the Team"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        }
+      ]
+    },
+    "9": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": []
+    },
+    "10": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "11": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 10,
+          "t": [
+            "تخطيط إدارة النطاق",
+            "Plan Scope Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 12,
+          "t": [
+            "تعريف النطاق",
+            "Define Scope"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 13,
+          "t": [
+            "بناء هيكل النطاق",
+            "Develop Scope Structure"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 15,
+          "t": [
+            "التحقّق من صحة النطاق",
+            "Validate Scope"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "12": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 13,
+          "t": [
+            "بناء هيكل النطاق",
+            "Develop Scope Structure"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "13": {
+      "prev": [
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 12,
+          "t": [
+            "تعريف النطاق",
+            "Define Scope"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 14,
+          "t": [
+            "مراقبة وضبط النطاق",
+            "Monitor and Control Scope"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "14": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 13,
+          "t": [
+            "بناء هيكل النطاق",
+            "Develop Scope Structure"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "15": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 6,
+          "t": [
+            "إدارة معرفة المشروع",
+            "Manage Project Knowledge"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 9,
+          "t": [
+            "إغلاق المشروع أو المرحلة",
+            "Close Project or Phase"
+          ],
+          "g": "C"
+        }
+      ]
+    },
+    "16": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": []
+    },
+    "17": {
+      "prev": [
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 32,
+          "t": [
+            "الحصول على الموارد",
+            "Acquire Resources"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 18,
+          "t": [
+            "مراقبة وضبط الجدول",
+            "Monitor and Control Schedule"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "18": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 17,
+          "t": [
+            "بناء الجدول الزمني",
+            "Develop Schedule"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "19": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "20": {
+      "prev": [
+        {
+          "n": 13,
+          "t": [
+            "بناء هيكل النطاق",
+            "Develop Scope Structure"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 19,
+          "t": [
+            "تخطيط الإدارة المالية",
+            "Plan Financial Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "21": {
+      "prev": [
+        {
+          "n": 13,
+          "t": [
+            "بناء هيكل النطاق",
+            "Develop Scope Structure"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 22,
+          "t": [
+            "مراقبة وضبط المالية",
+            "Monitor and Control Finances"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "22": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "23": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 25,
+          "t": [
+            "تخطيط إدارة التواصل",
+            "Plan Communications Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "24": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 28,
+          "t": [
+            "مراقبة إشراك أصحاب المصلحة",
+            "Monitor Stakeholder Engagement"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "25": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": []
+    },
+    "26": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 11,
+          "t": [
+            "استخلاص وتحليل المتطلبات",
+            "Elicit and Analyze Requirements"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 25,
+          "t": [
+            "تخطيط إدارة التواصل",
+            "Plan Communications Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        }
+      ]
+    },
+    "27": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 29,
+          "t": [
+            "مراقبة التواصل",
+            "Monitor Communications"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "28": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 24,
+          "t": [
+            "تخطيط إشراك أصحاب المصلحة",
+            "Plan Stakeholder Engagement"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "29": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 27,
+          "t": [
+            "إدارة التواصل",
+            "Manage Communications"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "30": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 32,
+          "t": [
+            "الحصول على الموارد",
+            "Acquire Resources"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 33,
+          "t": [
+            "قيادة الفريق",
+            "Lead the Team"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "31": {
+      "prev": [
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 17,
+          "t": [
+            "بناء الجدول الزمني",
+            "Develop Schedule"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 32,
+          "t": [
+            "الحصول على الموارد",
+            "Acquire Resources"
+          ],
+          "g": "E"
+        }
+      ]
+    },
+    "32": {
+      "prev": [
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 17,
+          "t": [
+            "بناء الجدول الزمني",
+            "Develop Schedule"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 33,
+          "t": [
+            "قيادة الفريق",
+            "Lead the Team"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 34,
+          "t": [
+            "مراقبة وضبط الموارد",
+            "Monitor and Control Resourcing"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "33": {
+      "prev": [
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 32,
+          "t": [
+            "الحصول على الموارد",
+            "Acquire Resources"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "34": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 30,
+          "t": [
+            "تخطيط إدارة الموارد",
+            "Plan Resource Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 32,
+          "t": [
+            "الحصول على الموارد",
+            "Acquire Resources"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "35": {
+      "prev": [
+        {
+          "n": 1,
+          "t": [
+            "بدء المشروع أو المرحلة",
+            "Initiate Project or Phase"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 23,
+          "t": [
+            "تحديد أصحاب المصلحة",
+            "Identify Stakeholders"
+          ],
+          "g": "I"
+        },
+        {
+          "n": 26,
+          "t": [
+            "إدارة إشراك أصحاب المصلحة",
+            "Manage Stakeholder Engagement"
+          ],
+          "g": "E"
+        }
+      ],
+      "next": [
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "36": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "37": {
+      "prev": [
+        {
+          "n": 2,
+          "t": [
+            "تكامل ومواءمة خطط المشروع",
+            "Integrate and Align Project Plans"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "38": {
+      "prev": [
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "39": {
+      "prev": [
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 40,
+          "t": [
+            "مراقبة المخاطر",
+            "Monitor Risks"
+          ],
+          "g": "M"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        }
+      ]
+    },
+    "40": {
+      "prev": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 35,
+          "t": [
+            "تخطيط إدارة المخاطر",
+            "Plan Risk Management"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 36,
+          "t": [
+            "تحديد المخاطر",
+            "Identify Risks"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        }
+      ],
+      "next": [
+        {
+          "n": 4,
+          "t": [
+            "إدارة تنفيذ المشروع",
+            "Manage Project Execution"
+          ],
+          "g": "E"
+        },
+        {
+          "n": 7,
+          "t": [
+            "مراقبة وضبط أداء المشروع",
+            "Monitor and Control Project Performance"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 8,
+          "t": [
+            "تقييم وتنفيذ التغييرات",
+            "Assess and Implement Changes"
+          ],
+          "g": "M"
+        },
+        {
+          "n": 20,
+          "t": [
+            "تقدير التكاليف",
+            "Estimate Costs"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 21,
+          "t": [
+            "بناء الميزانية",
+            "Develop Budget"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 31,
+          "t": [
+            "تقدير الموارد",
+            "Estimate Resources"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 37,
+          "t": [
+            "تحليل المخاطر",
+            "Perform Risk Analysis"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 38,
+          "t": [
+            "تخطيط استجابات المخاطر",
+            "Plan Risk Responses"
+          ],
+          "g": "P"
+        },
+        {
+          "n": 39,
+          "t": [
+            "تنفيذ استجابات المخاطر",
+            "Implement Risk Responses"
+          ],
+          "g": "E"
+        }
+      ]
+    }
+  }
+}

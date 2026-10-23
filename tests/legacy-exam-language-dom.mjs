@@ -47,7 +47,7 @@ try{
  p.run('retryWrong()');assert(p.$('#examLanguageDialog').open);p.click('#examLanguageCancel');
  p.run('saveGold({flag:[S.items[0].id],wrong:[]});openGolden()');assert(p.$('#examLanguageDialog').open);p.click('#examLanguageCancel');
  const primary=p.run(`(()=>{const it=mkItem(byId[1],false);return {en:itemHasLanguage(it,'en'),ar:itemHasLanguage(it,'ar'),noFeedback:itemHasLanguage({...it,f:null,fAr:null},'en'),noOption:itemHasLanguage({...it,opts:['']},'en'),noPrompt:itemHasLanguage({...it,prompts:[{a:'س'}]},'en'),noSentence:itemHasLanguage({...it,pdSentence:{a:'نص'}},'en'),noGraphic:itemHasLanguage({...it,svg:'<svg><text>عنوان</text></svg>',svgEn:null},'en')};})()`);
- assert.deepEqual(JSON.parse(JSON.stringify(primary)),{en:true,ar:false,noFeedback:true,noOption:false,noPrompt:false,noSentence:false,noGraphic:false});
+ assert.deepEqual(JSON.parse(JSON.stringify(primary)),{en:true,ar:true,noFeedback:true,noOption:false,noPrompt:false,noSentence:false,noGraphic:false});
  // All authored question types render in the selected language without machine translation.
  for(const type of ['S','M','MT','GR','HS','OR','FB','EM','PD','GRM']){
    p.run(`runCustom([BANK.find(q=>q.t==='${type}'&&itemHasLanguage(mkItem(q,false),'en'))])`);p.click('[data-exam-language="en"]');

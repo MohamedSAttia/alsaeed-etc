@@ -1,3 +1,5 @@
+import { createPmpPracticeTools } from './pmp-practice-tools.js';
+import { createPmpLearningLibrary } from './pmp-learning-library.js';
 import http from 'http';
 import { spawn } from 'child_process';
 import path from 'path';
@@ -8,7 +10,7 @@ import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
 import { createPmpEngine } from './pmp-engine.js';
-import { seedPmpTopics, seedPmpSource, seedPmpReference } from './pmp-topic-seed.js';
+import { seedPmpTopics, seedPmpSource, seedPmpReference, seedPmpReferenceMerge } from './pmp-topic-seed.js';
 import { createAiAssistant } from './ai-assistant.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -266,7 +268,10 @@ const topicPackages=[pmp.packageId,...getPackages().filter(p=>String(p.course).t
 console.log('PMP topic practice added:',seedPmpTopics(db,topicQuestions,topicPackages));
 console.log('PMP uploaded questions added:',seedPmpSource(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-v5-import.json'),'utf8')),topicPackages));
 console.log('PMP reference questions added:',seedPmpReference(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-pmi-reference-2026.json'),'utf8')),topicPackages));
+console.log('PMP reference-site merge:',seedPmpReferenceMerge(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-reference-merge-20261023.json'),'utf8')),topicPackages));
 const aiAssistant = createAiAssistant({ dbPath: DB_PATH, jwtSecret: JWT_SECRET });
+const handlePmpPracticeTools=createPmpPracticeTools({db,definitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-practice-tools.json'),'utf8')),getPackages,userFromToken,sendJson,readJson});
+const handlePmpLearningLibrary=createPmpLearningLibrary({db,library:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-learning-library.json'),'utf8')),getPackages,userFromToken,sendJson,readJson});
 
 function courseIdForPackage(packageId) {
   const id=String(packageId||'');
@@ -503,7 +508,7 @@ function handleLearnerQuestionBank(req,res,url){
   const filters=['package_id=?','active=1'], params=[sourcePackageId];
   // Learners see the current PMP source cohorts; legacy imports remain available to administrators for editorial review.
   const pmpQualityGate=sourcePackageId===pmp.packageId||getPackages().some(p=>p.id===packageId&&String(p.course).toLowerCase()==='pmp');
-  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') NOT IN ('PMP exam structure','Introduction') AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8'))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
+  if(pmpQualityGate){if(pmpEditorialHolds.length){filters.push(`COALESCE(source_id,'') NOT IN (${pmpEditorialHolds.map(()=>'?').join(',')})`);params.push(...pmpEditorialHolds)}filters.push("COALESCE(topic,'') NOT IN ('PMP exam structure','Introduction') AND NOT (COALESCE(source_id,'') BETWEEN 'ALSAEED-PMP-2026-FA-061' AND 'ALSAEED-PMP-2026-FA-080')");filters.push("(id LIKE 'pmp-v5-%' OR id LIKE 'ALSAEED-PMP-2026-FA-%' OR id LIKE 'pmp-pmi2026-%' OR (json_valid(meta) AND json_extract(meta,'$.alignmentVersion')='pmp-2026-pmbok8') OR (id LIKE 'pmp-ref-somu-%' AND json_valid(meta) AND json_extract(meta,'$.referenceMergeReviewed')=1))");filters.push("id NOT LIKE 'pmp-v5-0076@%'");filters.push("UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%DSDM%' AND UPPER(COALESCE(question_en,'') || ' ' || COALESCE(question_ar,'')) NOT LIKE '%SDMD%'")}
 
   const domain=String(url.searchParams.get('domain')||'').trim().toLowerCase();
   const topic=String(url.searchParams.get('topic')||'').trim();
@@ -666,6 +671,8 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==='POST'&&url.pathname==='/api/pmp-2026/admin/import')return await importPmpBank(req,res);
     if(url.pathname.startsWith('/api/admin-question-bank'))return await handleQuestionAdmin(req,res,url);
     if(req.method==='GET'&&url.pathname==='/api/admin-package-summary')return handlePackageSummary(req,res);
+    if(url.pathname.startsWith('/api/pmp-practice-tools/'))return await handlePmpPracticeTools(req,res,url);
+    if(url.pathname.startsWith('/api/pmp-learning-library/'))return await handlePmpLearningLibrary(req,res,url);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-question-bank/'))return handleLearnerQuestionBank(req,res,url);
     if(url.pathname.startsWith('/api/lesson-discussions/'))return await handleLessonDiscussions(req,res,url);
     if(req.method==='GET'&&url.pathname.startsWith('/api/learner-resources/'))return handleLearnerResources(req,res,url);

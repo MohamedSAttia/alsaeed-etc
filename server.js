@@ -1,7 +1,8 @@
+import {mergeExamRecords,mergeProgressRecords} from './progress-records.js';
 import { mountAdminCohorts } from './admin-cohorts.js';
 import { mountCourseReviews } from './course-reviews.js';
 import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
-import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent } from './trainee-tracking.js';
+import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent, readRecordedExamAttempts, readPracticeToolSummary } from './trainee-tracking.js';
 /* ============================================================
    منصة السعيد — الخادم
    حسابات · اشتراكات · دفع بتحقّق من الخادم · شهادات قابلة للتحقّق
@@ -241,29 +242,38 @@ app.post('/api/me/password', auth, (req, res) => {
 });
 
 /* ═══════════ التقدّم ═══════════ */
+function recordedProgress(userId, packageId) {
+  const row=db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId,packageId);
+  let data={lessons:{},weeks:{},exams:{},activities:{}};try{if(row)data={...data,...JSON.parse(row.data)};}catch{}
+  const summary=progressSummary(userId,packageId);
+  const exams={...data.exams};for(const exam of summary.activityDetails?.exams||[])exams[exam.id]={...exams[exam.id],...exam};
+  return {...data,exams,_serverRevision:row?.updated||0,_summary:summary};
+}
 app.get('/api/progress/:pkg', auth, (req, res) => {
-  const r = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?')
-    .get(req.user.id, req.params.pkg);
-  res.json(r ? JSON.parse(r.data) : { lessons: {}, weeks: {}, exams: {} });
+  res.setHeader('Cache-Control','no-store');
+  res.json(recordedProgress(req.user.id,req.params.pkg));
 });
 app.put('/api/progress/:pkg', auth, (req, res) => {
   const owns = db.prepare('SELECT expires FROM enrollments WHERE user_id=? AND package_id=?')
     .get(req.user.id, req.params.pkg);
   if (!owns || (owns.expires && owns.expires <= Date.now()))
     return res.status(403).json({ error: 'لا يوجد اشتراك فعّال في هذه الباقة' });
-  const incoming = req.body || {};
-  const old = db.prepare('SELECT data FROM progress WHERE user_id=? AND package_id=?').get(req.user.id, req.params.pkg);
-  if (old) {
-    const saved = JSON.parse(old.data);
-    for (const [key, answer] of Object.entries(saved.essayAnswers || {})) {
-      if (answer.status === 'graded' && incoming.essayAnswers?.[key]) incoming.essayAnswers[key] = answer;
-    }
+  let incoming = req.body || {};
+  const old = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(req.user.id, req.params.pkg);
+  let saved={};try{saved=JSON.parse(old?.data||'{}');}catch{}
+  if(!saved||typeof saved!=='object'||Array.isArray(saved))saved={};
+  incoming=mergeProgressRecords(saved,incoming,!!old&&incoming._serverRevision!==old.updated);
+  incoming=mergeExamRecords(saved,incoming);
+  for (const [key, answer] of Object.entries(saved.essayAnswers || {})) {
+    if (answer.status === 'graded') {incoming.essayAnswers=incoming.essayAnswers||{};incoming.essayAnswers[key]=answer;}
   }
+  const revision=Math.max(Date.now(),(old?.updated||0)+1);
   db.prepare(`INSERT INTO progress (user_id,package_id,data,updated) VALUES (?,?,?,?)
     ON CONFLICT(user_id,package_id) DO UPDATE SET data=?, updated=?`)
-    .run(req.user.id, req.params.pkg, JSON.stringify(incoming), Date.now(),
-         JSON.stringify(incoming), Date.now());
-  res.json({ ok: true });
+    .run(req.user.id, req.params.pkg, JSON.stringify(incoming), revision,
+         JSON.stringify(incoming), revision);
+  res.setHeader('Cache-Control','no-store');
+  res.json({ ok: true, data:recordedProgress(req.user.id,req.params.pkg) });
 });
 const reminderReady = () => !!(process.env.RESEND_API_KEY && process.env.REMINDER_FROM);
 app.get('/api/reminders', auth, (req,res) => {
@@ -662,7 +672,7 @@ app.get('/api/admin/users', auth, admin, (req, res) => {
 function progressSummary(userId, packageId, enrollmentCreated) {
   const row = db.prepare('SELECT data,updated FROM progress WHERE user_id=? AND package_id=?').get(userId, packageId);
   const videoRows = db.prepare("SELECT idx,title,chapter FROM lessons WHERE package_id=? AND deleted_at IS NULL AND TRIM(COALESCE(vimeo,''))<>''").all(packageId);
-  return summarizeRecordedProgress(row, videoRows);
+  return summarizeRecordedProgress(row, videoRows, readRecordedExamAttempts(db, userId, packageId),readPracticeToolSummary(db,userId,packageId));
 }
 
 app.get('/api/admin/overview', auth, admin, (req, res) => {

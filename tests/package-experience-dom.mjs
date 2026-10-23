@@ -90,55 +90,47 @@ try {
   // All access/progress exists in memory inside this isolated DOM. No API or database writes.
   APP.DB.users.push({ id: 'ui-fixture', name: 'Fixture', role: 'student', packages: pids.map(id => ({ id })) });
   APP.DB.session = 'ui-fixture';
-  const order = ['plan', 'content', 'exams', 'resources', 'flash', 'activities', 'games', 'workspace', 'cert'];
+  const order = ['content', 'resources', 'exams', 'activities'];
   for (const language of ['ar', 'en']) {
     window.__lang = language; window.I18.set(language);
     for (const pid of pids) {
       window.localStorage.setItem('learning-language:' + pid, language);
-      APP.go('learn/' + pid);
-      await settle();
-      const nav = document.querySelector('.package-exp-nav');
-      assert.ok(nav, pid + ': consolidated navigation');
-      const keys = [...nav.querySelectorAll('[data-lt]')].map(button => button.dataset.lt);
-      assert.deepEqual(keys, order.filter(key => keys.includes(key)), pid + ': consistent conditional order');
-      const pkg = APP.pack(pid), kinds = pkg.kinds || [];
-      const expected = ['plan', ...(kinds.includes('video') || kinds.includes('material') ? ['content'] : []),
-        ...(kinds.includes('quiz') || kinds.includes('exam') ? ['exams'] : []),
-        ...(kinds.includes('download') ? ['resources'] : []), ...(kinds.includes('flash') ? ['flash'] : []),
-        ...(kinds.includes('activity') ? ['activities'] : []), ...(kinds.includes('game') ? ['games'] : []),
-        'workspace', ...(pkg.cert ? ['cert'] : [])];
-      assert.deepEqual(keys, expected, pid + ': every original entry point retained');
-      assert.equal(nav.querySelectorAll('[aria-current="true"]').length, 1);
-      assert.equal(document.querySelector('#lnBody').getAttribute('role'), 'region');
-      const data = JSON.stringify({ packages: window.PACKAGES, courses: window.COURSES, progress: APP.DB.progress });
-      window.PACKAGE_EXPERIENCE.refresh();
-      assert.equal(JSON.stringify({ packages: window.PACKAGES, courses: window.COURSES, progress: APP.DB.progress }), data);
-      const shortcuts = [...document.querySelectorAll('#lnBody .card > .grid > button[data-lt]')].map(button => button.dataset.lt);
-      assert.equal(shortcuts.length,0,pid+': no duplicate plan grid');
-      assert(document.querySelector('.package-plan-intro button'),pid+': one learning call to action');
-      assert(nav.querySelectorAll('.package-exp-group-title').length>=2);
-      assert(document.querySelector('.package-exp-panel-heading h2'));
-      assert(document.querySelector('.package-exp-readiness summary'));
+      APP.go('learn/' + pid); await settle();
+      const nav=document.querySelector('.package-primary-nav');
+      assert.ok(nav,pid+': compact navigation exists');
+      assert.deepEqual([...nav.querySelectorAll('[data-lt]')].map(b=>b.dataset.lt),order);
+      assert.equal(nav.querySelectorAll('[aria-current="page"]').length,1);
+      assert.equal(document.querySelectorAll('.package-exp-nav').length,0,'Legacy enhancer does not duplicate compact navigation');
+      assert.equal(document.querySelector('#lnBody').getAttribute('role'),'region');
+      const pkg=APP.pack(pid),kinds=pkg.kinds||[];
+      const secondary=['plan',...(kinds.includes('flash')?['flash']:[]),...(kinds.includes('game')?['games']:[]),'workspace',...(pkg.type==='full'&&pkg.cert?['cert']:[])];
+      assert.deepEqual([...document.querySelectorAll('.package-more [data-lt]')].map(b=>b.dataset.lt),secondary,pid+': secondary tools retained');
+      const data=JSON.stringify({packages:window.PACKAGES,courses:window.COURSES,progress:APP.DB.progress});
+      window.PACKAGE_EXPERIENCE.refresh();window.PACKAGE_EXPERIENCE.refresh();
+      assert.equal(document.querySelectorAll('.package-primary-nav').length,1);
+      assert.equal(document.getElementById('app').dataset.packageExperience,undefined,'Legacy state cleaned on compact route');
+      assert.equal(JSON.stringify({packages:window.PACKAGES,courses:window.COURSES,progress:APP.DB.progress}),data);
     }
   }
-  console.log('PASS: ' + pids.length + ' actual learner renderers in both languages, conditional section ordering, shortcut order, selected state, unchanged data');
+  console.log('PASS: all package learner shells in AR/EN, four primary sections, conditional secondary tools and legacy enhancement safe no-op');
 
   const full = window.PACKAGES.find(pkg => pkg.id === 'rmp-full') || window.PACKAGES.find(pkg => pkg.type === 'full');
   APP.DB.progress['ui-fixture'][full.id] = { lessons: {}, weeks: { 1: true, 2: false }, exams: { prior: { score: 72, passed: true } }, activities: { 0: true }, games: {}, downloads: { guide: { name: 'Guide' } } };
   APP.go('learn/' + full.id); await settle();
-  assert.match(document.querySelector('.package-exp-nav [data-lt="plan"] small').textContent, /^1 /);
-  assert.match(document.querySelector('.package-exp-nav [data-lt="exams"] small').textContent, /^1 /);
-  assert.match(document.querySelector('.package-exp-nav [data-lt="resources"] small').textContent, /^1 /);
-  assert.equal(APP.prog(full.id).exams.prior.score, 72, 'Recorded score retained');
-  const resources = document.querySelector('.package-exp-nav [data-lt="resources"]');
-  assert.equal(typeof resources.onclick, 'function', 'Existing application handler retained');
-  resources.click(); await settle();
-  assert.equal(document.activeElement.id, 'package-learning-resources');
-  assert.equal(document.querySelector('#lnBody').getAttribute('aria-labelledby'), 'package-learning-resources');
-  document.querySelector('.package-exp-nav [data-lt="plan"]').click(); await settle();
-  assert.equal(document.activeElement.id, 'package-learning-plan');
-  document.querySelector('.package-exp-progress-jump').click();
-  assert.equal(document.activeElement.id, 'package-learning-progress');
+  const toolbar=document.querySelector('.package-toolbar').textContent;
+  assert.match(toolbar,/Exam average\s*72%\s*·\s*1 recorded/);
+  assert.match(toolbar,/Video progress/);
+  assert.doesNotMatch(toolbar,/Video progress\s*72%/,'Exam score must not become video progress');
+  assert.equal(APP.prog(full.id).exams.prior.score,72,'Recorded score retained');
+  const resources=document.querySelector('.package-primary-nav [data-lt="resources"]');
+  assert.equal(typeof resources.onclick,'function','Existing application handler retained');
+  resources.click();await settle();
+  assert.equal(document.activeElement.id,'packageSectionTitle');
+  assert.equal(document.querySelector('#lnBody').getAttribute('aria-labelledby'),'packageSectionTitle');
+  document.querySelector('.package-more [data-lt="plan"]').click();await settle();
+  assert.equal(document.activeElement.id,'packageSectionTitle');
+  const readiness=document.querySelector('.package-progress-details');assert(readiness,'Readiness remains available under study plan');
+  readiness.querySelector('summary').click();assert(readiness.open);
   APP.go('pkg/' + full.id); await settle();
   const related = document.querySelector('.package-exp-detail [role="link"]');
   const destination = related.dataset.r;

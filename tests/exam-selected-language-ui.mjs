@@ -9,7 +9,7 @@ const context={
  document:{querySelector:node,querySelectorAll:()=>[],body:{insertAdjacentHTML(where,html){bodyHtml=html},classList:{add(){},remove(){}}}},
  DOMParser:class{parseFromString(value){return{querySelectorAll:()=>[],body:{innerHTML:value}}}},
  fetch:()=>{attempts++;return Promise.resolve({ok:true})},
- localStorage:{getItem:()=>null,setItem(){}},URLSearchParams,setTimeout,clearTimeout,
+ localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,setTimeout,clearTimeout,
  setInterval(){timerStarts++;return timerStarts},clearInterval(){},confirm:()=>true,alert(){},navigator:{mediaDevices:{getUserMedia:async()=>({getTracks:()=>[]})}}
 };
 vm.createContext(context);

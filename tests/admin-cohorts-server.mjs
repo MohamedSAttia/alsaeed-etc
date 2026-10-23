@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import net from 'node:net';
+import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
 import jwt from 'jsonwebtoken';
 test('server integrates private cohorts with activation, grants and stored progress without leaking access',async()=>{
@@ -39,6 +40,15 @@ test('server integrates private cohorts with activation, grants and stored progr
   assert.equal((await request('users/c',{active:true,cohortId:g},'PUT')).status,400);assert.equal(db.prepare('SELECT active FROM users WHERE id=?').get('c').active,0);
   assert.equal((await request('cohorts/'+g,{active:true},'PUT')).status,200);
   assert.equal((await request('users/c',{active:true,cohortId:g},'PUT')).status,200);
+  // A real workspace attempt must appear even if the old delayed main snapshot
+  // contains zero completed videos and no exam entry.
+  db.prepare('INSERT INTO progress(user_id,package_id,data,updated) VALUES(?,?,?,?)').run('c','fake',JSON.stringify({lessons:{},exams:{}}),100);
+  const attemptsTable='ws_'+crypto.createHash('sha256').update('fake').digest('hex').slice(0,16)+'_attempts';
+  db.exec(`CREATE TABLE ${attemptsTable}(id INTEGER,user_id TEXT,kind TEXT,ref TEXT,title TEXT,score REAL,max REAL,pct REAL,created INTEGER)`);
+  db.prepare(`INSERT INTO ${attemptsTable} VALUES(?,?,?,?,?,?,?,?,?)`).run(1,'c','exam','full-1','Synthetic mock',69,100,69,200);
+  overview=(await request('overview')).data;
+  const learner=overview.students.find(u=>u.id==='c');assert.equal(learner.progress,0);assert.equal(learner.avgExam,69);assert.ok(learner.cohortIds.includes(g));
+  const detail=(await request('users/c/activity')).data;assert.equal(detail.summary.progress,0);assert.equal(detail.summary.avgExam,69);assert.equal(detail.enrollments[0].activityDetails.exams[0].score,69);
   db.prepare("UPDATE users SET active=0 WHERE id='admin'").run();assert.equal((await request('cohorts')).status,403);assert.equal((await request('cohorts',{name:'Denied'},'POST')).status,403);
   db.prepare("UPDATE users SET active=1,role='student' WHERE id='admin'").run();assert.equal((await request('cohorts')).status,403);
   db.prepare("DELETE FROM users WHERE id='admin'").run();assert.equal((await request('cohorts')).status,401);

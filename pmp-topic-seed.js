@@ -39,3 +39,33 @@ export function seedPmpReference(db, rows, packageIds) {
   if(q.meta.reviewHold)db.prepare("UPDATE questions SET active=0,review_status='needs_review' WHERE id=?").run(id);
  }})();return added;
 }
+
+// Owner reference sites: additive candidates and guarded, fill-missing bilingual enrichment.
+export function seedPmpReferenceMerge(db, manifest, packageIds) {
+ const parse=(v,f)=>{try{return JSON.parse(v)}catch{return f}},norm=s=>String(s||'').normalize('NFKC').replace(/\s+/g,' ').trim();
+ const key=(stem,opts,correct)=>JSON.stringify([norm(stem),opts.map(norm),[...correct].sort((a,b)=>a-b)]);
+ const expected=new Map(manifest.enrichments.map(e=>[key(e.expected.question_en,e.expected.options_en,e.expected.correct_indices),e]));
+ const insert=db.prepare(`INSERT OR IGNORE INTO questions(id,package_id,domain,topic,difficulty,type,question_ar,question_en,options,options_ar,options_en,correct,correct_json,explanation_ar,explanation_en,reference,active,created,updated,approach,source_id,meta,is_official,priority,review_status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+ let added=0,enriched=0;const now=Date.now();db.transaction(()=>{
+ for(const pid of new Set(packageIds)){
+  for(const q of manifest.newQuestions){if(!q.question_ar||!q.question_en||!q.options_en?.length||q.options_en.length!==q.options_ar.length||!q.correct_json.every(i=>Number.isInteger(i)&&i>=0&&i<q.options_en.length))throw Error('Invalid reference candidate '+q.id);
+   // Existing same stem in this package wins, including trainer edits/disabled rows.
+   if(db.prepare('SELECT question_en,question_ar FROM questions WHERE package_id=?').all(pid).some(existing=>norm(existing.question_en)===norm(q.question_en)||norm(existing.question_ar)===norm(q.question_ar)))continue;
+   added+=Number(insert.run(q.id+'@'+pid,pid,q.domain,q.topic,'medium',q.type,q.question_ar,q.question_en,JSON.stringify(q.options_ar),JSON.stringify(q.options_ar),JSON.stringify(q.options_en),q.correct,JSON.stringify(q.correct_json),q.explanation_ar||'',q.explanation_en||'',q.reference,q.active?1:0,now,now,q.meta.primaryTopic==='hybrid'?'hybrid':q.meta.primaryTopic==='agile'?'agile':'',q.source_id,JSON.stringify(q.meta),0,65,q.active?'practice_editorial_review':'editorial_hold').changes||0);
+  }
+  for(const q of db.prepare('SELECT * FROM questions WHERE package_id=?').all(pid)){
+   const opts=parse(q.options_en,parse(q.options,[]));if(!Array.isArray(opts)||!opts.every(x=>typeof x==='string'))continue;
+   let correct=parse(q.correct_json,null);if(!Array.isArray(correct)||!correct.length)correct=String(q.correct||'').toUpperCase().match(/[A-Z]/g)?.map(x=>x.charCodeAt(0)-65)||[];
+   const enrichment=expected.get(key(q.question_en,opts,correct));if(!enrichment)continue;const fill=enrichment.fill_missing_only;
+   const currentAr=parse(q.options_ar,[]),emptyOpts=!Array.isArray(currentAr)||!currentAr.some(x=>String(x||'').trim());
+   const question_ar=String(q.question_ar||'').trim()?q.question_ar:(fill.question_ar||'');
+   const options_ar=emptyOpts&&fill.options_ar?JSON.stringify(fill.options_ar):q.options_ar;
+   const explanation_ar=String(q.explanation_ar||'').trim()?q.explanation_ar:(fill.explanation_ar||'');
+   const explanation_en=String(q.explanation_en||'').trim()?q.explanation_en:(fill.explanation_en||'');
+   if(question_ar===q.question_ar&&options_ar===q.options_ar&&explanation_ar===q.explanation_ar&&explanation_en===q.explanation_en)continue;
+   const parsedMeta=parse(q.meta,{}),meta=parsedMeta&&typeof parsedMeta==='object'&&!Array.isArray(parsedMeta)?parsedMeta:{};meta.referenceMergeTranslation={source:enrichment.provenance,version:manifest.version};
+   db.prepare('UPDATE questions SET question_ar=?,options_ar=?,explanation_ar=?,explanation_en=?,meta=?,updated=? WHERE id=?').run(question_ar,options_ar,explanation_ar,explanation_en,JSON.stringify(meta),now,q.id);enriched++;
+  }
+ }
+ })();return {added,enriched};
+}
