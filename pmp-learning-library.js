@@ -5,7 +5,7 @@ export function simulationResult(simulation, choices, now=Date.now()) {
   choices.forEach((choice,i)=>{if(!Number.isInteger(choice)||choice<0||choice>=simulation.STEPS[i].o.length)throw Error('invalid_choices');const option=simulation.STEPS[i].o[choice];for(const key of Object.keys(indicators))indicators[key]=Math.max(0,Math.min(simulation.indicatorMax||100,indicators[key]+Number(option.d[key]||0)));feedback.push(option.fb)});
   return {id:simulation.id,simulationId:simulation.id,choices:[...choices],indicators,feedback,decisions:choices.length,completed:choices.length===simulation.STEPS.length,updated:now};
 }
-export function createPmpLearningLibrary({db,library,getPackages,userFromToken,sendJson,readJson}) {
+export function createPmpLearningLibrary({db,library,getPackages,userFromToken,sendJson,readJson,afterSave=()=>{}}) {
   return async function handle(req,res,url){
     const parts=url.pathname.slice('/api/pmp-learning-library/'.length).split('/');
     let pid;try{pid=decodeURIComponent(parts[0]||'')}catch{return sendJson(res,400,{error:'Invalid package'})}
@@ -33,7 +33,7 @@ export function createPmpLearningLibrary({db,library,getPackages,userFromToken,s
         if(result.id===library.simulation.id)progress.referenceSimulation=result;progress.referenceSimulations=progress.referenceSimulations&&typeof progress.referenceSimulations==='object'&&!Array.isArray(progress.referenceSimulations)?progress.referenceSimulations:{};progress.referenceSimulations[result.id]=result;progress.activities=progress.activities&&typeof progress.activities==='object'&&!Array.isArray(progress.activities)?progress.activities:{};if(result.completed)progress.activities['ref:'+result.id]=true;
         const previousRevision=Number(db.prepare('SELECT updated FROM progress WHERE user_id=? AND package_id=?').get(user.id,pid)?.updated||0);result.updated=Math.max(result.updated,previousRevision+1);
         const data=JSON.stringify(progress);db.prepare(`INSERT INTO progress(user_id,package_id,data,updated) VALUES(?,?,?,?) ON CONFLICT(user_id,package_id) DO UPDATE SET data=excluded.data,updated=excluded.updated`).run(user.id,pid,data,result.updated);
-      })();return sendJson(res,200,result);
+      })();afterSave(user.id,pid);return sendJson(res,200,result);
     }
     return sendJson(res,404,{error:'Unknown learning resource route'});
   };

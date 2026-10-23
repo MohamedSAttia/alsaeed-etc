@@ -1,3 +1,6 @@
+import { mountCourseChat } from './course-chat.js';
+import { mountLearningPoints } from './learning-points.js';
+import { mountLearnerProfiles } from './learner-profiles.js';
 import {mergeExamRecords,mergeProgressRecords} from './progress-records.js';
 import { mountAdminCohorts } from './admin-cohorts.js';
 import { mountCourseReviews } from './course-reviews.js';
@@ -162,6 +165,8 @@ const readList = key => {
   catch { return []; }
 };
 mountCourseReviews({ app, db, auth, readList });
+mountCourseChat({app,db,auth,getPackages:()=>readList('content_packages')});
+const learningPoints=mountLearningPoints({app,db,auth,getPackages:()=>readList('content_packages'),getLearning:()=>{try{return JSON.parse(setting('content_learning')||'{}')}catch{return {}}},library:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-learning-library.json'),'utf8')),toolDefinitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-practice-tools.json'),'utf8'))});
 let v15Catalog = { courses:[], packages:[], systems:[], promos:DEFAULT_PROMOS_V15 };
 try {
   const parsed = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'v15-catalog.json'), 'utf8'));
@@ -198,6 +203,8 @@ repairPmpQualityOrder({ db, setting, setSetting });
 initializeInstructorRegistry({ db, setting, setSetting });
 mountInstructorRegistry({ app, db, auth, admin, setting, setSetting, uid });
 
+const learnerProfiles = mountLearnerProfiles({app,db,auth,progressSummary});
+
 /* ═══════════ الحسابات ═══════════ */
 app.post('/api/auth/register', (req, res) => {
   const { name, email, password, phone } = req.body || {};
@@ -220,8 +227,9 @@ app.post('/api/auth/login', (req, res) => {
   const u = db.prepare('SELECT * FROM users WHERE email=?').get(String(email || '').trim().toLowerCase());
   if (!u || !bcrypt.compareSync(String(password || ''), u.pass))
     return res.status(401).json({ error: 'البريد أو كلمة المرور غير صحيحة' });
-  if (u.active === 0)
+  if (u.active === 0 || u.deleted_at)
     return res.status(403).json({ error: 'هذا الحساب معطّل — تواصل مع الإدارة' });
+  db.prepare('UPDATE users SET last_login=? WHERE id=?').run(Date.now(),u.id);
   res.json({ token: sign(u), user: { id: u.id, name: u.name, email: u.email, role: u.role } });
 });
 
@@ -273,6 +281,7 @@ app.put('/api/progress/:pkg', auth, (req, res) => {
     .run(req.user.id, req.params.pkg, JSON.stringify(incoming), revision,
          JSON.stringify(incoming), revision);
   res.setHeader('Cache-Control','no-store');
+  learningPoints.afterSave(req.user.id,req.params.pkg);
   res.json({ ok: true, data:recordedProgress(req.user.id,req.params.pkg) });
 });
 const reminderReady = () => !!(process.env.RESEND_API_KEY && process.env.REMINDER_FROM);
@@ -705,7 +714,7 @@ app.get('/api/admin/users/:id/activity', auth, admin, (req,res)=>{
   const ens=db.prepare('SELECT id,package_id,source,expires,created FROM enrollments WHERE user_id=? ORDER BY created DESC').all(u.id).map(e=>({...e,...progressSummary(u.id,e.package_id,e.created),...enrollmentTiming(e,now)}));
   const certs=db.prepare('SELECT no,package_id,course,hours,issued FROM certificates WHERE user_id=? ORDER BY issued DESC').all(u.id);
   const orders=db.prepare('SELECT id,package_id,amount,currency,status,gateway,created,paid_at FROM orders WHERE user_id=? ORDER BY created DESC LIMIT 50').all(u.id);
-  res.json({user:u,enrollments:ens,summary:summarizeStudent(ens),certificates:certs,orders,serverNow:now});
+  res.json({user:{...u,last_login:learnerProfiles.profile(u.id).last_login},profile:learnerProfiles.profile(u.id),enrollments:ens,summary:summarizeStudent(ens),certificates:certs,orders,serverNow:now});
 });
 
 app.post('/api/admin/users', auth, admin, (req, res) => {
@@ -774,7 +783,7 @@ app.get('/api/admin/users/:id', auth, admin, (req, res) => {
   const or = db.prepare('SELECT * FROM orders WHERE user_id=? ORDER BY created DESC').all(u.id);
   const pr = db.prepare('SELECT package_id,data,updated FROM progress WHERE user_id=?').all(u.id);
   const ce = db.prepare('SELECT no,package_id,issued FROM certificates WHERE user_id=?').all(u.id);
-  res.json({ user: u, enrollments: en, orders: or, serverNow: Date.now(),
+  res.json({ user: u, profile:learnerProfiles.profile(u.id), enrollments: en, orders: or, serverNow: Date.now(),
     progress: pr.map(p => ({ ...p, data: JSON.parse(p.data || '{}') })), certificates: ce });
 });
 
@@ -1361,7 +1370,7 @@ const PANEL = mountAdmin(app, db, {
 
 /* الملفات الثابتة */
 /* الفصل الخاص — باقة مخفية: /classroom */
-mountClassroom(app, { db, JWT_SECRET });
+mountClassroom(app, { db, JWT_SECRET, afterSave:learningPoints.afterSave });
 // Reuse the classroom engine per published package without granting private-classroom access.
 const learningWorkspaces = new Map();
 app.use('/workspace/:pkg', (req, res, next) => {
@@ -1376,7 +1385,7 @@ app.use('/workspace/:pkg', (req, res, next) => {
   if (!current()) return res.status(404).json({ error: 'الباقة غير موجودة' });
   if (!learningWorkspaces.has(pkg)) {
     const router = express.Router();
-    mountClassroom(router, { db, JWT_SECRET, packageId: pkg, basePath: '', workspace: true, getPackage: current });
+    mountClassroom(router, { db, JWT_SECRET, packageId: pkg, basePath: '', workspace: true, getPackage: current, afterSave:learningPoints.afterSave });
     learningWorkspaces.set(pkg, router);
   }
   learningWorkspaces.get(pkg)(req, res, next);

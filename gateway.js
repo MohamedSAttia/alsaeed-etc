@@ -1,3 +1,4 @@
+import { createLearningPoints } from './learning-points.js';
 import { createPmpPracticeTools } from './pmp-practice-tools.js';
 import { createPmpLearningLibrary } from './pmp-learning-library.js';
 import http from 'http';
@@ -260,7 +261,7 @@ function savePackages(list) {
   }))));
 }
 
-const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages });
+const pmp = createPmpEngine({ db, JWT_SECRET, getPackages, savePackages, afterSave:(uid,pid)=>learningPoints.afterSave(uid,pid) });
 const pmpTopicRouting=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-topic-routing-2026.json'),'utf8'));
 const pmpEditorialHolds=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-editorial-holds-2026.json'),'utf8')).items.map(x=>x.id);
 const topicQuestions=JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-framework-agile-2026.json'),'utf8'));
@@ -270,8 +271,9 @@ console.log('PMP uploaded questions added:',seedPmpSource(db,JSON.parse(fs.readF
 console.log('PMP reference questions added:',seedPmpReference(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-pmi-reference-2026.json'),'utf8')),topicPackages));
 console.log('PMP reference-site merge:',seedPmpReferenceMerge(db,JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-reference-merge-20261023.json'),'utf8')),topicPackages));
 const aiAssistant = createAiAssistant({ dbPath: DB_PATH, jwtSecret: JWT_SECRET });
-const handlePmpPracticeTools=createPmpPracticeTools({db,definitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-practice-tools.json'),'utf8')),getPackages,userFromToken,sendJson,readJson});
-const handlePmpLearningLibrary=createPmpLearningLibrary({db,library:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-learning-library.json'),'utf8')),getPackages,userFromToken,sendJson,readJson});
+const learningPoints=createLearningPoints({db,getPackages,getLearning:()=>{try{return JSON.parse(setting('content_learning')||'{}')}catch{return {}}},library:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-learning-library.json'),'utf8')),toolDefinitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-practice-tools.json'),'utf8'))});
+const handlePmpPracticeTools=createPmpPracticeTools({db,definitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-practice-tools.json'),'utf8')),getPackages,userFromToken,sendJson,readJson,afterSave:learningPoints.afterSave});
+const handlePmpLearningLibrary=createPmpLearningLibrary({db,library:JSON.parse(fs.readFileSync(path.join(__dirname,'data','pmp-learning-library.json'),'utf8')),getPackages,userFromToken,sendJson,readJson,afterSave:learningPoints.afterSave});
 
 function courseIdForPackage(packageId) {
   const id=String(packageId||'');

@@ -90,7 +90,7 @@ try {
   // All access/progress exists in memory inside this isolated DOM. No API or database writes.
   APP.DB.users.push({ id: 'ui-fixture', name: 'Fixture', role: 'student', packages: pids.map(id => ({ id })) });
   APP.DB.session = 'ui-fixture';
-  const order = ['content', 'resources', 'exams', 'activities'];
+  const order = ['home', 'content', 'exams', 'resources', 'library', 'community'];
   for (const language of ['ar', 'en']) {
     window.__lang = language; window.I18.set(language);
     for (const pid of pids) {
@@ -112,7 +112,7 @@ try {
       assert.equal(JSON.stringify({packages:window.PACKAGES,courses:window.COURSES,progress:APP.DB.progress}),data);
     }
   }
-  console.log('PASS: all package learner shells in AR/EN, four primary sections, conditional secondary tools and legacy enhancement safe no-op');
+  console.log('PASS: all package learner shells in AR/EN, six primary sections, conditional secondary tools and legacy enhancement safe no-op');
 
   const full = window.PACKAGES.find(pkg => pkg.id === 'rmp-full') || window.PACKAGES.find(pkg => pkg.type === 'full');
   APP.DB.progress['ui-fixture'][full.id] = { lessons: {}, weeks: { 1: true, 2: false }, exams: { prior: { score: 72, passed: true } }, activities: { 0: true }, games: {}, downloads: { guide: { name: 'Guide' } } };

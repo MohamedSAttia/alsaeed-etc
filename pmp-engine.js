@@ -74,7 +74,7 @@ function getTokenUser(db, JWT_SECRET, req) {
 function sendJson(res,status,body){const data=Buffer.from(JSON.stringify(body));res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':data.length,'cache-control':'no-store'});res.end(data)}
 async function readJson(req,limit=1024*1024){return await new Promise((resolve,reject)=>{let n=0,ch=[];req.on('data',c=>{n+=c.length;if(n>limit){reject(new Error('too large'));req.destroy();return}ch.push(c)});req.on('end',()=>{if(!ch.length)return resolve({});try{resolve(JSON.parse(Buffer.concat(ch).toString('utf8')))}catch{reject(new Error('bad json'))}});req.on('error',reject)})}
 
-export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
+export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages, afterSave = () => {} }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS exam_sessions (
       id TEXT PRIMARY KEY,
@@ -320,13 +320,13 @@ export function createPmpEngine({ db, JWT_SECRET, getPackages, savePackages }) {
         let b;try{b=await readJson(req)}catch{return sendJson(res,400,{error:'بيانات غير صحيحة'})};let f=safeJson(row.flagged,[]);const qid=String(b.questionId||'');f=b.flagged?[...new Set([...f,qid])]:f.filter(x=>x!==qid);db.prepare('UPDATE exam_sessions SET flagged=?,updated=? WHERE id=?').run(JSON.stringify(f),Date.now(),sid);return sendJson(res,200,{ok:true,flagged:f});
       }
       if(method==='POST'&&action==='finish'){
-        if(row.status==='finished')return sendJson(res,200,safeJson(row.result,{}));
+        if(row.status==='finished'){afterSave(u.id,row.package_id);return sendJson(res,200,safeJson(row.result,{}));}
         const ids=safeJson(row.question_ids,[]),answers=safeJson(row.answers,{}),qs=questionRowsByIds(ids);
         let correct=0;const domains={},types={},review=[];
         qs.forEach((q,i)=>{const ok=equivalentAnswer(q,answers[q.id]);if(ok)correct++;const d=String(q.domain||'other').toLowerCase(),t=normalizeType(q.type);domains[d]=domains[d]||{correct:0,total:0};domains[d].total++;if(ok)domains[d].correct++;types[t]=types[t]||{correct:0,total:0};types[t].total++;if(ok)types[t].correct++;review.push({id:q.id,index:i+1,correct:ok,answer:answers[q.id]??null,correctAnswer:q.correct,explanation:q.explanation_ar||q.explanation_en||'',reference:q.reference||'',domain:d,type:t})});
         const score=Math.round(correct/qs.length*10000)/100;Object.values(domains).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);Object.values(types).forEach(x=>x.percent=Math.round(x.correct/x.total*10000)/100);
         const result={sessionId:sid,total:qs.length,correct,score,passed:score>=CONFIG.passScore,domains,types,review,finishedAt:Date.now()};
-        db.prepare("UPDATE exam_sessions SET status='finished',finished=?,updated=?,result=? WHERE id=?").run(Date.now(),Date.now(),JSON.stringify(result),sid);return sendJson(res,200,result);
+        db.prepare("UPDATE exam_sessions SET status='finished',finished=?,updated=?,result=? WHERE id=?").run(Date.now(),Date.now(),JSON.stringify(result),sid);afterSave(u.id,row.package_id);return sendJson(res,200,result);
       }
     }
     return sendJson(res,404,{error:'مسار PMP غير معروف'});

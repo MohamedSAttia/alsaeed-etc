@@ -23,7 +23,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const CLASSROOM_PACKAGE = process.env.CLASSROOM_PACKAGE || 'rmp-private-classroom';
 const GRANT_DAYS = Number(process.env.CLASSROOM_DAYS || 365);
 
-export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACKAGE, basePath = '/classroom', workspace = false, getPackage = null }) {
+export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACKAGE, basePath = '/classroom', workspace = false, getPackage = null, afterSave = () => {} }) {
   const CLASSROOM_PACKAGE = packageId;
   // Each package gets independent tables, indexes, groups, reviews and progress.
   // Existing private-classroom tables keep their original names.
@@ -295,6 +295,7 @@ export function mountClassroom(app, { db, JWT_SECRET, packageId = CLASSROOM_PACK
     const pct = max ? Math.round(score / max * 1000) / 10 : 0;
     const x = run('INSERT INTO cls_attempts (user_id, assignment_id, kind, ref, title, score, max, pct, dur, detail, created) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
       req.user.id, aid, kind, ref, str(b.title, 200), score, max, pct, Math.max(0, +b.dur || 0), b.detail ? JSON.stringify(b.detail).slice(0, 400000) : null, now());
+    afterSave(req.user.id,packageId);
     res.json({ ok: true, id: Number(x.lastInsertRowid), pct });
   });
   r.get('/my/attempts', auth, (req, res) => res.json(qa('SELECT id, assignment_id, kind, ref, title, score, max, pct, dur, created FROM cls_attempts WHERE user_id = ? ORDER BY created DESC LIMIT 300', req.user.id)));
