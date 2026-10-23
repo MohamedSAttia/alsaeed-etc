@@ -212,18 +212,19 @@ const scenes = [
   </svg>`
 ];
 
-  function mount(panel) {
+  function mount(panel, english = false) {
+    const t = (ar, en) => english ? en : ar;
     if (!panel) return function () {};
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const media = document.createElement('div');
     media.className = 'auth-scenes'; media.setAttribute('aria-hidden', 'true');
     const controls = document.createElement('div'); controls.className = 'auth-scene-controls';
-    controls.setAttribute('role','group'); controls.setAttribute('aria-label','مشاهد التعلّم المتحركة');
+    controls.setAttribute('role','group'); controls.setAttribute('aria-label',t('مشاهد التعلّم المتحركة', 'Animated learning scenes'));
     let timer = null, index = 0, disposed = false, paused = false, hovering = false, focused = false, selected = false;
     const frames = [];
     const dots = scenes.map((scene, i) => {
       const button = document.createElement('button'); button.type = 'button';
-      button.className = 'auth-scene-dot'; button.setAttribute('aria-label', i === 0 ? 'مشهد إنشاء الحساب' : 'مشهد التعلّم');
+      button.className = 'auth-scene-dot'; button.setAttribute('aria-label', i === 0 ? t('مشهد إنشاء الحساب', 'Account creation scene') : t('مشهد التعلّم', 'Learning scene'));
       button.setAttribute('aria-pressed', String(i === 0));
       button.onclick = () => { selected = true; show(i); };
       controls.appendChild(button); return button;
@@ -238,11 +239,11 @@ const scenes = [
     }
     function paintPause() {
       const still = paused || reduced.matches;
-      pause.textContent = still ? 'تشغيل الحركة' : 'إيقاف الحركة';
+      pause.textContent = still ? t('تشغيل الحركة', 'Play animation') : t('إيقاف الحركة', 'Pause animation');
       pause.setAttribute('aria-pressed', String(!still));
-      pause.setAttribute('aria-label', still ? 'تشغيل حركة المشاهد' : 'إيقاف حركة المشاهد');
+      pause.setAttribute('aria-label', still ? t('تشغيل حركة المشاهد', 'Play scene animation') : t('إيقاف حركة المشاهد', 'Pause scene animation'));
       pause.disabled = reduced.matches;
-      if (reduced.matches) { pause.textContent = 'مشاهد ثابتة'; pause.setAttribute('aria-label','الحركة متوقفة وفق إعداد تقليل الحركة'); }
+      if (reduced.matches) { pause.textContent = t('مشاهد ثابتة', 'Still illustrations'); pause.setAttribute('aria-label',t('الحركة متوقفة وفق إعداد تقليل الحركة', 'Animation disabled by reduced motion preference')); }
     }
     function show(next) {
       if (disposed) return;

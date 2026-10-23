@@ -100,6 +100,7 @@ try {
       assert.ok(nav,pid+': compact navigation exists');
       assert.deepEqual([...nav.querySelectorAll('[data-lt]')].map(b=>b.dataset.lt),order);
       assert.equal(nav.querySelectorAll('[aria-current="page"]').length,1);
+      assert.equal(nav.querySelectorAll('svg[aria-hidden="true"]').length,6,'Original navigation icons retain text labels');
       assert.equal(document.querySelectorAll('.package-exp-nav').length,0,'Legacy enhancer does not duplicate compact navigation');
       assert.equal(document.querySelector('#lnBody').getAttribute('role'),'region');
       const pkg=APP.pack(pid),kinds=pkg.kinds||[];
@@ -110,6 +111,10 @@ try {
       assert.equal(document.querySelectorAll('.package-primary-nav').length,1);
       assert.equal(document.getElementById('app').dataset.packageExperience,undefined,'Legacy state cleaned on compact route');
       assert.equal(JSON.stringify({packages:window.PACKAGES,courses:window.COURSES,progress:APP.DB.progress}),data);
+      nav.querySelector('[data-lt="content"]').click();await settle();
+      assert(document.querySelector('.learning-section-strip .learning-home-button'),'Clear course-home action on content');
+      for(const article of document.querySelectorAll('.learning-lesson'))assert(article.closest('.learning-video-grid'),'No orphan lesson outside chapter grid');
+      for(const group of document.querySelectorAll('[data-learning-group]'))assert.equal(group.tagName,'DETAILS','Every chapter remains collapsible');
     }
   }
   console.log('PASS: all package learner shells in AR/EN, six primary sections, conditional secondary tools and legacy enhancement safe no-op');

@@ -205,3 +205,34 @@
   .auth-tabs{margin-bottom:16px}.auth-close{top:9px;left:9px;background:#f3f5f8ee}
 }
 @media(max-width:350px){#ov .auth-visual h3{font-size:18px}.auth-visual-top{right:14px}.auth-form-panel{padding-left:18px;padding-right:18px}}
+
+/* Reference-inspired account frame: original Al Saeed art and real email entry. */
+#ov .mdl.auth-dialog{max-width:1040px;border:1px solid #e3e9ed;border-radius:28px}
+.auth-layout{grid-template-columns:1fr 1.05fr;min-height:640px}
+.auth-form-panel{grid-column:2;grid-row:1;padding:40px 46px 30px;min-width:0}
+.auth-visual{grid-column:1;grid-row:1;min-width:0;background:radial-gradient(ellipse at 25% 55%,#1a5260,transparent 70%),linear-gradient(155deg,#102d43,#081a2b)}
+.auth-layout[lang=en] .auth-form-panel,.auth-layout[lang=en] .auth-visual{direction:ltr;text-align:left}
+.auth-layout[lang=ar] .auth-form-panel,.auth-layout[lang=ar] .auth-visual{direction:rtl;text-align:right}
+.auth-brand{margin-bottom:20px}.auth-tabs{background:transparent;border-bottom:1px solid #e2e8ef;border-radius:0;padding:0;gap:24px;justify-content:center}
+.auth-tabs button{width:auto;min-height:45px;border-radius:0;border-bottom:3px solid transparent;background:none!important;box-shadow:none!important;font-size:15px;padding:9px 8px}
+.auth-tabs button[aria-pressed=true]{color:#a54c0c;border-bottom-color:#e96310}
+#ov .auth-method-note{display:flex;align-items:center;gap:12px;color:#64748b;font-size:12px;margin:0 0 22px;line-height:1.6}
+.auth-method-note:before,.auth-method-note:after{content:'';height:1px;flex:1;background:#e2e8ef}
+#authForm input{background:#f5f7f9;border:1px solid #e3e9ef;min-height:52px;border-radius:12px}
+#authForm input:focus{background:#fff}
+.auth-password{direction:ltr}#authForm .auth-password input{padding:11px 70px 11px 14px;direction:ltr;text-align:left}
+.auth-password button{inset-inline-end:10px;min-height:36px;min-width:46px}
+.auth-submit{border-radius:12px;box-shadow:0 8px 20px #e963101a}
+.auth-layout[lang=en] .auth-submit span{transform:rotate(180deg)}
+.auth-help{display:block;margin-inline-start:auto;color:#a54c0c;font-size:12px;font-weight:700;min-height:40px;padding:7px 0}
+.auth-help:hover{text-decoration:underline}.auth-layout button:focus-visible{outline:3px solid #ea7b2c;outline-offset:3px}
+.auth-layout[lang=en] .auth-scene-pause{direction:ltr}
+@media(max-width:760px){
+ #ov .mdl.auth-dialog{border-radius:20px}.auth-layout{min-height:0}
+ .auth-form-panel{padding:22px 24px 26px}.auth-visual{height:164px;min-height:164px}
+ .auth-brand{margin-bottom:14px}.auth-visual-top{top:29px}.auth-scenes{height:138px}.auth-scene .auth-art{height:138px;max-height:138px}
+ .auth-layout[lang=en] .auth-visual-top{right:auto;left:18px}.auth-layout[lang=en] .auth-scenes{left:auto;right:0}
+ #ov .auth-method-note{font-size:11px;margin-bottom:18px}.auth-tabs{gap:20px;margin-bottom:18px}
+}
+@media(max-width:350px){.auth-form-panel{padding-inline:16px}.auth-tabs{gap:12px}.auth-tabs button{font-size:14px}}
+@media(max-height:680px) and (min-width:761px){.auth-form-panel{padding:25px 34px}.auth-layout{min-height:570px}}

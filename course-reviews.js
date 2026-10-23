@@ -6,10 +6,15 @@ export function mountCourseReviews({ app, db, auth, readList, now = Date.now }) 
     consent_at INTEGER NOT NULL, created INTEGER NOT NULL, updated INTEGER NOT NULL,
     PRIMARY KEY(user_id,course_id));
     CREATE INDEX IF NOT EXISTS course_reviews_public ON course_reviews(course_id,published,updated);`);
-  const courseExists = id => readList('content_courses').some(c => c.id === id && c.active !== false);
+  const available = c => c && c.active !== false && c.active !== 0 && !c.deleted_at && !c.deletedAt && c.deleted !== true;
+  const courseExists = id => readList('content_courses').some(c => c.id === id && available(c));
+  const activeAccount = userId => {
+    const deleted=db.prepare('PRAGMA table_info(users)').all().some(c=>c.name==='deleted_at');
+    return !!db.prepare('SELECT id FROM users WHERE id=? AND active=1'+(deleted?' AND deleted_at IS NULL':'')).get(userId);
+  };
   const eligible = (userId, id) => {
-    if (!db.prepare('SELECT id FROM users WHERE id=? AND active=1').get(userId)) return false;
-    const packages = new Set(readList('content_packages').filter(p => p.course === id).map(p => p.id));
+    if(!activeAccount(userId))return false;
+    const packages = new Set(readList('content_packages').filter(p => p.course === id && available(p)).map(p => p.id));
     return db.prepare('SELECT package_id FROM enrollments WHERE user_id=? AND (expires IS NULL OR expires=0 OR expires>?)').all(userId,now()).some(e => packages.has(e.package_id));
   };
   const checkCourse = (req,res,next) => courseExists(req.params.course) ? next() : res.status(404).json({error:'الدورة غير موجودة · Course not found'});
@@ -23,6 +28,7 @@ export function mountCourseReviews({ app, db, auth, readList, now = Date.now }) 
     res.set('Cache-Control','no-store');res.json(publicData(req.params.course));
   });
   app.get('/api/course-reviews/:course/mine',auth,checkCourse,(req,res)=>{
+    if(!activeAccount(req.user.id))return res.status(403).json({error:'Account unavailable'});
     res.set('Cache-Control','no-store');
     res.json({eligible:eligible(req.user.id,req.params.course),review:db.prepare('SELECT rating,body,display_name AS displayName,published FROM course_reviews WHERE user_id=? AND course_id=?').get(req.user.id,req.params.course)||null});
   });
@@ -46,6 +52,7 @@ export function mountCourseReviews({ app, db, auth, readList, now = Date.now }) 
   });
   // Withdrawal is recoverable and remains possible after enrollment expires.
   app.delete('/api/course-reviews/:course',auth,(req,res)=>{
+    if(!activeAccount(req.user.id))return res.status(403).json({error:'Account unavailable'});
     db.prepare('UPDATE course_reviews SET published=0 WHERE user_id=? AND course_id=?').run(req.user.id,req.params.course);
     res.json({ok:true});
   });

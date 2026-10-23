@@ -1,0 +1,29 @@
+/* Deliberately scoped: the existing engine and other course screens retain their styles. */
+#iv.learning-workspace{background:#f3f6fa;color:#162943;isolation:isolate}
+#iv.learning-workspace .iv-bar{background:#fff;color:#142b49;border-bottom:1px solid #dce5ef;gap:14px}
+#iv.learning-workspace .iv-body{display:grid;grid-template-columns:minmax(235px,300px) minmax(0,1fr);gap:0;align-items:start}
+#iv.learning-workspace .iv-side{grid-column:1;grid-row:1;padding:18px;background:#edf3f9;border:0;border-inline-end:1px solid #d5e1ed;min-width:0}
+#iv.learning-workspace .iv-stage{grid-column:2;grid-row:1;background:#fff;min-width:0;padding:24px}
+#iv.learning-workspace .iv-list{max-height:65vh;overflow:auto;overscroll-behavior:contain}
+#iv.learning-workspace .iv-group>summary{padding:14px 10px;gap:7px;flex-wrap:wrap;font-weight:800}
+#iv.learning-workspace .iv-li.cur{background:#fff1e3;border-color:#dc761e;box-shadow:inset 3px 0 #dc761e}
+#iv.learning-workspace .iv-li.watched .n{background:#d8eee6;color:#145841}
+#iv.learning-workspace .iv-li:focus-visible,#iv.learning-workspace button:focus-visible,#iv.learning-workspace summary:focus-visible{outline:3px solid #137aa2;outline-offset:3px}
+#iv.learning-workspace .lw-group-progress{font-size:.72rem;color:#48627b;white-space:nowrap}
+#iv.learning-workspace .lw-dock{position:sticky;bottom:0;z-index:3;display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1.3fr) auto;gap:18px;align-items:center;padding:16px 22px;background:#102a48;color:#fff;border-top:3px solid #e99039;box-shadow:0 -4px 20px #102a4814}
+#iv.learning-workspace .lw-module-summary{display:grid;grid-template-columns:1fr auto;gap:8px;font-size:.85rem}
+#iv.learning-workspace .lw-module-summary strong{overflow-wrap:anywhere}
+#iv.learning-workspace progress{grid-column:1/-1;width:100%;height:8px;accent-color:#39c39a}
+#iv.learning-workspace .lw-module-count{white-space:nowrap;color:#cde3f4}
+#iv.learning-workspace .lw-account-progress{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+#iv.learning-workspace .lw-sync{display:block;flex-basis:100%;font-size:.75rem;line-height:1.5;color:#cde3f4}
+#iv.learning-workspace .lw-step-nav{display:flex;gap:8px;flex-wrap:wrap}
+#iv.learning-workspace .lw-step-nav .btn.o,#iv.learning-workspace .lw-account-progress .btn.o{color:#fff;border-color:#7794ac}
+#iv.learning-workspace .lw-module-toggle{display:none;border:1px solid #b8c8d8;background:#edf3f9;color:#142b49;border-radius:10px;padding:10px;font:inherit;cursor:pointer}
+#iv.learning-workspace .lw-continue-links{margin-top:16px}
+@media(max-width:850px){#iv.learning-workspace .iv-body{display:block}#iv.learning-workspace .iv-side{display:none;border-inline-end:0;border-bottom:1px solid #d5e1ed}#iv.learning-workspace.lw-modules-open .iv-side{display:block}#iv.learning-workspace .lw-module-toggle{display:block}#iv.learning-workspace .iv-stage{padding:14px}#iv.learning-workspace .lw-dock{grid-template-columns:1fr 1fr;gap:10px;padding:12px}#iv.learning-workspace .lw-step-nav{grid-column:1/-1;justify-content:space-between}#iv.learning-workspace .iv-list{max-height:45vh}}
+@media(max-width:480px){#iv.learning-workspace .iv-bar{flex-wrap:wrap}#iv.learning-workspace .iv-t{flex:1;min-width:140px}#iv.learning-workspace .lw-dock{position:relative;grid-template-columns:1fr}#iv.learning-workspace .lw-step-nav .btn{flex:1;font-size:.8rem}#iv.learning-workspace .lw-module-toggle{font-size:.8rem}}
+#iv.learning-workspace:not(.iv-inline){grid-template-rows:auto minmax(0,1fr) auto}
+#iv.learning-workspace .iv-t span,#iv.learning-workspace .iv-t .iv-group-path{color:#526b83}
+#iv.learning-workspace .iv-x{color:#17334f;background:#e9eff6;border:1px solid #bdccda}
+#iv.learning-workspace .iv-x:hover{background:#fbe4ce}

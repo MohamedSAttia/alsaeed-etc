@@ -4,6 +4,7 @@ import { mountLearnerProfiles } from './learner-profiles.js';
 import {mergeExamRecords,mergeProgressRecords} from './progress-records.js';
 import { mountAdminCohorts } from './admin-cohorts.js';
 import { mountCourseReviews } from './course-reviews.js';
+import { mountLearningFeedback } from './learning-feedback.js';
 import {lessonAction,lessonStructure,lessonCourseBase} from './lesson-actions.js';
 import { enrollmentTiming, summarizeRecordedProgress, summarizeStudent, readRecordedExamAttempts, readPracticeToolSummary } from './trainee-tracking.js';
 /* ============================================================
@@ -165,6 +166,7 @@ const readList = key => {
   catch { return []; }
 };
 mountCourseReviews({ app, db, auth, readList });
+mountLearningFeedback({app,db,auth,getPackages:()=>readList('content_packages'),getCourses:()=>readList('content_courses')});
 mountCourseChat({app,db,auth,getPackages:()=>readList('content_packages')});
 const learningPoints=mountLearningPoints({app,db,auth,getPackages:()=>readList('content_packages'),getLearning:()=>{try{return JSON.parse(setting('content_learning')||'{}')}catch{return {}}},library:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-learning-library.json'),'utf8')),toolDefinitions:JSON.parse(fs.readFileSync(path.join(__dirname,'data/pmp-practice-tools.json'),'utf8'))});
 let v15Catalog = { courses:[], packages:[], systems:[], promos:DEFAULT_PROMOS_V15 };

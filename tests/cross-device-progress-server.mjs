@@ -13,12 +13,12 @@ test('two independent clients hydrate canonical progress and stale snapshots can
   for(let i=0;i<2;i++)db.prepare('INSERT INTO lessons(package_id,idx,title,vimeo) VALUES(?,?,?,?)').run('pmp',i,'Video'+i,'123');
   const stale=(await call('one')).data;assert.equal(stale._serverRevision,0);
   let r=await call('two','/api/progress/pmp',{...stale,lessons:{0:true},activities:{'ref:reading':true},referenceActivityUpdated:{reading:200},referenceNotes:{reading:{text:'New note',updated:200}},exams:{full:{score:69,passed:false,at:200}}});assert.equal(r.status,200);assert.equal(r.data.data._summary.progress,50);
-  const firstPoints=await call('one','/api/learning-points/pmp');assert.equal(firstPoints.status,200,JSON.stringify(firstPoints));assert.equal(firstPoints.data.self.points,10,'actual main-server PUT awards before response without explicit sync');
+  const firstPoints=await call('one','/api/learning-points/pmp');assert.equal(firstPoints.status,200,JSON.stringify(firstPoints));assert.equal(firstPoints.data.self.points,30,'actual main-server PUT awards video10 plus saved full-exam20 before response without explicit sync');
   const revision=r.data.data._serverRevision;assert.ok(revision>0);
   const clearDevice=(await call('one')).data;assert.equal(clearDevice.lessons[0],true);assert.equal(clearDevice.exams.full.score,69);assert.equal(clearDevice.activities['ref:reading'],true);assert.equal(clearDevice.referenceNotes.reading.text,'New note');
   r=await call('one','/api/progress/pmp',{...stale,lessons:{0:false,1:true},activities:{'ref:reading':false},referenceActivityUpdated:{reading:100},referenceNotes:{reading:{text:'Old note',updated:100}},exams:{}});assert.equal(r.status,200);assert.ok(r.data.data._serverRevision>revision);
   const fresh=(await call('two')).data;assert.equal(fresh.lessons[0],true);assert.equal(fresh.lessons[1],true);assert.equal(fresh._summary.progress,100);assert.equal(fresh.exams.full.score,69);assert.equal(fresh.referenceNotes.reading.text,'New note');assert.equal(fresh.activities['ref:reading'],true);
-  assert.equal((await call('two','/api/learning-points/pmp')).data.self.points,20,'fresh device sees both canonical video awards');
+  assert.equal((await call('two','/api/learning-points/pmp')).data.self.points,40,'fresh device sees both canonical video awards plus saved full-exam participation');
   assert.equal((await call('other','/api/learning-points/pmp')).data.self.points,0,'points remain owner-scoped');
   assert.equal((await call('other')).data.exams.full,undefined);assert.deepEqual((await call('other')).data.lessons,{});
   // A new server attempt (without a progress snapshot) must hydrate fresh devices too.
@@ -27,7 +27,7 @@ test('two independent clients hydrate canonical progress and stale snapshots can
   const admin=(await call('admin','/api/admin/users/a/activity')).data;assert.equal(admin.summary.progress,synced.data._summary.progress);assert.equal(admin.summary.avgExam,synced.data._summary.avgExam);
   // Current revision allows a deliberate uncheck, not a stale overwrite.
   const uncheck=await call('two','/api/progress/pmp',{...synced.data,lessons:{0:false,1:true}});assert.equal(uncheck.data.data.lessons[0],false);
-  assert.equal((await call('one','/api/learning-points/pmp')).data.self.points,20,'uncheck and retries do not remove or duplicate lifetime points');
+  assert.equal((await call('one','/api/learning-points/pmp')).data.self.points,40,'uncheck and retries do not remove or duplicate lifetime points');
   for(const invalid of ['null','[]','42','badJSON']){db.prepare('UPDATE progress SET data=? WHERE user_id=?').run(invalid,'b');const recovery=await call('other','/api/progress/pmp',{lessons:{1:true}});assert.equal(recovery.status,200,invalid);assert.equal(recovery.data.data.lessons[1],true);}
  }finally{db?.close();if(!spawnError&&child.exitCode===null&&child.signalCode===null){const killTimer=setTimeout(()=>child.kill('SIGKILL'),2000);try{child.kill();await exited;}finally{clearTimeout(killTimer)}}fs.rmSync(dir,{recursive:true,force:true})}
 });

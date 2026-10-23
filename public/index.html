@@ -1148,9 +1148,9 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 .hero .v24-slide{opacity:0!important;visibility:hidden!important}.hero .v24-slide.is-current{opacity:1!important;visibility:visible!important}
 </style>
 <script src="/lesson-video.js?v=20261009-1"></script>
-<link rel="stylesheet" href="/auth-entry.css?v=20261017-mobile-art">
+<link rel="stylesheet" href="/auth-entry.css?v=20261023-reference">
 <link rel="stylesheet" href="/learning-polish.css?v=20261023-2">
-<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-1"><script src="/visual-learning-home.js?v=20261023-1"></script>
+<link rel="stylesheet" href="/visual-learning-home.css?v=20261023-2"><script src="/course-covers.js?v=20261023-2"></script><script src="/visual-learning-home.js?v=20261023-2"></script><script src="/learner-navigation.js?v=20261023-2"></script>
 <link rel="stylesheet" href="/course-chat.css?v=20261023-1">
 <script defer src="/course-chat.js?v=20261023-1"></script>
 <script src="/progress-sync.js?v=20261023-sync2"></script>
@@ -3467,37 +3467,41 @@ function preferredAuthMode() {
   catch (e) { return 'reg'; }
 }
 function openAuth(mode, after) {
-  if (authRequestPending) { toast('جارٍ معالجة طلب الدخول، انتظر لحظة.'); return; }
+  const en = (window.__lang || document.documentElement.lang || 'ar') === 'en';
+  const t = (ar, english) => en ? english : ar;
+  if (authRequestPending) { toast(t('جارٍ معالجة طلب الدخول، انتظر لحظة.', 'Your sign-in request is being processed. Please wait.')); return; }
   if (me() && API.token) { after ? after() : go(isAdmin() ? 'admin' : 'dash'); return; }
   const isReg = (mode || preferredAuthMode()) === 'reg';
   const previousFocus = $('#ov')?.authReturnFocus || document.activeElement;
   const draftName = $('#aName')?.value || $('#ov')?.authDraftName || '';
   modal(`
-    <button class="auth-close" type="button" data-close aria-label="إغلاق والعودة إلى الموقع">×</button>
-    <section class="auth-layout" dir="rtl">
+    <button class="auth-close" type="button" data-close aria-label="${t('إغلاق والعودة إلى الموقع', 'Close and return to the website')}">×</button>
+    <section class="auth-layout" dir="${en ? 'ltr' : 'rtl'}" lang="${en ? 'en' : 'ar'}">
       <div class="auth-form-panel">
         <div class="auth-brand">${window.LOGO_FULL()}</div>
-        <span class="auth-eyebrow">AL-LTC · رحلتك المهنية تبدأ هنا</span>
-        <h2 id="authTitle">${isReg ? 'ابدأ رحلتك معنا' : 'أهلاً بعودتك'}</h2>
-        <p class="auth-intro" id="authDescription">${isReg ? 'أنشئ حسابك وتعلّم اليوم لمستقبل أفضل.' : 'سجّل دخولك وأكمل رحلتك من حيث توقّفت.'}</p>
-        <div class="auth-tabs" aria-label="خيارات الحساب">
-          <button type="button" id="authRegTab" aria-pressed="${isReg}">إنشاء حساب</button>
-          <button type="button" id="authLoginTab" aria-pressed="${!isReg}">تسجيل الدخول</button>
+        <span class="auth-eyebrow">${t('AL-LTC · رحلتك المهنية تبدأ هنا', 'AL-LTC · Your next chapter starts here')}</span>
+        <h2 id="authTitle">${isReg ? t('ابدأ رحلتك معنا', 'Start your learning journey') : t('أهلاً بعودتك', 'Welcome back')}</h2>
+        <p class="auth-intro" id="authDescription">${isReg ? t('أنشئ حسابك وتعلّم اليوم لمستقبل أفضل.', 'Create your account and take your next professional step.') : t('سجّل دخولك وأكمل رحلتك من حيث توقّفت.', 'Sign in to continue where you left off.')}</p>
+        <div class="auth-tabs" aria-label="${t('خيارات الحساب', 'Account options')}">
+          <button type="button" id="authRegTab" aria-pressed="${isReg}">${t('إنشاء حساب', 'Sign up')}</button>
+          <button type="button" id="authLoginTab" aria-pressed="${!isReg}">${t('تسجيل الدخول', 'Log in')}</button>
         </div>
+        <p class="auth-method-note">${t('الدخول بالبريد الإلكتروني وكلمة المرور', 'Continue with your email and password')}</p>
         <form id="authForm">
-          ${isReg ? '<label class="f" for="aName"><span>الاسم الكامل</span><input id="aName" name="name" autocomplete="name" placeholder="اكتب اسمك الكامل" required maxlength="120"></label>' : ''}
-          <label class="f" for="aMail"><span>البريد الإلكتروني</span><input id="aMail" name="email" type="email" autocomplete="username" inputmode="email" dir="ltr" placeholder="name@example.com" required maxlength="254"></label>
-          <label class="f" for="aPass"><span>كلمة المرور</span><span class="auth-password"><input id="aPass" name="password" type="password" autocomplete="${isReg ? 'new-password' : 'current-password'}" ${isReg ? 'minlength="10" aria-describedby="authPasswordHint"' : ''} placeholder="${isReg ? '10 أحرف على الأقل' : 'أدخل كلمة المرور'}" required><button type="button" id="authShowPassword" aria-label="إظهار كلمة المرور" aria-pressed="false">إظهار</button></span></label>
-          ${isReg ? '<p class="auth-hint" id="authPasswordHint">استخدم كلمة مرور من 10 أحرف على الأقل.</p>' : ''}
+          ${isReg ? `<label class="f" for="aName"><span>${t('الاسم الكامل', 'Full name')}</span><input id="aName" name="name" autocomplete="name" placeholder="${t('اكتب اسمك الكامل', 'Enter your full name')}" required maxlength="120"></label>` : ''}
+          <label class="f" for="aMail"><span>${t('البريد الإلكتروني', 'Email address')}</span><input id="aMail" name="email" type="email" autocomplete="username" inputmode="email" dir="ltr" placeholder="name@example.com" required maxlength="254"></label>
+          <label class="f" for="aPass"><span>${t('كلمة المرور', 'Password')}</span><span class="auth-password"><input id="aPass" name="password" type="password" autocomplete="${isReg ? 'new-password' : 'current-password'}" ${isReg ? 'minlength="10" aria-describedby="authPasswordHint"' : ''} placeholder="${isReg ? t('10 أحرف على الأقل', 'At least 10 characters') : t('أدخل كلمة المرور', 'Enter your password')}" required><button type="button" id="authShowPassword" aria-label="${t('إظهار كلمة المرور', 'Show password')}" aria-pressed="false">${t('إظهار', 'Show')}</button></span></label>
+          ${isReg ? `<p class="auth-hint" id="authPasswordHint">${t('استخدم كلمة مرور من 10 أحرف على الأقل.', 'Use a password of at least 10 characters.')}</p>` : ''}
+          ${!isReg ? `<button type="button" class="auth-help" id="authHelp">${t('تحتاج مساعدة في الدخول؟', 'Need help signing in?')}</button>` : ''}
           <div id="authError" class="auth-error" role="alert" hidden></div>
-          <button class="auth-submit" type="submit" id="aGo">${isReg ? 'إنشاء حسابي' : 'تسجيل الدخول'} <span aria-hidden="true">←</span></button>
+          <button class="auth-submit" type="submit" id="aGo">${isReg ? t('إنشاء حسابي', 'Create my account') : t('تسجيل الدخول', 'Log in')} <span aria-hidden="true">←</span></button>
         </form>
-        <p class="auth-switch">${isReg ? 'لديك حساب بالفعل؟' : 'جديد في منصة السعيد؟'} <button type="button" id="aSwap">${isReg ? 'سجّل دخولك' : 'أنشئ حسابك'}</button></p>
-        <button type="button" class="auth-browse" data-close>تصفّح البرامج أولاً ←</button>
+        <p class="auth-switch">${isReg ? t('لديك حساب بالفعل؟', 'Already have an account?') : t('جديد في منصة السعيد؟', 'New to Al Saeed?')} <button type="button" id="aSwap">${isReg ? t('سجّل دخولك', 'Log in') : t('أنشئ حسابك', 'Create an account')}</button></p>
+        <button type="button" class="auth-browse" data-close>${t('تصفّح البرامج أولاً ←', 'Explore our programmes first →')}</button>
       </div>
-      <aside class="auth-visual" aria-label="التعلّم مع منصة السعيد">
-        <div class="auth-visual-top"><span class="auth-visual-pill">السعيد للتعليم والتدريب</span><h3>معرفة اليوم.<br><em>فرص الغد.</em></h3><p>خطوتك القادمة نحو التطوّر المهني تبدأ من هنا.</p></div>
-        <div class="auth-visual-bottom"><span>تعلّم. طبّق. تقدّم.</span><p>برامج مهنية · تعلّم تفاعلي · مسار واضح</p></div>
+      <aside class="auth-visual" aria-label="${t('التعلّم مع منصة السعيد', 'Learn with Al Saeed')}">
+        <div class="auth-visual-top"><span class="auth-visual-pill">${t('السعيد للتعليم والتدريب', 'Al Saeed Education & Training')}</span><h3>${t('معرفة اليوم.', 'Knowledge today.')}<br><em>${t('فرص الغد.', 'Opportunity tomorrow.')}</em></h3><p>${t('خطوتك القادمة نحو التطوّر المهني تبدأ من هنا.', 'Your next professional step starts here.')}</p></div>
+        <div class="auth-visual-bottom"><span>${t('تعلّم. طبّق. تقدّم.', 'Learn. Apply. Grow.')}</span><p>${t('برامج مهنية · تعلّم تفاعلي · مسار واضح', 'Professional programmes · Practical learning · Clear progress')}</p></div>
       </aside>
     </section>`, () => {
     const overlay = $('#ov'), dialog = overlay.querySelector('.mdl');
@@ -3520,7 +3524,7 @@ function openAuth(mode, after) {
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', keydown);
-    const disposeVisual = window.AUTH_VISUAL?.mount(overlay.querySelector('.auth-visual'));
+    const disposeVisual = window.AUTH_VISUAL?.mount(overlay.querySelector('.auth-visual'), en);
     overlay.authCleanup = () => {
       disposeVisual?.();
       document.removeEventListener('keydown', keydown);
@@ -3542,10 +3546,12 @@ function openAuth(mode, after) {
     $('#authShowPassword').onclick = () => {
       const input = $('#aPass'), show = input.type === 'password';
       input.type = show ? 'text' : 'password';
-      $('#authShowPassword').textContent = show ? 'إخفاء' : 'إظهار';
+      $('#authShowPassword').textContent = show ? t('إخفاء', 'Hide') : t('إظهار', 'Show');
       $('#authShowPassword').setAttribute('aria-pressed', String(show));
-      $('#authShowPassword').setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+      $('#authShowPassword').setAttribute('aria-label', show ? t('إخفاء كلمة المرور', 'Hide password') : t('إظهار كلمة المرور', 'Show password'));
     };
+    const help = $('#authHelp');
+    if (help) help.onclick = () => { closeModal(); go('contact'); };
     const form = $('#authForm'), button = $('#aGo'), error = $('#authError');
     let pending = false;
     form.onsubmit = async event => {
@@ -3555,10 +3561,10 @@ function openAuth(mode, after) {
       const name = isReg ? $('#aName').value.trim() : '';
       error.hidden = true;
       const fail = text => { error.textContent = text; error.hidden = false; };
-      if (isReg && !name) { fail('اكتب اسمك الكامل.'); $('#aName').focus(); return; }
-      if (!API.live) { fail('تعذّر الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.'); return; }
+      if (isReg && !name) { fail(t('اكتب اسمك الكامل.', 'Enter your full name.')); $('#aName').focus(); return; }
+      if (!API.live) { fail(t('تعذّر الاتصال بالخادم. حدّث الصفحة وحاول مرة أخرى.', 'Unable to connect. Refresh the page and try again.')); return; }
       pending = true; authRequestPending = true; button.disabled = true; form.setAttribute('aria-busy', 'true');
-      const label = button.innerHTML; button.textContent = isReg ? 'جارٍ إنشاء الحساب…' : 'جارٍ تسجيل الدخول…';
+      const label = button.innerHTML; button.textContent = isReg ? t('جارٍ إنشاء الحساب…', 'Creating your account…') : t('جارٍ تسجيل الدخول…', 'Signing in…');
       // Keep a single request active even while the visitor navigates away.
       dialog.querySelectorAll('#aSwap, #authRegTab, #authLoginTab').forEach(el => el.disabled = true);
       try {
@@ -3575,10 +3581,10 @@ function openAuth(mode, after) {
         }
         DB.session = u.id; await hydrateProgress(true); cacheProgress(); authRequestPending = false; if ($('#ov') === overlay) closeModal();
         if (u.role === 'admin') await syncAdminData();
-        toast(isReg ? '🎉 أهلاً بك في السعيد' : `أهلاً ${u.name.split(' ')[0]}`);
+        toast(isReg ? t('🎉 أهلاً بك في السعيد', '🎉 Welcome to Al Saeed') : `${t('أهلاً', 'Welcome')} ${u.name.split(' ')[0]}`);
         after ? after() : go(u.role === 'admin' ? 'admin' : 'dash');
       } catch (e) {
-        fail(isReg ? 'تعذّر إنشاء الحساب. راجع البيانات أو جرّب تسجيل الدخول إذا كان لديك حساب.' : 'تعذّر تسجيل الدخول. تأكد من البريد وكلمة المرور وحاول مرة أخرى.');
+        fail(isReg ? t('تعذّر إنشاء الحساب. راجع البيانات أو جرّب تسجيل الدخول إذا كان لديك حساب.', 'Could not create your account. Check your details or log in if you already have an account.') : t('تعذّر تسجيل الدخول. تأكد من البريد وكلمة المرور وحاول مرة أخرى.', 'Could not sign in. Check your email and password, then try again.'));
       } finally {
         pending = false; authRequestPending = false; button.disabled = false; button.innerHTML = label; form.removeAttribute('aria-busy');
         dialog.querySelectorAll('#aSwap, #authRegTab, #authLoginTab').forEach(el => el.disabled = false);
@@ -4142,6 +4148,7 @@ const catalogInstructorBadge = (id,compact=false,pkg=null) => window.InstructorD
   ? (pkg ? window.InstructorDirectory.renderPackage(pkg,siteEnglish(),compact) : window.InstructorDirectory.renderCourse(id,siteEnglish(),compact)) : '';
 const catalogCount = (n,en=siteEnglish()) => `${n} ${en?(n===1?'package':'packages'):(n===1?'باقة':'باقات')}`;
 function catalogArtwork(code,variant='course') {
+  const newCover=window.CourseCovers?.forCourse(code,variant);if(newCover)return newCover;
   const colors={pmp:['#142c59','#3788c6','#ffb35d'],rmp:['#102b47','#2a91a1','#f2b169'],acp:['#233465','#8d71d7','#ffe08a'],pba:['#1b3a47','#61a89b','#e9a760'],pmocp:['#1e3659','#6290ba','#efc274'],pgmp:['#26345c','#7b91ca','#f1ad83'],pfmp:['#1f3854','#4c94aa','#e4c16d'],p3o:['#302f5b','#8e78bf','#edb36f'],grcp:['#10414a','#42a997','#e3bc70'],lss:['#50321c','#c27b34','#f2d48a'],nebosh:['#462522','#b7553c','#f6bd72'],aipro:['#153558','#527bc1','#84d1c8']};
   const key=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const id=Object.keys(colors).find(k=>key.includes(k))||'pmp';
@@ -4814,13 +4821,13 @@ function pkgTab(p, c, has) {
     const groups=window.CourseRoadmap?(CourseRoadmap.learnerGroups||CourseRoadmap.groups)(c,ls):Object.entries(ls.reduce((m,l,i)=>{(m[l.ch]??=[]).push({...l,i});return m},{})).map(([key,items])=>({key,title:c.chapters[key]||'مقدمة',items}));
     const groupLessons=group=>window.CourseRoadmap?.lessonItems?CourseRoadmap.lessonItems(group):group.items;
     let vn=0;groups.forEach(g=>groupLessons(g).forEach(l=>{if(l.vimeo)videoNumbers.set(l.i,++vn)}));
-    const renderGroup=(group,ci,depth=0)=>{const all=groupLessons(group),readingKey=Object.hasOwn(group,'readingKey')?group.readingKey:group.key,assessmentKey=Object.hasOwn(group,'assessmentKey')?group.assessmentKey:(!['intro','exam','journey','review'].includes(group.key)?(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title):null),tag=group.originalChapter?'section':'details',heading=group.originalChapter?'h4':'summary';return `<${tag} class="ch-blk ${group.originalChapter?'learning-original-chapter':'learning-chapter'}" data-learning-group="${esc(group.key)}" data-outline-depth="${depth}" ${group.originalChapter?'data-original-chapter="true"':ci===0&&depth===0?'open':''}>
+    const renderGroup=(group,ci,depth=0)=>{const all=groupLessons(group),readingKey=Object.hasOwn(group,'readingKey')?group.readingKey:group.key,assessmentKey=Object.hasOwn(group,'assessmentKey')?group.assessmentKey:(!['intro','exam','journey','review'].includes(group.key)?(c.id==='pmp'&&!String(group.key).startsWith('saved_')?group.key:group.title):null),tag='details',heading='summary';return `<${tag} class="ch-blk ${group.originalChapter?'learning-original-chapter':'learning-chapter'}" data-learning-group="${esc(group.key)}" data-outline-package="${esc(p.id)}" data-outline-depth="${depth}" ${group.originalChapter?'data-original-chapter="true"':''}>
         ${group.title?`<${heading} class="ch-h"><b>${esc(siteEnglish()?(group.en||group.title):group.title)}</b>
-          <span>${all.length} ${siteEnglish()?'lessons':'دروس'} · ${all.filter(l=>pr.lessons[l.i]).length} ✓</span></${heading}>`:''}
+          <span>${all.filter(l=>!l.deleted&&l.vimeo).length} ${siteEnglish()?'videos':'فيديو'} · ${all.filter(l=>!l.deleted&&l.vimeo&&pr.lessons[l.i]).length} ${siteEnglish()?'completed':'مكتمل'}</span></${heading}>`:''}
         ${group.noteAr?`<p class="note info">${esc(siteEnglish()?group.noteEn:group.noteAr)}</p>`:''}
         ${has&&c.id==='pmp'&&window.PmpReading&&readingKey?`<details class="topic-reading"><summary>${siteEnglish()?'Topic summary':'ملخص المحور'}</summary>${PmpReading.markup(readingKey)}</details>`:''}
         ${has&&c.id==='pmp'&&window.PmpReading?(group.readings||[]).map(reading=>`<details class="topic-reading" data-summary-topic="${esc(reading.key)}"><summary>${siteEnglish()?'Topic summary':'ملخص المحور'}</summary>${PmpReading.markup(reading.key)}${reading.assessmentKey?`<button class="btn p" data-learning-chapter="${esc(reading.assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button>`:''}</details>`).join(''):''}
-        ${group.items.map(l => `<article class="learning-lesson" data-lesson-index="${l.i}"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
+        <div class="learning-video-grid">${group.items.map(l => `<article class="learning-lesson" data-lesson-index="${l.i}"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
             >
           <div class="ls-ic">${pr.lessons[l.i] ? '✓' : (has || l.free) ? (l.vimeo?'▶':'≡') : '🔒'}</div>
           ${l.vimeo ? `<span class="num" aria-label="${siteEnglish()?'Video':'فيديو'} ${videoNumbers.get(l.i)}">${videoNumbers.get(l.i)}</span>` : ''}
@@ -4829,7 +4836,7 @@ function pkgTab(p, c, has) {
           ${!l.vimeo && has ? `<span class="ls-free">${siteEnglish()?'No video':'بدون فيديو'}</span>` : ''}
           ${l.vimeo?`<div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>`:''}
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${lessonMenuMarkup(l,p.id,has||l.free)}</article>`).join('')}
+        </div>${lessonMenuMarkup(l,p.id,has||l.free)}</article>`).join('')}</div>
       ${has&&assessmentKey&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${has?(group.assessmentKeys||[]).map(key=>`<div class="topic-test-next"><button class="btn p" data-learning-chapter="${esc(key)}" data-pk="${p.id}">${siteEnglish()?'Chapter assessment':'اختبار الفصل'}: ${esc(key)}</button></div>`).join(''):''}${(group.children||[]).length?`<div class="learning-outline-children">${group.children.map((child,i)=>renderGroup(child,i,depth+1)).join('')}</div>`:''}${!all.length&&!(group.children||[]).length&&!group.originalChapter?`<p class="empty">${(group.readings||[]).length?(siteEnglish()?'No published video lessons for this topic yet.':'لم تُنشر دروس فيديو لهذا المحور بعد.'):(siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.')}</p>`:''}</${tag}>`;};
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
@@ -4948,10 +4955,10 @@ function learn(id) {
   }else body=learnTab==='workspace'?`<section class="package-application" data-native-workspace="${esc(p.id)}"><p>${siteEnglish()?'Loading applications…':'جارٍ تحميل التطبيق…'}</p></section>`:(pkTab=learnTab,pkgTab(p,c,true));
   return `<section class="package-shell" data-language-package="${esc(p.id)}">
     <div class="wrap">
-      <header class="package-heading"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"><div class="learner-heading-copy"><a class="package-back" href="#dash" data-r="dash">${siteEnglish()?'My courses':'دوراتي'}</a><p class="learner-greeting">${siteEnglish()?'Welcome, ':'أهلًا، '}${esc(user.name?.split(' ')[0]||'')}</p>${learnTab!=='home'?`<p>${esc(siteEnglish()?(p.en||p.ar):p.ar)}</p>`:''}</div><div class="learner-account-actions"><button type="button" class="btn o" data-learner-profile>${siteEnglish()?'My profile':'ملفي الشخصي'}</button><div data-language-slot></div></div></header>
-      <nav class="package-primary-nav" aria-label="${siteEnglish()?'Course sections':'أقسام الباقة'}">${primary.map(([key,title])=>`<button type="button" class="${learnTab===key?'on':''}" data-lt="${key}" ${learnTab===key?'aria-current="page"':''}>${title}</button>`).join('')}</nav>
-      <div class="package-toolbar">${A().progressSummary(id)}<details class="package-more"><summary>${siteEnglish()?'Plan and learning tools':'الخطة وأدوات التعلّم'}</summary><nav aria-label="${siteEnglish()?'Additional learning tools':'أدوات التعلّم الإضافية'}">${secondary.map(([key,title])=>`<button type="button" data-lt="${key}" ${learnTab===key?'aria-current="page"':''}>${title}</button>`).join('')}</nav></details></div>
-      <main class="package-section ${learnTab==='home'?'is-home':''} ${learnTab==='exams'?'assessment-page':''}" aria-labelledby="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}">${learnTab==='home'?'':`<h2 id="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}" tabindex="-1">${current[1]}</h2>`}<div id="lnBody" class="learning-content-frame" role="region" aria-labelledby="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}">${body}</div></main>
+      <header class="package-heading"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"><div class="learner-heading-copy"><a class="package-back" href="#dash" data-r="dash">${siteEnglish()?'My courses':'دوراتي'}</a><p class="learner-greeting">${siteEnglish()?'Welcome, ':'أهلًا، '}${esc(user.name||'')}</p>${learnTab!=='home'?`<p>${esc(siteEnglish()?(p.en||p.ar):p.ar)}</p>`:''}</div>${window.LearnerNavigation?.identity(user)||''}<div class="learner-account-actions"><button type="button" class="btn o" data-learner-profile>${siteEnglish()?'My profile':'ملفي الشخصي'}</button><div data-language-slot></div></div></header>
+      <nav class="package-primary-nav" aria-label="${siteEnglish()?'Course sections':'أقسام الباقة'}">${primary.map(([key,title])=>`<button type="button" class="${learnTab===key?'on':''}" data-lt="${key}" ${learnTab===key?'aria-current="page"':''}>${window.LearnerNavigation?.icon(key)||''}<span>${title}</span></button>`).join('')}</nav>
+      <div class="package-toolbar">${A().progressSummary(id)}<details class="package-more"><summary>${siteEnglish()?'Plan and learning tools':'الخطة وأدوات التعلّم'}</summary><nav aria-label="${siteEnglish()?'Additional learning tools':'أدوات التعلّم الإضافية'}">${secondary.map(([key,title])=>`<button type="button" data-lt="${key}" ${learnTab===key?'aria-current="page"':''}>${window.LearnerNavigation?.icon(key)||''}<span>${title}</span></button>`).join('')}</nav></details></div>
+      <main class="package-section ${learnTab==='home'?'is-home':''} ${learnTab==='exams'?'assessment-page':''}" aria-labelledby="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}">${learnTab==='home'?'':`<div class="learning-section-strip"><button type="button" class="learning-home-button" data-lt="home" aria-label="${siteEnglish()?'Back to course overview':'العودة إلى باقتي'}">${window.LearnerNavigation?.icon('home')||'⌂'}</button><h2 id="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}" tabindex="-1">${current[1]}</h2></div>`}<div id="lnBody" class="learning-content-frame" role="region" aria-labelledby="${learnTab==='exams'?'assessmentPageTitle':'packageSectionTitle'}">${body}</div></main>
     </div>
   </section>`;
 }
@@ -4990,7 +4997,7 @@ function dash() {
   const classroom = u.packages.some(x => x.id === 'rmp-private-classroom' && (!x.expires || +x.expires > Date.now()));
   const mine = u.packages.map(x => ({ ...x, p: A().pack(x.id) })).filter(x => x.p);
   return `<section class="dash-hd"><div class="wrap">
-    <h1>${siteEnglish()?'Welcome':'أهلاً'} ${esc(u.name.split(' ')[0])}</h1>
+    ${window.LearnerNavigation?.identity(u)||''}<h1>${siteEnglish()?'Welcome':'أهلًا'} ${esc(u.name)}</h1>
     <p>${mine.length || classroom ? (siteEnglish()?`You have ${mine.length + Number(classroom)} packages. Pick up where you left off.`:`لديك ${mine.length + Number(classroom)} ${(mine.length + Number(classroom)) === 1 ? 'باقة' : 'باقات'} — واصل من حيث توقّفت.`)
       : (siteEnglish()?'You have no packages yet. Choose your next program.':'لم تشترك في باقة بعد. اختر مسارك وابدأ اليوم.')}</p>
   </div></section>
@@ -5076,7 +5083,7 @@ function adminQuestionsView(){
   const active=all.filter(q=>q.active!==false).length, bilingual=all.filter(q=>q.question_ar&&q.question_en).length;
   return `<div class="question-admin-head">
     <div><span class="eyebrow">إدارة المحتوى</span><h2>بنك الأسئلة حسب الباقة</h2><p>أضف وعدّل وعاين وفعّل الأسئلة من نفس مركز التحكم.</p></div>
-    <div><button class="btn o" id="adminEssayReview">📝 مراجعة الإجابات المقالية</button>
+    <div><button class="btn o" type="button" data-feedback-admin>التقييمات والاستفسارات</button><button class="btn o" id="adminEssayReview">📝 مراجعة الإجابات المقالية</button>
     <button class="btn p" id="adminQuestionAdd">＋ إضافة سؤال</button></div>
   </div>
   <div class="grid g4 mb question-admin-stats">
@@ -5160,7 +5167,7 @@ function adminTab() {
         <button class="btn n full" data-at="users">إدارة المسجلين</button>
       </div>
       <div class="apanel"><h4>أحدث الطلبات</h4>${orders.length?orders.map(o=>`<div class="student-quick"><div><b>${esc(o.user_name||o.userName||'—')}</b><span>${esc(o.package_name||o.packageName||o.package_id||o.pkg||'—')}</span></div><div style="text-align:end"><b class="num">${money(o.amount||0)} ${esc(o.currency||'')}</b><span>${esc(o.status||'')}</span></div></div>`).join(''):`<div class="empty"><div class="ic">🧾</div><b>لا طلبات بعد</b></div>`}</div>
-      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><a class="btn o full" href="/classroom/">الفصل الخاص · المجموعات والنتائج ↗</a><button class="btn o full" data-at="questions">❓ إدارة بنك الأسئلة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
+      <div class="apanel"><h4>إجراءات سريعة</h4><div class="grid" style="gap:9px"><button class="btn p full" id="admAddUserQuick">＋ إضافة مستخدم</button><button class="btn o full" id="admGrantQuick">🎁 منح باقة</button><a class="btn o full" href="/classroom/">الفصل الخاص · المجموعات والنتائج ↗</a><button class="btn o full" type="button" data-feedback-admin>التقييمات والاستفسارات</button><button class="btn o full" data-at="questions">❓ إدارة بنك الأسئلة</button><button class="btn o full" data-at="cms">✏️ تعديل الصفحة الرئيسية</button><button class="btn o full" data-at="content">🎬 إدارة فيديوهات Vimeo</button></div></div>
     </div>`;
   }
   if(admTab==='users'){
@@ -5768,6 +5775,7 @@ function lessonMenuMarkup(l,pid,allowed){
     <button type="button" class="lesson-action lesson-action-watch" ${allowed&&l.vimeo?`data-lesson="${l.i}" data-pk="${esc(pid)}"`:'disabled'}><span aria-hidden="true">▷</span><b>${txt('مشاهدة الفيديو','Watch video')}</b><small>${!allowed?locked:!l.vimeo?unavailable:esc(l.dur||txt('ابدأ المشاهدة','Start watching'))}</small></button>
     ${allowed&&files.length?`<details class="lesson-action"><summary><span aria-hidden="true">↓</span><b>${txt('تحميل ملف الدرس','Download lesson file')}</b><small>${files.length} ${txt('ملفات متاحة','available files')}</small></summary><div class="lesson-action-content">${files.map(f=>`<button type="button" class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${esc(pid)}">↓ ${esc(f.name)}</button>`).join('')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">↓</span><b>${txt('تحميل ملف الدرس','Download lesson file')}</b><small>${allowed?unavailable:locked}</small></button>`}
     ${allowed&&notes?`<details class="lesson-action lesson-summary"><summary><span aria-hidden="true">≡</span><b>${txt('قراءة الملخص','Read summary')}</b><small>${txt('ملاحظات الدرس','Lesson notes')}</small></summary><div class="lesson-action-content">${esc(notes).replace(/\n/g,'<br>')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">≡</span><b>${txt('قراءة الملخص','Read summary')}</b><small>${allowed?txt('لا يوجد ملخص بهذه اللغة حالياً','No summary in this language yet'):locked}</small></button>`}
+    ${allowed&&l.vimeo?`<button type="button" class="lesson-feedback-button" data-feedback-package="${esc(pid)}" data-feedback-kind="video" data-feedback-id="${l.i}" data-feedback-label="${esc(window.biTitle?window.biTitle(l):l.t)}">${txt('قيّم الفيديو أو اطرح استفسارًا','Rate this video or ask a question')}</button>`:''}
   </div>`;
 }
 
@@ -7776,13 +7784,14 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/pmp-shared-case.js?v=20261021-case"></script><script src="/unified-exam.js?v=20261023-2"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-2"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/pmp-shared-case.js?v=20261021-case"></script><script src="/unified-exam.js?v=20261023-3"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-3"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
-<script src="/v17-interactive.js?v=20261023-lesson-menu"></script>
+<link rel="stylesheet" href="/learning-workspace.css?v=20261023-1"><script src="/learning-workspace.js?v=20261023-1"></script>
+<script src="/v17-interactive.js?v=20261023-workspace"></script>
 <script src="/dict-v17.js"></script>
 <script src="/english-copy-v27.js?v=27.0"></script>
-<script src="/auth-visual.js?v=20261017-mobile-art"></script>
+<script src="/auth-visual.js?v=20261023-reference"></script>
 <script>
   document.getElementById('logoLink').innerHTML = window.LOGO_FULL();
   document.getElementById('ftrLogo').innerHTML = window.LOGO_FULL();
@@ -7805,12 +7814,13 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/public-experience.js?v=20261010-design"></script>
 <script src="/package-promos.js?v=20261009-pmp-hero"></script>
 <script src="/package-experience.js?v=20261014-completion-only"></script>
-<link rel="stylesheet" href="/course-reviews.css?v=20261021"><script src="/course-reviews.js?v=20261021"></script>
+<link rel="stylesheet" href="/course-reviews.css?v=20261021"><script src="/course-reviews.js?v=20261023-2"></script>
 <script src="/course-experience.js?v=20261010-design2"></script>
 <script src="/completion-certificate.js?v=20261015-reference"></script>
 <script src="/certificate-library.js?v=20261015"></script>
 <link rel="stylesheet" href="/pmp-learning-library.css?v=20261023-1">
-<script src="/learner-profile.js?v=20261023"></script>
+<script src="/learner-profile.js?v=20261023-2"></script>
+<link rel="stylesheet" href="/learning-feedback.css?v=20261023-2"><script src="/learning-feedback.js?v=20261023-2"></script>
 <script src="/pmp-learning-library.js?v=20261023-1"></script>
 <link rel="stylesheet" href="/pmp-practice-tools.css?v=20261023-1">
 <script src="/pmp-practice-tools.js?v=20261023-1"></script>

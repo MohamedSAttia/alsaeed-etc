@@ -16,8 +16,11 @@ async function setup({language='en',questions=rows,course={id:'pmp',code:'PMP'},
  return {dom,w,host,calls,toasts,get requestCount(){return requestCount},retry:async()=>{shouldFail=false;await host.querySelector('[data-bank-retry]').onclick()}};
 }
 const fixture=await setup(),{w,host,calls}=fixture;
-assert.equal(host.querySelectorAll('details.assessment-section').length,6);
-assert.equal(host.querySelectorAll('[data-assessment-jump]').length,6);
+assert.equal(host.querySelectorAll('details.assessment-section').length,7);
+assert.equal(host.querySelectorAll('[data-assessment-jump]').length,3);
+assert.equal(host.querySelector('.assessment-advanced').open,false);
+assert.deepEqual([...host.querySelectorAll('[data-core-chapter]')].map(b=>b.dataset.coreChapter),['framework','agile','predictive','hybrid']);
+assert.equal(host.querySelectorAll('[data-mock]').length,5);
 assert.match(host.textContent,/48 questions in the available bank/);
 assert.match(host.textContent,/select the question language before each attempt/);
 assert.match(host.querySelector('[data-domain="business"]').closest('article').textContent,/Currently unavailable/);
@@ -31,10 +34,10 @@ const chapter=[...host.querySelectorAll('[data-chapter-index]')].find(b=>b.close
 const input=host.querySelector('[data-count]'),start=host.querySelector('[data-start]'),topic=host.querySelector('[data-filter="topic"]');topic.value='scope';topic.dispatchEvent(new w.Event('change'));input.value=25;input.dispatchEvent(new w.Event('input'));assert.equal(start.disabled,true);input.value=7;input.dispatchEvent(new w.Event('input'));assert.equal(start.disabled,false);assert.match(host.querySelector('[data-available]').textContent,/7 questions · 10 minutes/);start.click();assert.equal(calls.at(-1)[2].count,7);
 input.value='2.5';input.dispatchEvent(new w.Event('input'));assert.equal(start.disabled,true);topic.value='quality';topic.dispatchEvent(new w.Event('change'));assert.equal(start.disabled,true);assert.match(host.querySelector('[data-available]').textContent,/No matching questions/);
 host.querySelector('[data-mock="0"]').click();call=calls.at(-1);assert.equal(call[2].full,true);assert.equal(call[2].planPmpMock,true);assert.equal(call[2].count,180);assert.equal(call[2].minutes,240);assert.equal(typeof call[2].selectItems,'function');assert.equal(call[2].selectItems(rows).length,180);
-const arabic=await setup({language:'ar',mockReady:false});assert.match(arabic.host.textContent,/مركز الاختبارات/);assert.equal(arabic.host.querySelector('[data-mock]').disabled,true);assert.match(arabic.host.textContent,/غير متاح حاليًا/);
+const arabic=await setup({language:'ar',mockReady:false});assert.match(arabic.host.textContent,/اختبارات المحاكاة/);assert.equal(arabic.host.querySelector('[data-mock]').disabled,true);assert.match(arabic.host.textContent,/غير متاح حاليًا/);
 const empty=await setup({questions:[],mockReady:false});assert.equal(empty.host.querySelector('[data-start]').disabled,true);assert([...empty.host.querySelectorAll('[data-mock],[data-approach],[data-domain],[data-chapter-index],[data-phase-test]')].every(b=>b.disabled));
 const other=await setup({course:{id:'capm',code:'CAPM',chapters:['Scope','Risk'],questions:100,examMin:180,domains:[{k:'people',en:'People',ar:'الأفراد'}]}});assert.equal(other.host.querySelectorAll('[data-assessment-jump]').length,4);assert.equal(other.host.querySelector('[data-course-mock]').disabled,true);other.host.querySelector('[data-course-test]').click();assert.equal(other.calls.at(-1)[2].count,20);const courseCount=other.host.querySelector('[data-course-count]');courseCount.value=25;courseCount.dispatchEvent(new other.w.Event('input'));assert.equal(other.host.querySelector('[data-course-test]').disabled,true);courseCount.value=10;courseCount.dispatchEvent(new other.w.Event('input'));other.host.querySelector('[data-course-test]').click();assert.equal(other.calls.at(-1)[2].count,10);assert.equal(other.calls.at(-1)[2].minutes,14);
-const failed=await setup({fail:true});assert(failed.host.querySelector('[role="alert"]'));await failed.retry();assert.equal(failed.requestCount,2);assert.equal(failed.host.querySelectorAll('[data-assessment-jump]').length,6);
+const failed=await setup({fail:true});assert(failed.host.querySelector('[role="alert"]'));await failed.retry();assert.equal(failed.requestCount,2);assert.equal(failed.host.querySelectorAll('[data-assessment-jump]').length,3);
 assert.equal(fixture.requestCount,1);
 for(const f of [fixture,arabic,empty,other,failed])f.dom.window.close();
 console.log('PASS: bilingual assessment catalogue, native category navigation, accurate counts and timing, disabled unavailable categories, strict custom filters, preserved full-mock selection, non-PMP catalogue, and retry.');

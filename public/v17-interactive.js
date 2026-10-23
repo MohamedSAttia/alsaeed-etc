@@ -92,7 +92,9 @@ let player = null;
 let playerLoader = null;
 let returnFocus = null;
 window.addEventListener('lessons-updated',event=>{if(V&&V.pkgId===event.detail?.pid&&window.LESSONS?.[V.pkgId]?.[V.lessonIdx]?.deleted)close();});
+function sameSession(target=V) { return !!target && window.APP?.me?.()?.id===target.owner && window.APP?.token===target.token; }
 function canOpenLesson(pkgId, lesson) {
+  if(V&&!sameSession())return false;
   if(V&&V.pkgId===pkgId&&V.lesson===lesson&&window.LESSONS?.[pkgId]?.[V.lessonIdx]?.deleted)return false;
   return !!lesson && !lesson.deleted && !!(window.APP.owns(pkgId) || window.APP.isAdmin() || lesson.free);
 }
@@ -170,24 +172,24 @@ function loadPlayer() {
   }).catch(e=>{playerLoader=null;throw e});
   return playerLoader;
 }
-function nextVideo(focus=false) {
+function nextVideo(focus=false,autoplay=false) {
   if (!V) return;
   const order=visibleVideoOrder(V.pkgId);
   const position=order.indexOf(V.lessonIdx);
   if(position<0)return;
   const index=order[position+1];
-  if(index!==undefined) selectVideo(index,focus?'#ivNext':null);
+  if(index!==undefined) selectVideo(index,focus?'#ivNext':null,autoplay);
 }
 function previousVideo() {
   if (!V) return;
   const order=visibleVideoOrder(V.pkgId),position=order.indexOf(V.lessonIdx);
   if(position>0)selectVideo(order[position-1],'#ivPrev');
 }
-function selectVideo(index,focusSelector) {
+function selectVideo(index,focusSelector,autoplay=false) {
   if (!V || !visibleVideoOrder(V.pkgId).includes(index)) return;
   V.openGroups=$$('#iv [data-iv-group][open]').map(group=>group.dataset.ivGroup);
   if(player){player.destroy().catch(()=>{});player=null;}
-  V.lessonIdx=index;V.lesson=(window.LESSONS[V.pkgId]||[])[index];V.startNext=true;
+  V.lessonIdx=index;V.lesson=(window.LESSONS[V.pkgId]||[])[index];V.startNext=autoplay;
   V.cues=buildCues(V.lesson,index);V.done={};V.answered=0;V.correct=0;V.cue=null;
   V.dur=durSec(V.lesson.dur||V.lesson.duration);V.t=0;
   V.discussion=[];V.discussionStatus='loading';V.discussionError='';V.replying=null;
@@ -201,7 +203,7 @@ function connectPlayer(){
     if(!frame.isConnected||V!==target||V.lessonIdx!==index||!canOpenLesson(target.pkgId,target.lesson))return;
     const instance=new Player(frame);player=instance;
     instance.getDuration().then(seconds=>{
-      if(V!==target||V.lessonIdx!==index||player!==instance||!seconds)return;
+      if(!sameSession(target)||V!==target||V.lessonIdx!==index||player!==instance||!seconds)return;
       V.dur=seconds;const display=fmtT(Math.floor(seconds));
       const label=$('#ivDuration');if(label)label.textContent=' · '+display;
       const listing=$(`[data-go="${index}"] .d`);if(listing)listing.textContent=display;
@@ -222,7 +224,8 @@ function connectPlayer(){
       if(V!==target||V.lessonIdx!==index||player!==instance||!canOpenLesson(V.pkgId,V.lesson))return;
       const pr=window.APP.prog(V.pkgId);pr.lessons[index]=true;window.APP.save();
       updateWatched(index);
-      if(V.autoNext)nextVideo();
+      window.LearningWorkspace?.refresh();
+      if(V.autoNext)nextVideo(false,true);
       else window.APP.toast(T('اكتمل الفيديو. شغّل التالي عندما تريد.','Video completed. Play the next when ready.'));
     });
   }).catch(()=>{});
@@ -268,7 +271,7 @@ window.InteractiveVideo = {
     const c = p && window.APP.course ? window.APP.course(p.course) : {};
 
     const opener=document.activeElement;
-    close();returnFocus=opener;V={pkgId,lessonIdx,lesson,course:(c&&c.id)||'pmp',cues:buildCues(lesson,lessonIdx),done:{},t:0,dur:durSec(lesson.dur||lesson.duration),answered:0,correct:0,paused:false,cue:null,autoNext:localStorage.getItem('alsaeed_auto_next')!=='false',discussion:[],discussionStatus:'loading',discussionError:'',canReply:false,replying:null,openGroups:[]};
+    close();returnFocus=opener;V={owner:window.APP?.me?.()?.id,token:window.APP?.token,pkgId,lessonIdx,lesson,course:(c&&c.id)||'pmp',cues:buildCues(lesson,lessonIdx),done:{},t:0,dur:durSec(lesson.dur||lesson.duration),answered:0,correct:0,paused:false,cue:null,autoNext:localStorage.getItem('alsaeed_auto_next')==='true',discussion:[],discussionStatus:'loading',discussionError:'',canReply:false,replying:null,openGroups:[]};
     const host=$('#lnBody')||document.body,inline=host!==document.body;
     if(inline){hiddenLessons=[...host.children].map(el=>({el,display:el.style.display}));hiddenLessons.forEach(x=>x.el.style.display='none')}else document.body.classList.add('iv-lock');
     host.insertAdjacentHTML('beforeend', `<div class="iv-shell ${inline?'iv-inline':''}" id="iv"></div>`);
@@ -280,6 +283,7 @@ window.InteractiveVideo = {
 };
 
 function close() {
+  window.LearningWorkspace?.unmount();
   hiddenLessons.forEach(x=>x.el.style.display=x.display);hiddenLessons=[];
   if(player){player.destroy().catch(()=>{});player=null;}
   V = null;
@@ -291,6 +295,7 @@ function close() {
 
 function render() {
   if (!V) return;
+  if (!sameSession()) { close(); return; }
   const l = V.lesson;
   const vid = l.vimeo || l.video || '';
   const summary=String((L()==='en'?l.notes_en:(l.notes||l.notes_en))||'').trim();
@@ -358,6 +363,7 @@ function render() {
   bind();
   connectPlayer();
   renderDiscussion();
+  window.LearningWorkspace?.mount({root:$('#iv'),pkgId:V.pkgId,lessonIdx:V.lessonIdx,groups,order});
   // Scroll within the bounded playlist only; keep the learner's page position.
   const list=$('#iv .iv-list'),current=$('#iv .iv-li.cur');
   if(list&&current){const distance=current.getBoundingClientRect().top-list.getBoundingClientRect().top;if(distance>list.clientHeight-80)list.scrollTop+=distance-80;}
@@ -365,14 +371,14 @@ function render() {
 
 async function loadDiscussion() {
   if (!V || !window.APP || !window.APP.api) return;
-  const pkg=V.pkgId, idx=V.lessonIdx;
+  const target=V,pkg=V.pkgId, idx=V.lessonIdx;
   V.discussionStatus='loading';V.discussionError='';renderDiscussion();
   try {
     const data=await window.APP.api('/lesson-discussions/'+encodeURIComponent(pkg)+'/'+idx,{timeoutMs:15000});
-    if(!V||V.pkgId!==pkg||V.lessonIdx!==idx)return;
+    if(!sameSession(target)||V!==target||V.pkgId!==pkg||V.lessonIdx!==idx)return;
     V.discussion=Array.isArray(data.items)?data.items:[];V.canReply=!!data.canReply;V.discussionStatus='ready';
   } catch(e) {
-    if(!V||V.pkgId!==pkg||V.lessonIdx!==idx)return;
+    if(!sameSession(target)||V!==target||V.pkgId!==pkg||V.lessonIdx!==idx)return;
     V.discussionStatus='error';V.discussionError=e.message||T('تعذر تحميل المناقشة','Could not load discussion');
   }
   renderDiscussion();
@@ -397,9 +403,11 @@ function renderDiscussion(){
 }
 async function postDiscussion(body,parentId,button){
   const text=String(body||'').trim();if(text.length<2)return window.APP.toast(T('اكتب السؤال أولًا','Write the question first'));
+  if(!sameSession())return;
+  const target=V,pkg=V.pkgId,idx=V.lessonIdx;
   button.disabled=true;button.textContent=T('جارٍ الإرسال…','Sending…');
-  try{await window.APP.api('/lesson-discussions/'+encodeURIComponent(V.pkgId)+'/'+V.lessonIdx,{method:'POST',body:{body:text,parentId}});V.replying=null;await loadDiscussion();window.APP.toast(T('تم إرسال رسالتك','Your message was sent'))}
-  catch(e){button.disabled=false;button.textContent=parentId?T('إرسال الرد','Send reply'):T('إرسال السؤال','Send question');window.APP.toast(e.message)}
+  try{await window.APP.api('/lesson-discussions/'+encodeURIComponent(pkg)+'/'+idx,{method:'POST',body:{body:text,parentId}});if(!sameSession(target)||V!==target||V.lessonIdx!==idx)return;V.replying=null;await loadDiscussion();window.APP.toast(T('تم إرسال رسالتك','Your message was sent'))}
+  catch(e){if(!sameSession(target)||V!==target||V.lessonIdx!==idx)return;button.disabled=false;button.textContent=parentId?T('إرسال الرد','Send reply'):T('إرسال السؤال','Send question');window.APP.toast(e.message)}
 }
 
 function cueOverlay() {
@@ -444,6 +452,9 @@ function openCue(i) {
 }
 
 function bind() {
+  // Gate every UI action before its handler when authentication changes.
+  const shell=$('#iv');
+  if(shell&&!shell._sessionGate){shell._sessionGate=true;for(const name of ['click','change'])shell.addEventListener(name,event=>{if(!sameSession()){event.preventDefault();event.stopImmediatePropagation();close();}},true);}
   const watch=$('#ivWatch');if(watch)watch.onclick=async()=>{try{await player?.play();$('#ivFrame')?.focus({preventScroll:true});}catch(e){window.APP?.toast(T('يمكنك تشغيل الفيديو من المشغّل','You can play the video using the player'));}};
   const c = $('#ivClose'); if (c) c.onclick = close;
   const auto=$('#ivAutoNext');if(auto)auto.onchange=()=>{V.autoNext=auto.checked;localStorage.setItem('alsaeed_auto_next',String(auto.checked));};
@@ -454,7 +465,7 @@ function bind() {
     const pkg = V.pkgId, idx = V.lessonIdx;
     close(); if(window.PackageJourney)window.PackageJourney.lessonTest(pkg,idx);else if(window.runLessonQuiz)window.runLessonQuiz(pkg,'lesson'+idx);
   };
-  $$('[data-iv-file]').forEach(b=>b.onclick=async()=>{try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.ivFile),{headers:{Authorization:'Bearer '+window.APP.token}});if(!response.ok)throw Error(T('تعذر تنزيل الملف','Could not download file'));const url=URL.createObjectURL(await response.blob()),a=document.createElement('a');a.href=url;a.download=b.dataset.fileName;document.body.append(a);a.click();a.remove();const pr=window.APP.prog(V.pkgId);pr.downloads||={};pr.downloads[b.dataset.ivFile]={name:b.dataset.fileName,at:Date.now()};window.APP.save();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(e){window.APP.toast(e.message)}});
+  $$('[data-iv-file]').forEach(b=>b.onclick=async()=>{if(!sameSession())return;const target=V,index=V.lessonIdx;try{const response=await fetch('/api/lesson-files/'+encodeURIComponent(b.dataset.ivFile),{headers:{Authorization:'Bearer '+window.APP.token}});if(!response.ok)throw Error(T('تعذر تنزيل الملف','Could not download file'));const blob=await response.blob();if(!sameSession(target)||V!==target||V.lessonIdx!==index)return;const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=b.dataset.fileName;document.body.append(a);a.click();a.remove();const pr=window.APP.prog(V.pkgId);pr.downloads||={};pr.downloads[b.dataset.ivFile]={name:b.dataset.fileName,at:Date.now()};window.APP.save();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(e){window.APP.toast(e.message)}});
   $$('#iv [data-go]').forEach(b => b.onclick = () => selectVideo(+b.dataset.go,`#iv [data-go="${b.dataset.go}"]`));
   $$('[data-cue]').forEach(b => b.onclick = () => openCue(+b.dataset.cue));
   $$('[data-cueo]').forEach(b => b.onclick = () => {
