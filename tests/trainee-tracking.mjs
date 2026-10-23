@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import {enrollmentTiming,summarizeRecordedProgress,summarizeStudent,DAY_MS as D} from '../trainee-tracking.js';
+import {readPracticeToolSummary,enrollmentTiming,summarizeRecordedProgress,summarizeStudent,DAY_MS as D} from '../trainee-tracking.js';
 const now=Date.UTC(2026,9,15,12), videos=[{idx:0,chapter:1},{idx:2,chapter:1}];
 const row=data=>({data:JSON.stringify(data),updated:now});
 test('exact expiry boundaries, seven-day window, unlimited, unknown, future enrollment',()=>{
@@ -64,3 +64,5 @@ test('DOM filters re-render correctly, search remains compatible, no mutations',
  assert.equal(w.document.querySelectorAll('[data-student-row]').length,1);
  assert.equal(JSON.stringify(overview),original);assert.equal(renders,4);dom.window.close();
 });
+
+test('practice total follows the published workbook catalog',()=>{const defs=JSON.parse(fs.readFileSync(new URL('../data/pmp-practice-tools.json',import.meta.url),'utf8'));const db={prepare:q=>({get:()=>q.includes('sqlite_master')?{name:'pmp_practice_drafts'}:{started:4,completed:2,latestAt:123}})};assert.equal(readPracticeToolSummary(db,'u','p').total,defs.LIFE.length+defs.PROC.L.length+defs.AGILE.workbooks.length);assert.equal(readPracticeToolSummary(db,'u','p').total,55)});

@@ -1744,6 +1744,188 @@
         "item": "summary.html#tips"
       },
       "fingerprint": "89895502fce56e3685ed44b1c88000035d20b2c012c5c68350ac2c4b6e504d06"
+    },
+    {
+      "id": "source-figure-q-158",
+      "axis": "risk",
+      "kind": "source_diagram",
+      "title": {
+        "en": "Sensitivity analysis diagram",
+        "ar": ""
+      },
+      "body": {
+        "en": "Source-authored training diagram. This is an illustrative study resource, not live project data or an official exam rule. Diagram labels are available in English only.",
+        "ar": ""
+      },
+      "figure": {
+        "en": "<svg viewBox=\"0 0 520 290\" class=\"qfig-s\" role=\"img\"\n    aria-label=\"Sensitivity Analysis — Impact on Project Outcome\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect width=\"520\" height=\"290\" fill=\"#fff\" rx=\"8\"/>\n    <text x=\"260\" y=\"22\" font-size=\"13\" font-weight=\"600\" fill=\"#103040\"\n      text-anchor=\"middle\" font-family=\"sans-serif\">Sensitivity Analysis — Impact on Project Outcome</text>\n    <line x1=\"325\" y1=\"40\" x2=\"325\" y2=\"244\"\n    stroke=\"#6b8090\" stroke-width=\"1.4\"/><rect x=\"204.875\" y=\"50.20666666666666\" width=\"120.125\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"50.20666666666666\" width=\"143.375\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"63.83333333333333\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Material cost</text><rect x=\"218.4375\" y=\"82.87333333333333\" width=\"106.56250000000001\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"82.87333333333333\" width=\"112.37499999999999\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"96.5\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Schedule delay</text><rect x=\"245.5625\" y=\"115.53999999999999\" width=\"79.4375\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"115.53999999999999\" width=\"91.0625\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"129.16666666666666\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Labour productivity</text><rect x=\"261.0625\" y=\"148.20666666666665\" width=\"63.9375\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"148.20666666666665\" width=\"69.75\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"161.83333333333331\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Exchange rate</text><rect x=\"282.375\" y=\"180.87333333333333\" width=\"42.625\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"180.87333333333333\" width=\"48.4375\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"194.5\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Regulatory change</text><rect x=\"297.875\" y=\"213.54\" width=\"27.125000000000004\" height=\"20.25333333333333\"\n      fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <rect x=\"325\" y=\"213.54\" width=\"31\" height=\"20.25333333333333\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"162\" y=\"227.16666666666666\" font-size=\"9.5\" fill=\"#103040\" text-anchor=\"end\"\n        font-family=\"sans-serif\">Weather</text><text x=\"170\" y=\"256\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">-0.8</text><text x=\"247.5\" y=\"256\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">-0.4</text><text x=\"325\" y=\"256\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0.0</text><text x=\"402.5\" y=\"256\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0.4</text><text x=\"480\" y=\"256\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0.8</text><rect x=\"170\" y=\"264\" width=\"11\" height=\"9\" fill=\"#c0392b\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"186\" y=\"272\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Negative</text>\n      <rect x=\"250\" y=\"264\" width=\"11\" height=\"9\" fill=\"#2fa87a\" opacity=\".82\" rx=\"2\"/>\n      <text x=\"266\" y=\"272\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Positive</text>\n    \n    <text x=\"260\" y=\"285\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">Correlation coefficient</text>\n  </svg>"
+      },
+      "language": [
+        "en"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/PMP-N",
+        "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+        "item": "03b-question-figures.js:Q-158",
+        "url": "https://github.com/MohamedSAttia/PMP-N/blob/a7715afcdf9a7ed323ce8d6cc9b34b78a682547d/03b-question-figures.js"
+      },
+      "fingerprint": "a0fc88643942ce501657b932e7e1ca3fc71d7445ac92c9ea8c20d00a3f4b8fb8"
+    },
+    {
+      "id": "source-figure-q-269",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "en": "Work remaining versus time",
+        "ar": ""
+      },
+      "body": {
+        "en": "Source-authored training diagram. This is an illustrative study resource, not live project data or an official exam rule. Diagram labels are available in English only.",
+        "ar": ""
+      },
+      "figure": {
+        "en": "<svg viewBox=\"0 0 520 280\" class=\"qfig-s\" role=\"img\"\n    aria-label=\"Work Remaining vs Time\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect width=\"520\" height=\"280\" fill=\"#fff\" rx=\"8\"/>\n    <text x=\"260\" y=\"22\" font-size=\"13\" font-weight=\"600\" fill=\"#103040\"\n      text-anchor=\"middle\" font-family=\"sans-serif\">Work Remaining vs Time</text>\n    <line x1=\"44\" y1=\"228\" x2=\"484\" y2=\"228\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"231.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">0</text><line x1=\"44\" y1=\"181.5\" x2=\"484\" y2=\"181.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"185\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">10</text><line x1=\"44\" y1=\"135\" x2=\"484\" y2=\"135\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"138.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">20</text><line x1=\"44\" y1=\"88.5\" x2=\"484\" y2=\"88.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"92\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">30</text><line x1=\"44\" y1=\"42\" x2=\"484\" y2=\"42\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"45.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">40</text><text x=\"44\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D1</text><text x=\"88\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D2</text><text x=\"132\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D3</text><text x=\"176\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D4</text><text x=\"220\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D5</text><text x=\"264\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D6</text><text x=\"308\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D7</text><text x=\"352\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D8</text><text x=\"396\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D9</text><text x=\"440\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D10</text><text x=\"484\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">D11</text><line x1=\"44\" y1=\"42\" x2=\"44\" y2=\"228\" stroke=\"#6b8090\" stroke-width=\"1.4\"/><polyline points=\"44.0,42.0 88.0,60.6 132.0,79.2 176.0,97.8 220.0,116.4 264.0,135.0 308.0,153.6 352.0,172.2 396.0,190.8 440.0,209.4 484.0,228.0\"\n  fill=\"none\" stroke=\"#c0392b\" stroke-width=\"2\"\n  stroke-dasharray=\"6 4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><polyline points=\"44.0,42.0 88.0,51.3 132.0,69.9 176.0,74.6 220.0,93.2 264.0,116.4 308.0,130.3 352.0,158.3 396.0,176.8 440.0,200.1 484.0,228.0\"\n  fill=\"none\" stroke=\"#70C0E0\" stroke-width=\"2.4\"\n   stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"44.0\" cy=\"42.0\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"88.0\" cy=\"51.3\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"132.0\" cy=\"69.9\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"176.0\" cy=\"74.6\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"220.0\" cy=\"93.2\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"264.0\" cy=\"116.4\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"308.0\" cy=\"130.3\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"352.0\" cy=\"158.3\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"396.0\" cy=\"176.8\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"440.0\" cy=\"200.1\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><circle cx=\"484.0\" cy=\"228.0\"\n  r=\"3\" fill=\"#fff\" stroke=\"#70C0E0\" stroke-width=\"2\"/><rect x=\"366\" y=\"46\" width=\"112\" height=\"34\" fill=\"#fff\"\n      stroke=\"#d8e3ea\" rx=\"5\"/>\n    <line x1=\"374\" y1=\"56\" x2=\"392\" y2=\"56\"\n      stroke=\"#c0392b\" stroke-width=\"2\" stroke-dasharray=\"5 3\"/>\n    <text x=\"397\" y=\"59\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Ideal</text>\n    <line x1=\"374\" y1=\"71\" x2=\"392\" y2=\"71\"\n      stroke=\"#70C0E0\" stroke-width=\"2.4\"/>\n    <text x=\"397\" y=\"74\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Actual</text>\n    <text x=\"14\" y=\"140\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\" transform=\"rotate(-90 14 140)\">Story points remaining</text>\n    <text x=\"260\" y=\"275\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">Sprint day</text>\n  </svg>"
+      },
+      "language": [
+        "en"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/PMP-N",
+        "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+        "item": "03b-question-figures.js:Q-269",
+        "url": "https://github.com/MohamedSAttia/PMP-N/blob/a7715afcdf9a7ed323ce8d6cc9b34b78a682547d/03b-question-figures.js"
+      },
+      "fingerprint": "a141aa0e131d798aa8a19a5a9ff53bd4f8048657269bb5d43a225fa2f5860e64"
+    },
+    {
+      "id": "source-figure-q-357",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "en": "Fifteen-day sprint burndown",
+        "ar": ""
+      },
+      "body": {
+        "en": "Source-authored training diagram. This is an illustrative study resource, not live project data or an official exam rule. Diagram labels are available in English only.",
+        "ar": ""
+      },
+      "figure": {
+        "en": "<svg viewBox=\"0 0 520 280\" class=\"qfig-s\" role=\"img\"\n    aria-label=\"Sprint Burndown — 15-Day Sprint\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect width=\"520\" height=\"280\" fill=\"#fff\" rx=\"8\"/>\n    <text x=\"260\" y=\"22\" font-size=\"13\" font-weight=\"600\" fill=\"#103040\"\n      text-anchor=\"middle\" font-family=\"sans-serif\">Sprint Burndown — 15-Day Sprint</text>\n    <line x1=\"44\" y1=\"228\" x2=\"484\" y2=\"228\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"231.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">0</text><line x1=\"44\" y1=\"181.5\" x2=\"484\" y2=\"181.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"185\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">15</text><line x1=\"44\" y1=\"135\" x2=\"484\" y2=\"135\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"138.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">30</text><line x1=\"44\" y1=\"88.5\" x2=\"484\" y2=\"88.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"92\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">45</text><line x1=\"44\" y1=\"42\" x2=\"484\" y2=\"42\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"45.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">60</text><text x=\"44\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0</text><text x=\"73.33333333333333\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"102.66666666666666\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"132\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">3</text><text x=\"161.33333333333331\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"190.66666666666666\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"220\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">6</text><text x=\"249.33333333333334\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"278.66666666666663\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"308\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">9</text><text x=\"337.3333333333333\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"366.66666666666663\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"396\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">12</text><text x=\"425.33333333333337\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"454.6666666666667\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\"></text><text x=\"484\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">15</text><line x1=\"44\" y1=\"42\" x2=\"44\" y2=\"228\" stroke=\"#6b8090\" stroke-width=\"1.4\"/><polyline points=\"44.0,42.0 73.3,54.4 102.7,66.8 132.0,79.2 161.3,91.6 190.7,104.0 220.0,116.4 249.3,128.8 278.7,141.2 308.0,153.6 337.3,166.0 366.7,178.4 396.0,190.8 425.3,203.2 454.7,215.6 484.0,228.0\"\n  fill=\"none\" stroke=\"#c0392b\" stroke-width=\"2\"\n  stroke-dasharray=\"6 4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><polyline points=\"44.0,42.0 73.3,51.3 102.7,63.7 132.0,79.2 161.3,88.5\"\n  fill=\"none\" stroke=\"#2fa87a\" stroke-width=\"2.4\"\n   stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"44.0\" cy=\"42.0\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"73.3\" cy=\"51.3\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"102.7\" cy=\"63.7\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"132.0\" cy=\"79.2\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"161.3\" cy=\"88.5\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"161.3\" cy=\"88.5\" r=\"5.5\" fill=\"#2fa87a\"/>\n    <line x1=\"161.3\" y1=\"42\" x2=\"161.3\" y2=\"228\"\n      stroke=\"#F07000\" stroke-width=\"1.2\" stroke-dasharray=\"4 3\"/>\n    <text x=\"166.3\" y=\"55\" font-size=\"10\" font-weight=\"600\" fill=\"#F07000\"\n      font-family=\"sans-serif\">Today — day 4</text><rect x=\"366\" y=\"46\" width=\"112\" height=\"34\" fill=\"#fff\"\n      stroke=\"#d8e3ea\" rx=\"5\"/>\n    <line x1=\"374\" y1=\"56\" x2=\"392\" y2=\"56\"\n      stroke=\"#c0392b\" stroke-width=\"2\" stroke-dasharray=\"5 3\"/>\n    <text x=\"397\" y=\"59\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Plan</text>\n    <line x1=\"374\" y1=\"71\" x2=\"392\" y2=\"71\"\n      stroke=\"#2fa87a\" stroke-width=\"2.4\"/>\n    <text x=\"397\" y=\"74\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Actual</text>\n    <text x=\"14\" y=\"140\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\" transform=\"rotate(-90 14 140)\">Story points remaining</text>\n    <text x=\"260\" y=\"275\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">Sprint day</text>\n  </svg>"
+      },
+      "language": [
+        "en"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/PMP-N",
+        "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+        "item": "03b-question-figures.js:Q-357",
+        "url": "https://github.com/MohamedSAttia/PMP-N/blob/a7715afcdf9a7ed323ce8d6cc9b34b78a682547d/03b-question-figures.js"
+      },
+      "fingerprint": "bdc51e2cb15547069676145a0c25d76da11949023268ee601a98de1b7786c8f5"
+    },
+    {
+      "id": "source-figure-q-471",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "en": "Thirty-seven-point sprint burndown",
+        "ar": ""
+      },
+      "body": {
+        "en": "Source-authored training diagram. This is an illustrative study resource, not live project data or an official exam rule. Diagram labels are available in English only.",
+        "ar": ""
+      },
+      "figure": {
+        "en": "<svg viewBox=\"0 0 520 280\" class=\"qfig-s\" role=\"img\"\n    aria-label=\"Burndown — 37 Story Points Planned\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect width=\"520\" height=\"280\" fill=\"#fff\" rx=\"8\"/>\n    <text x=\"260\" y=\"22\" font-size=\"13\" font-weight=\"600\" fill=\"#103040\"\n      text-anchor=\"middle\" font-family=\"sans-serif\">Burndown — 37 Story Points Planned</text>\n    <line x1=\"44\" y1=\"228\" x2=\"484\" y2=\"228\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"231.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">0</text><line x1=\"44\" y1=\"181.5\" x2=\"484\" y2=\"181.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"185\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">10</text><line x1=\"44\" y1=\"135\" x2=\"484\" y2=\"135\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"138.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">20</text><line x1=\"44\" y1=\"88.5\" x2=\"484\" y2=\"88.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"92\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">30</text><line x1=\"44\" y1=\"42\" x2=\"484\" y2=\"42\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"45.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">40</text><text x=\"44\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0</text><text x=\"88\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">1</text><text x=\"132\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">2</text><text x=\"176\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">3</text><text x=\"220\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">4</text><text x=\"264\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">5</text><text x=\"308\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">6</text><text x=\"352\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">7</text><text x=\"396\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">8</text><text x=\"440\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">9</text><text x=\"484\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">10</text><line x1=\"44\" y1=\"42\" x2=\"44\" y2=\"228\" stroke=\"#6b8090\" stroke-width=\"1.4\"/><polyline points=\"44.0,55.9 88.0,73.2 132.0,90.4 176.0,107.6 220.0,124.8 264.0,142.0 308.0,159.2 352.0,176.4 396.0,193.6 440.0,210.8 484.0,228.0\"\n  fill=\"none\" stroke=\"#c0392b\" stroke-width=\"2\"\n  stroke-dasharray=\"6 4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><polyline points=\"44.0,55.9 88.0,60.6 132.0,65.3 176.0,69.9\"\n  fill=\"none\" stroke=\"#F07000\" stroke-width=\"2.4\"\n   stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"44.0\" cy=\"55.9\"\n  r=\"3\" fill=\"#fff\" stroke=\"#F07000\" stroke-width=\"2\"/><circle cx=\"88.0\" cy=\"60.6\"\n  r=\"3\" fill=\"#fff\" stroke=\"#F07000\" stroke-width=\"2\"/><circle cx=\"132.0\" cy=\"65.3\"\n  r=\"3\" fill=\"#fff\" stroke=\"#F07000\" stroke-width=\"2\"/><circle cx=\"176.0\" cy=\"69.9\"\n  r=\"3\" fill=\"#fff\" stroke=\"#F07000\" stroke-width=\"2\"/><line x1=\"176.0\" y1=\"69.9\" x2=\"176.0\"\n      y2=\"107.6\" stroke=\"#c0392b\" stroke-width=\"2\"/>\n    <text x=\"183.0\" y=\"91.7\" font-size=\"10\"\n      font-weight=\"600\" fill=\"#c0392b\" font-family=\"sans-serif\">gap</text>\n    <circle cx=\"176.0\" cy=\"69.9\" r=\"5.5\" fill=\"#F07000\"/>\n    <text x=\"181.0\" y=\"55\" font-size=\"10\" font-weight=\"600\" fill=\"#F07000\"\n      font-family=\"sans-serif\">Day 3</text><rect x=\"366\" y=\"46\" width=\"112\" height=\"34\" fill=\"#fff\"\n      stroke=\"#d8e3ea\" rx=\"5\"/>\n    <line x1=\"374\" y1=\"56\" x2=\"392\" y2=\"56\"\n      stroke=\"#c0392b\" stroke-width=\"2\" stroke-dasharray=\"5 3\"/>\n    <text x=\"397\" y=\"59\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Plan (dotted)</text>\n    <line x1=\"374\" y1=\"71\" x2=\"392\" y2=\"71\"\n      stroke=\"#F07000\" stroke-width=\"2.4\"/>\n    <text x=\"397\" y=\"74\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Actual</text>\n    <text x=\"14\" y=\"140\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\" transform=\"rotate(-90 14 140)\">Story points remaining</text>\n    <text x=\"260\" y=\"275\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">Sprint day</text>\n  </svg>"
+      },
+      "language": [
+        "en"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/PMP-N",
+        "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+        "item": "03b-question-figures.js:Q-471",
+        "url": "https://github.com/MohamedSAttia/PMP-N/blob/a7715afcdf9a7ed323ce8d6cc9b34b78a682547d/03b-question-figures.js"
+      },
+      "fingerprint": "de832d8f465bd73441eb820922ff506c0196d33000717ec31233781f283d192e"
+    },
+    {
+      "id": "source-figure-q-756",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "en": "Burnup and scope change",
+        "ar": ""
+      },
+      "body": {
+        "en": "Source-authored training diagram. This is an illustrative study resource, not live project data or an official exam rule. Diagram labels are available in English only.",
+        "ar": ""
+      },
+      "figure": {
+        "en": "<svg viewBox=\"0 0 520 280\" class=\"qfig-s\" role=\"img\"\n    aria-label=\"Burnup — Completed Work vs Total Scope\" xmlns=\"http://www.w3.org/2000/svg\">\n    <rect width=\"520\" height=\"280\" fill=\"#fff\" rx=\"8\"/>\n    <text x=\"260\" y=\"22\" font-size=\"13\" font-weight=\"600\" fill=\"#103040\"\n      text-anchor=\"middle\" font-family=\"sans-serif\">Burnup — Completed Work vs Total Scope</text>\n    <line x1=\"44\" y1=\"228\" x2=\"484\" y2=\"228\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"231.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">0</text><line x1=\"44\" y1=\"181.5\" x2=\"484\" y2=\"181.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"185\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">10</text><line x1=\"44\" y1=\"135\" x2=\"484\" y2=\"135\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"138.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">20</text><line x1=\"44\" y1=\"88.5\" x2=\"484\" y2=\"88.5\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"92\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">30</text><line x1=\"44\" y1=\"42\" x2=\"484\" y2=\"42\" stroke=\"#d8e3ea\" stroke-width=\"1\"/>\n        <text x=\"38\" y=\"45.5\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"end\"\n          font-family=\"sans-serif\">40</text><text x=\"44\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">0</text><text x=\"88\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">1</text><text x=\"132\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">2</text><text x=\"176\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">3</text><text x=\"220\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">4</text><text x=\"264\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">5</text><text x=\"308\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">6</text><text x=\"352\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">7</text><text x=\"396\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">8</text><text x=\"440\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">9</text><text x=\"484\" y=\"242\" font-size=\"9\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">10</text><line x1=\"44\" y1=\"42\" x2=\"44\" y2=\"228\" stroke=\"#6b8090\" stroke-width=\"1.4\"/><polyline points=\"44.0,79.2 88.0,79.2 132.0,79.2 176.0,79.2 220.0,79.2 264.0,79.2 308.0,79.2 352.0,88.5 396.0,88.5 440.0,88.5 484.0,88.5\"\n  fill=\"none\" stroke=\"#103040\" stroke-width=\"2.2\"\n   stroke-linejoin=\"round\" stroke-linecap=\"round\"/><polyline points=\"44.0,228.0 88.0,214.1 132.0,200.1 176.0,181.5 220.0,167.6 264.0,148.9 308.0,135.0 352.0,121.1 396.0,107.1 440.0,97.8 484.0,88.5\"\n  fill=\"none\" stroke=\"#2fa87a\" stroke-width=\"2.4\"\n   stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"44.0\" cy=\"228.0\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"88.0\" cy=\"214.1\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"132.0\" cy=\"200.1\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"176.0\" cy=\"181.5\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"220.0\" cy=\"167.6\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"264.0\" cy=\"148.9\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"308.0\" cy=\"135.0\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"352.0\" cy=\"121.1\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"396.0\" cy=\"107.1\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"440.0\" cy=\"97.8\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><circle cx=\"484.0\" cy=\"88.5\"\n  r=\"3\" fill=\"#fff\" stroke=\"#2fa87a\" stroke-width=\"2\"/><line x1=\"352.0\" y1=\"42\" x2=\"352.0\" y2=\"228\"\n      stroke=\"#F07000\" stroke-width=\"1.2\" stroke-dasharray=\"4 3\"/>\n    <circle cx=\"352.0\" cy=\"88.5\" r=\"5\" fill=\"#F07000\"/>\n    <text x=\"348.0\" y=\"79.5\" font-size=\"10\"\n      font-weight=\"600\" fill=\"#F07000\" text-anchor=\"end\" font-family=\"sans-serif\">Day 7 — scope 32 → 30</text><rect x=\"358\" y=\"186\" width=\"120\" height=\"34\" fill=\"#fff\"\n      stroke=\"#d8e3ea\" rx=\"5\"/>\n    <line x1=\"366\" y1=\"196\" x2=\"384\" y2=\"196\"\n      stroke=\"#103040\" stroke-width=\"2.2\"/>\n    <text x=\"389\" y=\"199\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Total scope</text>\n    <line x1=\"366\" y1=\"211\" x2=\"384\" y2=\"211\"\n      stroke=\"#2fa87a\" stroke-width=\"2.4\"/>\n    <text x=\"389\" y=\"214\" font-size=\"9\" fill=\"#6b8090\" font-family=\"sans-serif\">Completed</text>\n    <text x=\"14\" y=\"140\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\" transform=\"rotate(-90 14 140)\">Story points</text>\n    <text x=\"260\" y=\"275\" font-size=\"10\" fill=\"#6b8090\" text-anchor=\"middle\"\n      font-family=\"sans-serif\">Sprint day</text>\n  </svg>"
+      },
+      "language": [
+        "en"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/PMP-N",
+        "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+        "item": "03b-question-figures.js:Q-756",
+        "url": "https://github.com/MohamedSAttia/PMP-N/blob/a7715afcdf9a7ed323ce8d6cc9b34b78a682547d/03b-question-figures.js"
+      },
+      "fingerprint": "b87374b95af759557cdc99d78fcf3f52cfebf6fad12e802468458397413d65f6"
+    },
+    {
+      "id": "source-figure-velo",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "ar": "مخطط السرعة",
+        "en": ""
+      },
+      "body": {
+        "ar": "رسم تدريبي مؤلف من المصدر، وليس بيانات مشروع فعلية أو قاعدة رسمية للاختبار. النسخة البصرية الأصلية متاحة بالعربية.",
+        "en": ""
+      },
+      "figure": {
+        "ar": "\n<svg viewBox=\"0 0 720 330\" xmlns=\"http://www.w3.org/2000/svg\" style=\"max-width:680px\">\n<style>.ax{stroke:#7a8896;stroke-width:2}.lb{font:13px Tahoma;fill:#5c6a78}.vl{font:bold 16px Tahoma;fill:#1b3a5b;text-anchor:middle}</style>\n<line class=\"ax\" x1=\"70\" y1=\"270\" x2=\"680\" y2=\"270\"/><line class=\"ax\" x1=\"70\" y1=\"270\" x2=\"70\" y2=\"20\"/>\n<rect x=\"120\" y=\"102\" width=\"90\" height=\"168\" fill=\"#2f6fb2\" rx=\"6\"/><text class=\"vl\" x=\"165\" y=\"92\">28</text><text class=\"lb\" x=\"165\" y=\"292\" text-anchor=\"middle\">سبرنت 1</text>\n<rect x=\"255\" y=\"78\" width=\"90\" height=\"192\" fill=\"#2f6fb2\" rx=\"6\"/><text class=\"vl\" x=\"300\" y=\"68\">32</text><text class=\"lb\" x=\"300\" y=\"292\" text-anchor=\"middle\">سبرنت 2</text>\n<rect x=\"390\" y=\"90\" width=\"90\" height=\"180\" fill=\"#2f6fb2\" rx=\"6\"/><text class=\"vl\" x=\"435\" y=\"80\">30</text><text class=\"lb\" x=\"435\" y=\"292\" text-anchor=\"middle\">سبرنت 3</text>\n<rect x=\"525\" y=\"90\" width=\"90\" height=\"180\" fill=\"#2f6fb2\" rx=\"6\"/><text class=\"vl\" x=\"570\" y=\"80\">30</text><text class=\"lb\" x=\"570\" y=\"292\" text-anchor=\"middle\">سبرنت 4</text>\n<line x1=\"70\" y1=\"90\" x2=\"680\" y2=\"90\" stroke=\"#c9a13b\" stroke-width=\"2.5\" stroke-dasharray=\"7 5\"/>\n<text style=\"font:bold 12.5px Tahoma\" fill=\"#a07f24\" x=\"675\" y=\"82\" text-anchor=\"end\">المتوسط = 30 نقطة</text>\n<text class=\"lb\" x=\"30\" y=\"150\" transform=\"rotate(-90 30 150)\" text-anchor=\"middle\">نقاط القصة المنجزة</text>\n</svg>"
+      },
+      "language": [
+        "ar"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/alsaeed-pmp2026",
+        "commit": "4f6069093492bc0461c4b4892ed66a126c60f99b",
+        "item": "svgs.json:velo",
+        "url": "https://github.com/MohamedSAttia/alsaeed-pmp2026/blob/4f6069093492bc0461c4b4892ed66a126c60f99b/svgs.json"
+      },
+      "fingerprint": "23a93ce56013830057d2a9bd89419762c2304b4995613312a3367b6269b452a0"
+    },
+    {
+      "id": "source-figure-burnupms",
+      "axis": "agile",
+      "kind": "source_diagram",
+      "title": {
+        "ar": "مخطط العمل المنجز ونطاق العمل",
+        "en": ""
+      },
+      "body": {
+        "ar": "رسم تدريبي مؤلف من المصدر، وليس بيانات مشروع فعلية أو قاعدة رسمية للاختبار. النسخة البصرية الأصلية متاحة بالعربية.",
+        "en": ""
+      },
+      "figure": {
+        "ar": "\n<svg viewBox=\"0 0 720 350\" xmlns=\"http://www.w3.org/2000/svg\" style=\"max-width:680px\">\n<style>.ax{stroke:#7a8896;stroke-width:2}.lb{font:12.5px Tahoma;fill:#5c6a78}</style>\n<line class=\"ax\" x1=\"60\" y1=\"290\" x2=\"690\" y2=\"290\"/><line class=\"ax\" x1=\"60\" y1=\"290\" x2=\"60\" y2=\"20\"/>\n<text class=\"lb\" x=\"121\" y=\"308\" text-anchor=\"middle\">1</text><text class=\"lb\" x=\"182\" y=\"308\" text-anchor=\"middle\">2</text><text class=\"lb\" x=\"243\" y=\"308\" text-anchor=\"middle\">3</text><text class=\"lb\" x=\"304\" y=\"308\" text-anchor=\"middle\">4</text><text class=\"lb\" x=\"365\" y=\"308\" text-anchor=\"middle\">5</text><text class=\"lb\" x=\"426\" y=\"308\" text-anchor=\"middle\">6</text><text class=\"lb\" x=\"487\" y=\"308\" text-anchor=\"middle\">7</text><text class=\"lb\" x=\"548\" y=\"308\" text-anchor=\"middle\">8</text><text class=\"lb\" x=\"609\" y=\"308\" text-anchor=\"middle\">9</text><text class=\"lb\" x=\"670\" y=\"308\" text-anchor=\"middle\">10</text>\n<text class=\"lb\" x=\"375\" y=\"330\" text-anchor=\"middle\">السبرنتات</text>\n<text class=\"lb\" x=\"26\" y=\"155\" transform=\"rotate(-90 26 155)\" text-anchor=\"middle\">نقاط القصة</text>\n<polyline points=\"60,70 243,70 243,58 690,58\" fill=\"none\" stroke=\"#1b3a5b\" stroke-width=\"2.5\"/>\n<text style=\"font:bold 12.5px Tahoma\" fill=\"#1b3a5b\" x=\"80\" y=\"52\">النطاق الكلي</text>\n<polyline points=\"60,290 121,272 182,257 243,244 304,230 365,218\" fill=\"none\" stroke=\"#1e8e4e\" stroke-width=\"3.5\"/>\n<line x1=\"365\" y1=\"218\" x2=\"690\" y2=\"128\" stroke=\"#1e8e4e\" stroke-width=\"2.5\" stroke-dasharray=\"7 6\"/>\n<text style=\"font:bold 12.5px Tahoma\" fill=\"#1e8e4e\" x=\"230\" y=\"265\">الإنجاز المتراكم</text>\n<line x1=\"548\" y1=\"290\" x2=\"548\" y2=\"30\" stroke=\"#b3261e\" stroke-width=\"2.5\" stroke-dasharray=\"4 4\"/>\n<text style=\"font:bold 12.5px Tahoma\" fill=\"#b3261e\" x=\"548\" y=\"24\" text-anchor=\"middle\">المعلم التعاقدي (سبرنت 8)</text>\n</svg>"
+      },
+      "language": [
+        "ar"
+      ],
+      "source": {
+        "repository": "MohamedSAttia/alsaeed-pmp2026",
+        "commit": "4f6069093492bc0461c4b4892ed66a126c60f99b",
+        "item": "svgs.json:burnupms",
+        "url": "https://github.com/MohamedSAttia/alsaeed-pmp2026/blob/4f6069093492bc0461c4b4892ed66a126c60f99b/svgs.json"
+      },
+      "fingerprint": "10204f1ab3733e2313e93a7c8bf8e14ab3d4a5b98a0390fdfbef241a78a51f6f"
     }
   ],
   "activities": [

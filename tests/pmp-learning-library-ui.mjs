@@ -32,3 +32,8 @@ if(process.env.PMP_LIBRARY_DATA){
  }
  console.log('PASS: actual protected dataset renders every item in both languages and all four simulations');
 }
+{
+ const payload=structuredClone(data);payload.resources.push({id:'figure',axis:'risk',title:{en:'Study diagram'},body:{en:'English diagram'},figure:{en:'<svg xmlns="http://www.w3.org/2000/svg"><text>Illustration</text></svg>'}},{id:'unsafe-figure',axis:'risk',title:{en:'Unsafe'},body:{en:'Text stays readable'},figure:{en:'<svg onload="alert(1)"></svg>'}});
+ const f=fixture('files','ar',payload);await settle();const d=f.w.document;assert(!d.querySelector('[data-library-id="figure"] img'),'no unselected-language figure fallback');d.querySelector('[data-library-id="figure"] [data-library-language="en"]').click();await settle();assert(d.querySelector('[data-library-id="figure"] img').src.startsWith('data:image/svg+xml;charset=utf-8,'));assert(!d.querySelector('[data-library-id="unsafe-figure"] img'));assert(!d.querySelector('[onload]'));f.d.window.close();
+}
+console.log('PASS source-language protected diagram images, no hidden fallback and active/external SVG rejected');

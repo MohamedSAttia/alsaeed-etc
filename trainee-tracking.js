@@ -1,4 +1,7 @@
 import crypto from 'node:crypto';
+import {readFileSync} from 'node:fs';
+const practiceDefinitions=JSON.parse(readFileSync(new URL('./data/pmp-practice-tools.json',import.meta.url),'utf8'));
+const practiceTotal=practiceDefinitions.LIFE.length+practiceDefinitions.PROC.L.length+(practiceDefinitions.AGILE?.workbooks?.length||0);
 // Read-only reporting. Missing/corrupt records are unknown, never fabricated progress.
 export const DAY_MS = 86400000;
 export function enrollmentTiming(enrollment, now) {
@@ -18,7 +21,7 @@ export function readRecordedExamAttempts(db, userId, packageId) {
 export function readPracticeToolSummary(db,userId,packageId){
  if(!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='pmp_practice_drafts'").get())return null;
  const row=db.prepare('SELECT COUNT(*) started,SUM(CASE WHEN completed=1 THEN 1 ELSE 0 END) completed,MAX(updated) latestAt FROM pmp_practice_drafts WHERE user_id=? AND package_id=?').get(userId,packageId);
- return row.started?{total:51,started:Number(row.started),completed:Number(row.completed||0),latestAt:Number(row.latestAt)||null}:null;
+ return row.started?{total:practiceTotal,started:Number(row.started),completed:Number(row.completed||0),latestAt:Number(row.latestAt)||null}:null;
 }
 export function summarizeRecordedProgress(row, videoRows, attempts = [], practiceTools = null) {
   let data = null;

@@ -6255,5 +6255,1474 @@
         }
       ]
     }
+  },
+  "AGILE": {
+    "source": {
+      "repo": "MohamedSAttia/PMP-N",
+      "commit": "a7715afcdf9a7ed323ce8d6cc9b34b78a682547d",
+      "path": "07b-agile-hybrid.js",
+      "relatedPath": "10-lifecycle-data.js",
+      "symbols": [
+        "APPROACH",
+        "SCRUM",
+        "KANBAN",
+        "SCRUMX",
+        "HYBRID"
+      ],
+      "adaptations": [
+        "Added missing English regulatory-burden factor labels.",
+        "Replaced illustrative person names with fictional role labels.",
+        "Converted browser-only state into explicit private server drafts.",
+        "Source heuristics are educational suggestions, not grades or official recommendations.",
+        "A zero observed velocity does not create a finite forecast."
+      ]
+    },
+    "factors": [
+      {
+        "k": "req",
+        "ar": [
+          "استقرار المتطلبات",
+          "مستقرة ومكتملة",
+          "تتطوّر بالتعلّم"
+        ],
+        "en": [
+          "Requirements stability",
+          "Stable and complete",
+          "Emerge through learning"
+        ]
+      },
+      {
+        "k": "chg",
+        "ar": [
+          "كلفة التغيير",
+          "مرتفعة جداً بعد البدء",
+          "منخفضة ومقبولة"
+        ],
+        "en": [
+          "Cost of change",
+          "Very high once started",
+          "Low and acceptable"
+        ]
+      },
+      {
+        "k": "reg",
+        "ar": [
+          "العبء التنظيمي",
+          "اعتماد وشهادات ونقاط توقّف",
+          "خفيف أو داخلي"
+        ],
+        "en": [
+          "Regulatory burden",
+          "Approvals, certification and hold points",
+          "Light or internal"
+        ]
+      },
+      {
+        "k": "fb",
+        "ar": [
+          "تواتر تغذية العميل الراجعة",
+          "عند التسليم النهائي",
+          "بعد كل زيادة"
+        ],
+        "en": [
+          "Customer feedback cadence",
+          "At final handover",
+          "After each increment"
+        ]
+      },
+      {
+        "k": "del",
+        "ar": [
+          "قابلية التسليم التدريجي",
+          "المنتج لا يعمل إلا كاملاً",
+          "أجزاء تُستخدم فوراً"
+        ],
+        "en": [
+          "Incremental deliverability",
+          "Only works when complete",
+          "Parts usable immediately"
+        ]
+      },
+      {
+        "k": "team",
+        "ar": [
+          "تفرّغ الفريق وتجاوره",
+          "موزّع وجزئي التفرّغ",
+          "متفرّغ ومتقارب"
+        ],
+        "en": [
+          "Team dedication and proximity",
+          "Distributed and part-time",
+          "Dedicated and co-located"
+        ]
+      },
+      {
+        "k": "tech",
+        "ar": [
+          "وضوح الحلّ التقني",
+          "معروف ومجرَّب",
+          "استكشافي وجديد"
+        ],
+        "en": [
+          "Technical solution clarity",
+          "Known and proven",
+          "Exploratory and novel"
+        ]
+      },
+      {
+        "k": "cont",
+        "ar": [
+          "طبيعة العقد",
+          "نطاق ثابت مسعّر",
+          "مرن أو بالوقت والمواد"
+        ],
+        "en": [
+          "Contract nature",
+          "Fixed priced scope",
+          "Flexible or T&M"
+        ]
+      }
+    ],
+    "roles": [
+      {
+        "k": "po",
+        "ic": "🎯",
+        "ar": [
+          "مالك المنتج",
+          "يرتّب قائمة الأعمال ويملك القيمة. هو من يقرّر ما يُبنى ومتى — ولا يقرّر كيف."
+        ],
+        "en": [
+          "Product Owner",
+          "Orders the backlog and owns value. Decides what is built and when — never how."
+        ]
+      },
+      {
+        "k": "sm",
+        "ic": "🛡",
+        "ar": [
+          "سكرم ماستر",
+          "يخدم الفريق ويزيل العوائق ويحمي السبرنت. ليس مديراً للفريق."
+        ],
+        "en": [
+          "Scrum Master",
+          "Serves the team, removes impediments, protects the sprint. Not the team’s manager."
+        ]
+      },
+      {
+        "k": "dev",
+        "ic": "🔧",
+        "ar": [
+          "المطوّرون",
+          "ينظّمون أنفسهم ويبنون الزيادة. هم وحدهم من يغيّر قائمة السبرنت أثناءه."
+        ],
+        "en": [
+          "Developers",
+          "Self-organise and build the increment. They alone change the sprint backlog mid-sprint."
+        ]
+      }
+    ],
+    "events": [
+      {
+        "k": "plan",
+        "ic": "📋",
+        "ar": [
+          "تخطيط السبرنت",
+          "ماذا وكيف — يُحدَّد هدف السبرنت وقائمته.",
+          "٨ ساعات لسبرنت شهر"
+        ],
+        "en": [
+          "Sprint Planning",
+          "What and how — the sprint goal and backlog are set.",
+          "8 hours for a one-month sprint"
+        ]
+      },
+      {
+        "k": "daily",
+        "ic": "☀️",
+        "ar": [
+          "الاجتماع اليومي",
+          "١٥ دقيقة — الفريق للفريق لا للمدير.",
+          "١٥ دقيقة يومياً"
+        ],
+        "en": [
+          "Daily Scrum",
+          "15 minutes — team to team, not to a manager.",
+          "15 minutes daily"
+        ]
+      },
+      {
+        "k": "rev",
+        "ic": "🔍",
+        "ar": [
+          "مراجعة السبرنت",
+          "تفتيش الزيادة مع أصحاب المصلحة وتكييف قائمة المنتج.",
+          "٤ ساعات لسبرنت شهر"
+        ],
+        "en": [
+          "Sprint Review",
+          "Inspect the increment with stakeholders and adapt the product backlog.",
+          "4 hours for a one-month sprint"
+        ]
+      },
+      {
+        "k": "retro",
+        "ic": "🔄",
+        "ar": [
+          "الاستعادة",
+          "تفتيش العملية — إجراء واحد بمالك وتاريخ.",
+          "٣ ساعات لسبرنت شهر"
+        ],
+        "en": [
+          "Retrospective",
+          "Inspect the process — one action with an owner and a date.",
+          "3 hours for a one-month sprint"
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "k": "pb",
+        "ic": "📚",
+        "ar": [
+          "قائمة المنتج",
+          "مرتّبة · لا تنتهي أبداً · يملكها مالك المنتج"
+        ],
+        "en": [
+          "Product Backlog",
+          "Ordered · never final · owned by the product owner"
+        ]
+      },
+      {
+        "k": "sb",
+        "ic": "📝",
+        "ar": [
+          "قائمة السبرنت",
+          "خطة الفريق لهذا السبرنت · يملكها المطوّرون"
+        ],
+        "en": [
+          "Sprint Backlog",
+          "The team’s plan for this sprint · owned by the developers"
+        ]
+      },
+      {
+        "k": "inc",
+        "ic": "📦",
+        "ar": [
+          "الزيادة",
+          "يجب أن تستوفي تعريف الإنجاز · قابلة للإطلاق"
+        ],
+        "en": [
+          "Increment",
+          "Must meet the definition of done · potentially releasable"
+        ]
+      }
+    ],
+    "kanbanColumns": [
+      {
+        "k": "todo",
+        "ar": "قيد الانتظار",
+        "en": "To Do",
+        "wip": 0
+      },
+      {
+        "k": "dev",
+        "ar": "قيد التطوير",
+        "en": "In Development",
+        "wip": 3
+      },
+      {
+        "k": "test",
+        "ar": "قيد الاختبار",
+        "en": "In Testing",
+        "wip": 2
+      },
+      {
+        "k": "done",
+        "ar": "منجز",
+        "en": "Done",
+        "wip": 0
+      }
+    ],
+    "hybridAreas": [
+      {
+        "k": "hull",
+        "ar": "الهيكل والبناء",
+        "en": "Hull and construction",
+        "ap": null,
+        "hint": [
+          "مواصفة مجمّدة · اعتماد تصنيف · كلفة تغيير عالية",
+          "Frozen specification · class approval · high cost of change"
+        ],
+        "suggested": "predictive"
+      },
+      {
+        "k": "prop",
+        "ar": "منظومة الدفع",
+        "en": "Propulsion system",
+        "ap": null,
+        "hint": [
+          "مورّد خارجي · مواصفة مكتملة · عقد ثابت",
+          "External supplier · complete specification · fixed contract"
+        ],
+        "suggested": "predictive"
+      },
+      {
+        "k": "cms",
+        "ar": "منظومة القتال",
+        "en": "Combat system",
+        "ap": null,
+        "hint": [
+          "خمس زيادات · متطلبات تتطوّر · تغذية راجعة لكل زيادة",
+          "Five increments · evolving requirements · feedback per increment"
+        ],
+        "suggested": "agile"
+      },
+      {
+        "k": "fit",
+        "ar": "التجهيز الداخلي",
+        "en": "Internal outfitting",
+        "ap": null,
+        "hint": [
+          "التمديدات تنبؤية · تجهيز المقصورات يُصقل مع المستخدمين",
+          "Routing is predictive · compartment fit-out refined with users"
+        ],
+        "suggested": "hybrid"
+      },
+      {
+        "k": "trials",
+        "ar": "التجارب والقبول",
+        "en": "Trials and acceptance",
+        "ap": null,
+        "hint": [
+          "بروتوكول محدّد · نقاط توقّف تعاقدية",
+          "Defined protocol · contractual hold points"
+        ],
+        "suggested": "predictive"
+      }
+    ],
+    "workbooks": [
+      {
+        "id": "agile:approach",
+        "axis": "framework",
+        "title": [
+          "اختيار نهج المشروع",
+          "Select a project approach"
+        ],
+        "description": [
+          "راجع ثمانية عوامل ثم علّل نهجك؛ الاختيار مبني على سياق المشروع لا التفضيل وحده.",
+          "Review eight factors and explain your approach; choose for context rather than preference alone."
+        ],
+        "fields": [
+          {
+            "k": "req",
+            "l": [
+              "استقرار المتطلبات",
+              "Requirements stability"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: مستقرة ومكتملة · ٥: تتطوّر بالتعلّم",
+              "1: Stable and complete · 5: Emerge through learning"
+            ]
+          },
+          {
+            "k": "chg",
+            "l": [
+              "كلفة التغيير",
+              "Cost of change"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: مرتفعة جداً بعد البدء · ٥: منخفضة ومقبولة",
+              "1: Very high once started · 5: Low and acceptable"
+            ]
+          },
+          {
+            "k": "reg",
+            "l": [
+              "العبء التنظيمي",
+              "Regulatory burden"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: اعتماد وشهادات ونقاط توقّف · ٥: خفيف أو داخلي",
+              "1: Approvals, certification and hold points · 5: Light or internal"
+            ]
+          },
+          {
+            "k": "fb",
+            "l": [
+              "تواتر تغذية العميل الراجعة",
+              "Customer feedback cadence"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: عند التسليم النهائي · ٥: بعد كل زيادة",
+              "1: At final handover · 5: After each increment"
+            ]
+          },
+          {
+            "k": "del",
+            "l": [
+              "قابلية التسليم التدريجي",
+              "Incremental deliverability"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: المنتج لا يعمل إلا كاملاً · ٥: أجزاء تُستخدم فوراً",
+              "1: Only works when complete · 5: Parts usable immediately"
+            ]
+          },
+          {
+            "k": "team",
+            "l": [
+              "تفرّغ الفريق وتجاوره",
+              "Team dedication and proximity"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: موزّع وجزئي التفرّغ · ٥: متفرّغ ومتقارب",
+              "1: Distributed and part-time · 5: Dedicated and co-located"
+            ]
+          },
+          {
+            "k": "tech",
+            "l": [
+              "وضوح الحلّ التقني",
+              "Technical solution clarity"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: معروف ومجرَّب · ٥: استكشافي وجديد",
+              "1: Known and proven · 5: Exploratory and novel"
+            ]
+          },
+          {
+            "k": "cont",
+            "l": [
+              "طبيعة العقد",
+              "Contract nature"
+            ],
+            "ty": "score",
+            "min": 1,
+            "max": 5,
+            "integer": true,
+            "hint": [
+              "١: نطاق ثابت مسعّر · ٥: مرن أو بالوقت والمواد",
+              "1: Fixed priced scope · 5: Flexible or T&M"
+            ]
+          },
+          {
+            "k": "rationale",
+            "l": [
+              "تفسير اختيارك وحدود الاستنتاج",
+              "Your rationale and the limits of this conclusion"
+            ],
+            "rows": 4
+          }
+        ],
+        "groups": []
+      },
+      {
+        "id": "agile:scrum",
+        "axis": "execution",
+        "title": [
+          "ورشة سكروم والسبرنت",
+          "Scrum and sprint workbook"
+        ],
+        "description": [
+          "خطّط الفريق والقائمة والسبرنتات ثم راجع السعة والجاهزية والسرعة المسجّلة. الأدوار افتراضية والنقاط ليست ساعات أو مقياس أداء للأفراد.",
+          "Plan the team, backlog and sprints; inspect capacity, readiness and recorded velocity. Use fictional roles. Points are not hours or a measure of individual performance."
+        ],
+        "fields": [
+          {
+            "k": "length",
+            "l": [
+              "مدة السبرنت التدريبية بالأيام",
+              "Practice sprint length in days"
+            ],
+            "ty": "num",
+            "min": 1,
+            "max": 31,
+            "integer": true
+          },
+          {
+            "k": "poRole",
+            "l": [
+              "دور مالك المنتج الافتراضي",
+              "Fictional Product Owner role"
+            ]
+          },
+          {
+            "k": "smRole",
+            "l": [
+              "دور سكرم ماستر الافتراضي",
+              "Fictional Scrum Master role"
+            ]
+          },
+          {
+            "k": "dor",
+            "l": [
+              "اتفاق الفريق على الجاهزية (اختياري)",
+              "Team readiness agreement (optional)"
+            ],
+            "rows": 4
+          },
+          {
+            "k": "dod",
+            "l": [
+              "تعريف الإنجاز",
+              "Definition of Done"
+            ],
+            "rows": 4
+          },
+          {
+            "k": "review",
+            "l": [
+              "ملاحظات المراجعة وأثرها على قائمة المنتج",
+              "Review notes and product-backlog adaptations"
+            ],
+            "rows": 3
+          },
+          {
+            "k": "retro",
+            "l": [
+              "إجراء تحسين مع دور مسؤول وموعد",
+              "Retrospective improvement with owner role and date"
+            ],
+            "rows": 3
+          }
+        ],
+        "groups": [
+          {
+            "k": "team",
+            "title": [
+              "الفريق الافتراضي والسعة التخطيطية بالنقاط",
+              "Fictional team and planning capacity in points"
+            ],
+            "max": 12,
+            "fields": [
+              {
+                "k": "role",
+                "l": [
+                  "الدور الافتراضي",
+                  "Fictional role"
+                ]
+              },
+              {
+                "k": "skill",
+                "l": [
+                  "المهارة",
+                  "Skill"
+                ]
+              },
+              {
+                "k": "capacity",
+                "l": [
+                  "مساهمة السعة في هذا المثال بالنقاط",
+                  "Capacity contribution in this example (points)"
+                ],
+                "ty": "num",
+                "min": 0,
+                "max": 1000
+              }
+            ]
+          },
+          {
+            "k": "sprints",
+            "title": [
+              "السبرنتات",
+              "Sprints"
+            ],
+            "max": 20,
+            "unique": "id",
+            "fields": [
+              {
+                "k": "id",
+                "l": [
+                  "معرّف السبرنت",
+                  "Sprint ID"
+                ]
+              },
+              {
+                "k": "goal",
+                "l": [
+                  "هدف السبرنت",
+                  "Sprint goal"
+                ]
+              },
+              {
+                "k": "status",
+                "l": [
+                  "الحالة",
+                  "Status"
+                ],
+                "opts": [
+                  [
+                    "planned",
+                    "مخطّط",
+                    "Planned"
+                  ],
+                  [
+                    "active",
+                    "حالي",
+                    "Active"
+                  ],
+                  [
+                    "closed",
+                    "مغلق",
+                    "Closed"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "k": "stories",
+            "title": [
+              "قائمة المنتج ولوحة السبرنت",
+              "Product backlog and sprint board"
+            ],
+            "max": 60,
+            "unique": "id",
+            "fields": [
+              {
+                "k": "id",
+                "l": [
+                  "معرّف القصة",
+                  "Story ID"
+                ]
+              },
+              {
+                "k": "title",
+                "l": [
+                  "قصة المستخدم",
+                  "User story"
+                ],
+                "rows": 3
+              },
+              {
+                "k": "points",
+                "l": [
+                  "نقاط القصة",
+                  "Story points"
+                ],
+                "ty": "num",
+                "min": 0,
+                "max": 1000
+              },
+              {
+                "k": "priority",
+                "l": [
+                  "الأولوية",
+                  "Priority"
+                ],
+                "opts": [
+                  [
+                    "H",
+                    "مرتفعة",
+                    "High"
+                  ],
+                  [
+                    "M",
+                    "متوسطة",
+                    "Medium"
+                  ],
+                  [
+                    "L",
+                    "منخفضة",
+                    "Low"
+                  ]
+                ]
+              },
+              {
+                "k": "sprint",
+                "l": [
+                  "معرّف السبرنت (فارغ لقائمة المنتج)",
+                  "Sprint ID (blank for product backlog)"
+                ]
+              },
+              {
+                "k": "status",
+                "l": [
+                  "حالة التنفيذ",
+                  "Delivery status"
+                ],
+                "opts": [
+                  [
+                    "todo",
+                    "للعمل",
+                    "To do"
+                  ],
+                  [
+                    "doing",
+                    "جارٍ",
+                    "In progress"
+                  ],
+                  [
+                    "done",
+                    "مكتمل وفق تعريف الإنجاز",
+                    "Done to the Definition of Done"
+                  ]
+                ]
+              },
+              {
+                "k": "ready",
+                "l": [
+                  "يستوفي اتفاق الجاهزية؟",
+                  "Meets the readiness agreement?"
+                ],
+                "opts": [
+                  [
+                    "yes",
+                    "نعم",
+                    "Yes"
+                  ],
+                  [
+                    "no",
+                    "لا",
+                    "No"
+                  ]
+                ]
+              },
+              {
+                "k": "acceptance",
+                "l": [
+                  "معايير القبول",
+                  "Acceptance criteria"
+                ],
+                "rows": 3
+              }
+            ]
+          }
+        ],
+        "seed": {
+          "ar": {
+            "length": "14",
+            "poRole": "دور مالك المنتج الافتراضي",
+            "smRole": "دور سكرم ماستر الافتراضي",
+            "dor": "القيمة ومعايير القبول واضحة\nالتبعيات محدّدة\nصغيرة بما يكفي لسبرنت واحد\nقدّرها الفريق",
+            "dod": "الكود مكتمل ومراجَع من نظير\nمُختبَر بما فيه التكامل\nالوثائق محدّثة\nيستوفي كل معايير القبول",
+            "team": [
+              {
+                "role": "دور الفريق 1",
+                "skill": "تطوير",
+                "capacity": "10"
+              },
+              {
+                "role": "دور الفريق 2",
+                "skill": "تكامل",
+                "capacity": "8"
+              },
+              {
+                "role": "دور الفريق 3",
+                "skill": "اختبار",
+                "capacity": "8"
+              },
+              {
+                "role": "دور الفريق 4",
+                "skill": "واجهات",
+                "capacity": "6"
+              }
+            ],
+            "sprints": [],
+            "stories": [
+              {
+                "id": "S1",
+                "title": "كمشغّل أريد صورة جوية موحّدة لاتخاذ القرار بسرعة",
+                "points": "8",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S2",
+                "title": "كمشغّل أريد ربط المسارات عبر مستشعرين",
+                "points": "5",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S3",
+                "title": "كقائد أريد ترتيب التهديدات بقواعد قابلة للتعديل",
+                "points": "13",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S4",
+                "title": "كمشغّل أريد تجاوز التصنيف الآلي يدوياً",
+                "points": "3",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S5",
+                "title": "كقائد أريد توصية اشتباك مع تعليلها",
+                "points": "8",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S6",
+                "title": "كمشرف أريد سجلّ تدقيق لكل قرار",
+                "points": "5",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S7",
+                "title": "كمشغّل أريد تنبيهاً صوتياً عند فقد مسار",
+                "points": "2",
+                "priority": "L",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S8",
+                "title": "كمهندس أريد محاكياً للاختبار دون المنظومة الحيّة",
+                "points": "13",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S9",
+                "title": "كمدير أريد تقرير أداء أسبوعياً",
+                "points": "5",
+                "priority": "L",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S10",
+                "title": "كمشغّل أريد إعادة تشغيل سيناريو سابق",
+                "points": "8",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              }
+            ]
+          },
+          "en": {
+            "length": "14",
+            "poRole": "Fictional Product Owner role",
+            "smRole": "Fictional Scrum Master role",
+            "dor": "Value and acceptance criteria are clear\nDependencies identified\nSmall enough for one sprint\nEstimated by the team",
+            "dod": "Code complete and peer reviewed\nTested including integration\nDocumentation updated\nMeets every acceptance criterion",
+            "team": [
+              {
+                "role": "Team role 1",
+                "skill": "Development",
+                "capacity": "10"
+              },
+              {
+                "role": "Team role 2",
+                "skill": "Integration",
+                "capacity": "8"
+              },
+              {
+                "role": "Team role 3",
+                "skill": "Testing",
+                "capacity": "8"
+              },
+              {
+                "role": "Team role 4",
+                "skill": "Front-end",
+                "capacity": "6"
+              }
+            ],
+            "sprints": [],
+            "stories": [
+              {
+                "id": "S1",
+                "title": "As an operator I want a consolidated air picture",
+                "points": "8",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S2",
+                "title": "As an operator I want track correlation across two sensors",
+                "points": "5",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S3",
+                "title": "As a commander I want rule-based threat prioritisation",
+                "points": "13",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S4",
+                "title": "As an operator I want to override an auto classification",
+                "points": "3",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S5",
+                "title": "As a commander I want an engagement recommendation with rationale",
+                "points": "8",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S6",
+                "title": "As a supervisor I want an audit trail for every decision",
+                "points": "5",
+                "priority": "H",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S7",
+                "title": "As an operator I want an audio alert on track loss",
+                "points": "2",
+                "priority": "L",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S8",
+                "title": "As an engineer I want a simulator",
+                "points": "13",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S9",
+                "title": "As a manager I want a weekly performance report",
+                "points": "5",
+                "priority": "L",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              },
+              {
+                "id": "S10",
+                "title": "As an operator I want to replay a past scenario",
+                "points": "8",
+                "priority": "M",
+                "sprint": "",
+                "status": "todo",
+                "ready": "no",
+                "acceptance": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "agile:kanban",
+        "axis": "execution",
+        "title": [
+          "لوحة كانبان وحدود العمل الجاري",
+          "Kanban board and WIP limits"
+        ],
+        "description": [
+          "حرّك البطاقات باختيار العمود، وجرّب حدود العمل الجاري. التشخيص يصف هذه اللقطة فقط ولا يضمن جودة التدفق.",
+          "Move cards by selecting their column and experiment with WIP limits. Feedback describes this snapshot only and does not guarantee healthy flow."
+        ],
+        "fields": [
+          {
+            "k": "devLimit",
+            "l": [
+              "حد العمل الجاري في التطوير",
+              "Development WIP limit"
+            ],
+            "ty": "num",
+            "min": 0,
+            "max": 60,
+            "integer": true
+          },
+          {
+            "k": "testLimit",
+            "l": [
+              "حد العمل الجاري في الاختبار",
+              "Testing WIP limit"
+            ],
+            "ty": "num",
+            "min": 0,
+            "max": 60,
+            "integer": true
+          },
+          {
+            "k": "action",
+            "l": [
+              "الإجراء التالي لتخفيف القيد",
+              "Next action to relieve the constraint"
+            ],
+            "rows": 3
+          }
+        ],
+        "groups": [
+          {
+            "k": "cards",
+            "title": [
+              "بطاقات العمل الافتراضية",
+              "Fictional work cards"
+            ],
+            "max": 60,
+            "unique": "id",
+            "fields": [
+              {
+                "k": "id",
+                "l": [
+                  "معرّف البطاقة",
+                  "Card ID"
+                ]
+              },
+              {
+                "k": "title",
+                "l": [
+                  "وصف العمل",
+                  "Work description"
+                ]
+              },
+              {
+                "k": "column",
+                "l": [
+                  "العمود",
+                  "Column"
+                ],
+                "opts": [
+                  [
+                    "todo",
+                    "قيد الانتظار",
+                    "To Do"
+                  ],
+                  [
+                    "dev",
+                    "قيد التطوير",
+                    "In Development"
+                  ],
+                  [
+                    "test",
+                    "قيد الاختبار",
+                    "In Testing"
+                  ],
+                  [
+                    "done",
+                    "منجز",
+                    "Done"
+                  ]
+                ]
+              },
+              {
+                "k": "blocker",
+                "l": [
+                  "عائق أو تبعية",
+                  "Impediment or dependency"
+                ]
+              }
+            ]
+          }
+        ],
+        "seed": {
+          "ar": {
+            "devLimit": "3",
+            "testLimit": "2",
+            "cards": [
+              {
+                "id": "K1",
+                "title": "واجهة الصورة الجوية",
+                "column": "dev",
+                "blocker": ""
+              },
+              {
+                "id": "K2",
+                "title": "ربط المسارات",
+                "column": "dev",
+                "blocker": ""
+              },
+              {
+                "id": "K3",
+                "title": "قواعد الترتيب",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K4",
+                "title": "التجاوز اليدوي",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K5",
+                "title": "سجلّ التدقيق",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K6",
+                "title": "التنبيه الصوتي",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K7",
+                "title": "المحاكي",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K8",
+                "title": "تقرير الأداء",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K9",
+                "title": "تكامل المستشعر الثاني",
+                "column": "done",
+                "blocker": ""
+              },
+              {
+                "id": "K10",
+                "title": "شاشة الإعدادات",
+                "column": "done",
+                "blocker": ""
+              }
+            ]
+          },
+          "en": {
+            "devLimit": "3",
+            "testLimit": "2",
+            "cards": [
+              {
+                "id": "K1",
+                "title": "Air picture UI",
+                "column": "dev",
+                "blocker": ""
+              },
+              {
+                "id": "K2",
+                "title": "Track correlation",
+                "column": "dev",
+                "blocker": ""
+              },
+              {
+                "id": "K3",
+                "title": "Prioritisation rules",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K4",
+                "title": "Manual override",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K5",
+                "title": "Audit trail",
+                "column": "test",
+                "blocker": ""
+              },
+              {
+                "id": "K6",
+                "title": "Audio alert",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K7",
+                "title": "Simulator",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K8",
+                "title": "Performance report",
+                "column": "todo",
+                "blocker": ""
+              },
+              {
+                "id": "K9",
+                "title": "Second sensor integration",
+                "column": "done",
+                "blocker": ""
+              },
+              {
+                "id": "K10",
+                "title": "Settings screen",
+                "column": "done",
+                "blocker": ""
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "agile:hybrid",
+        "axis": "planning",
+        "title": [
+          "توزيع النهج المختلط وملتقيات التسليم",
+          "Hybrid allocation and delivery interfaces"
+        ],
+        "description": [
+          "اختر نهجًا لكل مجال نطاق، ثم وضّح الملتقيات. اقتراحات الحالة للتأمل وليست إجابة رسمية أو موافقة على مشروع حقيقي.",
+          "Choose an approach for each scope area and explain the delivery interfaces. Case suggestions support reflection, not an official answer or real-project approval."
+        ],
+        "fields": [
+          {
+            "k": "hull.approach",
+            "l": [
+              "الهيكل والبناء",
+              "Hull and construction"
+            ],
+            "opts": [
+              [
+                "predictive",
+                "تنبؤي",
+                "Predictive"
+              ],
+              [
+                "agile",
+                "رشيق",
+                "Agile / Adaptive"
+              ],
+              [
+                "hybrid",
+                "مختلط",
+                "Hybrid"
+              ]
+            ]
+          },
+          {
+            "k": "hull.rationale",
+            "l": [
+              "تعليل: الهيكل والبناء",
+              "Rationale: Hull and construction"
+            ],
+            "hint": [
+              "مواصفة مجمّدة · اعتماد تصنيف · كلفة تغيير عالية",
+              "Frozen specification · class approval · high cost of change"
+            ]
+          },
+          {
+            "k": "prop.approach",
+            "l": [
+              "منظومة الدفع",
+              "Propulsion system"
+            ],
+            "opts": [
+              [
+                "predictive",
+                "تنبؤي",
+                "Predictive"
+              ],
+              [
+                "agile",
+                "رشيق",
+                "Agile / Adaptive"
+              ],
+              [
+                "hybrid",
+                "مختلط",
+                "Hybrid"
+              ]
+            ]
+          },
+          {
+            "k": "prop.rationale",
+            "l": [
+              "تعليل: منظومة الدفع",
+              "Rationale: Propulsion system"
+            ],
+            "hint": [
+              "مورّد خارجي · مواصفة مكتملة · عقد ثابت",
+              "External supplier · complete specification · fixed contract"
+            ]
+          },
+          {
+            "k": "cms.approach",
+            "l": [
+              "منظومة القتال",
+              "Combat system"
+            ],
+            "opts": [
+              [
+                "predictive",
+                "تنبؤي",
+                "Predictive"
+              ],
+              [
+                "agile",
+                "رشيق",
+                "Agile / Adaptive"
+              ],
+              [
+                "hybrid",
+                "مختلط",
+                "Hybrid"
+              ]
+            ]
+          },
+          {
+            "k": "cms.rationale",
+            "l": [
+              "تعليل: منظومة القتال",
+              "Rationale: Combat system"
+            ],
+            "hint": [
+              "خمس زيادات · متطلبات تتطوّر · تغذية راجعة لكل زيادة",
+              "Five increments · evolving requirements · feedback per increment"
+            ]
+          },
+          {
+            "k": "fit.approach",
+            "l": [
+              "التجهيز الداخلي",
+              "Internal outfitting"
+            ],
+            "opts": [
+              [
+                "predictive",
+                "تنبؤي",
+                "Predictive"
+              ],
+              [
+                "agile",
+                "رشيق",
+                "Agile / Adaptive"
+              ],
+              [
+                "hybrid",
+                "مختلط",
+                "Hybrid"
+              ]
+            ]
+          },
+          {
+            "k": "fit.rationale",
+            "l": [
+              "تعليل: التجهيز الداخلي",
+              "Rationale: Internal outfitting"
+            ],
+            "hint": [
+              "التمديدات تنبؤية · تجهيز المقصورات يُصقل مع المستخدمين",
+              "Routing is predictive · compartment fit-out refined with users"
+            ]
+          },
+          {
+            "k": "trials.approach",
+            "l": [
+              "التجارب والقبول",
+              "Trials and acceptance"
+            ],
+            "opts": [
+              [
+                "predictive",
+                "تنبؤي",
+                "Predictive"
+              ],
+              [
+                "agile",
+                "رشيق",
+                "Agile / Adaptive"
+              ],
+              [
+                "hybrid",
+                "مختلط",
+                "Hybrid"
+              ]
+            ]
+          },
+          {
+            "k": "trials.rationale",
+            "l": [
+              "تعليل: التجارب والقبول",
+              "Rationale: Trials and acceptance"
+            ],
+            "hint": [
+              "بروتوكول محدّد · نقاط توقّف تعاقدية",
+              "Defined protocol · contractual hold points"
+            ]
+          },
+          {
+            "k": "interfacePlan",
+            "l": [
+              "خطة الملتقيات: الزيادة والدور المسؤول والموعد ومعيار القبول",
+              "Interface plan: increment, owner role, date and acceptance criterion"
+            ],
+            "rows": 5
+          }
+        ],
+        "groups": []
+      }
+    ]
   }
 }

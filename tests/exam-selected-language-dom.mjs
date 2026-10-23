@@ -17,13 +17,13 @@ for(const selected of ['ar','en']){
  w.setInterval=()=>++timers;w.clearInterval=()=>{};w.confirm=()=>true;w.alert=message=>{throw Error(message)};w.print=()=>{};w.fetch=async()=>{attempts++;return{ok:true}};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const course={id:'pmp',code:'PMP',questions:180,domains:[{k:'people',ar:'الأفراد',en:'People'}]};
- w.APP={token:'test',esc,pack:()=>({course:'pmp',ar:'الباقة العربية',en:'English package'}),course:()=>course,me:()=>({name:'متدرّب',nameEn:'Learner'}),prog:()=>progress,save(){},toast(){},api:async()=>({questions:[]})};
+ w.APP={token:'test',esc,pack:()=>({course:'pmp',ar:'الباقة العربية',en:'English package'}),course:()=>course,me:()=>({id:'learner-fixture',name:'متدرّب',nameEn:'Learner'}),prog:()=>progress,save(){},toast(){},api:async()=>({questions:[]})};
  w.LANGS=[{k:'ar',dir:'rtl'},{k:'en',dir:'ltr'}];w.__lang=opposite;w.eval(i18);w.I18.set(opposite);
- w.eval(exam);w.eval(coach);d.dispatchEvent(new w.Event('DOMContentLoaded'));
+ w.eval(fs.readFileSync('public/exam-tools.js','utf8'));w.eval(exam);w.eval(coach);d.dispatchEvent(new w.Event('DOMContentLoaded'));
  const q={id:'single',type:'single',question_ar:'ما الاختيار الصحيح؟',question_en:'Which choice is correct?',options_ar:['إجابة صحيحة','إجابة أخرى'],options_en:['Correct choice','Other choice'],correct:'A',explanation_ar:'تفسير عربي واضح.',explanation_en:'',domain:'people',difficulty:'hard',meta:{}};
  await w.UnifiedExam.open('pmp-full','chapter_موضوع عربي',{items:[q]});assert(!d.querySelector('#ux .ux-q'));assert.equal(timers,0);assert.equal(attempts,0);
  d.querySelector(selected==='ar'?'#uxChooseAr':'#uxChooseEn').click();d.querySelector('#uxConfirmLanguage').click();await new Promise(r=>setTimeout(r,0));
- const checkSelected=(root=d.querySelector('#ux'))=>{w.I18.sweep(d.body);const text=root.textContent;if(selected==='en')assert(!/[\u0600-\u06ff]/.test(text),text);else{assert(!text.includes('Check Answer'),text);assert(!text.includes('Flag for Review'),text);assert(!text.includes('Dr Mohamed Attia Coach'),text)}};
+ const checkSelected=(root=d.querySelector('#ux'))=>{w.I18.sweep(d.body);const copy=root.cloneNode(true);copy.querySelectorAll('.ux-english-translation').forEach(n=>n.remove());const text=copy.textContent;if(selected==='en')assert(!/[\u0600-\u06ff]/.test(text),text);else{assert(!text.includes('Check Answer'),text);assert(!text.includes('Flag for Review'),text);assert(!text.includes('Dr Mohamed Attia Coach'),text)}};
  assert.equal(d.documentElement.lang,opposite,'exam language must not replace page preference');assert.equal(d.querySelector('#ux').lang,selected);assert.equal(d.querySelector('#ux').dir,selected==='ar'?'rtl':'ltr');
  assert.equal(d.querySelector('.ux-head img').getAttribute('src'),'/img/logo.png');
  d.querySelector('#uxMap').click();assert(d.activeElement.hasAttribute('data-list-close'));checkSelected(d.querySelector('#uxQuestionList'));d.querySelector('[data-list-close]').click();
@@ -31,7 +31,7 @@ for(const selected of ['ar','en']){
  assert(d.querySelector('.ux-map-legend'));assert(d.querySelector('.ux-section-range'));
  assert.equal(d.querySelector('#ux .ux-q').textContent,q['question_'+selected]);assert(!d.querySelector('#uxLang'));checkSelected();assert.equal(timers,1);
  const correct=[...d.querySelectorAll('[data-opt]')].find(el=>el.textContent.includes(selected==='ar'?'إجابة صحيحة':'Correct choice'));correct.click();d.querySelector('#uxCheck').click();checkSelected();
- d.querySelector('#uxCalc').click();checkSelected(d.querySelector('#uxPanel'));d.querySelector('#uxPanelClose').click();
+ d.querySelector('#uxCalc').click();checkSelected(d.querySelector('.exam-tools-dialog'));d.querySelector('.exam-tools-close').click();
  d.querySelector('#uxAI').click();const panel=d.querySelector('#coach20');assert(panel);checkSelected(panel);panel.querySelector('[data-k="explain"]').click();checkSelected(panel);panel.querySelector('.coach20x').click();
  d.querySelector('#uxNext').click();await new Promise(r=>setTimeout(r,0));checkSelected();assert(d.querySelector('.ux-report'));assert.equal(progress.exams['chapter_موضوع عربي'].score,100);assert.equal(attempts,1);
  d.querySelector('#uxReview').click();checkSelected(d.querySelector('#uxReviewDetails'));assert(!d.querySelector('#uxReviewLang'));if(selected==='en')assert(d.querySelector('#uxReviewDetails').textContent.includes('English explanation has not been published'));
