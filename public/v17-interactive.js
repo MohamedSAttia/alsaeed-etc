@@ -293,11 +293,14 @@ function render() {
   if (!V) return;
   const l = V.lesson;
   const vid = l.vimeo || l.video || '';
+  const summary=String((L()==='en'?l.notes_en:(l.notes||l.notes_en))||'').trim();
+  const files=(l.files||[]).filter(f=>f&&f.id);
   const pct = V.dur ? Math.min(100, V.t / V.dur * 100) : 0;
   const groups=visibleVideoGroups(V.pkgId),order=playlistItems(groups).map(item=>item.i),position=order.indexOf(V.lessonIdx);
   const path=videoGroupPath(groups,V.lessonIdx),hasNext=position>=0&&position<order.length-1;
   $('#iv').innerHTML = `
     <div class="iv-bar">
+      <img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED">
       <div class="iv-t"><b id="ivTitle" tabindex="-1">${esc(window.biTitle ? window.biTitle(l) : (l.t || l.title || ''))}</b>
         ${path.length?`<span class="iv-group-path">${path.map(esc).join(' / ')}</span>`:''}
         <span>${T('فيديو', 'Video')} ${position>=0?position+1:'—'} ${T('من','of')} ${order.length}<span id="ivDuration">${l.dur||l.duration ? ' · ' + esc(l.dur||l.duration) : ''}</span></span></div>
@@ -310,6 +313,11 @@ function render() {
 
     <div class="iv-body">
       <div class="iv-stage">
+        <div class="lesson-action-menu iv-action-menu" aria-label="${T('خيارات الدرس','Lesson options')}">
+          <button type="button" class="lesson-action lesson-action-watch" id="ivWatch" ${vid?'':'disabled'}><span aria-hidden="true">▷</span><b>${T('مشاهدة الفيديو','Watch video')}</b><small>${vid?T('تشغيل أو متابعة المشاهدة','Play or resume'):T('غير متاح حالياً','Not available yet')}</small></button>
+          ${files.length?`<details class="lesson-action iv-files"><summary><span aria-hidden="true">↓</span><b>${T('تحميل ملف الدرس','Download lesson file')}</b><small>${files.length} ${T('ملفات متاحة','available files')}</small></summary><div class="lesson-action-content">${files.map(f=>`<button type="button" class="btn o" data-iv-file="${esc(f.id)}" data-file-name="${esc(f.name)}">↓ ${esc(f.name)}</button>`).join('')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">↓</span><b>${T('تحميل ملف الدرس','Download lesson file')}</b><small>${T('غير متاح حالياً','Not available yet')}</small></button>`}
+          ${summary?`<details class="lesson-action iv-notes"><summary><span aria-hidden="true">≡</span><b>${T('قراءة الملخص','Read summary')}</b><small>${T('ملاحظات الدرس','Lesson notes')}</small></summary><div class="lesson-action-content">${esc(summary).replace(/\n/g,'<br>')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">≡</span><b>${T('قراءة الملخص','Read summary')}</b><small>${T('لا يوجد ملخص بهذه اللغة حالياً','No summary in this language yet')}</small></button>`}
+        </div>
         <div class="iv-player">
           ${vid
             ? `<iframe id="ivFrame" title="${esc(window.biTitle?window.biTitle(l):(l.t||l.title||T('فيديو الدرس','Lesson video')))}" src="https://player.vimeo.com/video/${esc(vid)}?title=0&byline=0&portrait=0${V.startNext?'&autoplay=1':''}"
@@ -338,8 +346,6 @@ function render() {
         </div>
         <div class="iv-materials">
         ${(l.quiz || []).length ? `<button class="btn p" id="ivLessonQuiz">${T('ابدأ تقييم هذا الفيديو', 'Start the video quiz')} (${l.quiz.length})</button>` : ''}
-        ${String(l.notes||l.notes_en||'').trim()?`<details class="iv-notes"><summary>${T('شرح الدرس','Lesson notes')}</summary><div>${esc((L()==='en'?l.notes_en:l.notes)||l.notes||l.notes_en).replace(/\n/g,'<br>')}</div></details>`:''}
-        ${(l.files||[]).length?`<div class="iv-files"><h4>${T('ملفات الدرس','Lesson files')}</h4>${l.files.map(f=>`<button class="btn o" data-iv-file="${esc(f.id)}" data-file-name="${esc(f.name)}">📎 ${esc(f.name)}</button>`).join('')}</div>`:''}
         <details class="iv-discussion-panel"><summary>${T('الأسئلة والمناقشة','Questions & discussion')}</summary><div class="iv-discussion" id="ivDiscussion"></div></details>
         </div>
       </div>
@@ -438,6 +444,7 @@ function openCue(i) {
 }
 
 function bind() {
+  const watch=$('#ivWatch');if(watch)watch.onclick=async()=>{try{await player?.play();$('#ivFrame')?.focus({preventScroll:true});}catch(e){window.APP?.toast(T('يمكنك تشغيل الفيديو من المشغّل','You can play the video using the player'));}};
   const c = $('#ivClose'); if (c) c.onclick = close;
   const auto=$('#ivAutoNext');if(auto)auto.onchange=()=>{V.autoNext=auto.checked;localStorage.setItem('alsaeed_auto_next',String(auto.checked));};
   const pause=$('#ivPause');if(pause)pause.onclick=async()=>{if(!player)return;try{const stopped=await player.getPaused();if(stopped){await player.play();pause.textContent=T('إيقاف الفيديو مؤقتاً','Pause video');}else{await player.pause();pause.textContent=T('استئناف الفيديو','Resume video');}}catch(e){}};

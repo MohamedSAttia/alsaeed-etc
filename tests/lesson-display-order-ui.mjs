@@ -105,7 +105,15 @@ test('requested pair reorders by metadata, repeats safely, reloads, and matches 
   assert.deepEqual(Array.from(w.document.querySelectorAll('#iv [data-go] .n'),el=>Number(el.textContent)),[1,2,3,4]);
   reload.$('#ivNext').click();await pause();assert.equal(Number(reload.$('.iv-li.cur').dataset.go),1);
   reload.$('#ivPrev').click();await pause();assert.equal(Number(reload.$('.iv-li.cur').dataset.go),2);
-  w.InteractiveVideo.close();assert.equal(JSON.stringify(w.APP.prog('pmp-full')),learnerProgress);assert.deepEqual(f.errors,[]);assert.deepEqual(reload.errors,[]);
+  w.InteractiveVideo.close();assert.equal(JSON.stringify(w.APP.prog('pmp-full')),learnerProgress);
+  reload.$('[data-lt="exams"]').click();await until(()=>reload.$('#assessmentPageTitle'),'dedicated assessment page');
+  assert(reload.$('.assessment-page-body [data-assessment-centre]'),'Catalogue stays within the package');
+  assert.equal(reload.$('.learner-steps'),null,'Dedicated page does not bury tests below the dashboard');
+  assert.equal(w.document.activeElement.id,'assessmentPageTitle','Keyboard focus reaches the page heading');
+  reload.$('.assessment-page-return [data-lt="content"]').click();await until(()=>reload.$('[data-lesson]'),'return to lessons');
+  assert.deepEqual(Array.from(w.document.querySelectorAll('[data-lesson]'),el=>Number(el.dataset.lesson)),order);
+  assert.equal(JSON.stringify(w.APP.prog('pmp-full')),learnerProgress,'Assessment navigation preserves learner progress');
+  assert.deepEqual(f.errors,[]);assert.deepEqual(reload.errors,[]);
  }finally{reload?.dom.window.close();f.dom.window.close();}
 });
 

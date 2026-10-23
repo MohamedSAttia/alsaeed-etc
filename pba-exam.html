@@ -254,13 +254,14 @@ function setTheme(k){const t=THEMES[k]||THEMES.saeed;const r=document.documentEl
  localStorage.setItem('asTheme',k);const s=document.getElementById('themeSel');if(s)s.value=k}
 document.addEventListener('DOMContentLoaded',()=>setTheme(localStorage.getItem('asTheme')||'saeed'));
 </script>
+<link rel="stylesheet" href="/learning-polish.css?v=20261023-1">
 </head>
 <body oncontextmenu="return false">
 
 <header>
   <div class="hd">
     <div class="brand">
-      <div class="b-ico"><img src="https://alsaeed-etc.com/main/images/logo/logo3.png" alt="Al Saeed" onerror="this.parentElement.textContent='⏱️'"></div>
+      <div class="b-ico"><img src="/img/logo.png" alt="Al Saeed" onerror="this.parentElement.textContent='⏱️'"></div>
       <div><div class="b-name">محاكي اختبار PMI-PBA®‎</div><div class="b-sub">منصة السعيد — بيئة اختبار مطابقة للواقع</div></div>
     </div>
     <div style="display:flex;gap:8px;align-items:center"><a href="index.html">🏠 الرئيسية</a><a href="pba-study.html">📚 المحتوى التدريبي</a><a href="pba-sim.html" target="_blank">🖥️ المحاكاة التطبيقية</a><select id="themeSel" class="theme-sel" onchange="setTheme(this.value)" title="لون المنصة"><option value="saeed">🟠 السعيد</option><option value="royal">🔵 أزرق ملكي</option><option value="emerald">🟢 زمردي</option><option value="violet">🟣 بنفسجي</option></select></div>
@@ -750,7 +751,7 @@ function renderReport(correct,total,pct,dstat,used){
 function certBlock(name,pct,dateStr){
   const no='AS-PBA-'+Date.now().toString().slice(-8);
   return `<div class="certwrap"><div class="cert" id="certEl"><div class="cert-in">
-    <img class="cert-logo" src="https://alsaeed-etc.com/main/images/logo/logo3.png" onerror="this.style.display='none'">
+    <img class="cert-logo" src="/img/logo.png" onerror="this.style.display='none'">
     <div class="cert-cap">THIS IS TO CERTIFY THAT</div>
     <div class="cert-name">${escX(name)}</div>
     <div class="cert-body">has been formally evaluated through a full mock examination for knowledge and skills in the specialized area of business analysis, requirements management and solution evaluation and has successfully passed the simulation of</div>

@@ -1149,6 +1149,7 @@ body.ltr-mode .hero h1,body.ltr-mode .sec-h h2{letter-spacing:-.5px}
 </style>
 <script src="/lesson-video.js?v=20261009-1"></script>
 <link rel="stylesheet" href="/auth-entry.css?v=20261017-mobile-art">
+<link rel="stylesheet" href="/learning-polish.css?v=20261023-1">
 </head>
 <body>
 
@@ -4757,15 +4758,15 @@ function pkgTab(p, c, has) {
         ${has&&c.id==='pmp'&&window.PmpReading&&readingKey?PmpReading.markup(readingKey):''}
         ${has&&c.id==='pmp'&&window.PmpReading?(group.readings||[]).map(reading=>`<div data-summary-topic="${esc(reading.key)}">${PmpReading.markup(reading.key)}${reading.assessmentKey?`<button class="btn p" data-learning-chapter="${esc(reading.assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button>`:''}</div>`).join(''):''}
         ${group.items.map(l => `<article class="learning-lesson" data-lesson-index="${l.i}"><div class="ls ${pr.lessons[l.i] ? 'done' : ''}"
-            ${l.vimeo && (has || l.free) ? `data-lesson="${l.i}" data-pk="${p.id}"` : ''}>
-          <div class="ls-ic">${pr.lessons[l.i] ? '✓' : l.vimeo && (has || l.free) ? '▶' : '🔒'}</div>
+            >
+          <div class="ls-ic">${pr.lessons[l.i] ? '✓' : (has || l.free) ? (l.vimeo?'▶':'≡') : '🔒'}</div>
           ${l.vimeo ? `<span class="num" aria-label="${siteEnglish()?'Video':'فيديو'} ${videoNumbers.get(l.i)}">${videoNumbers.get(l.i)}</span>` : ''}
           <div class="ls-t">${esc(window.biTitle ? window.biTitle(l) : l.t)}</div>
           ${l.free && l.vimeo && !has ? '<span class="ls-free">مجاني</span>' : ''}
-          ${!l.vimeo && has ? '<span class="ls-free">قيد التجهيز</span>' : ''}
-          <div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>
+          ${!l.vimeo && has ? `<span class="ls-free">${siteEnglish()?'No video':'بدون فيديو'}</span>` : ''}
+          ${l.vimeo?`<div class="ls-d">${esc(l.dur || (siteEnglish()?'Duration pending':'المدة غير متاحة'))}</div>`:''}
           ${(l.files || []).length && (has || l.free) ? `<span class="ls-free">📎 ${(l.files || []).length}</span>` : ''}
-        </div>${(has||l.free)&&String(l.notes||l.notes_en||'').trim()?`<details class="note info"><summary>${siteEnglish()?'Lesson reading and learning objectives':'الشرح النصي وأهداف التطبيق'}</summary><p style="white-space:pre-wrap">${esc((siteEnglish()?l.notes_en:(l.notes||l.notes_en))||'')}</p></details>`:''}${(has || l.free) ? (l.files || []).map(f => `<button class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${p.id}">📎 ${esc(f.name)}</button>`).join('') : ''}</article>`).join('')}
+        </div>${lessonMenuMarkup(l,p.id,has||l.free)}</article>`).join('')}
       ${has&&assessmentKey&&(group.items.length||c.id==='pmp')?`<div class="topic-test-next"><p>${siteEnglish()?'After the reading and videos, assess this topic.':'بعد الشرح والفيديو، اختبر فهمك لهذا الموضوع.'}</p><button class="btn p" data-learning-chapter="${esc(assessmentKey)}" data-pk="${p.id}">${siteEnglish()?'Assess this topic':'ابدأ اختبار هذا الموضوع'}</button></div>`:''}${has?(group.assessmentKeys||[]).map(key=>`<div class="topic-test-next"><button class="btn p" data-learning-chapter="${esc(key)}" data-pk="${p.id}">${siteEnglish()?'Chapter assessment':'اختبار الفصل'}: ${esc(key)}</button></div>`).join(''):''}${(group.children||[]).length?`<div class="learning-outline-children">${group.children.map((child,i)=>renderGroup(child,i,depth+1)).join('')}</div>`:''}${!all.length&&!(group.children||[]).length&&!group.originalChapter?`<p class="empty">${(group.readings||[]).length?(siteEnglish()?'No published video lessons for this topic yet.':'لم تُنشر دروس فيديو لهذا المحور بعد.'):(siteEnglish()?'No published lessons for this topic yet.':'لم تُنشر دروس لهذا المحور بعد.')}</p>`:''}</${tag}>`;};
     return `<div class="note ${has ? 'ok' : 'warn'} mb">
       ${has ? 'المحتوى مفتوح لك بالكامل — ابدأ من حيث توقّفت.'
@@ -4884,6 +4885,18 @@ function learn(id) {
 
     ...(p.type==='full'&&p.cert ? [['cert', 'الشهادة']] : [])];
   if (!tabs.some(x => x[0] === learnTab)) learnTab = tabs[0][0];
+
+  if(learnTab==='exams'){
+    pkTab='exams';
+    return `<section data-language-package="${esc(p.id)}" class="dash-hd learning-hero assessment-page-hero"><div class="wrap">
+      <nav class="assessment-page-breadcrumb" aria-label="${siteEnglish()?'Page navigation':'التنقل بين الصفحات'}"><a href="#dash" data-r="dash">${siteEnglish()?'My dashboard':'لوحتي'}</a><span aria-hidden="true">/</span><button type="button" data-lt="plan">${esc(siteEnglish()?(p.en||p.ar):p.ar)}</button><span aria-hidden="true">/</span><span>${siteEnglish()?'Assessments':'الاختبارات'}</span></nav>
+      <div class="assessment-page-heading"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"><div><h1 id="assessmentPageTitle" tabindex="-1">${siteEnglish()?'Assessment centre':'مركز الاختبارات'}</h1><p>${esc(c.code)} · ${siteEnglish()?'Choose an assessment, answer at your pace, then review your performance.':'اختر اختبارك، تنقّل بين الأسئلة، ثم راجع تقرير أدائك.'}</p></div></div>
+      <div data-language-slot></div>
+    </div></section><div class="wrap assessment-page">
+      <nav class="assessment-page-return" aria-label="${siteEnglish()?'Learning navigation':'التنقل في التعلّم'}"><button type="button" class="btn o" data-lt="plan">${siteEnglish()?'Back to learning plan':'العودة إلى خطة التعلّم'}</button>${tabs.some(t=>t[0]==='content')?`<button type="button" class="btn o" data-lt="content">${siteEnglish()?'Lessons and videos':'الدروس والفيديوهات'}</button>`:''}<span>${Object.keys(pr.exams||{}).length} ${siteEnglish()?'recorded assessments':'اختبارات مسجلة'}</span></nav>
+      <div id="lnBody" class="learning-content-frame assessment-page-body">${pkgTab(p,c,true)}</div>
+    </div>`;
+  }
 
   return `<section data-language-package="${esc(p.id)}" class="dash-hd learning-hero"><div class="wrap">
     <div class="crumb"><a href="#dash" data-r="dash">لوحتي</a> ← ${esc(p.ar)}</div>
@@ -5713,7 +5726,7 @@ function openPractice(pid, requested) {
   function paint(){
     const q=bank[i], T=label(q.type), text=say(q.q), why=say(q.why), isText=q.type==='fill'||q.type==='calc';
     const multi=q.type==='multi';
-    A().modal(`<div class="practice-head"><div><h3 style="margin:0">${requested==='game'?'تحدّي القرار':'مختبر '+esc(c.code)}</h3><span class="muted">السؤال ${i+1} من ${bank.length}</span></div>${p.lang==='both'?`<button class="btn o sm" id="practiceLang">${lang==='ar'?'English':'العربية'}</button>`:''}</div><div class="practice-meta"><span>${esc(lang==='ar'?T.ar:T.en)}</span><span>${esc(q.domain)}</span><span>${p.lang==='both'?'عربي + English':'English only'}</span></div><div class="practice-q">${esc(text)}</div><div id="practiceAnswers">${isText?`<label class="f"><span>${q.type==='calc'?'اكتب الناتج':'اكتب الإجابة'}</span><input id="practiceText" class="en" autocomplete="off"></label>`:(q.options||[]).map((o,n)=>`<label class="practice-opt" data-optrow="${n}"><input type="${multi?'checkbox':'radio'}" name="practiceOpt" value="${n}"><span>${esc(say(o))}</span></label>`).join('')}</div><div id="practiceFeedback"></div><div class="mdl-act"><button class="btn p" id="practiceCheck">تحقق من الإجابة</button><button class="btn o" id="openUnifiedFromPractice">المحرك الكامل داخل المنصة</button><button class="btn o" data-close>إغلاق</button></div>`,()=>{
+    A().modal(`<div class="practice-head"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"><div><h3 style="margin:0">${requested==='game'?'تحدّي القرار':'مختبر '+esc(c.code)}</h3><span class="muted">السؤال ${i+1} من ${bank.length}</span></div>${p.lang==='both'?`<button class="btn o sm" id="practiceLang">${lang==='ar'?'English':'العربية'}</button>`:''}</div><div class="practice-meta"><span>${esc(lang==='ar'?T.ar:T.en)}</span><span>${esc(q.domain)}</span><span>${p.lang==='both'?'عربي + English':'English only'}</span></div><div class="practice-q">${esc(text)}</div><div id="practiceAnswers">${isText?`<label class="f"><span>${q.type==='calc'?'اكتب الناتج':'اكتب الإجابة'}</span><input id="practiceText" class="en" autocomplete="off"></label>`:(q.options||[]).map((o,n)=>`<label class="practice-opt" data-optrow="${n}"><input type="${multi?'checkbox':'radio'}" name="practiceOpt" value="${n}"><span>${esc(say(o))}</span></label>`).join('')}</div><div id="practiceFeedback"></div><div class="mdl-act"><button class="btn p" id="practiceCheck">تحقق من الإجابة</button><button class="btn o" id="openUnifiedFromPractice">المحرك الكامل داخل المنصة</button><button class="btn o" data-close>إغلاق</button></div>`,()=>{
       const lb=$('#practiceLang'); if(lb)lb.onclick=()=>{lang=lang==='ar'?'en':'ar';paint();};
       $('#openUnifiedFromPractice').onclick=()=>{A().closeModal();runExam(pid,'full')};
       $('#practiceCheck').onclick=()=>{
@@ -5734,6 +5747,18 @@ function openPractice(pid, requested) {
 function decisionGame(pid){ openPractice(pid,'game'); }
 
 /* ═══════════ مشغّل الفيديو ═══════════ */
+function lessonMenuMarkup(l,pid,allowed){
+  const en=siteEnglish(),txt=(ar,enText)=>en?enText:ar;
+  const notes=String((en?l.notes_en:(l.notes||l.notes_en))||'').trim();
+  const files=(l.files||[]).filter(f=>f&&f.id);
+  const unavailable=txt('غير متاح حالياً','Not available yet'),locked=txt('يتطلب الاشتراك','Enrollment required');
+  return `<div class="lesson-action-menu" aria-label="${txt('خيارات الدرس','Lesson options')}">
+    <button type="button" class="lesson-action lesson-action-watch" ${allowed&&l.vimeo?`data-lesson="${l.i}" data-pk="${esc(pid)}"`:'disabled'}><span aria-hidden="true">▷</span><b>${txt('مشاهدة الفيديو','Watch video')}</b><small>${!allowed?locked:!l.vimeo?unavailable:esc(l.dur||txt('ابدأ المشاهدة','Start watching'))}</small></button>
+    ${allowed&&files.length?`<details class="lesson-action"><summary><span aria-hidden="true">↓</span><b>${txt('تحميل ملف الدرس','Download lesson file')}</b><small>${files.length} ${txt('ملفات متاحة','available files')}</small></summary><div class="lesson-action-content">${files.map(f=>`<button type="button" class="btn o sm" data-lesson-file="${esc(f.id)}" data-file-name="${esc(f.name)}" data-download-pkg="${esc(pid)}">↓ ${esc(f.name)}</button>`).join('')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">↓</span><b>${txt('تحميل ملف الدرس','Download lesson file')}</b><small>${allowed?unavailable:locked}</small></button>`}
+    ${allowed&&notes?`<details class="lesson-action lesson-summary"><summary><span aria-hidden="true">≡</span><b>${txt('قراءة الملخص','Read summary')}</b><small>${txt('ملاحظات الدرس','Lesson notes')}</small></summary><div class="lesson-action-content">${esc(notes).replace(/\n/g,'<br>')}</div></details>`:`<button class="lesson-action" type="button" disabled><span aria-hidden="true">≡</span><b>${txt('قراءة الملخص','Read summary')}</b><small>${allowed?txt('لا يوجد ملخص بهذه اللغة حالياً','No summary in this language yet'):locked}</small></button>`}
+  </div>`;
+}
+
 function playLesson(pid, idx) {
   const ls = window.LESSONS[pid] || [], l = ls[idx];
   const canOpen=lesson=>!lesson.deleted&&(A().owns(pid)||A().isAdmin()||lesson.free);
@@ -5815,7 +5840,7 @@ function runLessonQuiz(pid, key) {
     return Array.isArray(options)&&options.length>=2&&options.every(v=>readable(v,lang))&&
       (!Array.isArray(other)||!other.length||options.length===other.length)&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<options.length;
   }
-  const modal = (html,after) => A().modal(`<div data-exam-language="${language||''}" lang="${language||'ar'}" dir="${language==='en'?'ltr':'rtl'}">${html}</div>`,after);
+  const modal = (html,after) => A().modal(`<div class="lesson-question-frame" data-exam-language="${language||''}" lang="${language||'ar'}" dir="${language==='en'?'ltr':'rtl'}"><div class="lesson-question-brand"><img class="official-learning-logo" src="/img/logo.png" alt="AL SAEED"></div>${html}</div>`,after);
   function choose(lang) {
     if (started) return;
     language=lang;
@@ -6117,7 +6142,7 @@ function bind() {
   $$('[data-pt]').forEach(b => b.onclick = () => { pkTab = b.dataset.pt; A().render(); });
   $$('[data-chapter-test]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pk,c=A().course(A().pack(pid).course);if(c.id==='pmp')window.PackageChapterTest?.(pid,c.chapters[+b.dataset.chapterTest]);else window.UnifiedExam?.open(pid,'ch'+b.dataset.chapterTest)});
   $$('[data-learning-chapter]').forEach(b=>b.onclick=()=>window.PackageChapterTest?.(b.dataset.pk,b.dataset.learningChapter));
-  $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); });
+  $$('[data-lt]').forEach(b => b.onclick = () => { learnTab = b.dataset.lt; A().render(); if(learnTab==='exams'){const title=$('#assessmentPageTitle');title?.focus({preventScroll:true});title?.scrollIntoView?.({block:'start'});} });
   const reminderEnabled=$('#reminderEnabled'), reminderDays=$('#reminderDays');
   const saveReminder=async()=>{
     if(!reminderEnabled || !reminderDays)return;
@@ -7738,10 +7763,10 @@ return { mount, toggle, send, get messages() { return msgs; } };
 <script src="/v16-enhancements.js?v=35.1"></script>
 <script src="/v23-cart-invoices.js?v=33.0"></script>
 <link rel="stylesheet" href="/v28-invoice.css?v=28.1">
-<script src="/pmp-shared-case.js?v=20261021-case"></script><script src="/unified-exam.js?v=20261021-case"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261021-case"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
+<script src="/pmp-shared-case.js?v=20261021-case"></script><script src="/unified-exam.js?v=20261023-20261021-case"></script><script src="/course-roadmap.js?v=20261019-lesson-actions"></script><script src="/pmp-reading.js?v=1"></script><script src="/package-enrichment.js?v=1"></script><script src="/course-assessments.js?v=20261023-20261021-case"></script><script src="/package-journey.js?v=20261019-lesson-actions"></script><link rel="stylesheet" href="/classroom/workspace.css?v=4">
 <script src="/bilingual-admin.js"></script>
 <script src="/qtranslate.js"></script><script src="/learning-language.js?v=6"></script>
-<script src="/v17-interactive.js?v=20261019-lesson-actions"></script>
+<script src="/v17-interactive.js?v=20261023-lesson-menu"></script>
 <script src="/dict-v17.js"></script>
 <script src="/english-copy-v27.js?v=27.0"></script>
 <script src="/auth-visual.js?v=20261017-mobile-art"></script>
@@ -7759,7 +7784,7 @@ return { mount, toggle, send, get messages() { return msgs; } };
 </script>
 <script src="/v18-interface.js?v=18.0"></script>
 <script src="/hotfix-v18.js?v=18.1"></script>
-<script src="/exam-ai-v19.js?v=20261021-language"></script>
+<script src="/exam-ai-v19.js?v=20261023-brand"></script>
 <script src="/ui-v21.js?v=21.0"></script>
 <script src="/platform-v22.js?v=20261008"></script>
 <script src="/experience-v24.js?v=20261008"></script>

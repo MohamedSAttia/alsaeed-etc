@@ -10,7 +10,7 @@ const course={id:'pmp',chapters:['Original mixed chapter',{ar:'التخطيط ا
 const rmp={id:'rmp',chapters:['First','Second','Third']};
 const pid='pmp-fixture';
 const lessons=[
- {id:'stable-0',ch:0,t:'مقدمة',t_en:'Introduction',vimeo:'900000',dur:'01:00',free:true,files:[{id:'file-0',name:'Original intro.pdf'}],notes:'Original lesson notes',quiz:[{q:'Existing question'}]},
+ {id:'stable-0',ch:0,t:'مقدمة',t_en:'Introduction',vimeo:'900000',dur:'01:00',free:true,files:[{id:'file-0',name:'Original intro.pdf'}],notes:'Original lesson notes',notes_en:'Original English lesson notes',quiz:[{q:'Existing question'}]},
  {id:'stable-1',ch:0,t:'إرشادات وتعليمات الاختبار الدولي',t_en:'International Exam Guidelines and Instructions',vimeo:'900001',dur:'02:00'},
  {id:'stable-2',ch:0,t:'النهج المختلط',t_en:'Hybrid Approach',vimeo:'900002',dur:'03:00'},
  {id:'stable-3',ch:0,t:'النهج الرشيق',t_en:'Agile Approach',vimeo:'900003',dur:'04:00',free:true},
@@ -47,6 +47,11 @@ try{
   assert.deepEqual(rows().map(row=>Number(row.querySelector('.n').textContent)),expected.map((_,i)=>i+1));
   assert.equal(w.document.querySelector('[data-go="5"]'),null,'Text-only material is not a numbered video');
   assert.equal(w.document.querySelectorAll('#iv img[onerror],#iv script').length,0,'Titles escaped');
+  assert.equal(w.document.querySelector('.iv-action-menu').children.length,3,'Three clear lesson actions');
+  assert.equal(w.document.querySelector('.iv-bar .official-learning-logo').getAttribute('src'),'/img/logo.png');
+  assert.equal(w.document.querySelector('#ivWatch b').textContent,lang==='en'?'Watch video':'مشاهدة الفيديو');
+  activePlayer().paused=true;click('#ivWatch');await settle();assert.equal(activePlayer().paused,false,'Watch action resumes the existing player');
+  assert.equal(JSON.stringify(progress),originalProgress,'Watch action does not mark completion');
   assert.ok(w.document.querySelector('[data-iv-file="file-0"]'));
   assert.ok(w.document.querySelector('#ivLessonQuiz'));
   assert.ok(w.document.querySelector('.iv-notes'));
@@ -74,6 +79,10 @@ try{
   assert.equal(w.document.getElementById('outline').style.display,'');
   assert.equal(JSON.stringify(progress),originalProgress,'Manual playback does not mark videos watched');
  }
+ w.I18.lang='en';lessons[0].notes_en='';w.InteractiveVideo.open(pid,0);await settle();
+ assert.equal(w.document.querySelector('.iv-notes'),null,'Arabic-only summary is not substituted into English mode');
+ assert.match(w.document.querySelector('.iv-action-menu').textContent,/No summary in this language yet/);
+ w.InteractiveVideo.close();lessons[0].notes_en='Original English lesson notes';
  w.InteractiveVideo.open(pid,3);await settle();
  const stalePlayer=activePlayer();click('#ivNext');await settle();click('[data-go="3"]');await settle();
  const staleFrame=frame(),staleSaves=saves;stalePlayer.handlers.ended();assert.equal(frame(),staleFrame);assert.equal(saves,staleSaves,'A destroyed Vimeo instance cannot complete or advance a revisited video');
